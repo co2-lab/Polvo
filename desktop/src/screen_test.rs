@@ -181,6 +181,29 @@ scenario!(scrne_b09_o_fim_da_shell_chega_pelo_canal, "SCRNE-B09: O fim da shell 
     assert!(exited);
 });
 
+scenario!(scrne_b10_o_titulo_do_terminal_e_o_que_a_shell_lhe_da, "SCRNE-B10: O título do terminal é o que a shell lhe dá", {
+    let (mut s, _) = offline(5, 20);
+    assert_eq!(s.title(), "");
+    s.feed(b"\x1b]2;~/projeto\x07");
+    assert_eq!(s.title(), "~/projeto");
+});
+
+scenario!(scrne_b11_largar_o_terminal_termina_a_shell, "SCRNE-B11: Largar o terminal termina a shell", {
+    let (s, mut rx) = Screen::spawn(&sh("sleep 30"), None, size(5, 20)).unwrap();
+    drop(s);
+    let end = Instant::now() + Duration::from_secs(5);
+    let mut exited = false;
+    while Instant::now() < end && !exited {
+        match rx.try_recv() {
+            Ok(Event::Exit) => exited = true,
+            Ok(Event::Output(_)) => {}
+            Err(TryRecvError::Closed) => break,
+            Err(TryRecvError::Empty) => std::thread::sleep(Duration::from_millis(10)),
+        }
+    }
+    assert!(exited, "the shell is still running");
+});
+
 scenario!(scrne_e01_uma_shell_que_nao_arranca_da_o_erro, "SCRNE-E01: Uma shell que não arranca dá o erro", {
     let err = Screen::spawn(&["/nao/existe/shell".to_string()], None, size(5, 20)).err().expect("an error");
     assert!(err.to_string().contains("/nao/existe/shell"), "{err}");

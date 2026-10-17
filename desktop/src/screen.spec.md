@@ -69,6 +69,14 @@ frente e o fundo trocados. Os troços juntam as células seguidas com as mesmas 
 ### SCRNE-B09 — O fim da shell chega pelo canal
 Quando a shell termina, o canal dá o `Event::Exit` depois da última saída.
 
+### SCRNE-B10 — O título do terminal é o que a shell lhe dá
+O `title` é o título que a shell pôs no terminal (a sequência `OSC 0` ou `OSC 2`, a que o `bash` e o
+`zsh` usam para mostrar a pasta ou o comando); vazio enquanto a shell não puser nenhum.
+
+### SCRNE-B11 — Largar o terminal termina a shell
+Quando o `Screen` deixa de existir (a aba do terminal fechou), a shell dele é terminada, e o canal dá
+o fim. Nenhuma shell fica a correr sem terminal.
+
 ## Domain
 
 | Input | Accepts | Outside the domain | Who guarantees |
@@ -101,7 +109,15 @@ Quando a shell termina, o canal dá o `Event::Exit` depois da última saída.
 | `SCRNE-B07` | `data` |
 | `SCRNE-B08` | `data` |
 | `SCRNE-B09` | `argv` |
+| `SCRNE-B10` | `data` |
+| `SCRNE-B11` | `argv` |
 | `SCRNE-E01` | `argv` |
+
+## Revisions
+
+> **SCRNE-R0001:** entram o `SCRNE-B10` (o título) e o `SCRNE-B11` (largar o terminal termina a shell),
+> para o painel do terminal na doca (plano JNNTJ, fase W02): a aba mostra o título, e fechá-la não
+> deixa a shell órfã. As outras regras não mudam.
 
 ## Open Decisions
 

@@ -256,29 +256,29 @@ nodes:
       line_rev: c1c6cf951c28
     - id: desktop/src/screen.feature
       kind: feature
-      rev: a0618d95bd68
+      rev: ac9f2f4ebd96
       updated_at: "2026-10-17"
       code: SCRNE
       file_code: SCFTS
       layer: feature
       tags:
         - feature
-      evidence_rev: 8b9681504e80
-      line_rev: 1109df9ad4db
+      evidence_rev: dc82b1a5e199
+      line_rev: 6d70072752ba
     - id: desktop/src/screen.rs
       kind: code
-      rev: cf9cd6938988
+      rev: 7fdf64aac738
       updated_at: "2026-10-17"
       code: SCRNE
       file_code: SCIMS
       layer: desktop
       tags:
         - desktop
-      evidence_rev: 6a76c911a951
-      line_rev: 49b1e7e11d9e
+      evidence_rev: 9be243611a6b
+      line_rev: 0078fe5618ec
     - id: desktop/src/screen.spec.md
       kind: spec
-      rev: e341268f5a68
+      rev: 7fc4139500d0
       updated_at: "2026-10-17"
       code: SCRNE
       file_code: SCRNE
@@ -286,12 +286,12 @@ nodes:
       code_declared: true
       tags:
         - spec
-      evidence_rev: 140c8fa2e44a
-      rule_revs: {SCRNE-B01: fc4deb31de42, SCRNE-B02: b86c1d60edab, SCRNE-B03: 2462d13d74fb, SCRNE-B04: "907994850453", SCRNE-B05: be5269f262cb, SCRNE-B06: d80b11c62133, SCRNE-B07: a6683036f6c9, SCRNE-B08: a6324e49a2b6, SCRNE-B09: 69cb9a652b0b, SCRNE-E01: 2bcf00df7c4d}
-      rest_rev: 8d3db365bd43
+      evidence_rev: 67194b6aff74
+      rule_revs: {SCRNE-B01: fc4deb31de42, SCRNE-B02: b86c1d60edab, SCRNE-B03: 2462d13d74fb, SCRNE-B04: "907994850453", SCRNE-B05: be5269f262cb, SCRNE-B06: d80b11c62133, SCRNE-B07: a6683036f6c9, SCRNE-B08: a6324e49a2b6, SCRNE-B09: 69cb9a652b0b, SCRNE-B10: 0bc7a44a1f73, SCRNE-B11: 3617238a9e4c, SCRNE-E01: 2bcf00df7c4d}
+      rest_rev: f4b6bb7c9c86
     - id: desktop/src/screen_test.rs
       kind: test
-      rev: 1ae3e0de415d
+      rev: 2c1d36e3c988
       updated_at: "2026-10-17"
       code: SCRNE
       file_code: SCTSS
@@ -299,8 +299,8 @@ nodes:
       tags:
         - test
         - desktop
-      evidence_rev: b3ec301a00a1
-      line_rev: 5258281b6d36
+      evidence_rev: 4064a8a71548
+      line_rev: 7651756329dd
     - id: desktop/src/window.feature
       kind: feature
       rev: 56684f2a5628

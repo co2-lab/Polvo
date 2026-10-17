@@ -20,7 +20,7 @@ use libghostty_vt::selection::FormatOptions;
 use libghostty_vt::style::{RgbColor, Underline};
 use libghostty_vt::terminal::{Mode, Point, PointCoordinate, ScrollViewport};
 use libghostty_vt::{RenderState, Terminal, TerminalOptions};
-use portable_pty::{CommandBuilder, MasterPty, PtySize, native_pty_system};
+use portable_pty::{ChildKiller, CommandBuilder, MasterPty, PtySize, native_pty_system};
 
 use crate::keys::{self, Input}; // @dep: KYIMK
 
@@ -82,7 +82,17 @@ pub struct Screen {
     gesture: Gesture<'static>,
     writer: Rc<RefCell<Box<dyn Write>>>,
     pty: Option<Box<dyn MasterPty + Send>>,
+    killer: Option<Box<dyn ChildKiller + Send + Sync>>,
     size: Size,
+}
+
+impl Drop for Screen {
+    /// SCRNE-B11: no shell outlives its terminal.
+    fn drop(&mut self) {
+        if let Some(mut killer) = self.killer.take() {
+            let _ = killer.kill();
+        }
+    }
 }
 
 impl Screen {
@@ -109,6 +119,7 @@ impl Screen {
             gesture: Gesture::new().map_err(|e| fail("gesture", e))?,
             writer,
             pty: None,
+            killer: None,
             size,
         })
     }
@@ -133,6 +144,7 @@ impl Screen {
         }
         // SCRNE-E01
         let mut child = pair.slave.spawn_command(cmd).map_err(|e| fail(&e))?;
+        let killer = child.clone_killer();
         drop(pair.slave);
         let mut reader = pair.master.try_clone_reader().map_err(|e| fail(&e))?;
         let writer = pair.master.take_writer().map_err(|e| fail(&e))?;
@@ -154,6 +166,7 @@ impl Screen {
         });
         let mut screen = Screen::new(size, writer).map_err(|e| fail(&e))?;
         screen.pty = Some(pair.master);
+        screen.killer = Some(killer);
         Ok((screen, rx))
     }
 
@@ -204,6 +217,11 @@ impl Screen {
         if let Some(pty) = &self.pty {
             let _ = pty.resize(size.pty());
         }
+    }
+
+    /// The title the shell gave the terminal, empty while it gave none (SCRNE-B10).
+    pub fn title(&self) -> String {
+        self.term.title().map(str::to_string).unwrap_or_default()
     }
 
     /// The size the terminal has.

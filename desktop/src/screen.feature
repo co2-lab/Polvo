@@ -68,6 +68,18 @@ Feature: Screen
     When o terminal lê o canal
     Then chega a saída com "adeus" e depois o fim
 
+  @SCRNE-B10 @unit-level
+  Scenario: O título do terminal é o que a shell lhe dá
+    Given um terminal novo
+    When a shell põe o título "~/projeto" com a sequência OSC 2
+    Then o título é "~/projeto", e antes dela era vazio
+
+  @SCRNE-B11 @unit-level
+  Scenario: Largar o terminal termina a shell
+    Given uma shell que espera 30 segundos
+    When o terminal deixa de existir
+    Then o canal dá o fim em poucos segundos
+
   @SCRNE-E01 @unit-level
   Scenario: Uma shell que não arranca dá o erro
     Given o programa "/nao/existe/shell"
