@@ -16,6 +16,7 @@ import (
 	"time"
 
 	"github.com/co2-lab/polvo/internal/proto"
+	"github.com/co2-lab/polvo/internal/sessions"
 )
 
 type peer struct {
@@ -28,7 +29,7 @@ type peer struct {
 func control(t *testing.T) peer {
 	t.Helper()
 	a, b := net.Pipe()
-	go ServeControl(a)
+	go ServeControl(a, sessions.Owner)
 	t.Cleanup(func() { b.Close() })
 	return peer{enc: proto.NewEncoder(b), dec: proto.NewDecoder(b), raw: b}
 }

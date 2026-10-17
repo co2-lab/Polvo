@@ -17,6 +17,7 @@ import (
 	"syscall"
 
 	"github.com/co2-lab/polvo/internal/proto"
+	"github.com/co2-lab/polvo/internal/sessions"
 )
 
 // MaxFile is the largest file fs.read returns (CNTRL-E04).
@@ -29,8 +30,8 @@ type opError struct{ error }
 
 type paramsError struct{ error }
 
-// ServeControl speaks the control protocol over rw until it ends.
-func ServeControl(rw io.ReadWriteCloser) {
+// ServeControl speaks the control protocol over rw until it ends, for a connection with perm.
+func ServeControl(rw io.ReadWriteCloser, perm sessions.Perm) {
 	defer rw.Close()
 	enc, dec := proto.NewEncoder(rw), proto.NewDecoder(rw)
 	for {

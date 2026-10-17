@@ -73,3 +73,27 @@ Feature: Server
     Given um nó cuja shell é "nao-existe-polvo"
     When uma sessão sem terminal corre "echo x"
     Then a sessão termina com o código de saída 127 e o erro contém "nao-existe-polvo"
+
+  @SRVRE-B02 @unit-level
+  Scenario: Fechar a ligação deixa a sessão a correr
+    Given um nó, e uma ligação com uma shell
+    When a ligação fecha
+    Then a sessão da shell continua nas sessões do nó
+
+  @SRVRE-B09 @unit-level
+  Scenario: Ligar-se a uma sessão que já existe
+    Given uma sessão do nó onde a shell escreveu "marca-1", e a ligação que a criou já fechada
+    When outra ligação se liga a ela pelo id e escreve 2+3
+    Then recebe "marca-1" do ecrã atual e depois o 5
+
+  @SRVRE-B10 @unit-level
+  Scenario: Uma ligação que só vê não cria sessões nem escreve
+    Given um nó que só deixa ver a chave de quem liga, e uma sessão do nó
+    When a ligação pede uma shell, um comando, e se liga à sessão e escreve 7*6
+    Then a shell e o comando são recusados, e o 42 não aparece na sessão
+
+  @SRVRE-E03 @unit-level
+  Scenario: Um id que não é de nenhuma sessão é recusado
+    Given um nó
+    When uma ligação se liga à sessão "nenhuma"
+    Then o pedido é recusado e a ligação continua

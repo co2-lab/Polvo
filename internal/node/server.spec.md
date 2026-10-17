@@ -19,9 +19,11 @@ um cliente `ssh` comum também entra num nó. A configuração é o `Config`; o 
 Uma ligação cuja chave pública está na lista de chaves autorizadas do nó entra. Uma ligação com outra
 chave, ou sem chave (palavra-passe, teclado interativo), é recusada antes de abrir qualquer sessão.
 
-### SRVRE-B02 — A shell interativa corre num terminal
-Uma sessão que pede um terminal e depois uma shell recebe a shell do nó (`Shell`) num terminal com o
-tamanho pedido. O que a shell escreve chega a quem ligou, e o que quem ligou escreve chega à shell.
+### SRVRE-B02 — A shell interativa é uma sessão do nó
+Uma sessão que pede um terminal e depois uma shell cria uma sessão nova nas sessões do nó (`Sessions`),
+com a shell do nó (`Shell`) num terminal com o tamanho pedido, e liga-se a ela. O que a shell escreve
+chega a quem ligou, e o que quem ligou escreve chega à shell. Fechar a ligação deixa a sessão a correr;
+o fim da shell acaba a sessão e a ligação (`SRVRE-B06`).
 
 ### SRVRE-B03 — O redimensionamento da janela chega à shell
 Um pedido de mudança de janela numa sessão com terminal muda o tamanho que o processo vê.
@@ -46,6 +48,16 @@ de mensagens sobre ela. Outro subsistema é recusado.
 Um canal que não é de sessão (o reencaminhamento de portas) é recusado com o motivo de tipo
 desconhecido. Um pedido de sessão que o nó não conhece é recusado, e a sessão continua.
 
+### SRVRE-B09 — Ligar-se a uma sessão que já existe
+O pedido `attach@polvo`, com o id de uma sessão do nó, liga a ligação a essa sessão como espectador:
+recebe o ecrã atual e depois a saída, e as mudanças de janela mudam o tamanho da sessão. Fechar a
+ligação deixa a sessão a correr.
+
+### SRVRE-B10 — Cada ligação tem a permissão da chave dela
+A permissão de uma ligação é a que o nó dá à chave dela (`Perms`, sem ela a de dono). Uma ligação que
+só vê não cria sessões nem corre comandos (a shell e o comando avulso são recusados), e numa sessão a
+que se ligou o que escreve não chega à shell.
+
 ## Domain
 
 | Input | Accepts | Outside the domain | Who guarantees |
@@ -53,12 +65,16 @@ desconhecido. Um pedido de sessão que o nó não conhece é recusado, e a sess�
 | `HostKey` | a identidade do nó | nenhuma | quem arranca o nó: o servidor recusa arrancar sem ela (`SRVRE-E01`) |
 | `Authorized` | a lista de chaves autorizadas | nenhuma | quem arranca o nó: sem lista ninguém entra (`SRVRE-E01`) |
 | `Shell` | o programa e os argumentos da shell | uma lista vazia | este módulo: a lista vazia passa a "/bin/sh" |
+| `Sessions` | as sessões do nó | nenhumas | este módulo: o nó faz as suas |
+| `Perms` | a permissão de cada chave | nenhuma | este módulo: sem ela, todas são donas |
+| `id` | o id de uma sessão viva do nó | outro | este módulo: o pedido é recusado (`SRVRE-E03`) |
 
 ## Errors / Failures
 | Rule | Condition | Failure |
 | --- | --- | --- |
 | `SRVRE-E01` | a configuração não tem a identidade do nó ou a lista de chaves autorizadas | o nó recusa servir, com erro |
 | `SRVRE-E02` | a shell ou o comando não arranca | a sessão recebe o código de saída 127 e a mensagem no canal de erro, e fecha |
+| `SRVRE-E03` | o `attach@polvo` com um id que não é de nenhuma sessão | o pedido é recusado, e a ligação continua |
 
 ## Rule uses
 
@@ -73,7 +89,16 @@ desconhecido. Um pedido de sessão que o nó não conhece é recusado, e a sess�
 | `SRVRE-B07` | `HostKey` |
 | `SRVRE-B08` | `HostKey` |
 | `SRVRE-E01` | `HostKey`, `Authorized` |
+| `SRVRE-B09` | `Sessions`, `id` |
+| `SRVRE-B10` | `Perms` |
 | `SRVRE-E02` | `Shell` |
+| `SRVRE-E03` | `id` |
+
+## Revisions
+
+> **SRVRE-R0001:** as shells do nó passam a ser sessões que vivem sem quem as vê, com vários
+> espectadores e a permissão de cada chave (plano ESRMS, W01): o `SRVRE-B02` muda, e entram o
+> `SRVRE-B09` (ligar-se a uma sessão), o `SRVRE-B10` (a permissão) e o `SRVRE-E03`.
 
 ## Open Decisions
 

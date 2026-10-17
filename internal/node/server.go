@@ -12,13 +12,18 @@ import (
 	"io"
 	"net"
 	"os/exec"
+	"strconv"
 	"sync"
 	"syscall"
 
 	"github.com/co2-lab/polvo/internal/pty"
+	"github.com/co2-lab/polvo/internal/sessions"
 	"github.com/co2-lab/polvo/internal/sshx"
 	"golang.org/x/crypto/ssh"
 )
+
+// permKey carries a connection's permission from the key check to its sessions (SRVRE-B10).
+const permKey = "polvo-perm"
 
 // Config is what a node serves with.
 type Config struct {
@@ -28,8 +33,13 @@ type Config struct {
 	Authorized *sshx.AuthorizedKeys
 	// Shell is the program and arguments of the node's shell; empty is /bin/sh.
 	Shell []string
-	// Control receives the sessions of the "polvo" subsystem (SRVRE-B07); nil refuses them.
-	Control func(io.ReadWriteCloser)
+	// Control receives the sessions of the "polvo" subsystem (SRVRE-B07), with the connection's
+	// permission; nil refuses them.
+	Control func(io.ReadWriteCloser, sessions.Perm)
+	// Sessions are the node's terminal sessions (SRVRE-B02); nil makes the node its own.
+	Sessions *sessions.Manager
+	// Perms gives each key its permission (SRVRE-B10); nil makes every key the owner.
+	Perms func(ssh.PublicKey) sessions.Perm
 }
 
 func (c Config) shell() []string {
@@ -58,7 +68,12 @@ func (c Config) server() (*ssh.ServerConfig, error) {
 			if !ok {
 				return nil, errors.New("node: key not authorized")
 			}
-			return nil, nil
+			// SRVRE-B10
+			perm := sessions.Owner
+			if c.Perms != nil {
+				perm = c.Perms(key)
+			}
+			return &ssh.Permissions{Extensions: map[string]string{permKey: strconv.Itoa(int(perm))}}, nil
 		},
 	}
 	sc.AddHostKey(c.HostKey)
@@ -67,6 +82,9 @@ func (c Config) server() (*ssh.ServerConfig, error) {
 
 // Serve accepts connections on l until it is closed.
 func Serve(l net.Listener, cfg Config) error {
+	if cfg.Sessions == nil {
+		cfg.Sessions = sessions.NewManager()
+	}
 	sc, err := cfg.server()
 	if err != nil {
 		return err
@@ -82,6 +100,9 @@ func Serve(l net.Listener, cfg Config) error {
 
 // ServeConn serves one connection already open.
 func ServeConn(conn net.Conn, cfg Config) error {
+	if cfg.Sessions == nil {
+		cfg.Sessions = sessions.NewManager()
+	}
 	sc, err := cfg.server()
 	if err != nil {
 		conn.Close()
@@ -97,6 +118,12 @@ func serveConn(conn net.Conn, cfg Config, sc *ssh.ServerConfig) error {
 	}
 	defer sconn.Close()
 	go ssh.DiscardRequests(reqs)
+	perm := sessions.Owner
+	if sconn.Permissions != nil {
+		if p, err := strconv.Atoi(sconn.Permissions.Extensions[permKey]); err == nil {
+			perm = sessions.Perm(p)
+		}
+	}
 	for nc := range chans {
 		// SRVRE-B08: only sessions are served; port forwarding is refused.
 		if nc.ChannelType() != "session" {
@@ -107,20 +134,22 @@ func serveConn(conn net.Conn, cfg Config, sc *ssh.ServerConfig) error {
 		if err != nil {
 			continue
 		}
-		s := &session{cfg: cfg, ch: ch}
+		s := &session{cfg: cfg, ch: ch, perm: perm}
 		go s.serve(creqs)
 	}
 	return nil
 }
 
 type session struct {
-	cfg Config
-	ch  ssh.Channel
+	cfg  Config
+	ch   ssh.Channel
+	perm sessions.Perm
 
 	mu      sync.Mutex
 	started bool
 	ptyReq  *pty.Size
 	term    *pty.Session
+	viewer  *sessions.Viewer
 }
 
 type ptyRequest struct {
@@ -155,7 +184,9 @@ func (s *session) serve(reqs <-chan *ssh.Request) {
 			if ssh.Unmarshal(r.Payload, &w) == nil {
 				size := pty.Size{Rows: uint16(w.Rows), Cols: uint16(w.Cols)}
 				s.mu.Lock()
-				if s.term != nil {
+				if s.viewer != nil {
+					ok = s.viewer.Resize(size) == nil
+				} else if s.term != nil {
 					ok = s.term.Resize(size) == nil
 				} else if s.ptyReq != nil {
 					*s.ptyReq, ok = size, true
@@ -163,18 +194,25 @@ func (s *session) serve(reqs <-chan *ssh.Request) {
 				s.mu.Unlock()
 			}
 		case "shell":
-			ok = s.start(s.cfg.shell())
+			// SRVRE-B10: who only watches makes no sessions
+			ok = s.perm != sessions.View && s.shell()
 		case "exec":
 			var c commandRequest
-			if ssh.Unmarshal(r.Payload, &c) == nil {
+			if s.perm != sessions.View && ssh.Unmarshal(r.Payload, &c) == nil {
 				ok = s.start(append(append([]string{}, s.cfg.shell()...), "-c", c.Command))
+			}
+		case "attach@polvo":
+			// SRVRE-B09
+			var a struct{ ID string }
+			if ssh.Unmarshal(r.Payload, &a) == nil {
+				ok = s.attach(a.ID)
 			}
 		case "subsystem":
 			// SRVRE-B07: the "polvo" subsystem is handed to the control; any other is refused.
 			var c commandRequest
 			if ssh.Unmarshal(r.Payload, &c) == nil && c.Command == "polvo" && s.cfg.Control != nil && s.claim() {
 				ok = true
-				go s.cfg.Control(s.ch)
+				go s.cfg.Control(s.ch, s.perm)
 			}
 		}
 		// SRVRE-B08: an unknown request is refused and the session goes on.
@@ -214,6 +252,79 @@ func (s *session) start(argv []string) bool {
 	s.term = t
 	go s.runTerminal(t)
 	return true
+}
+
+// shell makes a new session of the node's shell and watches it (SRVRE-B02); with no terminal asked
+// for, the shell runs as a command.
+func (s *session) shell() bool {
+	s.mu.Lock()
+	size := s.ptyReq
+	s.mu.Unlock()
+	if size == nil {
+		return s.start(s.cfg.shell())
+	}
+	if !s.claim() {
+		return false
+	}
+	info, err := s.cfg.Sessions.Create(s.cfg.shell(), "", *size)
+	if err != nil {
+		// SRVRE-E02
+		go s.fail(err)
+		return true
+	}
+	return s.watch(info.ID)
+}
+
+// attach watches a session that already exists (SRVRE-B09); an unknown id is refused (SRVRE-E03).
+func (s *session) attach(id string) bool {
+	if !s.claim() {
+		return false
+	}
+	if !s.watch(id) {
+		// the channel may still ask for something else
+		s.mu.Lock()
+		s.started = false
+		s.mu.Unlock()
+		return false
+	}
+	return true
+}
+
+func (s *session) watch(id string) bool {
+	v, err := s.cfg.Sessions.Attach(id, s.perm)
+	if err != nil {
+		return false
+	}
+	s.mu.Lock()
+	s.viewer = v
+	s.mu.Unlock()
+	go s.runViewer(v)
+	return true
+}
+
+// runViewer joins the channel to a viewer: what it types goes to the session (dropped when the
+// connection only watches, SRVRE-B10), and what the session shows comes back. The session's end ends
+// the channel (SRVRE-B06); the channel's end leaves the session running (SRVRE-B02).
+func (s *session) runViewer(v *sessions.Viewer) {
+	go func() {
+		b := make([]byte, 32<<10)
+		for {
+			n, err := s.ch.Read(b)
+			if n > 0 {
+				v.Write(b[:n])
+			}
+			if err != nil {
+				v.Close()
+				return
+			}
+		}
+	}()
+	io.Copy(s.ch, v)
+	if st, ended := v.Exit(); ended {
+		s.exit(st.Code, st.Signal)
+		return
+	}
+	s.ch.Close()
 }
 
 // runTerminal serves a program running in a terminal (SRVRE-B02, SRVRE-B05).

@@ -14,10 +14,15 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"sync"
 	"testing"
+	"time"
 
 	"github.com/co2-lab/polvo/internal/sshx"
 	"golang.org/x/crypto/ssh"
+
+	"github.com/co2-lab/polvo/internal/pty"
+	"github.com/co2-lab/polvo/internal/sessions"
 )
 
 func signer(t *testing.T) ssh.Signer {
@@ -196,7 +201,7 @@ func TestServer_exec(t *testing.T) {
 func TestServer_subsystemsAndRefusals(t *testing.T) {
 	t.Run("SRVRE-B07: O subsistema polvo chega ao controlo e o sftp é recusado", func(t *testing.T) {
 		f := startNode(t, func(c *Config) {
-			c.Control = func(rw io.ReadWriteCloser) {
+			c.Control = func(rw io.ReadWriteCloser, _ sessions.Perm) {
 				b := make([]byte, 2)
 				io.ReadFull(rw, b)
 				io.WriteString(rw, "controlo:"+string(b))
@@ -249,6 +254,141 @@ func TestServer_subsystemsAndRefusals(t *testing.T) {
 		defer l.Close()
 		if err := Serve(l, Config{}); err == nil {
 			t.Fatal("want an error")
+		}
+	})
+}
+
+type idRequest struct{ ID string }
+
+// collect reads r in the background, for the test to wait on what arrives.
+func collect(r io.Reader) func() string {
+	var mu sync.Mutex
+	var buf bytes.Buffer
+	go func() {
+		b := make([]byte, 4096)
+		for {
+			n, err := r.Read(b)
+			mu.Lock()
+			buf.Write(b[:n])
+			mu.Unlock()
+			if err != nil {
+				return
+			}
+		}
+	}()
+	return func() string {
+		mu.Lock()
+		defer mu.Unlock()
+		return buf.String()
+	}
+}
+
+func waitFor(t *testing.T, got func() string, want string) {
+	t.Helper()
+	end := time.Now().Add(10 * time.Second)
+	for time.Now().Before(end) {
+		if strings.Contains(got(), want) {
+			return
+		}
+		time.Sleep(10 * time.Millisecond)
+	}
+	t.Fatalf("want %q, got %q", want, got())
+}
+
+// openShell opens an interactive shell on a connection of its own, and returns its input and output.
+func openShell(t *testing.T, f fixture) (*ssh.Client, io.Writer, func() string) {
+	t.Helper()
+	c, err := f.dial(t, ssh.PublicKeys(f.client))
+	if err != nil {
+		t.Fatal(err)
+	}
+	s, err := c.NewSession()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := s.RequestPty("xterm", 24, 80, ssh.TerminalModes{}); err != nil {
+		t.Fatal(err)
+	}
+	in, _ := s.StdinPipe()
+	out, _ := s.StdoutPipe()
+	if err := s.Shell(); err != nil {
+		t.Fatal(err)
+	}
+	return c, in, collect(out)
+}
+
+func TestServer_sessions(t *testing.T) {
+	t.Run("SRVRE-B02: Fechar a ligação deixa a sessão a correr", func(t *testing.T) {
+		m := sessions.NewManager()
+		f := startNode(t, func(c *Config) { c.Sessions = m })
+		c, in, out := openShell(t, f)
+		io.WriteString(in, "echo $((1+1))\n")
+		waitFor(t, out, "\n2")
+		c.Close()
+		time.Sleep(200 * time.Millisecond)
+		if len(m.List()) != 1 {
+			t.Fatalf("want the session still running, got %v", m.List())
+		}
+		m.Close(m.List()[0].ID)
+	})
+	t.Run("SRVRE-B09: Ligar-se a uma sessão que já existe", func(t *testing.T) {
+		m := sessions.NewManager()
+		f := startNode(t, func(c *Config) { c.Sessions = m })
+		c, in, out := openShell(t, f)
+		io.WriteString(in, "echo marca-1\n")
+		waitFor(t, out, "\nmarca-1")
+		c.Close()
+		id := m.List()[0].ID
+		defer m.Close(id)
+		s := f.session(t)
+		in2, _ := s.StdinPipe()
+		out2, _ := s.StdoutPipe()
+		if ok, err := s.SendRequest("attach@polvo", true, ssh.Marshal(idRequest{id})); !ok || err != nil {
+			t.Fatalf("want the attach accepted, got %v %v", ok, err)
+		}
+		got := collect(out2)
+		waitFor(t, got, "marca-1")
+		io.WriteString(in2, "echo $((2+3))\n")
+		waitFor(t, got, "\n5")
+	})
+	t.Run("SRVRE-B10: Uma ligação que só vê não cria sessões nem escreve", func(t *testing.T) {
+		m := sessions.NewManager()
+		f := startNode(t, func(c *Config) {
+			c.Sessions = m
+			c.Perms = func(ssh.PublicKey) sessions.Perm { return sessions.View }
+		})
+		info, err := m.Create([]string{"/bin/sh"}, t.TempDir(), pty.Size{Rows: 24, Cols: 80})
+		if err != nil {
+			t.Fatal(err)
+		}
+		defer m.Close(info.ID)
+		owner, _ := m.Attach(info.ID, sessions.Owner)
+		defer owner.Close()
+		seen := collect(owner)
+		s := f.session(t)
+		s.RequestPty("xterm", 24, 80, ssh.TerminalModes{})
+		shellErr := s.Shell()
+		_, execErr := f.session(t).Output("echo nao")
+		v := f.session(t)
+		in, _ := v.StdinPipe()
+		if ok, err := v.SendRequest("attach@polvo", true, ssh.Marshal(idRequest{info.ID})); !ok || err != nil {
+			t.Fatalf("want the view-only attach accepted, got %v %v", ok, err)
+		}
+		io.WriteString(in, "echo $((7*6))\n")
+		owner.Write([]byte("echo dono-$((1+2))\n"))
+		waitFor(t, seen, "dono-3")
+		if shellErr == nil || execErr == nil || strings.Contains(seen(), "42") {
+			t.Fatalf("want shell and exec refused and no 42, got %v, %v, %q", shellErr, execErr, seen())
+		}
+	})
+	t.Run("SRVRE-E03: Um id que não é de nenhuma sessão é recusado", func(t *testing.T) {
+		f := startNode(t, nil)
+		s := f.session(t)
+		if ok, err := s.SendRequest("attach@polvo", true, ssh.Marshal(idRequest{"nenhuma"})); ok || err != nil {
+			t.Fatalf("want the attach refused, got %v %v", ok, err)
+		}
+		if out, err := s.Output("echo ainda"); err != nil || string(out) != "ainda\n" {
+			t.Fatalf("want the session still running, got %q %v", out, err)
 		}
 	})
 }
