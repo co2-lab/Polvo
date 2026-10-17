@@ -24,4 +24,4 @@ Mark `[x]` here, never in the plan.
 ## TRRMT-W03 — O desktop na linha de comandos
 
 - [x] `internal/hub/client.spec.md`
-- [ ] `cmd/polvo/cli.spec.md`
+- [x] `cmd/polvo/cli.spec.md`

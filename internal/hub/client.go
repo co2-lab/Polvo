@@ -149,7 +149,9 @@ func (t *Terminal) Read(p []byte) (int, error) { return t.out.Read(p) }
 func (t *Terminal) Write(p []byte) (int, error) { return t.in.Write(p) }
 
 // Resize changes the size the shell sees.
-func (t *Terminal) Resize(size pty.Size) error { return t.s.WindowChange(int(size.Rows), int(size.Cols)) }
+func (t *Terminal) Resize(size pty.Size) error {
+	return t.s.WindowChange(int(size.Rows), int(size.Cols))
+}
 
 // Wait waits for the shell to end and returns how it ended.
 func (t *Terminal) Wait() (pty.ExitStatus, error) {
