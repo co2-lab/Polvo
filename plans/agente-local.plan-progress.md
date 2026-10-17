@@ -12,8 +12,8 @@ Mark `[x]` here, never in the plan.
 
 ## AGLCG-W01 — A ponte MCP
 
-- [ ] `internal/mcp/server.spec.md`
-- [ ] `internal/mcp/tools.spec.md`
+- [x] `internal/mcp/server.spec.md`
+- [x] `internal/mcp/tools.spec.md`
 
 ## AGLCG-W02 — O subcomando
 

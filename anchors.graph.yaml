@@ -52,6 +52,7 @@ nodes:
         covered_lines: 98
         total_lines: 133
         line_coverage: 73.68421052631578
+        prev_line_coverage: 73.68421052631578
         coverage_by_suite:
             .anchors/lcov.info:
                 instrumented: 40-50,53-60,62,66-81,83,87-100,104-133,137-161,163-167,169-190
@@ -61,7 +62,7 @@ nodes:
                 at_rev: b093d9a1d639
         coverage_rev: b093d9a1d639
         at_rev: b093d9a1d639
-        ingested_at: "2026-10-17T03:45:50-03:00"
+        ingested_at: "2026-10-17T04:27:07-03:00"
       evidence_rev: aafa56cb5215
       line_rev: 8bef6c18a89d
     - id: cmd/polvo/cli.spec.md
@@ -95,7 +96,7 @@ nodes:
         proven_rev_by_suite:
             .anchors/junit.xml: 3b9531b52055
         at_rev: 3b9531b52055
-        ingested_at: "2026-10-17T03:45:50-03:00"
+        ingested_at: "2026-10-17T04:27:07-03:00"
       evidence_rev: 1a4fff560aa1
       rule_revs: {CLIXX-B01: e1849a836c74, CLIXX-B02: 62ac80b87834, CLIXX-B03: e9a2876a236e, CLIXX-B04: c74927522eb2, CLIXX-B05: 95b51a43a683, CLIXX-E01: 47d76ed00f5f, CLIXX-E02: 854a3dabe9f0}
       rest_rev: 441cc321312d
@@ -108,6 +109,15 @@ nodes:
       layer: test
       tags:
         - test
+      signal:
+        passed: 12
+        by_layer:
+            unit:
+                passed: 12
+        seconds_by_suite:
+            .anchors/junit.xml: 3.98
+        at_rev: 7fa03e1da995
+        ingested_at: "2026-10-17T04:27:07-03:00"
       evidence_rev: 77a477565e75
       line_rev: 96e9335f2dd1
     - id: cmd/polvo/main.go
@@ -128,7 +138,7 @@ nodes:
                 at_rev: 4da95951342e
         coverage_rev: 4da95951342e
         at_rev: 4da95951342e
-        ingested_at: "2026-10-17T03:45:50-03:00"
+        ingested_at: "2026-10-17T04:27:07-03:00"
       evidence_rev: 0ea7f42b3c53
       line_rev: 029eaf1a4b38
     - id: cmd/polvo/resize_unix.go
@@ -144,6 +154,7 @@ nodes:
         covered_lines: 17
         total_lines: 17
         line_coverage: 100
+        prev_line_coverage: 100
         coverage_by_suite:
             .anchors/lcov.info:
                 instrumented: 20-32,36-39
@@ -153,7 +164,7 @@ nodes:
                 at_rev: 825de74a09b7
         coverage_rev: 825de74a09b7
         at_rev: 825de74a09b7
-        ingested_at: "2026-10-17T03:45:50-03:00"
+        ingested_at: "2026-10-17T04:27:07-03:00"
       evidence_rev: 365d44486ba6
       line_rev: 33b5f82b57ce
     - id: cmd/polvo/resize_windows.go
@@ -189,6 +200,20 @@ nodes:
       layer: hub
       tags:
         - hub
+      signal:
+        covered_lines: 174
+        total_lines: 233
+        line_coverage: 74.67811158798283
+        coverage_by_suite:
+            .anchors/lcov.info:
+                instrumented: 48-57,61-69,71-81,85-92,96-105,116-142,146,149,152-154,157-166,168,172,184-197,199-220,225-231,233-234,236-238,240-246,250-259,264-299,301,305-312,316-318,328-335,347-366
+                covered: 48-49,52-57,61-62,66-69,71-81,85-86,89,92,96-105,116-118,121,124-125,129-130,134,138,142,146,149,152-154,157-162,165-166,172,184-194,197,199-200,203-204,208-209,213,217-220,225-230,233-234,236-237,240-246,250-259,264-270,273-275,279-283,287-297,301,305-312,316-318,328-332,335,347-359,362-363,366
+                covered_lines: 174
+                total_lines: 233
+                at_rev: 990620a003d7
+        coverage_rev: 990620a003d7
+        at_rev: 990620a003d7
+        ingested_at: "2026-10-17T04:27:07-03:00"
       evidence_rev: 5d6c2c31b6e2
       line_rev: e36a2344aa4e
     - id: internal/hub/client.spec.md
@@ -226,7 +251,7 @@ nodes:
         proven_rev_by_suite:
             .anchors/junit.xml: af02845957a9
         at_rev: af02845957a9
-        ingested_at: "2026-10-17T03:45:50-03:00"
+        ingested_at: "2026-10-17T04:27:07-03:00"
       evidence_rev: 34147d44fdb8
       rule_revs: {CLNTI-B01: b449eb72adaf, CLNTI-B02: e0918def90e2, CLNTI-B03: 28e3da044c70, CLNTI-B04: 3bf1ed5c333d, CLNTI-B05: cc21dfee411d, CLNTI-B06: d71fa9bfbd40, CLNTI-E01: c00f9a5bb7f2, CLNTI-E02: f0fcdd5b16b0, CLNTI-E03: 96e2e7fa97a0}
       rest_rev: 477b1a5d9b6b
@@ -245,11 +270,203 @@ nodes:
             unit:
                 passed: 12
         seconds_by_suite:
-            .anchors/junit.xml: 0.8999999999999999
+            .anchors/junit.xml: 0.8799999999999999
         at_rev: 8166879c796c
-        ingested_at: "2026-10-17T03:45:50-03:00"
+        ingested_at: "2026-10-17T04:27:07-03:00"
       evidence_rev: bc9211025e3c
       line_rev: 02276fd69c1b
+    - id: internal/mcp/server.feature
+      kind: feature
+      rev: 9b9a7633445b
+      updated_at: "2026-10-17"
+      code: MCPSR
+      file_code: MCFTS
+      layer: feature
+      tags:
+        - feature
+      evidence_rev: d3482e65db5a
+      line_rev: 8da638920d69
+    - id: internal/mcp/server.go
+      kind: code
+      rev: bbfdf6cbbdfc
+      updated_at: "2026-10-17"
+      code: MCPSR
+      file_code: MCIMS
+      layer: mcp
+      tags:
+        - mcp
+      signal:
+        covered_lines: 86
+        total_lines: 99
+        line_coverage: 86.86868686868688
+        coverage_by_suite:
+            .anchors/lcov.info:
+                instrumented: 45-67,70-71,74-78,82-91,94-96,98-128,131,135-158
+                covered: 45-60,64-65,70-71,74-78,82-88,91,94-96,98-105,108-128,131,135-140,143-148,151-158
+                covered_lines: 86
+                total_lines: 99
+                at_rev: bbfdf6cbbdfc
+        coverage_rev: bbfdf6cbbdfc
+        at_rev: bbfdf6cbbdfc
+        ingested_at: "2026-10-17T04:27:07-03:00"
+      evidence_rev: 61d65bcc6cd0
+      line_rev: a42c50a6027b
+    - id: internal/mcp/server.spec.md
+      kind: spec
+      rev: be2ffc856a6e
+      updated_at: "2026-10-17"
+      code: MCPSR
+      file_code: MCPSR
+      layer: spec
+      code_declared: true
+      tags:
+        - spec
+      signal:
+        proven_codes:
+            - MCPSR-B01
+            - MCPSR-B02
+            - MCPSR-B03
+            - MCPSR-B04
+            - MCPSR-B05
+            - MCPSR-B06
+            - MCPSR-B07
+            - MCPSR-E01
+            - MCPSR-E02
+            - MCPSR-E03
+        proven_by_suite:
+            .anchors/junit.xml:
+                - MCPSR-B01
+                - MCPSR-B02
+                - MCPSR-B03
+                - MCPSR-B04
+                - MCPSR-B05
+                - MCPSR-B06
+                - MCPSR-B07
+                - MCPSR-E01
+                - MCPSR-E02
+                - MCPSR-E03
+        proven_rev_by_suite:
+            .anchors/junit.xml: be2ffc856a6e
+        at_rev: be2ffc856a6e
+        ingested_at: "2026-10-17T04:27:07-03:00"
+      evidence_rev: a231c311462c
+      rule_revs: {MCPSR-B01: c78d56b7c2e0, MCPSR-B02: 8bddbda45a18, MCPSR-B03: 000702886e1b, MCPSR-B04: 1d090c126c8a, MCPSR-B05: cdd6cd935603, MCPSR-B06: 6666842e71da, MCPSR-B07: 5d5049e34266, MCPSR-E01: 11c177445dc3, MCPSR-E02: 8bfd039390df, MCPSR-E03: 238ec8b6e52a}
+      rest_rev: 861545c2077f
+    - id: internal/mcp/server_test.go
+      kind: test
+      rev: 1c3b787c0336
+      updated_at: "2026-10-17"
+      code: MCPSR
+      file_code: MCTSS
+      layer: test
+      tags:
+        - test
+      signal:
+        passed: 12
+        by_layer:
+            unit:
+                passed: 12
+        seconds_by_suite:
+            .anchors/junit.xml: 2.1
+        at_rev: 1c3b787c0336
+        ingested_at: "2026-10-17T04:27:07-03:00"
+      evidence_rev: 0c34119ff982
+      line_rev: baafcae1f186
+    - id: internal/mcp/tools.feature
+      kind: feature
+      rev: fccffcd30eda
+      updated_at: "2026-10-17"
+      code: MCPTL
+      file_code: MCFTT
+      layer: feature
+      tags:
+        - feature
+      evidence_rev: c8c402e9a668
+      line_rev: b028f54229bd
+    - id: internal/mcp/tools.go
+      kind: code
+      rev: a5463f0432c1
+      updated_at: "2026-10-17"
+      code: MCPTL
+      file_code: MCIMT
+      layer: mcp
+      tags:
+        - mcp
+      signal:
+        covered_lines: 138
+        total_lines: 151
+        line_coverage: 91.3907284768212
+        coverage_by_suite:
+            .anchors/lcov.info:
+                instrumented: 28,31-37,40-52,55-61,65-74,76,81-88,90,93-96,101-128,131-152,156-173,177-186,190-209,211
+                covered: 28,31-37,40-52,55-61,65-74,76,81-82,85-88,90,93-96,101-128,131-145,147-152,156-158,161-173,177-179,182-183,186,190-192,195-200,203-209,211
+                covered_lines: 138
+                total_lines: 151
+                at_rev: a5463f0432c1
+        coverage_rev: a5463f0432c1
+        at_rev: a5463f0432c1
+        ingested_at: "2026-10-17T04:27:07-03:00"
+      evidence_rev: ab21dd40e0be
+      line_rev: 5de5cab73e4d
+    - id: internal/mcp/tools.spec.md
+      kind: spec
+      rev: 7da6bba6c55e
+      updated_at: "2026-10-17"
+      code: MCPTL
+      file_code: MCPTL
+      layer: spec
+      code_declared: true
+      tags:
+        - spec
+      signal:
+        proven_codes:
+            - MCPTL-B01
+            - MCPTL-B02
+            - MCPTL-B03
+            - MCPTL-B04
+            - MCPTL-B05
+            - MCPTL-B06
+            - MCPTL-E01
+            - MCPTL-E02
+            - MCPTL-E03
+        proven_by_suite:
+            .anchors/junit.xml:
+                - MCPTL-B01
+                - MCPTL-B02
+                - MCPTL-B03
+                - MCPTL-B04
+                - MCPTL-B05
+                - MCPTL-B06
+                - MCPTL-E01
+                - MCPTL-E02
+                - MCPTL-E03
+        proven_rev_by_suite:
+            .anchors/junit.xml: 7da6bba6c55e
+        at_rev: 7da6bba6c55e
+        ingested_at: "2026-10-17T04:27:07-03:00"
+      evidence_rev: 6fb94e775d3c
+      rule_revs: {MCPTL-B01: 070502f3be1e, MCPTL-B02: 6a91f05b671a, MCPTL-B03: ecd80a0da9df, MCPTL-B04: f8c021f47f5d, MCPTL-B05: 4881ddc493be, MCPTL-B06: f5f25a589b98, MCPTL-E01: 4bfeccc4a6d8, MCPTL-E02: 9c913542d6d3, MCPTL-E03: e6d70e3e5fda}
+      rest_rev: 632705fb8d40
+    - id: internal/mcp/tools_test.go
+      kind: test
+      rev: c94ac9c26294
+      updated_at: "2026-10-17"
+      code: MCPTL
+      file_code: MCTST
+      layer: test
+      tags:
+        - test
+      signal:
+        passed: 13
+        by_layer:
+            unit:
+                passed: 13
+        seconds_by_suite:
+            .anchors/junit.xml: 0.09
+        at_rev: c94ac9c26294
+        ingested_at: "2026-10-17T04:27:07-03:00"
+      evidence_rev: 81b1f5a3eecd
+      line_rev: 2de8ceef65e8
     - id: internal/node/control.feature
       kind: feature
       rev: 1b60413b791e
@@ -284,7 +501,7 @@ nodes:
                 at_rev: 5b33be90bc3a
         coverage_rev: 5b33be90bc3a
         at_rev: 5b33be90bc3a
-        ingested_at: "2026-10-17T03:45:50-03:00"
+        ingested_at: "2026-10-17T04:27:07-03:00"
       evidence_rev: 983ab2fc644b
       line_rev: d90f863b90eb
     - id: internal/node/control.spec.md
@@ -326,7 +543,7 @@ nodes:
         proven_rev_by_suite:
             .anchors/junit.xml: bfe15308f3ec
         at_rev: bfe15308f3ec
-        ingested_at: "2026-10-17T03:45:50-03:00"
+        ingested_at: "2026-10-17T04:27:07-03:00"
       evidence_rev: 851f54b25558
       rule_revs: {CNTRL-B01: "316986563459", CNTRL-B02: 802b79876f2f, CNTRL-B03: 884e4c321bc7, CNTRL-B04: 8d1e498da8c5, CNTRL-B05: 342a2b0f5cb6, CNTRL-B06: c5b173133779, CNTRL-E01: d1a2b67829aa, CNTRL-E02: 4449c1568c95, CNTRL-E03: ae2d67e525fc, CNTRL-E04: b89eadab3a8c, CNTRL-E05: f410ddb5ff2d}
       rest_rev: 22e06dbb6e28
@@ -347,7 +564,7 @@ nodes:
         seconds_by_suite:
             .anchors/junit.xml: 4.1499999999999995
         at_rev: 46b14d1acc7c
-        ingested_at: "2026-10-17T03:45:50-03:00"
+        ingested_at: "2026-10-17T04:27:07-03:00"
       evidence_rev: 9079b8b28be8
       line_rev: 2c131dac790b
     - id: internal/node/server.feature
@@ -384,7 +601,7 @@ nodes:
                 at_rev: 3e53a870aa3d
         coverage_rev: 3e53a870aa3d
         at_rev: 3e53a870aa3d
-        ingested_at: "2026-10-17T03:45:50-03:00"
+        ingested_at: "2026-10-17T04:27:07-03:00"
       evidence_rev: f5f1f3a48415
       line_rev: ae8795616f99
     - id: internal/node/server.spec.md
@@ -424,7 +641,7 @@ nodes:
         proven_rev_by_suite:
             .anchors/junit.xml: a93d7350dd3a
         at_rev: a93d7350dd3a
-        ingested_at: "2026-10-17T03:45:50-03:00"
+        ingested_at: "2026-10-17T04:27:07-03:00"
       evidence_rev: 5800ffc4274f
       rule_revs: {SRVRE-B01: 27d338e5bd92, SRVRE-B02: 7b58d2ebff51, SRVRE-B03: 010ddadf6218, SRVRE-B04: 6998efa92dd4, SRVRE-B05: 5735663c0d9a, SRVRE-B06: 91a0e5c0038d, SRVRE-B07: c0d4fa9d3e39, SRVRE-B08: 5c7506510e2f, SRVRE-E01: b70249e7954d, SRVRE-E02: b1d0739b5776}
       rest_rev: 81c38f95e564
@@ -445,7 +662,7 @@ nodes:
         seconds_by_suite:
             .anchors/junit.xml: 0.12
         at_rev: b6b7a6e3c2d9
-        ingested_at: "2026-10-17T03:45:50-03:00"
+        ingested_at: "2026-10-17T04:27:07-03:00"
       evidence_rev: 424645cad26a
       line_rev: 2794e0960b56
     - id: internal/proto/codec.feature
@@ -469,20 +686,20 @@ nodes:
       tags:
         - proto
       signal:
-        covered_lines: 133
+        covered_lines: 134
         total_lines: 162
-        line_coverage: 82.09876543209876
+        line_coverage: 82.71604938271605
         prev_line_coverage: 82.09876543209876
         coverage_by_suite:
             .anchors/lcov.info:
                 instrumented: 39,42-45,49,52,55,58-61,64-69,73,76,79-92,94-98,111-118,120,130,142-143,145-153,155,166,175,178-180,184-194,196-211,218-223,225-226,228,232-240,242-250,252-260,262-272,274-277,288,300-303,306-318
-                covered: 39,42-45,49,52,55,58-61,64-66,69,73,76,79-81,84-89,92,94-95,98,142-143,145-153,155,175,178-180,184-194,196-209,218-223,225-226,228,232-240,242-248,252-258,262-270,274-277,288,300-303,306-311,314-318
-                covered_lines: 133
+                covered: 39,42-45,49,52,55,58-61,64-66,69,73,76,79-81,84-89,92,94-95,98,130,142-143,145-153,155,175,178-180,184-194,196-209,218-223,225-226,228,232-240,242-248,252-258,262-270,274-277,288,300-303,306-311,314-318
+                covered_lines: 134
                 total_lines: 162
                 at_rev: 5ecacbb0e6b8
         coverage_rev: 5ecacbb0e6b8
         at_rev: 5ecacbb0e6b8
-        ingested_at: "2026-10-17T03:45:50-03:00"
+        ingested_at: "2026-10-17T04:27:07-03:00"
       evidence_rev: b73bfaf4da4a
       line_rev: db1d74a55ae7
     - id: internal/proto/codec.spec.md
@@ -526,7 +743,7 @@ nodes:
         proven_rev_by_suite:
             .anchors/junit.xml: 733b595adb02
         at_rev: 733b595adb02
-        ingested_at: "2026-10-17T03:45:50-03:00"
+        ingested_at: "2026-10-17T04:27:07-03:00"
       evidence_rev: a3178936141b
       rule_revs: {CDCOE-B01: a7383a2020ff, CDCOE-B02: 61a887c58ac4, CDCOE-B03: 4a01373ad490, CDCOE-B04: 9cee12e1c956, CDCOE-B05: e7e1d0fd8ec7, CDCOE-B06: 1f57071da010, CDCOE-E01: 723ad9f8a030, CDCOE-E02: 55258838dd1f, CDCOE-E03: cbdfca7189e1, CDCOE-E04: 58a8c36dcfe2, CDCOE-E05: be3c90c976ca, CDCOE-I01: dd82e8b4afd7}
       rest_rev: 8ce42241ce05
@@ -547,7 +764,7 @@ nodes:
         seconds_by_suite:
             .anchors/junit.xml: 0.02
         at_rev: e6ab5c631111
-        ingested_at: "2026-10-17T03:45:50-03:00"
+        ingested_at: "2026-10-17T04:27:07-03:00"
       evidence_rev: 273875bb80e1
       line_rev: 3ef0b40bdc73
     - id: internal/pty/pty.feature
@@ -584,7 +801,7 @@ nodes:
                 at_rev: 78923e692577
         coverage_rev: 78923e692577
         at_rev: 78923e692577
-        ingested_at: "2026-10-17T03:45:50-03:00"
+        ingested_at: "2026-10-17T04:27:07-03:00"
       evidence_rev: 4bbdf5a64ffc
       line_rev: eeab4f58c790
     - id: internal/pty/pty.spec.md
@@ -622,7 +839,7 @@ nodes:
         proven_rev_by_suite:
             .anchors/junit.xml: c746b82bc8ce
         at_rev: c746b82bc8ce
-        ingested_at: "2026-10-17T03:45:50-03:00"
+        ingested_at: "2026-10-17T04:27:07-03:00"
       evidence_rev: 03ffde6d49c9
       rule_revs: {PTYXX-B01: fc303a3e3572, PTYXX-B02: b66105393218, PTYXX-B03: 74896e50bd51, PTYXX-B04: 6ae57f38ee8b, PTYXX-B05: a3427410a337, PTYXX-B06: 3efedad2293e, PTYXX-E01: 8207edb06602, PTYXX-E02: 45a2f57ce24a, PTYXX-I01: 6e9e54abd214}
       rest_rev: 821d07f0b23f
@@ -641,9 +858,9 @@ nodes:
             unit:
                 passed: 13
         seconds_by_suite:
-            .anchors/junit.xml: 0.2
+            .anchors/junit.xml: 0.16999999999999998
         at_rev: 4d25ce1aec08
-        ingested_at: "2026-10-17T03:45:50-03:00"
+        ingested_at: "2026-10-17T04:27:07-03:00"
       evidence_rev: 4d4fdae2ff30
       line_rev: 100bd5546afe
     - id: internal/sshx/keys.feature
@@ -680,7 +897,7 @@ nodes:
                 at_rev: d35e75e79238
         coverage_rev: d35e75e79238
         at_rev: d35e75e79238
-        ingested_at: "2026-10-17T03:45:50-03:00"
+        ingested_at: "2026-10-17T04:27:07-03:00"
       evidence_rev: fc240cb33aac
       line_rev: c64a64a4cc9c
     - id: internal/sshx/keys.spec.md
@@ -724,7 +941,7 @@ nodes:
         proven_rev_by_suite:
             .anchors/junit.xml: 2ac58c3b7694
         at_rev: 2ac58c3b7694
-        ingested_at: "2026-10-17T03:45:50-03:00"
+        ingested_at: "2026-10-17T04:27:07-03:00"
       evidence_rev: b97f6cbeef06
       rule_revs: {KYSEX-B01: f05fcfc3a4e5, KYSEX-B02: b8d70acf5dc6, KYSEX-B03: 32162985f933, KYSEX-B04: 7756428d5aaf, KYSEX-B05: 1426ccdfc2f3, KYSEX-B06: bbb510c80482, KYSEX-B07: 867946b5dc53, KYSEX-E01: eaecee6f468d, KYSEX-E02: b0d0b90cc63a, KYSEX-E03: 26a79fdd4735, KYSEX-I01: c47712c89e11, KYSEX-I02: 6a0bf9b306be}
       rest_rev: 6eae1f902eca
@@ -743,7 +960,7 @@ nodes:
             unit:
                 passed: 16
         at_rev: 588331a01dca
-        ingested_at: "2026-10-17T03:45:50-03:00"
+        ingested_at: "2026-10-17T04:27:07-03:00"
       evidence_rev: 1e357f470117
       line_rev: 82b4778df5ca
     - id: plans/agente-local.plan.md
@@ -855,6 +1072,61 @@ edges:
         changed_at: "2026-10-17"
         verdict: ok
         gate: rule-fulfilled
+    - from: internal/mcp/server.feature
+      to: internal/mcp/server_test.go
+      type: tested-by
+      origin: convention
+      stamp:
+        validated_from_rev: 9b9a7633445b
+        validated_to_rev: 1c3b787c0336
+        changed_at: "2026-10-17"
+        verdict: ok
+    - from: internal/mcp/server.spec.md
+      to: internal/mcp/server.feature
+      judgments:
+        - gate: rule-fulfilled
+          verdict: ok
+          validated_from_rev: be2ffc856a6e
+          validated_to_rev: 9b9a7633445b
+          changed_at: "2026-10-17"
+          config_rev: db9fd4977fcc
+      type: covered-by
+      origin: convention
+      stamp:
+        validated_from_rev: be2ffc856a6e
+        validated_to_rev: 9b9a7633445b
+        changed_at: "2026-10-17"
+        verdict: ok
+        gate: rule-fulfilled
+    - from: internal/mcp/server.spec.md
+      to: internal/mcp/server.go
+      judgments:
+        - gate: rule-fulfilled
+          verdict: ok
+          validated_from_rev: be2ffc856a6e
+          validated_to_rev: bbfdf6cbbdfc
+          changed_at: "2026-10-17"
+          config_rev: db9fd4977fcc
+      type: specifies
+      origin: convention
+      stamp:
+        validated_from_rev: be2ffc856a6e
+        validated_to_rev: bbfdf6cbbdfc
+        changed_at: "2026-10-17"
+        verdict: ok
+        gate: rule-fulfilled
+    - from: internal/mcp/tools.feature
+      to: internal/mcp/tools_test.go
+      type: tested-by
+      origin: convention
+    - from: internal/mcp/tools.spec.md
+      to: internal/mcp/tools.feature
+      type: covered-by
+      origin: convention
+    - from: internal/mcp/tools.spec.md
+      to: internal/mcp/tools.go
+      type: specifies
+      origin: convention
     - from: internal/node/control.feature
       to: internal/node/control_test.go
       type: tested-by
@@ -1044,6 +1316,27 @@ edges:
         validated_to_rev: 3b9531b52055
         changed_at: "2026-10-17"
         verdict: ok
+    - from: plans/agente-local.plan.md
+      to: internal/mcp/server.spec.md
+      judgments:
+        - gate: rule-fulfilled
+          verdict: ok
+          validated_from_rev: c3c291c6ec67
+          validated_to_rev: be2ffc856a6e
+          changed_at: "2026-10-17"
+          config_rev: db9fd4977fcc
+      type: seeds
+      origin: declared
+      stamp:
+        validated_from_rev: c3c291c6ec67
+        validated_to_rev: be2ffc856a6e
+        changed_at: "2026-10-17"
+        verdict: ok
+        gate: rule-fulfilled
+    - from: plans/agente-local.plan.md
+      to: internal/mcp/tools.spec.md
+      type: seeds
+      origin: declared
     - from: plans/terminal-remoto.plan.md
       to: cmd/polvo/cli.spec.md
       judgments:
