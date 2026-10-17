@@ -1,0 +1,761 @@
+# anchors.yaml — Anchors project configuration
+# The `layers` section is the Project Structure (the virtual graph).
+version: 1
+layers:
+    plan:
+        pattern: 'plans/*.plan.md'
+        kind: plan
+        tags:
+            - plan
+    feature:
+        pattern: '**/*.feature'
+        kind: feature
+        tags:
+            - feature
+    spec:
+        pattern: '**/*.spec.md'
+        kind: spec
+        tags:
+            - spec
+    test:
+        pattern: '**/*_test.go'
+        kind: test
+        tags:
+            - test
+derived:
+    anchor: spec
+    files:
+        code: '{{dir}}/{{name}}.{{ext}}'
+        feature: '{{dir}}/{{name}}.feature'
+        test: '{{dir}}/{{name}}_test.{{ext}}'
+gates:
+    - name: spec-complete
+      id: spec-complete
+      "on":
+        - spec
+      check: spec-sections
+      blocking: true
+      measures: the spec has at least one state/rule, with no placeholder
+    - name: spec-has-code
+      id: spec-has-code
+      "on":
+        - spec
+      check: has-code
+      blocking: true
+      measures: the spec carries a scenario code (identity)
+    - name: header-valid
+      id: header-valid
+      "on":
+        - spec
+        - feature
+        - code
+        - test
+        - guide
+        - doc
+        - plan
+        - product
+        - flag
+      check: header-valid
+      blocking: true
+      measures: the @anchors header carries the artifact's identity
+    - name: unit-complete
+      id: unit-complete
+      "on":
+        - spec
+      check: unit-complete
+      blocking: true
+      measures: the spec has code, feature and test that realise it
+    - name: no-test-proof-real
+      id: no-test-proof-real
+      "on":
+        - spec
+      blocking: true
+      measures: judgment
+      ask: 'This spec waives its own test with `@no-test` and points at a scenario code as the proof elsewhere. Find the test that mentions that code and answer: does it EXERCISE the behaviour this spec describes, or does it only cite the code? Fail it if the mention is in a comment, if the test exercises another behaviour, or if the proof is so indirect that a break in this unit would not bring it down. The question is about what the test RUNS, not about what its name promises.'
+      requires: '@no-test'
+    - name: rule-fulfilled
+      id: rule-fulfilled
+      "on":
+        - spec
+      blocking: true
+      measures: judgment
+      ask: 'Each rule of this spec is marked in the code by a comment carrying its code (`// ABCDX-B01: …`). Read the rule and the snippet it marks and answer: does the snippet DO what the rule describes? Fail it when the comment sits on code that does something else, when the rule describes a case the snippet does not handle, or when the mark is in a generic place (top of the file, an import) instead of the snippet that decides. The question is about what the code RUNS, not about what the comment claims. When failing it, PROPOSE the fix as a patch. BEFORE ANSWERING, check whether this unit declares `@TBD` for the piece this question asks about (`@TBD: code`, `@TBD: code,test`, …). If it does, the code does NOT exist yet by a recorded decision, and there is nothing to confront: answer `waived`, naming the absence ("the spec declares @TBD for this piece and it does not exist in the repository"). Do NOT answer `pass` — `pass` is a statement ABOUT the code, and without the code it states what nobody verified; the stamp stays in the map looking like real verification. Also check that the `@TBD` is TRUE: if the piece already exists in the repository, the marker is stale, the judgment is due as usual, and the stale declaration is a finding — while it stays there, every gate that reads it waives what it should demand.'
+      review:
+        ask: 'Look again at what an agent decided: does each marked snippet do what its rule says, and does the rule cover what the code does? Record each finding — what, where (file:line), why — to become a failing test and a fix, or dismiss it with the reason.'
+    - name: code-cataloged
+      id: code-cataloged
+      "on":
+        - spec
+      check: code-cataloged
+      blocking: true
+      measures: every exported symbol has a rule in the spec or a written waiver
+    - name: rule-types
+      id: rule-types
+      "on":
+        - spec
+      check: rule-types
+      blocking: true
+      measures: every code letter is declared in the vocabulary, with no conflict
+    - name: dependency-honored
+      id: dependency-honored
+      "on":
+        - spec
+      check: dependency-honored
+      blocking: true
+      measures: the spec declares no dependency table — the code declares its dependencies by `@dep:`
+    - name: proof-crosses-boundary
+      id: proof-crosses-boundary
+      "on":
+        - spec
+      check: proof-crosses-boundary
+      blocking: true
+      measures: a rule asserting a relation with another unit has the code importing that unit
+    - name: contract-status-declared
+      id: contract-status-declared
+      "on":
+        - spec
+      check: contract-status-declared
+      blocking: true
+      measures: the Output Contract statuses are the ones the handler returns — and only those
+    - name: obligation-honored
+      id: obligation-honored
+      "on":
+        - spec
+      check: obligation-honored
+      blocking: true
+      measures: the artifact fulfils the cross-cutting obligations it takes on
+    - name: sibling-guard
+      id: sibling-guard
+      "on":
+        - code
+      check: sibling-guard
+      blocking: true
+      measures: sibling functions handle the same parameter consistently
+    - name: docs-fresh
+      id: docs-fresh
+      "on":
+        - spec
+      check: docs-fresh
+      blocking: true
+      measures: the compiled `docs/*.md` reflects the spec it came from
+    - name: spec-doctrine-exists
+      id: spec-doctrine-exists
+      "on":
+        - spec
+      check: spec-doctrine-exists
+      blocking: true
+      measures: the doctrine the spec references with `@realizes` exists
+    - name: feature-spec-match
+      id: feature-spec-match
+      "on":
+        - feature
+      check: feature-spec-match
+      blocking: true
+      measures: every scenario of the feature matches a rule the spec declares
+    - name: test-feature-match
+      id: test-feature-match
+      "on":
+        - test
+      check: test-feature-match
+      blocking: true
+      measures: every code the test proves matches a declared scenario
+    - name: revision-orphans
+      id: revision-orphans
+      "on":
+        - spec
+      check: revision-orphans
+      blocking: true
+      measures: the revision names the sibling rules that speak of the same subject
+    - name: flag-scenario-exists
+      id: flag-scenario-exists
+      "on":
+        - spec
+      check: flag-scenario-exists
+      blocking: true
+      measures: the scenario the spec cites with `@gated-by` exists
+    - name: doctrine-not-duplicated
+      id: doctrine-not-duplicated
+      "on":
+        - spec
+      check: doctrine-not-duplicated
+      blocking: true
+      measures: the spec references the doctrine instead of copying its text
+    - name: spec-realizes-doctrine
+      id: spec-realizes-doctrine
+      "on":
+        - spec
+      check: spec-realizes-doctrine
+      blocking: true
+      measures: the spec's rules declare the product doctrine they realise
+    - name: failure-handled
+      id: failure-handled
+      "on":
+        - spec
+      check: failure-handled
+      blocking: true
+      measures: the declared failure has a path that handles it in the code
+    - name: failure-logged
+      id: failure-logged
+      "on":
+        - spec
+      check: failure-logged
+      blocking: true
+      measures: the failure handling RECORDS the occurrence
+    - name: failure-declared
+      id: failure-declared
+      "on":
+        - spec
+      check: failure-declared
+      blocking: true
+      measures: the handling that exists in the code answers some declared failure
+    - name: docs-covered
+      id: docs-covered
+      "on":
+        - spec
+      check: docs-covered
+      blocking: true
+      measures: every spec reaches some documentation page
+    - name: doc-required
+      id: doc-required
+      "on":
+        - spec
+      check: doc-required
+      blocking: true
+      measures: the contracted documents exist and mention the units that trigger them
+      scope: batch
+    - name: doc-self-contained
+      id: doc-self-contained
+      "on":
+        - spec
+      check: doc-self-contained
+      blocking: true
+      measures: the spec carries the text it cites, instead of pointing at another file
+    - name: plan-change-justified
+      id: plan-change-justified
+      "on":
+        - spec
+      check: plan-change-justified
+      blocking: true
+      measures: the changed plan/spec records the revision that says why it changed
+      skip_on:
+        - all
+    - name: parent-valid
+      id: parent-valid
+      "on":
+        - spec
+        - code
+      check: parent-valid
+      blocking: true
+      measures: the declared `parent:` points at something that exists, with no cycle
+    - name: phase-exists
+      id: phase-exists
+      "on":
+        - spec
+      check: phase-exists
+      blocking: true
+      measures: the spec's `needs:` points at a phase some plan catalogues
+    - name: feature-not-empty
+      id: feature-not-empty
+      "on":
+        - feature
+      check: non-empty
+      blocking: true
+      measures: the feature is not an empty skeleton
+    - name: scenario-asserts
+      id: scenario-asserts
+      "on":
+        - feature
+      check: scenario-asserts
+      blocking: true
+      measures: the outcome step asserts an observable outcome
+    - name: test-traceable
+      id: test-traceable
+      "on":
+        - test
+      check: test-traceable
+      blocking: true
+      measures: the test cites the code of what it proves (visible to the relational gates)
+    - name: tests-green
+      id: tests-green
+      "on":
+        - test
+      check: tests-pass
+      blocking: false
+      measures: this file's tests pass (from the ingested result)
+    - name: line-coverage
+      id: line-coverage
+      "on":
+        - code
+      check: line-coverage
+      blocking: false
+      measures: line coverage >= threshold (from the ingested lcov)
+    - name: coverage-delta
+      id: coverage-delta
+      "on":
+        - code
+      check: coverage-delta
+      blocking: false
+      measures: line coverage did not drop vs. the previous ingestion
+    - name: branch-coverage
+      id: branch-coverage
+      "on":
+        - code
+      check: branch-coverage
+      blocking: false
+      measures: the tests take the branches the lcov lists (BRDA), and none is likely dead
+    - name: mutation-score
+      id: mutation-score
+      "on":
+        - code
+      check: mutation-score
+      blocking: false
+      measures: 'the test PROVES the line: killed mutants >= threshold (from the ingested mutation report)'
+    - name: pagination-honored
+      id: pagination-honored
+      "on":
+        - code
+      check: pagination-honored
+      blocking: true
+      measures: a function promising the whole set does not silently return the first page
+    - name: layer-boundary
+      id: layer-boundary
+      "on":
+        - code
+      check: layer-boundary
+      blocking: true
+      measures: the layer does not reach what is not its own (`boundaries:`)
+    - name: count-honored
+      id: count-honored
+      "on":
+        - spec
+      check: count-honored
+      blocking: true
+      measures: the number the spec asserts matches the code
+    - name: domain-declared
+      id: domain-declared
+      "on":
+        - spec
+      check: domain-declared
+      blocking: true
+      measures: the spec declares what it accepts and who guards the boundary
+    - name: rule-uses-declared
+      id: rule-uses-declared
+      "on":
+        - spec
+      check: rule-uses-declared
+      blocking: true
+      measures: every rule says what it uses — the fields, codes and dependencies it reads
+    - name: rule-uses-implemented
+      id: rule-uses-implemented
+      "on":
+        - spec
+      check: rule-uses-implemented
+      blocking: true
+      measures: the fields a rule says it uses appear in the code the spec governs
+    - name: contract-impact
+      id: contract-impact
+      "on":
+        - spec
+      check: contract-impact
+      blocking: true
+      measures: a field changed since the last commit names the rules that use it, and their tests
+    - name: rule-uses-resolve
+      id: rule-uses-resolve
+      "on":
+        - spec
+      check: rule-uses-resolve
+      blocking: true
+      measures: what a rule says it uses exists in the spec — a declared field, a dependency row
+    - name: presentation-exhaustive
+      id: presentation-exhaustive
+      "on":
+        - spec
+      check: presentation-exhaustive
+      blocking: true
+      measures: every value of a prop or state the presentation reads has an appearance decided
+    - name: presentation-conflict
+      id: presentation-conflict
+      "on":
+        - spec
+      check: presentation-conflict
+      blocking: true
+      measures: one prop and one condition do not lead to two appearances
+    - name: presentation-copy-single-source
+      id: presentation-copy-single-source
+      "on":
+        - spec
+      check: presentation-copy-single-source
+      blocking: true
+      measures: the text a presentation shows is a message code, not copy repeated in the rule
+    - name: presentation-observable
+      id: presentation-observable
+      "on":
+        - spec
+      check: presentation-observable
+      blocking: true
+      measures: what a presentation changes is an element a test can point at
+    - name: single-test-per-unit
+      id: single-test-per-unit
+      "on":
+        - code
+      check: single-test-per-unit
+      blocking: true
+      measures: a unit has one test file per test layer, or declares the split with a reason
+    - name: test-has-assertion
+      id: test-has-assertion
+      "on":
+        - test
+      check: test-has-assertion
+      blocking: true
+      measures: every test asserts something in its body — the project says what an assertion is
+    - name: test-exercises-unit
+      id: test-exercises-unit
+      "on":
+        - test
+      check: test-exercises-unit
+      blocking: true
+      measures: a test reaches the unit it tests, and does not define a copy of it
+    - name: test-ref-matches-unit
+      id: test-ref-matches-unit
+      "on":
+        - test
+      check: test-ref-matches-unit
+      blocking: true
+      measures: a test reaches the unit its `ref:` names — by import, a name it defines, or a declared invocation
+    - name: header-layer-declared
+      id: header-layer-declared
+      "on":
+        - spec
+        - feature
+        - code
+        - test
+      check: header-layer-declared
+      blocking: true
+      measures: the layer a header declares is one the Estrutura has
+    - name: examples-match
+      id: examples-match
+      "on":
+        - feature
+      check: examples-match
+      blocking: true
+      measures: every row of an outline's Examples is run by a test citing the scenario
+    - name: open-questions-resolved
+      id: open-questions-resolved
+      "on":
+        - spec
+      check: open-questions-resolved
+      blocking: true
+      measures: the spec has no open question — implementing is not guessing
+    - name: ref-resolves
+      id: ref-resolves
+      "on":
+        - code
+        - feature
+        - test
+      check: ref-resolves
+      blocking: true
+      measures: the `ref:` points at the sibling spec's `code:`
+    - name: code-reference-valid
+      id: code-reference-valid
+      "on":
+        - spec
+      check: code-reference-valid
+      blocking: true
+      measures: every code the spec cites exists in the project
+    - name: cross-unit-citation
+      id: cross-unit-citation
+      "on":
+        - spec
+      check: cross-unit-citation
+      blocking: true
+      measures: the spec cites no rule of another unit — a shared rule lives in the product
+    - name: spec-feature-match
+      id: spec-feature-match
+      "on":
+        - spec
+      check: spec-feature-match
+      blocking: true
+      measures: every requirement declared in the spec has a scenario in the feature
+    - name: scenario-coverage
+      id: scenario-coverage
+      "on":
+        - spec
+      check: scenario-coverage
+      blocking: false
+      measures: each scenario of the spec has a passing test (semantic coverage)
+    - name: no-secret-leaked
+      id: no-secret-leaked
+      "on":
+        - code
+      run: gitleaks git --no-banner --redact -v
+      blocking: true
+      measures: no secret (key, token, credential) enters the history
+      needs_tool: gitleaks
+      install_hint: brew install gitleaks
+      scope: batch
+      scope_full: project
+      when:
+        - pre-commit
+        - ci
+      cost: fast
+      category: security
+    - name: dependency-vulnerable
+      id: dependency-vulnerable
+      "on":
+        - code
+      run: osv-scanner scan source -r .
+      blocking: false
+      measures: the project's dependencies have no known vulnerability (OSV)
+      needs_tool: osv-scanner
+      install_hint: brew install osv-scanner
+      scope: project
+      scope_full: project
+      when:
+        - ci
+      cost: slow
+      category: security
+    - name: no-duplication
+      id: no-duplication
+      "on":
+        - code
+      check: duplication
+      blocking: false
+      measures: no code block appears copied in two places
+      needs_tool: npx
+      install_hint: install Node.js (npx ships with it)
+      when:
+        - ci
+      cost: slow
+      category: quality
+    - name: sbom-generated
+      id: sbom-generated
+      "on":
+        - code
+      run: syft scan dir:. -o cyclonedx-json=sbom.json -q
+      blocking: false
+      measures: the inventory of shipped components (SBOM) is generated and versionable
+      needs_tool: syft
+      install_hint: brew install syft
+      scope: project
+      scope_full: project
+      when:
+        - ci
+      cost: slow
+      category: provenance
+    - name: spellcheck
+      id: spellcheck
+      "on":
+        - code
+        - test
+        - spec
+      run: typos
+      blocking: false
+      measures: no spelling mistake in the text or the identifiers
+      needs_tool: typos
+      install_hint: brew install typos
+      scope: batch
+      scope_full: project
+      when:
+        - pre-commit
+        - ci
+      cost: fast
+      category: style
+    - name: license-compatible
+      id: license-compatible
+      "on":
+        - code
+      blocking: false
+      measures: no dependency with strong copyleft or an incompatible licence
+      scope: project
+      scope_full: project
+      when:
+        - ci
+      cost: fast
+      category: legal
+    - name: circular
+      id: circular
+      "on":
+        - code
+      blocking: false
+      measures: there is no import cycle between modules
+      scope: project
+      scope_full: project
+      when:
+        - pre-push
+        - ci
+      cost: slow
+      category: architecture
+    - name: deadcode
+      id: deadcode
+      "on":
+        - code
+      blocking: false
+      measures: there is no orphan export, symbol or file in the project
+      scope: project
+      scope_full: project
+      when:
+        - ci
+      cost: slow
+      category: maintenance
+    - name: evidence-fresh
+      id: evidence-fresh
+      "on":
+        - test
+      check: evidence-fresh
+      blocking: true
+      measures: 'the test''s last green run still holds: neither the test nor any file in its closure changed since it ran'
+    - name: feature-test-match
+      id: feature-test-match
+      "on":
+        - feature
+      check: feature-test-match
+      blocking: true
+      measures: every scenario of the feature is implemented in the linked test, by code and by description
+    - name: scenario-identity
+      id: scenario-identity
+      "on":
+        - feature
+      check: scenario-identity
+      blocking: true
+      measures: 'each scenario code identifies one scenario: no code repeated and no body copied under another title'
+    - name: scenario-letter-declared
+      id: scenario-letter-declared
+      "on":
+        - feature
+      check: scenario-letter-declared
+      blocking: true
+      measures: every scenario code's letter is a rule letter — the project's `rule_types`, or the canonical ones
+    - name: dep-declared
+      id: dep-declared
+      "on":
+        - code
+        - test
+      check: dep-declared
+      blocking: true
+      measures: 'every import of a governed file carries `@dep:` with the code of the file it uses, or `@no-dep: <reason>`'
+    - name: dep-honored
+      id: dep-honored
+      "on":
+        - code
+        - test
+      check: dep-honored
+      blocking: true
+      measures: every `@dep:` flag names the code of the file its import resolves to
+    - name: used-by-declared
+      id: used-by-declared
+      "on":
+        - code
+        - test
+      check: used-by-declared
+      blocking: true
+      measures: every symbol another file imports carries `@used-by:` with exactly the codes of who imports it
+    - name: nav-annotated
+      id: nav-annotated
+      "on":
+        - code
+      check: nav-annotated
+      blocking: true
+      measures: 'every navigation call — back and reset included — carries `@navigates:` naming the screen it leads to, or `@no-nav: <reason>`'
+    - name: nav-matches-spec
+      id: nav-matches-spec
+      "on":
+        - spec
+      check: nav-matches-spec
+      blocking: true
+      measures: a screen's Out table and its code's `@navigates:` flags name the same screens
+    - name: nav-symmetric
+      id: nav-symmetric
+      "on":
+        - spec
+      check: nav-symmetric
+      blocking: true
+      measures: a screen's Out leads to another exactly when that one's In comes from it
+    - name: nav-reachable
+      id: nav-reachable
+      "on":
+        - spec
+      check: nav-reachable
+      blocking: true
+      measures: every screen is reachable from the app's entry routes (`navigation.entry`)
+    - name: env-declared
+      id: env-declared
+      "on":
+        - spec
+      check: env-declared
+      blocking: true
+      measures: the environment variables a unit's code reads are the ones its spec declares, and only those
+    - name: placeholder-filled
+      id: placeholder-filled
+      "on":
+        - spec
+        - feature
+      check: placeholder-filled
+      blocking: true
+      measures: 'no generator placeholder remains in a value position: header field, table cell, rule or title line'
+    - name: rule-implemented
+      id: rule-implemented
+      "on":
+        - spec
+      check: rule-implemented
+      blocking: true
+      measures: 'every rule the spec catalogs is marked in its code target, unless waived on its line with `@no-mark: <reason>`'
+    - name: region-pair-honored
+      id: region-pair-honored
+      "on":
+        - code
+        - test
+      check: region-pair-honored
+      blocking: true
+      measures: every `#region [CODE]` closes, and closes with its own code
+    - name: updated-at-atual
+      id: updated-at-atual
+      "on":
+        - spec
+        - feature
+        - code
+        - test
+      check: updated-at-atual
+      blocking: true
+      measures: the header's `updated_at` is the day of the file's last commit
+    - name: freeze-consistent
+      id: freeze-consistent
+      "on":
+        - spec
+        - product
+        - feature
+        - code
+        - test
+      check: freeze-consistent
+      blocking: true
+      measures: every freeze mark names a freeze the doctrine records, and every recorded freeze marks something
+      scope: project
+    - name: frozen-touched
+      id: frozen-touched
+      "on":
+        - spec
+        - product
+        - feature
+        - code
+        - test
+      check: frozen-touched
+      blocking: true
+      measures: a change to a frozen part is told, with the freeze's reason; it informs and never bars
+    - name: guidance-linked
+      id: guidance-linked
+      "on":
+        - doc
+      tags:
+        - guidance
+      check: guidance-linked
+      blocking: true
+      measures: CONTRIBUTING.md holds the working agreement, and README.md, AGENTS.md and CLAUDE.md point to it
+    - name: guidance-honored
+      id: guidance-honored
+      "on":
+        - doc
+      tags:
+        - guidance
+      blocking: true
+      measures: judgment
+      ask: 'This file is part of the project''s guidance — what tells whoever arrives, person or coding agent, how the project is worked on. Read it against `anchors guide guidance` and against the project''s anchors.yaml, and answer: does any passage CONTRADICT them? Fail it for an instruction to skip a gate, the hooks or the tests (`--no-verify`, ''tests can come later''); an order of work other than spec → feature → test → code; a layer named that anchors.yaml does not declare, or a folder layout proposed as the structure; a gate called blocking that the configuration does not block, or a blocking one presented as optional; long work left unwatched as the way to do it. Do NOT judge style, length or completeness: a short file that says nothing wrong passes. When failing it, quote each passage and PROPOSE the text that replaces it.'
+      stale_on_config: true

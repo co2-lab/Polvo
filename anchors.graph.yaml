@@ -1,0 +1,39 @@
+# anchors.graph.yaml — o mapa de dependências (gerado por `anchors map build`)
+# Material e versionado. Fonte de verdade do grafo; índices em memória são cache.
+version: 7
+generated_by: 0.1.326
+config_rev: 871b54da701e
+nodes:
+    - id: AGENTS.md
+      kind: doc
+      rev: 8c4428a2e3d9
+      layer: guidance
+      tags:
+        - guidance
+      regime: declarativo
+    - id: CLAUDE.md
+      kind: doc
+      rev: 0013dfdc8adc
+      layer: guidance
+      tags:
+        - guidance
+      regime: declarativo
+    - id: CONTRIBUTING.md
+      kind: doc
+      rev: 13e88044212f
+      layer: guidance
+      tags:
+        - guidance
+      regime: declarativo
+    - id: plans/terminal-remoto.plan.md
+      kind: plan
+      rev: 99697a5e521a
+      code: TRRMT
+      file_code: TRRMT
+      layer: plan
+      code_declared: true
+      tags:
+        - plan
+      evidence_rev: d2740f8cca3d
+      line_rev: c47e8ac11f31
+edges: []
