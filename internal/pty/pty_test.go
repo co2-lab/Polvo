@@ -135,6 +135,12 @@ func TestPty_end(t *testing.T) {
 		if err != nil || st.Signal == "" {
 			t.Fatalf("want the process ended by a signal, got %+v %v", st, err)
 		}
+		if err := s.Resize(Size{Rows: 1, Cols: 1}); err == nil {
+			t.Fatal("want Resize after Close to fail")
+		}
+		if err := s.Close(); err != nil {
+			t.Fatalf("want a second Close to do nothing, got %v", err)
+		}
 	})
 }
 

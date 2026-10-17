@@ -43,6 +43,10 @@ type Session struct {
 	cmd    *exec.Cmd
 	master *os.File
 
+	// mu orders Resize and Close: both reach the master's descriptor (PTYXX-B06)
+	mu     sync.Mutex
+	closed bool
+
 	waitOnce sync.Once
 	status   ExitStatus
 	waitErr  error
@@ -82,6 +86,11 @@ func (s *Session) Write(p []byte) (int, error) { return s.master.Write(p) }
 // Resize changes the size the process sees (PTYXX-B03, PTYXX-I01).
 func (s *Session) Resize(size Size) error {
 	size = size.orDefault()
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	if s.closed {
+		return os.ErrClosed
+	}
 	return cpty.Setsize(s.master, &cpty.Winsize{Rows: size.Rows, Cols: size.Cols})
 }
 
@@ -113,6 +122,12 @@ func (s *Session) Wait() (ExitStatus, error) {
 // Close hangs up the terminal and releases it (PTYXX-B06). A process that already ended is not
 // affected.
 func (s *Session) Close() error {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	if s.closed {
+		return nil
+	}
+	s.closed = true
 	if s.cmd.ProcessState == nil {
 		_ = s.cmd.Process.Signal(syscall.SIGHUP)
 	}

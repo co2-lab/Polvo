@@ -36,7 +36,7 @@ fluxo, e não um erro.
 
 ### PTYXX-B06 — Fechar a sessão termina o processo
 Fechar a sessão (`Close`) envia ao processo o sinal de terminal desligado e liberta o terminal. Um
-processo que já tinha terminado não é afetado.
+processo que já tinha terminado não é afetado. Depois do fecho, redimensionar dá erro, e fechar outra vez não faz nada.
 
 ## Domain
 
@@ -80,6 +80,10 @@ processo que já tinha terminado não é afetado.
 
 > **PTYXX-R0001:** a nota do Windows passou a nomear a caixa 1391 do Bavel (era 1389). A numeração das
 > caixas seguintes mudou quando a 1388 e a 1389 nasceram antes; a decisão (`@TBD: Windows`) é a mesma.
+
+> **PTYXX-R0002:** o `CLNTI-B02` achou uma corrida: um `window-change` a chegar enquanto a shell
+> termina redimensionava um terminal que o fecho estava a libertar. O `PTYXX-B06` passa a dizer o que
+> acontece depois do fecho (o redimensionamento dá erro, o segundo fecho não faz nada).
 
 ## Open Decisions
 
