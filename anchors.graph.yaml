@@ -979,6 +979,18 @@ nodes:
         - plan
       evidence_rev: a243830f9272
       line_rev: ac6693b41ce0
+    - id: plans/desktop.plan.md
+      kind: plan
+      rev: 8ceec0ebc810
+      updated_at: "2026-10-17"
+      code: DSKTP
+      file_code: DSKTP
+      layer: plan
+      code_declared: true
+      tags:
+        - plan
+      evidence_rev: 8f52214418f5
+      line_rev: 4443f8d9c69a
     - id: plans/terminal-remoto.plan.md
       kind: plan
       rev: 03470fc704da
@@ -1349,6 +1361,10 @@ edges:
         gate: rule-fulfilled
     - from: plans/agente-local.plan.md
       to: internal/mcp/tools.spec.md
+      type: seeds
+      origin: declared
+    - from: plans/desktop.plan.md
+      to: cmd/polvo/cli.spec.md
       type: seeds
       origin: declared
     - from: plans/terminal-remoto.plan.md
