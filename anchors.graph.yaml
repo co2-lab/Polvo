@@ -746,6 +746,18 @@ nodes:
         ingested_at: "2026-10-17T03:45:50-03:00"
       evidence_rev: 1e357f470117
       line_rev: 82b4778df5ca
+    - id: plans/agente-local.plan.md
+      kind: plan
+      rev: c3c291c6ec67
+      updated_at: "2026-10-17"
+      code: AGLCG
+      file_code: AGLCG
+      layer: plan
+      code_declared: true
+      tags:
+        - plan
+      evidence_rev: a243830f9272
+      line_rev: ac6693b41ce0
     - id: plans/terminal-remoto.plan.md
       kind: plan
       rev: 03470fc704da
@@ -765,7 +777,7 @@ edges:
       origin: convention
       stamp:
         validated_from_rev: 7aea27b2bf59
-        validated_to_rev: e1c2c4ed260e
+        validated_to_rev: 7fa03e1da995
         changed_at: "2026-10-17"
         verdict: ok
     - from: cmd/polvo/cli.spec.md
@@ -784,7 +796,6 @@ edges:
         validated_to_rev: 7aea27b2bf59
         changed_at: "2026-10-17"
         verdict: ok
-        gate: rule-fulfilled
     - from: cmd/polvo/cli.spec.md
       to: cmd/polvo/cli.go
       judgments:
@@ -801,7 +812,6 @@ edges:
         validated_to_rev: b093d9a1d639
         changed_at: "2026-10-17"
         verdict: ok
-        gate: rule-fulfilled
     - from: internal/hub/client.feature
       to: internal/hub/client_test.go
       type: tested-by
@@ -1023,6 +1033,15 @@ edges:
       stamp:
         validated_from_rev: 2ac58c3b7694
         validated_to_rev: d35e75e79238
+        changed_at: "2026-10-17"
+        verdict: ok
+    - from: plans/agente-local.plan.md
+      to: cmd/polvo/cli.spec.md
+      type: seeds
+      origin: declared
+      stamp:
+        validated_from_rev: c3c291c6ec67
+        validated_to_rev: 3b9531b52055
         changed_at: "2026-10-17"
         verdict: ok
     - from: plans/terminal-remoto.plan.md
