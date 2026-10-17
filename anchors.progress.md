@@ -1,5 +1,5 @@
 <!-- anchors:progress v1 — written by `anchors progress`; never edit by hand -->
-# Progress — 100% (29/29 points)
+# Progress — 100% (33/33 points)
 
 ## D01 — AgenteLocal (plan: plans/agente-local.plan.md) — 100% (6/6)
 ### D01.S1 — AGLCG-W01 — A ponte MCP — 100% (2/2)
@@ -51,12 +51,17 @@
 - [x] D04.T9 — O `polvo node` a correr no Galaxy (`GALAXY_ENGINE=go galaxy run ./cmd/polvo node`) aceita o · 1 (estimate) · done 2026-10-17 by migrated
 - [x] D04.T10 — `anchors check` sem gates bloqueantes a falhar. · 1 (estimate) · done 2026-10-17 by migrated
 
-## D05 — Espelho remoto (plan: plans/espelho.plan.md) — — (0/0)
-### D05.S1 — ESRMS-W01 — As sessões no nó — — (0/0)
+## D05 — Espelho remoto (plan: plans/espelho.plan.md) — 100% (4/4)
+### D05.S1 — ESRMS-W01 — As sessões no nó — 100% (4/4)
+- [x] D05.T1 — `internal/sessions/sessions.spec.md` · 1 · done 2026-10-17 by OK-BR-PE0EF71F/polvo-main
+- [x] D05.T2 — `internal/nodeconf/nodeconf.spec.md` · 1 · done 2026-10-17 by OK-BR-PE0EF71F/polvo-main
+- [x] D05.T3 — `internal/node/server.spec.md` (muda) · 1 · done 2026-10-17 by OK-BR-PE0EF71F/polvo-main
+- [x] D05.T4 — `internal/node/control.spec.md` (muda) · 1 · done 2026-10-17 by OK-BR-PE0EF71F/polvo-main
 ### D05.S2 — ESRMS-W02 — A janela como cliente dos nós (depends on ESRMS-W01) — — (0/0)
 ### D05.S3 — ESRMS-W03 — Descoberta e emparelhamento (depends on ESRMS-W02) — — (0/0)
 ### D05.S4 — ESRMS-W04 — P2P através de NAT (depends on ESRMS-W03) — — (0/0)
 ### D05.S5 — ESRMS-W05 — Os ficheiros de qualquer máquina (depends on ESRMS-W02) — — (0/0)
+### D05.S6 — ESRMS-W01 — As sessões no nó — — (0/0)
 
 ## D06 — Agentes (plan: plans/agentes.plan.md) — — (0/0)
 ### D06.S1 — AGPRG-W01 — O progresso no nó — — (0/0)
@@ -69,4 +74,4 @@
 ### D07.S3 — CEACN-W03 — Os ficheiros (depends on CEACN-W02) — — (0/0)
 ### D07.S4 — CEACN-W04 — O git (depends on CEACN-W02) — — (0/0)
 
-<!-- anchors:progress sum=bdf68a984e51 -->
+<!-- anchors:progress sum=85345aa5ebb4 -->
