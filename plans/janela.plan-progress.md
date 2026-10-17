@@ -12,7 +12,7 @@ Mark `[x]` here, never in the plan.
 
 ## JNNTJ-W01 — O terminal nativo
 
-- [ ] `desktop/src/prefs.spec.md`
-- [ ] `desktop/src/keys.spec.md`
+- [x] `desktop/src/prefs.spec.md`
+- [x] `desktop/src/keys.spec.md`
 - [ ] `desktop/src/screen.spec.md`
 - [ ] `desktop/src/window.spec.md`
