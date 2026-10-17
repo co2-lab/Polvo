@@ -56,6 +56,12 @@ Feature: Pty
     When a sessão tenta arrancar
     Then o arranque falha com um erro que contém "nao-existe-polvo"
 
+  @PTYXX-B07 @unit-level
+  Scenario: O processo arranca na pasta e com o ambiente pedidos
+    Given uma pasta e a variável "POLVO_TESTE=sim"
+    When a sessão arranca "sh -c 'pwd; echo $POLVO_TESTE'" nessa pasta com essa variável
+    Then a leitura contém a pasta e "sim"
+
   @PTYXX-E02 @unit-level
   Scenario: Sem programa o arranque falha
     Given uma lista de programa vazia

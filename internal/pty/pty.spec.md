@@ -38,12 +38,19 @@ fluxo, e não um erro.
 Fechar a sessão (`Close`) envia ao processo o sinal de terminal desligado e liberta o terminal. Um
 processo que já tinha terminado não é afetado. Depois do fecho, redimensionar dá erro, e fechar outra vez não faz nada.
 
+### PTYXX-B07 — A pasta e o ambiente do processo
+O `StartIn` arranca o processo na pasta pedida e com as variáveis de ambiente pedidas, além das do
+próprio nó (uma pedida com o nome de uma do nó substitui-a). O `Start` é o `StartIn` na pasta e no
+ambiente do nó.
+
 ## Domain
 
 | Input | Accepts | Outside the domain | Who guarantees |
 | --- | --- | --- | --- |
 | `argv` | o programa (um nome no PATH ou um caminho) e os argumentos | uma lista vazia | este módulo: recusa-a com erro (`PTYXX-E02`) |
 | `Size` | linhas e colunas entre 1 e 65535 | zero ou negativo | este módulo: um zero passa a 24 linhas por 80 colunas |
+| `dir` | uma pasta que existe, ou vazio (a do nó) | uma pasta que não existe | este módulo: o arranque falha (`PTYXX-E01`) |
+| `env` | variáveis `NOME=valor` | uma entrada sem `=` | o `os/exec` do Go: passa ao processo como está |
 
 ## Invariants
 
@@ -67,7 +74,8 @@ processo que já tinha terminado não é afetado. Depois do fecho, redimensionar
 | `PTYXX-B04` | `argv` |
 | `PTYXX-B05` | `argv` |
 | `PTYXX-B06` | `argv` |
-| `PTYXX-E01` | `argv` |
+| `PTYXX-B07` | `argv`, `dir`, `env` |
+| `PTYXX-E01` | `argv`, `dir` |
 | `PTYXX-E02` | `argv` |
 | `PTYXX-I01` | `Size` |
 
@@ -84,6 +92,9 @@ processo que já tinha terminado não é afetado. Depois do fecho, redimensionar
 > **PTYXX-R0002:** o `CLNTI-B02` achou uma corrida: um `window-change` a chegar enquanto a shell
 > termina redimensionava um terminal que o fecho estava a libertar. O `PTYXX-B06` passa a dizer o que
 > acontece depois do fecho (o redimensionamento dá erro, o segundo fecho não faz nada).
+
+> **PTYXX-R0003:** entra o `PTYXX-B07` (a pasta e o ambiente), para as sessões do nó (plano ESRMS,
+> W01) nascerem na pasta pedida e com o `TERM` do terminal de quem as vê.
 
 ## Open Decisions
 

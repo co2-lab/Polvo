@@ -74,6 +74,18 @@ func TestPty_start(t *testing.T) {
 			t.Fatalf("want eco:ola, got %q", out)
 		}
 	})
+	t.Run("PTYXX-B07: O processo arranca na pasta e com o ambiente pedidos", func(t *testing.T) {
+		dir := t.TempDir()
+		s, err := StartIn([]string{"sh", "-c", "pwd; echo $POLVO_TESTE"}, dir, []string{"POLVO_TESTE=sim"}, Size{Rows: 24, Cols: 80})
+		if err != nil {
+			t.Fatal(err)
+		}
+		t.Cleanup(func() { s.Close() })
+		out := readAll(t, s)
+		if !strings.Contains(out, dir) || !strings.Contains(out, "sim") {
+			t.Fatalf("want %s and sim, got %q", dir, out)
+		}
+	})
 	t.Run("PTYXX-B03: O redimensionamento para 40 por 120 chega ao processo", func(t *testing.T) {
 		s := start(t, Size{Rows: 24, Cols: 80}, "sh", "-c", "echo pronto; read l; stty size")
 		readUntil(t, s, "pronto")

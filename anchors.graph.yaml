@@ -989,44 +989,29 @@ nodes:
       line_rev: 3ef0b40bdc73
     - id: internal/pty/pty.feature
       kind: feature
-      rev: d28a87b89333
+      rev: 4aec91db5e93
       updated_at: "2026-10-17"
       code: PTYXX
       file_code: PTFTR
       layer: feature
       tags:
         - feature
-      evidence_rev: b0ef6053d8cb
-      line_rev: 8203892e9a8c
+      evidence_rev: 4c727d82a8af
+      line_rev: 9862f65c8c25
     - id: internal/pty/pty.go
       kind: code
-      rev: 78923e692577
+      rev: 60ea2b9ae626
       updated_at: "2026-10-17"
       code: PTYXX
       file_code: PTIMP
       layer: pty
       tags:
         - pty
-      signal:
-        covered_lines: 66
-        total_lines: 68
-        line_coverage: 97.05882352941177
-        prev_line_coverage: 97.05882352941177
-        coverage_by_suite:
-            .anchors/lcov.info:
-                instrumented: 25-32,56-69,73-80,84,87-94,98,101-116,119,124-134
-                covered: 25-32,56-69,73-80,84,87-94,98,101-114,119,124-134
-                covered_lines: 66
-                total_lines: 68
-                at_rev: 78923e692577
-        coverage_rev: 78923e692577
-        at_rev: 78923e692577
-        ingested_at: "2026-10-17T07:51:38-03:00"
-      evidence_rev: 4bbdf5a64ffc
-      line_rev: eeab4f58c790
+      evidence_rev: 3486059b9e53
+      line_rev: 2ce0da5edc43
     - id: internal/pty/pty.spec.md
       kind: spec
-      rev: c746b82bc8ce
+      rev: 9dbbdf04184c
       updated_at: "2026-10-17"
       code: PTYXX
       file_code: PTYXX
@@ -1034,8 +1019,10 @@ nodes:
       code_declared: true
       tags:
         - spec
-      signal:
-        proven_codes:
+      parked_proofs:
+        - suite: .anchors/junit.xml
+          rev: c746b82bc8ce
+          codes:
             - PTYXX-B01
             - PTYXX-B02
             - PTYXX-B03
@@ -1045,44 +1032,20 @@ nodes:
             - PTYXX-E01
             - PTYXX-E02
             - PTYXX-I01
-        proven_by_suite:
-            .anchors/junit.xml:
-                - PTYXX-B01
-                - PTYXX-B02
-                - PTYXX-B03
-                - PTYXX-B04
-                - PTYXX-B05
-                - PTYXX-B06
-                - PTYXX-E01
-                - PTYXX-E02
-                - PTYXX-I01
-        proven_rev_by_suite:
-            .anchors/junit.xml: c746b82bc8ce
-        at_rev: c746b82bc8ce
-        ingested_at: "2026-10-17T07:51:38-03:00"
-      evidence_rev: 03ffde6d49c9
-      rule_revs: {PTYXX-B01: fc303a3e3572, PTYXX-B02: b66105393218, PTYXX-B03: 74896e50bd51, PTYXX-B04: 6ae57f38ee8b, PTYXX-B05: a3427410a337, PTYXX-B06: 3efedad2293e, PTYXX-E01: 8207edb06602, PTYXX-E02: 45a2f57ce24a, PTYXX-I01: 6e9e54abd214}
-      rest_rev: 821d07f0b23f
+      evidence_rev: a339e6315ac7
+      rule_revs: {PTYXX-B01: fc303a3e3572, PTYXX-B02: b66105393218, PTYXX-B03: 74896e50bd51, PTYXX-B04: 6ae57f38ee8b, PTYXX-B05: a3427410a337, PTYXX-B06: 3efedad2293e, PTYXX-B07: e2707a060a30, PTYXX-E01: 264c607a4d61, PTYXX-E02: 45a2f57ce24a, PTYXX-I01: 6e9e54abd214}
+      rest_rev: b8321843568d
     - id: internal/pty/pty_test.go
       kind: test
-      rev: 4d25ce1aec08
+      rev: dd229ba21cf8
       updated_at: "2026-10-17"
       code: PTYXX
       file_code: PTTST
       layer: test
       tags:
         - test
-      signal:
-        passed: 13
-        by_layer:
-            unit:
-                passed: 13
-        seconds_by_suite:
-            .anchors/junit.xml: 0.2
-        at_rev: 4d25ce1aec08
-        ingested_at: "2026-10-17T07:51:38-03:00"
-      evidence_rev: 4d4fdae2ff30
-      line_rev: 100bd5546afe
+      evidence_rev: f50c2997b0a9
+      line_rev: d73a40cfd559
     - id: internal/sshx/keys.feature
       kind: feature
       rev: aa9564dcdff1

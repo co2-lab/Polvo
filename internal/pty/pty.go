@@ -52,14 +52,26 @@ type Session struct {
 	waitErr  error
 }
 
-// Start runs argv inside a new terminal of the given size (PTYXX-B01).
+// Start runs argv inside a new terminal of the given size (PTYXX-B01), in the node's directory and
+// environment.
 func Start(argv []string, size Size) (*Session, error) {
+	return StartIn(argv, "", nil, size)
+}
+
+// StartIn runs argv inside a new terminal of the given size, in dir (the node's when empty) and with
+// env added to the node's environment, an added name replacing the node's (PTYXX-B07).
+func StartIn(argv []string, dir string, env []string, size Size) (*Session, error) {
 	// PTYXX-E02: without a program there is nothing to start.
 	if len(argv) == 0 {
 		return nil, errors.New("pty: no program to start")
 	}
 	size = size.orDefault()
 	cmd := exec.Command(argv[0], argv[1:]...)
+	cmd.Dir = dir
+	if len(env) > 0 {
+		// a later NAME=value wins over an earlier one
+		cmd.Env = append(os.Environ(), env...)
+	}
 	// PTYXX-B01: the process gets the terminal as stdin, stdout, stderr and controlling terminal.
 	master, err := cpty.StartWithSize(cmd, &cpty.Winsize{Rows: size.Rows, Cols: size.Cols})
 	if err != nil {
