@@ -38,6 +38,12 @@ Feature: Cli
     When o polvo connect liga-se, a janela local muda para 44 por 111 e a shell recebe "stty size"
     Then a saída contém "33 99" e depois "44 111"
 
+  @CLIXX-B06 @unit-level
+  Scenario: mcp inicializa, lista as quatro ferramentas e corre um comando num nó
+    Given um nó a correr que autoriza a identidade da pasta de configuração
+    When o polvo mcp recebe a inicialização, a lista das ferramentas e a chamada polvo_run de "echo do-agente" no nó, e o stdin acaba
+    Then o servidor é "polvo", a lista tem polvo_run, polvo_read_file, polvo_write_file e polvo_list, o resultado tem "do-agente", e o código de saída é 0
+
   @CLIXX-E01 @unit-level
   Scenario: um subcomando desconhecido mostra o uso e dá 2
     Given os argumentos "voar"

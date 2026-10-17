@@ -14,6 +14,7 @@ import (
 	"path/filepath"
 
 	"github.com/co2-lab/polvo/internal/hub"
+	"github.com/co2-lab/polvo/internal/mcp"
 	"github.com/co2-lab/polvo/internal/node"
 	"github.com/co2-lab/polvo/internal/pty"
 	"github.com/co2-lab/polvo/internal/sshx"
@@ -31,7 +32,11 @@ const usage = `usage:
   polvo keygen  [--dir DIR]                     create this installation's identity
   polvo node    [--dir DIR] [--listen ADDR]     serve this machine as a node
   polvo connect [--dir DIR] ADDR                open a shell on a node
+  polvo mcp     [--dir DIR]                     serve the MCP bridge of the local agent on stdin/stdout
 `
+
+// version is this executable's version, the one the MCP server reports (CLIXX-B06).
+const version = "0.1.0"
 
 // errUsage is CLIXX-E01: the usage on stderr and the exit code 2.
 var errUsage = errors.New("usage")
@@ -48,6 +53,8 @@ func Run(args []string, std Stdio) int {
 			err = serveNode(args[1:], std)
 		case "connect":
 			code, err = connect(args[1:], std)
+		case "mcp":
+			err = serveMCP(args[1:], std)
 		}
 	}
 	switch {
@@ -188,4 +195,23 @@ func connect(args []string, std Stdio) (int, error) {
 		return 255, nil
 	}
 	return st.Code, nil
+}
+
+// serveMCP is CLIXX-B06: the MCP bridge on stdin and stdout, with the tools over the nodes.
+func serveMCP(args []string, std Stdio) error {
+	fs, dir, err := flags("mcp", args, nil)
+	if err != nil {
+		return err
+	}
+	if fs.NArg() != 0 {
+		return errUsage
+	}
+	id, _, err := sshx.LoadOrCreateIdentity(filepath.Join(dir, "id_ed25519"))
+	if err != nil {
+		return err
+	}
+	pool := mcp.NewPool(hub.Config{Identity: id, KnownHosts: sshx.NewKnownHosts(filepath.Join(dir, "known_hosts"))})
+	defer pool.Close()
+	s := &mcp.Server{Name: "polvo", Version: version, Tools: pool.Tools()}
+	return s.Serve(std.Stdin, std.Stdout)
 }

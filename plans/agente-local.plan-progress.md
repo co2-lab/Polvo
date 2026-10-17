@@ -17,4 +17,12 @@ Mark `[x]` here, never in the plan.
 
 ## AGLCG-W02 — O subcomando
 
-- [ ] `cmd/polvo/cli.spec.md` (o `polvo mcp`)
+- [x] `cmd/polvo/cli.spec.md` (o `polvo mcp`)
+
+## Definition of Done (2026-10-17)
+
+- [x] `make test` verde no `go test` e no `galaxy test`.
+- [x] Um cliente MCP real: o `claude -p` com `--mcp-config` a lançar a ponte NO GALAXY
+  (`galaxy run ./cmd/polvo mcp`) correu o `polvo_run` num `polvo node` e devolveu
+  "ola-do-polvo / Linux". Pediu a caixa 1400 do Bavel (o stdin em fluxo).
+- [x] `anchors check` sem gates bloqueantes a falhar.

@@ -8,7 +8,8 @@
 
 ## Overview
 O executável `polvo` é um só, com subcomandos. O `keygen` cria a identidade da instalação, o `node`
-põe a máquina a servir como nó, e o `connect` abre um terminal num nó a partir do terminal local. A
+põe a máquina a servir como nó, o `connect` abre um terminal num nó a partir do terminal local, e o
+`mcp` é a ponte do agente local. A
 pasta de configuração (a identidade, a chave do nó, as chaves autorizadas, os nós conhecidos) é a
 `polvo` dentro da pasta de configuração do utilizador, ou a que a opção `--dir` diz. O ponto de entrada
 testável é o `Run`, com a entrada, a saída e o erro (`Stdio`).
@@ -37,6 +38,11 @@ para a shell remota, sem eco local) e repõe o modo de antes quando a ligação 
 ### CLIXX-B05 — A mudança de tamanho da janela local chega ao nó
 Quando a entrada é um terminal, cada mudança de tamanho da janela local é enviada à shell remota.
 
+### CLIXX-B06 — `mcp` é a ponte do agente local pelo stdin e pelo stdout
+O `polvo mcp` serve o protocolo MCP pelo stdin e pelo stdout, com as ferramentas do Polvo, a identidade
+e os nós conhecidos da pasta de configuração. O nome do servidor é "polvo", com a versão do executável.
+Acaba sem erro quando o stdin acaba.
+
 ## Environment Variables
 | Variable | Type | Required | Default | Values | Deprecated | Description |
 | --- | --- | --- | --- | --- | --- | --- |
@@ -64,6 +70,7 @@ Quando a entrada é um terminal, cada mudança de tamanho da janela local é env
 | `CLIXX-B03` | `args`, `--dir` |
 | `CLIXX-B04` | `args` |
 | `CLIXX-B05` | `args` |
+| `CLIXX-B06` | `args`, `--dir` |
 | `CLIXX-E01` | `args` |
 | `CLIXX-E02` | `args`, `--dir` |
 
@@ -71,6 +78,12 @@ Quando a entrada é um terminal, cada mudança de tamanho da janela local é env
 
 - **@TBD: Windows** para o `CLIXX-B05`: o Windows não tem o sinal de mudança de janela; a consola
   avisa-a por eventos, e isso entra com a caixa 1391 do Bavel (a consola e o ConPTY).
+
+## Revisions
+
+> **CLIXX-R0001:** nasceu o `CLIXX-B06` (o `polvo mcp`), pela fase W02 do plano AGLCG: a ponte MCP da W01
+> dele precisa de um subcomando que a ligue à identidade e aos nós conhecidos da instalação. As
+> regras anteriores não mudam.
 
 ## Open Decisions
 

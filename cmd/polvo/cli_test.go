@@ -10,6 +10,7 @@ import (
 	"bufio"
 	"bytes"
 	"encoding/binary"
+	"encoding/json"
 	"io"
 	"os"
 	"path/filepath"
@@ -157,6 +158,47 @@ func TestCli_connect(t *testing.T) {
 		master.Write([]byte("stty size; exit\n"))
 		waitFor(t, &out, "44 111")
 		<-done
+	})
+}
+
+func TestCli_mcp(t *testing.T) {
+	t.Run("CLIXX-B06: mcp inicializa, lista as quatro ferramentas e corre um comando num nó", func(t *testing.T) {
+		d := t.TempDir()
+		addr := startNode(t, d)
+		in := strings.Join([]string{
+			`{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2025-06-18","capabilities":{},"clientInfo":{"name":"t","version":"1"}}}`,
+			`{"jsonrpc":"2.0","method":"notifications/initialized"}`,
+			`{"jsonrpc":"2.0","id":2,"method":"tools/list","params":{}}`,
+			`{"jsonrpc":"2.0","id":3,"method":"tools/call","params":{"name":"polvo_run","arguments":{"node":"` + addr + `","command":"echo do-agente"}}}`,
+		}, "\n") + "\n"
+		var out syncBuffer
+		code := Run([]string{"mcp", "--dir", d}, Stdio{Stdin: strings.NewReader(in), Stdout: &out, Stderr: io.Discard})
+		if code != 0 {
+			t.Fatalf("want 0, got %d", code)
+		}
+		answers := map[float64]map[string]any{}
+		for _, l := range strings.Split(strings.TrimSpace(out.String()), "\n") {
+			var m map[string]any
+			if err := json.Unmarshal([]byte(l), &m); err != nil {
+				t.Fatalf("not a message: %q", l)
+			}
+			answers[m["id"].(float64)] = m["result"].(map[string]any)
+		}
+		info := answers[1]["serverInfo"].(map[string]any)
+		if info["name"] != "polvo" {
+			t.Fatalf("want the server polvo, got %v", info)
+		}
+		var names []string
+		for _, tl := range answers[2]["tools"].([]any) {
+			names = append(names, tl.(map[string]any)["name"].(string))
+		}
+		if strings.Join(names, ",") != "polvo_run,polvo_read_file,polvo_write_file,polvo_list" {
+			t.Fatalf("want the four tools, got %v", names)
+		}
+		text := answers[3]["content"].([]any)[0].(map[string]any)["text"].(string)
+		if !strings.Contains(text, "do-agente") || answers[3]["isError"] != false {
+			t.Fatalf("want do-agente, got %v", answers[3])
+		}
 	})
 }
 
