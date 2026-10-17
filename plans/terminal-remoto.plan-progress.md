@@ -25,3 +25,11 @@ Mark `[x]` here, never in the plan.
 
 - [x] `internal/hub/client.spec.md`
 - [x] `cmd/polvo/cli.spec.md`
+
+## Definition of Done (2026-10-17)
+
+- [x] `make test` verde no `go test` e no `galaxy test`, nos seis pacotes.
+- [x] O `polvo node` a correr no Galaxy (`GALAXY_ENGINE=go galaxy run ./cmd/polvo node`) aceita o
+  `polvo connect` compilado pelo `go`: uma bash real num pty, `stty size` e o código de saída 7.
+  O redimensionamento da janela é provado pelo `CLIXX-B05` (um terminal real e o `SIGWINCH`).
+- [x] `anchors check` sem gates bloqueantes a falhar.
