@@ -54,7 +54,9 @@ outros agentes recebem a pergunta escrita na sessão e respondem pela ferramenta
 - `internal/node/control.spec.md` — muda: perguntar a um agente (pelo CLI do `claude`, ou escrita na
   sessão dele)
 - `internal/agents/claude.spec.md` — nasce: perguntar ao `claude` de uma sessão pelo CLI dele
-  (`--resume`, `--fork-session`, a saída em JSON), e saber o id da conversa dele
+  (`--resume`, `--fork-session`, a saída em JSON), com o mesmo modelo e as mesmas definições da sessão
+  dele (para a pergunta ler a conversa da cache de prompts, e não a preço cheio), e saber o id da
+  conversa dele
 
 ### AGPRG-W04 — O painel dos agentes (depends on AGPRG-W03)
 
@@ -62,7 +64,9 @@ Depende da janela como cliente dos nós (ESRMS-W02).
 
 - `desktop/src/agents.spec.md` — nasce: o painel da doca com os agentes de todas as máquinas ligadas, o
   progresso de cada um, a lista dos últimos estados, as perguntas feitas e as respostas, e o botão de
-  perguntar (as perguntas comuns já feitas, e uma livre); o indicador na aba da sessão onde o agente corre
+  perguntar (as perguntas comuns já feitas, e uma livre); o indicador na aba da sessão onde o agente corre.
+  O painel mostra primeiro o que o agente já reportou, sem gastar tokens; só pergunta quando o
+  utilizador carrega em perguntar
 
 ## Out of Scope
 
