@@ -62,6 +62,12 @@ Feature: Panel
     When o utilizador carrega no segundo e escreve "x"
     Then só a shell do segundo recebe "x"
 
+  @TRPNT-B09 @unit-level
+  Scenario: Um terminal que não arrancou diz porquê
+    Given o motivo "/nao/existe/shell: no such file"
+    When a janela faz o painel de um terminal que não arrancou
+    Then o ecrã dele mostra o motivo
+
   @TRPNT-E01 @unit-level
   Scenario: Uma shell que não arranca não faz painel
     Given o SHELL "/nao/existe/shell"

@@ -196,42 +196,89 @@ nodes:
         - desktop
       evidence_rev: 9312fd18311a
       line_rev: da442fc882b2
+    - id: desktop/src/layout.feature
+      kind: feature
+      rev: e4ad508e02be
+      updated_at: "2026-10-17"
+      code: DCLYD
+      file_code: DLFDC
+      layer: feature
+      tags:
+        - feature
+      evidence_rev: 81043c3e6a28
+      line_rev: 5ab3c05c2f3a
+    - id: desktop/src/layout.rs
+      kind: code
+      rev: 3b25a669642b
+      updated_at: "2026-10-17"
+      code: DCLYD
+      file_code: DLIDC
+      layer: desktop
+      tags:
+        - desktop
+      evidence_rev: 77a4f901bff6
+      line_rev: 665b5e7797ff
+    - id: desktop/src/layout.spec.md
+      kind: spec
+      rev: 1a7289800dfc
+      updated_at: "2026-10-17"
+      code: DCLYD
+      file_code: DCLYD
+      layer: spec
+      code_declared: true
+      tags:
+        - spec
+      evidence_rev: 9596778c0a6d
+      rule_revs: {DCLYD-B01: 9db002ae6c53, DCLYD-B02: 37ad2d2d6f47, DCLYD-B03: d4a5b38e98fa, DCLYD-E01: c4842410ef34, DCLYD-E02: 645fffd8c3be}
+      rest_rev: 11ecacc6ae94
+    - id: desktop/src/layout_test.rs
+      kind: test
+      rev: 889296bb1d48
+      updated_at: "2026-10-17"
+      code: DCLYD
+      file_code: DLTDC
+      layer: desktoptest
+      tags:
+        - test
+        - desktop
+      evidence_rev: 57281d29db07
+      line_rev: de67fd82f66c
     - id: desktop/src/main.rs
       kind: code
-      rev: f39b3a93cf76
+      rev: 75b8d6c9e55a
       updated_at: "2026-10-17"
       code: JNNTJ
       file_code: DSMND
       layer: desktop
       tags:
         - desktop
-      evidence_rev: 3c962125844e
-      line_rev: 328ec3acc0ea
+      evidence_rev: 56813ad16f60
+      line_rev: 3216df4a19f7
     - id: desktop/src/panel.feature
       kind: feature
-      rev: bf06b143b609
+      rev: 46fa6992fcc3
       updated_at: "2026-10-17"
       code: TRPNT
       file_code: TPFTR
       layer: feature
       tags:
         - feature
-      evidence_rev: 008dc018376b
-      line_rev: 0cf4189e4677
+      evidence_rev: afcaf25cfd65
+      line_rev: abc592fa175c
     - id: desktop/src/panel.rs
       kind: code
-      rev: 5acd2fabc49f
+      rev: 96f23bd1ee98
       updated_at: "2026-10-17"
       code: TRPNT
       file_code: TPITR
       layer: desktop
       tags:
         - desktop
-      evidence_rev: 6c728839d0a8
-      line_rev: ea71a5a92b52
+      evidence_rev: 3231f0141bd1
+      line_rev: 997cf6e6949c
     - id: desktop/src/panel.spec.md
       kind: spec
-      rev: 18f179083a3b
+      rev: 7aaeb545f414
       updated_at: "2026-10-17"
       code: TRPNT
       file_code: TRPNT
@@ -239,12 +286,12 @@ nodes:
       code_declared: true
       tags:
         - spec
-      evidence_rev: 81d0f718d7d2
-      rule_revs: {TRPNT-B01: c05571808a47, TRPNT-B02: c1560e8fb351, TRPNT-B03: f7ef66db290b, TRPNT-B04: f7a01e1c91ea, TRPNT-B05: 70c089047341, TRPNT-B06: 6cd87e8ace25, TRPNT-B07: 0594fb55e06d, TRPNT-B08: 6467ebe5173a, TRPNT-E01: b287746f8024}
-      rest_rev: 0c9c77e90c37
+      evidence_rev: 77d311c17ed2
+      rule_revs: {TRPNT-B01: c05571808a47, TRPNT-B02: c1560e8fb351, TRPNT-B03: f7ef66db290b, TRPNT-B04: f7a01e1c91ea, TRPNT-B05: 70c089047341, TRPNT-B06: 6cd87e8ace25, TRPNT-B07: 0594fb55e06d, TRPNT-B08: 6467ebe5173a, TRPNT-B09: bf64d3bb157c, TRPNT-E01: b287746f8024}
+      rest_rev: 653644f024c1
     - id: desktop/src/panel_test.rs
       kind: test
-      rev: 3cf90e1f4dd6
+      rev: d91da4ca4d0e
       updated_at: "2026-10-17"
       code: TRPNT
       file_code: TPTTR
@@ -252,8 +299,8 @@ nodes:
       tags:
         - test
         - desktop
-      evidence_rev: 80c23c282dd8
-      line_rev: 974dfbe229c1
+      evidence_rev: cd1d1638327e
+      line_rev: ddf540065c5b
     - id: desktop/src/prefs.feature
       kind: feature
       rev: aeeeb64aadef
@@ -314,15 +361,15 @@ nodes:
       line_rev: 6d70072752ba
     - id: desktop/src/screen.rs
       kind: code
-      rev: 7fdf64aac738
+      rev: eb80b3237a80
       updated_at: "2026-10-17"
       code: SCRNE
       file_code: SCIMS
       layer: desktop
       tags:
         - desktop
-      evidence_rev: 9be243611a6b
-      line_rev: 0078fe5618ec
+      evidence_rev: ffc6c384b34a
+      line_rev: abbfc41a8526
     - id: desktop/src/screen.spec.md
       kind: spec
       rev: 7fc4139500d0
@@ -350,29 +397,29 @@ nodes:
       line_rev: 7651756329dd
     - id: desktop/src/window.feature
       kind: feature
-      rev: eaf2b9a94704
+      rev: 30c635e4d011
       updated_at: "2026-10-17"
       code: WNDWI
       file_code: WNFTW
       layer: feature
       tags:
         - feature
-      evidence_rev: c9ed32ed0c21
-      line_rev: 766a3c6f8f35
+      evidence_rev: 3ede7fcff612
+      line_rev: 8baf65b0ee79
     - id: desktop/src/window.rs
       kind: code
-      rev: e9bf3d1e88cc
+      rev: fbc06fc0909c
       updated_at: "2026-10-17"
       code: WNDWI
       file_code: WNIMW
       layer: desktop
       tags:
         - desktop
-      evidence_rev: 78e7f84cba92
-      line_rev: 1c6efa9a1062
+      evidence_rev: c2c7561bc409
+      line_rev: d0d66638ceb0
     - id: desktop/src/window.spec.md
       kind: spec
-      rev: 7f9523c92d97
+      rev: b7d4718baf34
       updated_at: "2026-10-17"
       code: WNDWI
       file_code: WNDWI
@@ -380,12 +427,12 @@ nodes:
       code_declared: true
       tags:
         - spec
-      evidence_rev: 737d28f13db0
-      rule_revs: {WNDWI-B01: 4c62dcb1d9ea, WNDWI-B02: f7dfd0b60818, WNDWI-B07: e122155a7b62, WNDWI-B09: c97c49daafa5, WNDWI-B10: a5e7ec9b14d6, WNDWI-B11: 0c51029a4147, WNDWI-E01: 126da7c5fce0, WNDWI-E02: 2244d778ff0e}
-      rest_rev: c0365c76d0d4
+      evidence_rev: e88319ddf5f7
+      rule_revs: {WNDWI-B01: 4c62dcb1d9ea, WNDWI-B02: f7dfd0b60818, WNDWI-B07: e122155a7b62, WNDWI-B09: c97c49daafa5, WNDWI-B10: a5e7ec9b14d6, WNDWI-B11: 0c51029a4147, WNDWI-B12: 8916c6c71860, WNDWI-B13: 28ce5a0ade4b, WNDWI-E01: 126da7c5fce0, WNDWI-E02: 2244d778ff0e, WNDWI-E03: c8077768ad0c, WNDWI-E04: a2872a652add}
+      rest_rev: c3bce99354b9
     - id: desktop/src/window_test.rs
       kind: test
-      rev: feef0bb840c6
+      rev: 37e6d5837532
       updated_at: "2026-10-17"
       code: WNDWI
       file_code: WNTSW
@@ -393,8 +440,8 @@ nodes:
       tags:
         - test
         - desktop
-      evidence_rev: 67ef30b09fb7
-      line_rev: ab58c76ad0ff
+      evidence_rev: 5a0dd80c81e0
+      line_rev: f1af560103e7
     - id: internal/hub/client.feature
       kind: feature
       rev: 9e853b78b359
@@ -1376,8 +1423,24 @@ edges:
         validated_to_rev: c5c7c7b3eeec
         changed_at: "2026-10-17"
         verdict: ok
+    - from: desktop/src/layout.feature
+      to: desktop/src/layout_test.rs
+      type: tested-by
+      origin: convention
+    - from: desktop/src/layout.spec.md
+      to: desktop/src/layout.feature
+      type: covered-by
+      origin: convention
+    - from: desktop/src/layout.spec.md
+      to: desktop/src/layout.rs
+      type: specifies
+      origin: convention
     - from: desktop/src/main.rs
       to: desktop/src/keys.rs
+      type: depends-on
+      origin: declared
+    - from: desktop/src/main.rs
+      to: desktop/src/layout.rs
       type: depends-on
       origin: declared
     - from: desktop/src/main.rs
@@ -1480,15 +1543,15 @@ edges:
       type: tested-by
       origin: convention
     - from: desktop/src/window.rs
+      to: desktop/src/layout.rs
+      type: depends-on
+      origin: declared
+    - from: desktop/src/window.rs
       to: desktop/src/panel.rs
       type: depends-on
       origin: declared
     - from: desktop/src/window.rs
       to: desktop/src/prefs.rs
-      type: depends-on
-      origin: declared
-    - from: desktop/src/window.rs
-      to: desktop/src/screen.rs
       type: depends-on
       origin: declared
     - from: desktop/src/window.spec.md
@@ -1499,6 +1562,10 @@ edges:
       to: desktop/src/window.rs
       type: specifies
       origin: convention
+    - from: desktop/src/window_test.rs
+      to: desktop/src/layout.rs
+      type: depends-on
+      origin: declared
     - from: desktop/src/window_test.rs
       to: desktop/src/prefs.rs
       type: depends-on
@@ -1946,6 +2013,10 @@ edges:
         validated_to_rev: ea448da911a9
         changed_at: "2026-10-17"
         verdict: ok
+    - from: plans/janela.plan.md
+      to: desktop/src/layout.spec.md
+      type: seeds
+      origin: declared
     - from: plans/janela.plan.md
       to: desktop/src/panel.spec.md
       type: seeds

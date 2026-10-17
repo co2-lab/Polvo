@@ -15,8 +15,8 @@ utilizador organiza arrastando e largando. A janela segue as preferências do am
 No GNOME com Wayland o sistema não desenha a moldura das janelas: a janela desenha a sua, sem sombra
 nem margem à volta (o dono aprovou-a assim a 2026-10-17).
 
-O `PolvoWindow::new` recebe as preferências, o primeiro terminal e a forma de fazer os terminais
-seguintes (`NewTerminal`); o `open` abre a janela com a shell do utilizador.
+O `PolvoWindow::new` recebe as preferências, a forma de fazer os terminais (`NewTerminal`) e o ficheiro
+da organização (`LayoutFile`), quando a há; o `open` abre a janela com a shell do utilizador.
 
 ## Rules
 
@@ -43,23 +43,35 @@ O botão "+" da barra abre um terminal novo numa aba da doca, com o foco.
 ### WNDWI-B11 — O fim de uma shell tira a aba dela
 Quando a shell de um terminal termina, a aba dele sai da doca. Quando sai a última, a janela fecha.
 
+### WNDWI-B13 — Fechar a aba termina a shell
+Fechar a aba de um terminal na doca termina a shell dele. Fechar a última aba fecha a janela.
+
+### WNDWI-B12 — A organização volta
+Ao abrir, quando o ficheiro da organização tem uma, a doca fica igual a como ficou (as abas, os
+grupos, as divisões e os tamanhos), e cada terminal arranca uma shell nova. Sem organização, a doca
+abre com um terminal. Cada mudança da doca grava a organização, `SAVE_DELAY` depois da última mudança.
+
 ## Domain
 
 | Input | Accepts | Outside the domain | Who guarantees |
 | --- | --- | --- | --- |
 | `Prefs` | as preferências do `prefs::read` | — | o `Prefs`: nunca falta nenhum valor (os de omissão) |
-| `NewTerminal` | a forma de fazer um terminal novo | um terminal que não arranca | esta unidade: o aviso (`WNDWI-E02`) |
+| `NewTerminal` | a forma de fazer um terminal novo | um terminal que não arranca | esta unidade: o aviso (`WNDWI-E02`, `WNDWI-E04`) |
+| `LayoutFile` | o ficheiro da organização, ou nenhum | um ficheiro que não se grava | esta unidade: o aviso (`WNDWI-E03`) |
 
 ## Errors / Failures
 | Rule | Condition | Failure |
 | --- | --- | --- |
 | `WNDWI-E01` | o sistema não abre a janela (sem ecrã, sem GPU) @no-scenario: a plataforma de teste abre sempre a janela | o aviso com o motivo na saída de erro, e a aplicação termina |
 | `WNDWI-E02` | o terminal novo do botão "+" não arranca | o aviso com o motivo na saída de erro, e a doca fica como estava |
+| `WNDWI-E03` | a organização não se grava | o aviso com o motivo na saída de erro, e a janela continua |
+| `WNDWI-E04` | ao abrir, nenhum terminal arranca | o aviso com o motivo na saída de erro, e a janela fecha; um terminal restaurado que não arranca fica na aba com o motivo escrito nele |
 
 ## Business Constants
 | Constant | Value | Why |
 | --- | --- | --- |
 | `TITLE_H` | 38 px | a altura da barra do GNOME (libadwaita) |
+| `SAVE_DELAY` | 500 ms | um arrasto muda a doca muitas vezes seguidas; grava-se uma vez, no fim |
 
 ## Rule uses
 
@@ -72,7 +84,11 @@ Quando a shell de um terminal termina, a aba dele sai da doca. Quando sai a últ
 | `WNDWI-B10` | `NewTerminal` |
 | `WNDWI-B11` | `NewTerminal` |
 | `WNDWI-E01` | `Prefs` @no-scenario: a plataforma de teste abre sempre a janela |
+| `WNDWI-B12` | `LayoutFile`, `NewTerminal`, `SAVE_DELAY` |
+| `WNDWI-B13` | `NewTerminal` |
 | `WNDWI-E02` | `NewTerminal` |
+| `WNDWI-E03` | `LayoutFile` |
+| `WNDWI-E04` | `NewTerminal` |
 
 ## Revisions
 
@@ -82,6 +98,11 @@ Quando a shell de um terminal termina, a aba dele sai da doca. Quando sai a últ
 > `WNDWI-B07` fica só com as cores da barra (a fonte também passou para o painel). O `WNDWI-B08` (o fim
 > da shell fecha a janela) passa a `WNDWI-B11`: sai a aba, e a janela fecha com a última. Entram o
 > `WNDWI-B09` (a doca) e o `WNDWI-B10` (o terminal novo).
+
+> **WNDWI-R0002:** entra o `WNDWI-B12` (a organização guardada e restaurada) com o `WNDWI-E03` e o
+> `WNDWI-E04`, e o `new` passa a receber o ficheiro da organização em vez do primeiro terminal. Entra o
+> `WNDWI-B13`: a aba fechada pelo utilizador deixava a shell a correr, porque a janela guardava o
+> painel.
 
 ## Open Decisions
 

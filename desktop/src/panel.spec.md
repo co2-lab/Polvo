@@ -49,6 +49,11 @@ Quando a shell termina, o painel emite o `TerminalEvent::Exited`.
 Carregar no terminal dá-lhe o foco: as teclas seguintes vão para a shell dele, e não para a de outro
 painel.
 
+### TRPNT-B09 — Um terminal que não arrancou diz porquê
+O `failed` faz um painel sem shell que mostra no ecrã o motivo de a shell não ter arrancado: a janela
+usa-o quando um terminal restaurado não arranca, e a aba fica com o motivo à vista até o utilizador a
+fechar.
+
 ## Domain
 
 | Input | Accepts | Outside the domain | Who guarantees |
@@ -81,7 +86,14 @@ painel.
 | `TRPNT-B06` | `Prefs` |
 | `TRPNT-B07` | `Prefs` |
 | `TRPNT-B08` | `key` |
+| `TRPNT-B09` | `Prefs` |
 | `TRPNT-E01` | `SHELL_FALLBACK` |
+
+## Revisions
+
+> **TRPNT-R0001:** entra o `TRPNT-B09` (o painel de um terminal que não arrancou), para a organização
+> restaurada da doca: a doca reconstrói cada aba por um construtor que tem de dar sempre um painel, e um
+> terminal cuja shell já não arranca fica com o motivo à vista em vez de desaparecer em silêncio.
 
 ## Open Decisions
 

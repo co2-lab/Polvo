@@ -5,19 +5,24 @@
 //! The window of Polvo (WNDWI): the title bar the desktop's way, and below it the dock of the
 //! terminals.
 
+use std::cell::RefCell;
+use std::collections::HashMap;
 use std::rc::Rc;
+use std::time::Duration;
 
 use gpui_kit::base::TestSupportExt as _;
-use gpui_kit::component::dock::{DockArea, DockLayout, DockPlacement, DockSkin, PanelStyle, panel_handle};
+use gpui_kit::component::dock::{
+    DockArea, DockEvent, DockLayout, DockPlacement, DockSkin, PanelId, PanelStyle, panel_handle, register_panel,
+};
 use gpui_kit::component::{Icon, IconName, InteractiveElementExt as _, Sizable as _};
 use gpui_kit::{
-    App, AppContext as _, Bounds, Context, Entity, Focusable as _, FontWeight, Hsla, IntoElement, MouseButton, ParentElement as _,
-    Render, Styled as _, Subscription, Window, div, prelude::*, px,
+    App, AppContext as _, Bounds, Context, Entity, EntityId, Focusable as _, FontWeight, Hsla, IntoElement, MouseButton, ParentElement as _,
+    Render, Styled as _, Subscription, Task, Window, div, prelude::*, px,
 };
 
+use crate::layout::{LAYOUT_VERSION, LayoutFile}; // @dep: DLIDC
 use crate::panel::{TerminalEvent, TerminalPanel}; // @dep: TPITR
 use crate::prefs::{Button, Prefs}; // @dep: PRIMP
-use crate::screen::{Screen, Size}; // @dep: SCIMS
 
 /// The height of the title bar (WNDWI-B01), GNOME's (libadwaita).
 pub const TITLE_H: f32 = 38.;
@@ -35,33 +40,95 @@ pub struct Colors {
     pub button_hover: Hsla,
 }
 
+/// The time after the last change of the dock when the organisation is saved (WNDWI-B12).
+pub const SAVE_DELAY: Duration = Duration::from_millis(500);
+
 /// The window: the title bar and the dock.
 pub struct PolvoWindow {
     prefs: Prefs,
     dock: Entity<DockArea>,
     new_terminal: NewTerminal,
+    layout: Option<LayoutFile>,
     /// The terminals in the dock, in the order they were opened.
     terminals: Vec<Entity<TerminalPanel>>,
-    subscriptions: Vec<Subscription>,
+    /// What the window hears from each terminal, by the terminal's entity.
+    heard: HashMap<EntityId, Subscription>,
+    /// What the window hears from the dock.
+    dock_heard: Option<Subscription>,
+    saving: Option<Task<()>>,
     moving: bool,
 }
 
 impl PolvoWindow {
-    /// The window with `first` in the dock, making the next terminals with `new_terminal`.
+    /// The window, with the dock as `layout` kept it, or with one terminal; the terminals are made with
+    /// `new_terminal`.
     pub fn new(
         prefs: Prefs,
-        first: Entity<TerminalPanel>,
         new_terminal: NewTerminal,
+        layout: Option<LayoutFile>,
         window: &mut Window,
         cx: &mut Context<Self>,
     ) -> Self {
         // WNDWI-B09
-        let (dock, skin) = DockSkin::dock_area("polvo", Some(1), window, cx);
+        let (dock, skin) = DockSkin::dock_area("polvo", Some(LAYOUT_VERSION), window, cx);
         skin.set_panel_style(PanelStyle::TabBar, cx);
-        let layout = DockLayout::tabs().panel_view(panel_handle(first.clone()), cx);
-        dock.update(cx, |dock, cx| dock.set_center(layout, window, cx));
-        let mut this = PolvoWindow { prefs, dock, new_terminal, terminals: Vec::new(), subscriptions: Vec::new(), moving: false };
-        this.watch(first, window, cx);
+        skin.set_close_button_visible(true, cx);
+        let mut this = PolvoWindow {
+            prefs,
+            dock: dock.clone(),
+            new_terminal,
+            layout,
+            terminals: Vec::new(),
+            heard: HashMap::new(),
+            dock_heard: None,
+            saving: None,
+            moving: false,
+        };
+        // WNDWI-B12: the kept organisation, each terminal with a new shell.
+        let built: Rc<RefCell<Vec<Entity<TerminalPanel>>>> = Rc::default();
+        {
+            let (make, prefs, built) = (this.new_terminal.clone(), this.prefs.clone(), built.clone());
+            register_panel(cx, "terminal", move |_, window, cx| {
+                let panel = match make(&prefs, window, cx) {
+                    Ok(panel) => panel,
+                    // WNDWI-E04: a restored terminal that does not start says why in its tab.
+                    Err(e) => match TerminalPanel::failed(&e.to_string(), "", &prefs, window, cx) {
+                        Ok(panel) => panel,
+                        Err(e) => panic!("polvo: not even an empty terminal could be made: {e}"),
+                    },
+                };
+                built.borrow_mut().push(panel.clone());
+                panel_handle(panel)
+            });
+        }
+        if let Some(state) = this.layout.as_ref().and_then(LayoutFile::read) {
+            if let Err(e) = dock.update(cx, |dock, cx| dock.load(state, window, cx)) {
+                eprintln!("polvo: the layout could not be restored ({e}); starting with the default");
+            }
+        }
+        for panel in built.borrow_mut().drain(..) {
+            this.watch(panel, window, cx);
+        }
+        if this.terminals.is_empty() {
+            match (this.new_terminal)(&this.prefs, window, cx) {
+                Ok(first) => {
+                    let layout = DockLayout::tabs().panel_view(panel_handle(first.clone()), cx);
+                    dock.update(cx, |dock, cx| dock.set_center(layout, window, cx));
+                    this.watch(first, window, cx);
+                }
+                Err(e) => {
+                    // WNDWI-E04
+                    eprintln!("polvo: the shell did not start: {e}");
+                    window.defer(cx, |window, _| window.remove_window());
+                }
+            }
+        }
+        let sub = cx.subscribe_in(&dock, window, |this, _, ev: &DockEvent, window, cx| {
+            if let DockEvent::LayoutChanged = ev {
+                this.layout_changed(window, cx);
+            }
+        });
+        this.dock_heard = Some(sub);
         this
     }
 
@@ -70,18 +137,48 @@ impl PolvoWindow {
         let sub = cx.subscribe_in(&panel, window, |this, panel, ev: &TerminalEvent, window, cx| match ev {
             TerminalEvent::Exited => this.close_terminal(panel.clone(), window, cx),
         });
-        self.subscriptions.push(sub);
+        self.heard.insert(panel.entity_id(), sub);
         self.terminals.push(panel);
     }
 
-    /// Takes the terminal out of the dock; the window closes with the last (WNDWI-B11).
+    /// Takes the terminal out of the dock (WNDWI-B11).
     fn close_terminal(&mut self, panel: Entity<TerminalPanel>, window: &mut Window, cx: &mut Context<Self>) {
-        self.terminals.retain(|t| t != &panel);
         self.dock.update(cx, |dock, cx| dock.remove_panel(panel, window, cx));
+        self.layout_changed(window, cx);
+    }
+
+    /// After any change of the dock: the terminals whose tab left are let go, so their shells end
+    /// (WNDWI-B13); the window closes with the last (WNDWI-B11); and the organisation is saved, once the
+    /// changes stop (WNDWI-B12).
+    fn layout_changed(&mut self, window: &mut Window, cx: &mut Context<Self>) {
+        let dock = self.dock.read(cx);
+        let gone: Vec<Entity<TerminalPanel>> =
+            self.terminals.iter().filter(|t| dock.panel(PanelId::from(t.entity_id())).is_none()).cloned().collect();
+        for panel in &gone {
+            self.heard.remove(&panel.entity_id());
+        }
+        self.terminals.retain(|t| !gone.contains(t));
         if self.terminals.is_empty() {
             window.remove_window();
+            return;
+        }
+        if self.layout.is_some() {
+            self.saving = Some(cx.spawn_in(window, async move |this, cx| {
+                cx.background_executor().timer(SAVE_DELAY).await;
+                let _ = this.update(cx, |this, cx| this.save(cx));
+            }));
         }
         cx.notify();
+    }
+
+    /// Writes the organisation of the dock (WNDWI-B12).
+    fn save(&mut self, cx: &mut Context<Self>) {
+        let Some(file) = &self.layout else { return };
+        let state = self.dock.read(cx).dump(cx);
+        if let Err(e) = file.write(&state) {
+            // WNDWI-E03
+            eprintln!("polvo: the layout was not saved in {}: {e}", file.path().display());
+        }
     }
 
     /// Opens a new terminal in the dock, with the focus (WNDWI-B10).
@@ -234,18 +331,9 @@ impl Render for PolvoWindow {
     }
 }
 
-/// Opens the window of Polvo with the user's `shell`, in `cwd`, following `prefs`.
+/// Opens the window of Polvo with the user's `shell`, in `cwd`, following `prefs`, with the dock as
+/// the installation's layout file kept it.
 pub fn open(shell: String, cwd: Option<std::path::PathBuf>, prefs: Prefs, cx: &mut App) {
-    // TRPNT-E01: no first terminal, no window.
-    let size = Size { rows: 24, cols: 80, cell_w: 9, cell_h: 20 };
-    let (screen, events) = match Screen::spawn(&[shell.clone()], cwd.as_deref(), size) {
-        Ok(started) => started,
-        Err(e) => {
-            eprintln!("polvo: the shell did not start: {e}");
-            cx.quit();
-            return;
-        }
-    };
     let bounds = Bounds::centered(None, gpui_kit::size(px(1000.), px(640.)), cx);
     let options = gpui_kit::WindowOptions {
         window_bounds: Some(gpui_kit::WindowBounds::Windowed(bounds)),
@@ -254,12 +342,10 @@ pub fn open(shell: String, cwd: Option<std::path::PathBuf>, prefs: Prefs, cx: &m
         app_id: Some("polvo".into()),
         ..gpui_kit::component::TitleBar::window_options()
     };
-    let first_shell = shell.clone();
     let new_terminal: NewTerminal =
         Rc::new(move |prefs, window, cx| TerminalPanel::spawn(&shell, cwd.as_deref(), prefs, window, cx));
     let opened = gpui_kit::open_window(options, cx, |window, cx| {
-        let first = cx.new(|cx| TerminalPanel::new(screen, Some(events), &first_shell, &prefs, window, cx));
-        cx.new(|cx| PolvoWindow::new(prefs, first, new_terminal, window, cx))
+        cx.new(|cx| PolvoWindow::new(prefs, new_terminal, LayoutFile::default(), window, cx))
     });
     if let Err(e) = opened {
         // WNDWI-E01

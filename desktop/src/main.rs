@@ -28,6 +28,7 @@ macro_rules! scenario {
 }
 
 mod keys; // @dep: KYIMK
+mod layout; // @dep: DLIDC
 mod panel; // @dep: TPITR
 mod prefs; // @dep: PRIMP
 mod screen; // @dep: SCIMS

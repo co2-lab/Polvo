@@ -65,6 +65,7 @@ pub struct Run {
 
 /// The drawing of the screen: its lines in runs, the default colours and the palette.
 #[derive(Clone, Debug)]
+#[cfg_attr(not(test), expect(dead_code, reason = "the default foreground and the palette are for the theme of later panels"))]
 pub struct Frame {
     pub lines: Vec<Vec<Run>>,
     pub fg: Rgb,
@@ -348,6 +349,7 @@ impl Screen {
         Frame { lines, fg: fg0, bg: bg0, palette: colors.palette.iter().copied().map(rgb).collect() }
     }
 
+    #[cfg_attr(not(test), expect(dead_code, reason = "the text of the screen, for the tests and for search later"))]
     /// The text of the screen in view, a line per row, without the blanks at the end of each line
     /// and the empty lines at the end.
     pub fn text(&mut self) -> String {

@@ -3,6 +3,7 @@
 //   ref: WNDWI
 
 use super::*;
+use crate::layout::{DockAreaState, LayoutFile}; // @dep: DLIDC
 use crate::prefs::{Button, Prefs}; // @dep: PRIMP
 use crate::screen::tests::Sink; // @dep: SCIMS
 use crate::screen::{Event, Screen, Size}; // @dep: SCIMS
@@ -51,6 +52,10 @@ struct Opened {
 }
 
 fn open_with(cx: &mut TestAppContext, prefs: Prefs, ok: usize) -> Opened {
+    open_full(cx, prefs, ok, None)
+}
+
+fn open_full(cx: &mut TestAppContext, prefs: Prefs, ok: usize, layout: Option<LayoutFile>) -> Opened {
     cx.update(gpui_kit::init);
     let made = Rc::new(RefCell::new(Made::default()));
     let new_terminal = offline_terminals(made.clone(), ok);
@@ -61,13 +66,15 @@ fn open_with(cx: &mut TestAppContext, prefs: Prefs, ok: usize) -> Opened {
     let (handle, view) = cx
         .update(|cx| {
             gpui_kit::open_window(options, cx, |window, cx| {
-                let first = new_terminal(&prefs, window, cx).unwrap();
-                cx.new(|cx| PolvoWindow::new(prefs, first, new_terminal, window, cx))
+                cx.new(|cx| PolvoWindow::new(prefs, new_terminal, layout, window, cx))
             })
         })
         .unwrap();
-    frame(cx, handle);
-    frame(cx, handle);
+    cx.run_until_parked();
+    if !cx.update(|cx| cx.windows().is_empty()) {
+        frame(cx, handle);
+        frame(cx, handle);
+    }
     Opened { handle, view, made }
 }
 
@@ -166,4 +173,90 @@ scenario!(wndwi_e02_um_terminal_novo_que_nao_arranca, "WNDWI-E02: Um terminal no
     cx.update_window(o.handle, |_, window, cx| window.click("new-terminal", cx)).unwrap();
     frame(cx, o.handle);
     assert_eq!(terminals(cx, &o), 1);
+});
+
+/// The terminals in a kept organisation.
+fn terminals_in(state: &DockAreaState) -> usize {
+    fn count(p: &gpui_kit::component::dock::PanelState) -> usize {
+        usize::from(p.panel_name == "terminal") + p.children.iter().map(count).sum::<usize>()
+    }
+    count(&state.center)
+}
+
+/// Lets the organisation be saved: the time after the last change of the dock.
+fn settle(cx: &mut TestAppContext) {
+    cx.executor().advance_clock(SAVE_DELAY + Duration::from_millis(100));
+    cx.run_until_parked();
+}
+
+scenario!(wndwi_b12_01_cada_mudanca_grava_a_organizacao, "WNDWI-B12#01: Cada mudança da doca grava a organização", |cx| {
+    let dir = tempfile::tempdir().unwrap();
+    let file = LayoutFile::at(dir.path().join("layout.json"));
+    let o = open_full(cx, gnome_left(), usize::MAX, Some(file.clone()));
+    cx.update_window(o.handle, |_, window, cx| window.click("new-terminal", cx)).unwrap();
+    settle(cx);
+    let kept = file.read().expect("the organisation was saved");
+    assert_eq!(terminals_in(&kept), 2);
+});
+
+scenario!(wndwi_b12_02_ao_abrir_a_organizacao_volta, "WNDWI-B12#02: Ao abrir, a organização volta", async |cx| {
+    let dir = tempfile::tempdir().unwrap();
+    let file = LayoutFile::at(dir.path().join("layout.json"));
+    let first = open_full(cx, gnome_left(), usize::MAX, Some(file.clone()));
+    cx.update_window(first.handle, |_, window, cx| window.click("new-terminal", cx)).unwrap();
+    frame(cx, first.handle);
+    cx.update_window(first.handle, |_, window, cx| {
+        let visible = window.find("terminal").bounds();
+        let from = window.within("tab-bar").find(1usize).bounds().center();
+        window.drag(from, point(visible.right() - px(10.), visible.center().y), cx);
+    })
+    .unwrap();
+    settle(cx);
+    cx.update_window(first.handle, |_, window, _| window.remove_window()).unwrap();
+    cx.run_until_parked();
+
+    let again = open_full(cx, gnome_left(), usize::MAX, Some(file));
+    assert_eq!(again.made.borrow().sinks.len(), 2, "each terminal starts a new shell");
+    let panels = again.view.read_with(cx, |v, _| v.terminals.clone());
+    assert_eq!(panels.len(), 2);
+    let side_by_side = move |cx: &gpui_kit::App| {
+        let (a, b) = (panels[0].read(cx).laid_out(), panels[1].read(cx).laid_out());
+        a.size.width > px(0.) && b.size.width > px(0.) && (b.left() >= a.right() || a.left() >= b.right())
+    };
+    let check = side_by_side.clone();
+    cx.wait_for(again.handle, Duration::from_secs(1), move |_, cx| check(cx)).await;
+    assert!(cx.update(|cx| side_by_side(cx)), "the two terminals are side by side again");
+});
+
+scenario!(wndwi_e03_uma_organizacao_que_nao_se_grava, "WNDWI-E03: Uma organização que não se grava deixa a janela a funcionar", |cx| {
+    let dir = tempfile::tempdir().unwrap();
+    let not_a_dir = dir.path().join("ficheiro");
+    std::fs::write(&not_a_dir, "").unwrap();
+    let o = open_full(cx, gnome_left(), usize::MAX, Some(LayoutFile::at(not_a_dir.join("layout.json"))));
+    cx.update_window(o.handle, |_, window, cx| window.click("new-terminal", cx)).unwrap();
+    settle(cx);
+    assert!(!cx.update(|cx| cx.windows().is_empty()));
+    assert_eq!(terminals(cx, &o), 2);
+});
+
+scenario!(wndwi_e04_sem_nenhum_terminal_a_janela_fecha, "WNDWI-E04: Sem nenhum terminal que arranque, a janela fecha", |cx| {
+    let _o = open_with(cx, gnome_left(), 0);
+    assert!(cx.update(|cx| cx.windows().is_empty()));
+});
+
+scenario!(wndwi_b13_fechar_a_aba_termina_a_shell, "WNDWI-B13: Fechar a aba termina a shell", |cx| {
+    let o = open_gnome(cx);
+    cx.update_window(o.handle, |_, window, cx| window.click("new-terminal", cx)).unwrap();
+    frame(cx, o.handle);
+    let (panels, dock) = o.view.read_with(cx, |v, _| (v.terminals.clone(), v.dock.clone()));
+    let ends = o.made.borrow().ends.clone();
+    cx.update_window(o.handle, |_, window, cx| dock.update(cx, |d, cx| d.remove_panel(panels[0].clone(), window, cx))).unwrap();
+    drop(panels);
+    cx.run_until_parked();
+    assert!(ends[0].is_closed(), "the first shell lost its terminal");
+    assert!(!ends[1].is_closed());
+    let last = o.view.read_with(cx, |v, _| v.terminals[0].clone());
+    cx.update_window(o.handle, |_, window, cx| dock.update(cx, |d, cx| d.remove_panel(last, window, cx))).unwrap();
+    cx.run_until_parked();
+    assert!(cx.update(|cx| cx.windows().is_empty()));
 });

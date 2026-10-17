@@ -16,7 +16,7 @@ use gpui_kit::component::dock::{BasePanel, Panel, PanelEvent};
 use gpui_kit::{
     App, AppContext as _, Bounds, ClipboardItem, Context, Entity, EventEmitter, Focusable, Font, FocusHandle, FontWeight,
     Hsla, IntoElement, KeyDownEvent, MouseButton, MouseDownEvent, MouseMoveEvent, MouseUpEvent, ParentElement as _,
-    Pixels, Point, Render, Rgba, ScrollDelta, ScrollWheelEvent, SharedString, Styled as _, Window, canvas, div,
+    Pixels, Point, Render, Rgba, ScrollDelta, ScrollWheelEvent, SharedString, Styled as _, Task, Window, canvas, div,
     prelude::*, px,
 };
 
@@ -52,6 +52,7 @@ pub struct TerminalPanel {
     born: Instant,
     selecting: bool,
     scroll_acc: f32,
+    _listening: Option<Task<()>>,
 }
 
 impl TerminalPanel {
@@ -65,7 +66,9 @@ impl TerminalPanel {
         window: &mut Window,
         cx: &mut Context<Self>,
     ) -> Self {
-        if let Some(mut events) = events {
+        // The task that reads the shell lives as long as the panel: dropping the panel drops it, and the
+        // shell's channel with it.
+        let listening = events.map(|mut events| {
             cx.spawn_in(window, async move |this, cx| {
                 while let Some(ev) = events.next().await {
                     let more = this.update(cx, |panel, cx| match ev {
@@ -85,8 +88,7 @@ impl TerminalPanel {
                     }
                 }
             })
-            .detach();
-        }
+        });
         let focus = cx.focus_handle();
         window.focus(&focus, cx);
         // TRPNT-B05
@@ -106,6 +108,7 @@ impl TerminalPanel {
             born: Instant::now(),
             selecting: false,
             scroll_acc: 0.,
+            _listening: listening,
         }
     }
 
@@ -127,6 +130,21 @@ impl TerminalPanel {
         Ok(cx.new(|cx| TerminalPanel::new(screen, Some(events), shell, prefs, window, cx)))
     }
 
+    /// A panel with no shell that shows why `shell` did not start (TRPNT-B09).
+    /// The error when not even a terminal with no shell can be made (libghostty-vt out of memory).
+    pub fn failed(
+        reason: &str,
+        shell: &str,
+        prefs: &Prefs,
+        window: &mut Window,
+        cx: &mut App,
+    ) -> Result<Entity<TerminalPanel>, String> {
+        let size = Size { rows: 24, cols: 80, cell_w: 9, cell_h: 20 };
+        let mut screen = Screen::new(size, Box::new(std::io::sink()))?;
+        screen.feed(format!("polvo: the shell did not start: {reason}\r\n").as_bytes());
+        Ok(cx.new(|cx| TerminalPanel::new(screen, None, shell, prefs, window, cx)))
+    }
+
     /// The title of the tab: the shell's title for the terminal, or the shell's name (TRPNT-B06).
     pub fn tab_title(&self) -> String {
         let title = self.screen.title();
@@ -137,6 +155,7 @@ impl TerminalPanel {
     }
 
     /// Where the panel was laid out in the last frame (TRPNT-B04).
+    #[cfg_attr(not(test), expect(dead_code, reason = "the window's tests read where each terminal is"))]
     pub fn laid_out(&self) -> Bounds<Pixels> {
         self.area.get()
     }

@@ -210,6 +210,20 @@ scenario!(trpnt_b08_clicar_da_o_foco, "TRPNT-B08: Clicar dá o foco", |cx| {
     assert_eq!((sink1.take(), sink2.take()), (Vec::new(), b"x".to_vec()));
 });
 
+scenario!(trpnt_b09_um_terminal_que_nao_arrancou_diz_porque, "TRPNT-B09: Um terminal que não arrancou diz porquê", |cx| {
+    cx.update(gpui_kit::init);
+    let (handle, panel) = cx
+        .update(|cx| {
+            gpui_kit::open_window(options(), cx, |window, cx| {
+                TerminalPanel::failed("/nao/existe/shell: no such file", "/bin/sh", &prefs(), window, cx).unwrap()
+            })
+        })
+        .unwrap();
+    frame(cx, handle);
+    let text = panel.update(cx, |p, _| p.screen.text());
+    assert!(text.contains("/nao/existe/shell: no such file"), "{text}");
+});
+
 scenario!(trpnt_e01_uma_shell_que_nao_arranca_nao_faz_painel, "TRPNT-E01: Uma shell que não arranca não faz painel", |cx| {
     cx.update(gpui_kit::init);
     let result = Rc::new(RefCell::new(None));

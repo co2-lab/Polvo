@@ -50,8 +50,38 @@ Feature: Window
     When a shell do primeiro termina, e depois a do segundo
     Then fica um terminal na doca, e depois a janela deixa de existir
 
+  @WNDWI-B13 @unit-level
+  Scenario: Fechar a aba termina a shell
+    Given uma janela com dois terminais
+    When o utilizador fecha a aba do primeiro, e depois a do segundo
+    Then a shell do primeiro deixa de ter terminal, e depois a janela deixa de existir
+
+  @WNDWI-B12#01 @unit-level
+  Scenario: Cada mudança da doca grava a organização
+    Given uma janela com o ficheiro da organização numa pasta vazia
+    When o utilizador abre um segundo terminal e passa meio segundo
+    Then o ficheiro tem a organização com os dois terminais
+
+  @WNDWI-B12#02 @unit-level
+  Scenario: Ao abrir, a organização volta
+    Given o ficheiro com uma organização de dois terminais lado a lado
+    When a janela abre
+    Then a doca tem os dois terminais lado a lado, cada um com uma shell nova
+
   @WNDWI-E02 @unit-level
   Scenario: Um terminal novo que não arranca deixa a doca como estava
     Given uma janela com um terminal, cujos terminais novos não arrancam
     When o utilizador carrega em "+"
     Then a doca continua com um terminal
+
+  @WNDWI-E03 @unit-level
+  Scenario: Uma organização que não se grava deixa a janela a funcionar
+    Given uma janela cujo ficheiro da organização fica dentro de um ficheiro, e não de uma pasta
+    When o utilizador abre um segundo terminal e passa meio segundo
+    Then a janela continua aberta com os dois terminais
+
+  @WNDWI-E04 @unit-level
+  Scenario: Sem nenhum terminal que arranque, a janela fecha
+    Given uma janela cujos terminais não arrancam
+    When a janela abre
+    Then a janela deixa de existir
