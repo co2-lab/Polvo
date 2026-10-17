@@ -22,9 +22,11 @@ num ficheiro, e perguntar-lhes sem sair do Polvo. O canal já existe: o agente u
 ligam as máquinas.
 
 O MCP é sobretudo o agente a chamar o Polvo; o pedido no outro sentido (o "sampling") pede uma resposta
-ao modelo do cliente fora da conversa do agente, que não sabe do trabalho. Mas o Polvo é dono do terminal
-onde o agente corre: escreve a pergunta lá, como mensagem do utilizador com um identificador, e o agente
-responde pela ferramenta, ligada ao identificador.
+ao modelo do cliente fora da conversa do agente, que não sabe do trabalho. Há dois caminhos que funcionam:
+- para o `claude`, o nó da máquina dele corre `claude -p --resume <sessão> --fork-session`: a resposta
+  vem com o contexto todo da conversa, numa cópia, sem interromper o agente nem mexer na conversa dele;
+- para os outros agentes, o Polvo é dono do terminal onde o agente corre: escreve a pergunta lá, como
+  mensagem do utilizador com um identificador, e o agente responde pela ferramenta.
 
 ## Phases
 
@@ -44,11 +46,15 @@ a quem o pede e avisa quem está à escuta de cada mudança.
 
 ### AGPRG-W03 — Perguntar ao agente (depends on AGPRG-W02)
 
-Depende das sessões no nó (ESRMS-W01): a pergunta é escrita na sessão do agente.
+Depende das sessões no nó (ESRMS-W01). O `claude` responde pelo CLI dele, numa cópia da conversa; os
+outros agentes recebem a pergunta escrita na sessão e respondem pela ferramenta.
 
 - `internal/progress/progress.spec.md` — muda: as perguntas do Polvo a um agente, com o identificador, e
   as respostas; uma pergunta sem resposta fica pendente
-- `internal/node/control.spec.md` — muda: perguntar a um agente (escreve a pergunta na sessão dele)
+- `internal/node/control.spec.md` — muda: perguntar a um agente (pelo CLI do `claude`, ou escrita na
+  sessão dele)
+- `internal/agents/claude.spec.md` — nasce: perguntar ao `claude` de uma sessão pelo CLI dele
+  (`--resume`, `--fork-session`, a saída em JSON), e saber o id da conversa dele
 
 ### AGPRG-W04 — O painel dos agentes (depends on AGPRG-W03)
 
@@ -68,6 +74,16 @@ Depende da janela como cliente dos nós (ESRMS-W02).
 > **AGPRG-R0001:** a caixa de mensagens dá lugar às perguntas do Polvo ao agente, como o dono a explicou
 > a 2026-10-17: o Polvo pergunta (o estado, o progresso, as particularidades da sessão) e o agente
 > responde. Entra a fase W03, e o painel passa a W04.
+
+> **AGPRG-R0002:** o dono propôs perguntar ao `claude` pelo CLI dele com o id da sessão: o `--resume` com
+> o `--fork-session` responde com o contexto todo sem interromper o agente. Passa a ser o caminho do
+> `claude`; escrever no terminal fica para os outros agentes.
+
+## Open Decisions
+
+| Code | Question | Who decides | Becomes |
+| --- | --- | --- | --- |
+| `AGPRG-D01` | Como o nó sabe o id da conversa do `claude` de uma sessão quando o utilizador o arrancou à mão: o agente reporta-o pela ferramenta, o nó procura a conversa do processo `claude` da sessão, ou o Polvo arranca o `claude` com `--session-id` | o agente, testando as três, e o dono aprova | a fase AGPRG-W03 |
 
 ## Definition of Done
 
