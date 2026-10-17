@@ -74,7 +74,12 @@ processo que já tinha terminado não é afetado.
 ## Implementation Notes
 
 - **@TBD: Windows.** O pseudo-console do Windows (ConPTY) fica para quando o Galaxy o tiver (caixa
-  1389 do Bavel). Em Windows, o `Start` falha com um erro que o diz.
+  1391 do Bavel). Em Windows, o `Start` falha com um erro que o diz.
+
+## Revisions
+
+> **PTYXX-R0001:** a nota do Windows passou a nomear a caixa 1391 do Bavel (era 1389). A numeração das
+> caixas seguintes mudou quando a 1388 e a 1389 nasceram antes; a decisão (`@TBD: Windows`) é a mesma.
 
 ## Open Decisions
 

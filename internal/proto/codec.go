@@ -44,6 +44,13 @@ func StringID(s string) ID {
 	return ID{string(b)}
 }
 
+// NullID is the null id of an error response to a message whose id could not be read
+// (CDCOE-B06).
+func NullID() ID { return ID{"null"} }
+
+// IsNull reports whether the id is the null id.
+func (id ID) IsNull() bool { return id.raw == "null" }
+
 // IsZero reports whether the id is absent.
 func (id ID) IsZero() bool { return id.raw == "" }
 
@@ -73,6 +80,9 @@ func parseID(raw json.RawMessage) (ID, bool) {
 	raw = bytes.TrimSpace(raw)
 	if len(raw) == 0 {
 		return ID{}, false
+	}
+	if string(raw) == "null" {
+		return NullID(), true
 	}
 	if raw[0] == '"' {
 		var s string
@@ -131,6 +141,9 @@ type Message struct {
 // Kind classifies the message by its fields (CDCOE-B02).
 func (m *Message) Kind() Kind {
 	switch {
+	// CDCOE-B06: the null id belongs only to an error response.
+	case m.ID.IsNull() && (m.Method != "" || m.Error == nil):
+		return Invalid
 	case m.Method != "" && m.Result == nil && m.Error == nil:
 		if m.ID.IsZero() {
 			return Notification

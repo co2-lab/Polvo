@@ -38,6 +38,12 @@ Feature: Codec
     When o leitor lê a linha
     Then o leitor dá o erro de pedido inválido com o código -32600
 
+  @CDCOE-B06 @unit-level
+  Scenario: A resposta de erro com o identificador nulo vai e volta, e o pedido com ele é recusado
+    Given uma resposta de erro com o identificador nulo e o código -32700, e a linha {"jsonrpc":"2.0","id":null,"method":"a"}
+    When o escritor escreve a resposta e o leitor a lê, e depois lê a linha
+    Then o leitor entrega a resposta com o identificador nulo, e a linha dá o erro de pedido inválido
+
   @CDCOE-E01 @unit-level
   Scenario: Uma linha que não é JSON dá erro de parse e a seguinte ainda é lida
     Given um fluxo com a linha {"jsonrpc": e depois a linha {"jsonrpc":"2.0","method":"b"}

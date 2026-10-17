@@ -2,7 +2,7 @@
 # Material e versionado. Fonte de verdade do grafo; índices em memória são cache.
 version: 7
 generated_by: 0.1.326
-config_rev: 6f74f16179e0
+config_rev: 1b4c6e61b439
 nodes:
     - id: AGENTS.md
       kind: doc
@@ -28,20 +28,216 @@ nodes:
       tags:
         - guidance
       regime: declarativo
+    - id: internal/node/control.feature
+      kind: feature
+      rev: 1b60413b791e
+      updated_at: "2026-10-17"
+      code: CNTRL
+      file_code: CNFTR
+      layer: feature
+      tags:
+        - feature
+      evidence_rev: a2669fdb3e3a
+      line_rev: eed045b77564
+    - id: internal/node/control.go
+      kind: code
+      rev: 5b33be90bc3a
+      updated_at: "2026-10-17"
+      code: CNTRL
+      file_code: CNIMP
+      layer: node
+      tags:
+        - node
+      signal:
+        covered_lines: 122
+        total_lines: 157
+        line_coverage: 77.70700636942675
+        coverage_by_suite:
+            .anchors/lcov.info:
+                instrumented: 33-53,55-57,60,64-78,80-88,90-94,98-102,105-110,118-126,130-138,140-147,151-163,173-188,190-191,201-230,232-236
+                covered: 33-48,52-53,55-57,60,64-78,80-86,90-91,94,98-99,102,105-110,118-120,123,126,130-132,135-138,140-144,147,151-153,156-160,163,173-175,178-179,182-188,190-191,201-203,206,209-210,213-223,225-227,232-236
+                covered_lines: 122
+                total_lines: 157
+                at_rev: 5b33be90bc3a
+        coverage_rev: 5b33be90bc3a
+        at_rev: 5b33be90bc3a
+        ingested_at: "2026-10-17T03:15:53-03:00"
+      evidence_rev: 983ab2fc644b
+      line_rev: d90f863b90eb
+    - id: internal/node/control.spec.md
+      kind: spec
+      rev: bfe15308f3ec
+      updated_at: "2026-10-17"
+      code: CNTRL
+      file_code: CNTRL
+      layer: spec
+      code_declared: true
+      tags:
+        - spec
+      signal:
+        proven_codes:
+            - CNTRL-B01
+            - CNTRL-B02
+            - CNTRL-B03
+            - CNTRL-B04
+            - CNTRL-B05
+            - CNTRL-B06
+            - CNTRL-E01
+            - CNTRL-E02
+            - CNTRL-E03
+            - CNTRL-E04
+            - CNTRL-E05
+        proven_by_suite:
+            .anchors/junit.xml:
+                - CNTRL-B01
+                - CNTRL-B02
+                - CNTRL-B03
+                - CNTRL-B04
+                - CNTRL-B05
+                - CNTRL-B06
+                - CNTRL-E01
+                - CNTRL-E02
+                - CNTRL-E03
+                - CNTRL-E04
+                - CNTRL-E05
+        proven_rev_by_suite:
+            .anchors/junit.xml: bfe15308f3ec
+        at_rev: bfe15308f3ec
+        ingested_at: "2026-10-17T03:15:53-03:00"
+      evidence_rev: 851f54b25558
+      rule_revs: {CNTRL-B01: "316986563459", CNTRL-B02: 802b79876f2f, CNTRL-B03: 884e4c321bc7, CNTRL-B04: 8d1e498da8c5, CNTRL-B05: 342a2b0f5cb6, CNTRL-B06: c5b173133779, CNTRL-E01: d1a2b67829aa, CNTRL-E02: 4449c1568c95, CNTRL-E03: ae2d67e525fc, CNTRL-E04: b89eadab3a8c, CNTRL-E05: f410ddb5ff2d}
+      rest_rev: 22e06dbb6e28
+    - id: internal/node/control_test.go
+      kind: test
+      rev: 46b14d1acc7c
+      updated_at: "2026-10-17"
+      code: CNTRL
+      file_code: CNTST
+      layer: test
+      tags:
+        - test
+      signal:
+        passed: 14
+        by_layer:
+            unit:
+                passed: 14
+        seconds_by_suite:
+            .anchors/junit.xml: 4.1499999999999995
+        at_rev: 46b14d1acc7c
+        ingested_at: "2026-10-17T03:15:53-03:00"
+      evidence_rev: 9079b8b28be8
+      line_rev: 2c131dac790b
+    - id: internal/node/server.feature
+      kind: feature
+      rev: 615ce6d1879e
+      updated_at: "2026-10-17"
+      code: SRVRE
+      file_code: SRFTR
+      layer: feature
+      tags:
+        - feature
+      evidence_rev: 4bf508c80d1f
+      line_rev: 552453e68e69
+    - id: internal/node/server.go
+      kind: code
+      rev: 3e53a870aa3d
+      updated_at: "2026-10-17"
+      code: SRVRE
+      file_code: SRIMP
+      layer: node
+      tags:
+        - node
+      signal:
+        covered_lines: 167
+        total_lines: 194
+        line_coverage: 86.08247422680412
+        coverage_by_suite:
+            .anchors/lcov.info:
+                instrumented: 35-39,42-61,64-65,69-79,84-90,93-104,106-108,110-111,113,140-163,165-178,181-183,188-195,198-207,209-216,220-229,233-260,265-268,281-287,291-300,303-307
+                covered: 35-39,42-47,50-55,58-61,64-65,69-79,93-104,106-107,110-111,113,140-160,163,165-178,181-183,188-191,194-195,198-199,202-207,209-210,214-216,220-225,229,233-258,265-268,281-287,291-300,303-306
+                covered_lines: 167
+                total_lines: 194
+                at_rev: 3e53a870aa3d
+        coverage_rev: 3e53a870aa3d
+        at_rev: 3e53a870aa3d
+        ingested_at: "2026-10-17T03:15:53-03:00"
+      evidence_rev: f5f1f3a48415
+      line_rev: ae8795616f99
+    - id: internal/node/server.spec.md
+      kind: spec
+      rev: a93d7350dd3a
+      updated_at: "2026-10-17"
+      code: SRVRE
+      file_code: SRVRE
+      layer: spec
+      code_declared: true
+      tags:
+        - spec
+      signal:
+        proven_codes:
+            - SRVRE-B01
+            - SRVRE-B02
+            - SRVRE-B03
+            - SRVRE-B04
+            - SRVRE-B05
+            - SRVRE-B06
+            - SRVRE-B07
+            - SRVRE-B08
+            - SRVRE-E01
+            - SRVRE-E02
+        proven_by_suite:
+            .anchors/junit.xml:
+                - SRVRE-B01
+                - SRVRE-B02
+                - SRVRE-B03
+                - SRVRE-B04
+                - SRVRE-B05
+                - SRVRE-B06
+                - SRVRE-B07
+                - SRVRE-B08
+                - SRVRE-E01
+                - SRVRE-E02
+        proven_rev_by_suite:
+            .anchors/junit.xml: a93d7350dd3a
+        at_rev: a93d7350dd3a
+        ingested_at: "2026-10-17T03:15:53-03:00"
+      evidence_rev: 5800ffc4274f
+      rule_revs: {SRVRE-B01: 27d338e5bd92, SRVRE-B02: 7b58d2ebff51, SRVRE-B03: 010ddadf6218, SRVRE-B04: 6998efa92dd4, SRVRE-B05: 5735663c0d9a, SRVRE-B06: 91a0e5c0038d, SRVRE-B07: c0d4fa9d3e39, SRVRE-B08: 5c7506510e2f, SRVRE-E01: b70249e7954d, SRVRE-E02: b1d0739b5776}
+      rest_rev: 81c38f95e564
+    - id: internal/node/server_test.go
+      kind: test
+      rev: b6b7a6e3c2d9
+      updated_at: "2026-10-17"
+      code: SRVRE
+      file_code: SRTST
+      layer: test
+      tags:
+        - test
+      signal:
+        passed: 15
+        by_layer:
+            unit:
+                passed: 15
+        seconds_by_suite:
+            .anchors/junit.xml: 0.12
+        at_rev: b6b7a6e3c2d9
+        ingested_at: "2026-10-17T03:15:53-03:00"
+      evidence_rev: 424645cad26a
+      line_rev: 2794e0960b56
     - id: internal/proto/codec.feature
       kind: feature
-      rev: e7c14ec8f277
+      rev: 6be08d1e69b3
       updated_at: "2026-10-17"
       code: CDCOE
       file_code: CDFTC
       layer: feature
       tags:
         - feature
-      evidence_rev: 9e86d1640c38
-      line_rev: 54aa38632f95
+      evidence_rev: d464c676d171
+      line_rev: 98da388c5967
     - id: internal/proto/codec.go
       kind: code
-      rev: ebc6b01e1c5f
+      rev: 5ecacbb0e6b8
       updated_at: "2026-10-17"
       code: CDCOE
       file_code: CDIMC
@@ -49,25 +245,24 @@ nodes:
       tags:
         - proto
       signal:
-        covered_lines: 126
-        total_lines: 155
-        line_coverage: 81.29032258064515
-        prev_line_coverage: 81.29032258064515
+        covered_lines: 133
+        total_lines: 162
+        line_coverage: 82.09876543209876
         coverage_by_suite:
             .anchors/lcov.info:
-                instrumented: 39,42-45,48,51-54,57-62,66,69,72-82,84-88,101-108,110,120,132-140,142,153,162,165-167,171-181,183-198,205-210,212-213,215,219-227,229-237,239-247,249-259,261-264,275,287-290,293-305
-                covered: 39,42-45,48,51-54,57-59,62,66,69,72-74,77-79,82,84-85,88,132-140,142,162,165-167,171-181,183-196,205-210,212-213,215,219-227,229-235,239-245,249-257,261-264,275,287-290,293-298,301-305
-                covered_lines: 126
-                total_lines: 155
-                at_rev: ebc6b01e1c5f
-        coverage_rev: ebc6b01e1c5f
-        at_rev: ebc6b01e1c5f
-        ingested_at: "2026-10-17T02:23:52-03:00"
-      evidence_rev: c0c5c3f86338
-      line_rev: aecb8da5d021
+                instrumented: 39,42-45,49,52,55,58-61,64-69,73,76,79-92,94-98,111-118,120,130,142-143,145-153,155,166,175,178-180,184-194,196-211,218-223,225-226,228,232-240,242-250,252-260,262-272,274-277,288,300-303,306-318
+                covered: 39,42-45,49,52,55,58-61,64-66,69,73,76,79-81,84-89,92,94-95,98,142-143,145-153,155,175,178-180,184-194,196-209,218-223,225-226,228,232-240,242-248,252-258,262-270,274-277,288,300-303,306-311,314-318
+                covered_lines: 133
+                total_lines: 162
+                at_rev: 5ecacbb0e6b8
+        coverage_rev: 5ecacbb0e6b8
+        at_rev: 5ecacbb0e6b8
+        ingested_at: "2026-10-17T03:15:53-03:00"
+      evidence_rev: b73bfaf4da4a
+      line_rev: db1d74a55ae7
     - id: internal/proto/codec.spec.md
       kind: spec
-      rev: e26cdcd7410e
+      rev: 733b595adb02
       updated_at: "2026-10-17"
       code: CDCOE
       file_code: CDCOE
@@ -75,42 +270,12 @@ nodes:
       code_declared: true
       tags:
         - spec
-      signal:
-        proven_codes:
-            - CDCOE-B01
-            - CDCOE-B02
-            - CDCOE-B03
-            - CDCOE-B04
-            - CDCOE-B05
-            - CDCOE-E01
-            - CDCOE-E02
-            - CDCOE-E03
-            - CDCOE-E04
-            - CDCOE-E05
-            - CDCOE-I01
-        proven_by_suite:
-            .anchors/junit.xml:
-                - CDCOE-B01
-                - CDCOE-B02
-                - CDCOE-B03
-                - CDCOE-B04
-                - CDCOE-B05
-                - CDCOE-E01
-                - CDCOE-E02
-                - CDCOE-E03
-                - CDCOE-E04
-                - CDCOE-E05
-                - CDCOE-I01
-        proven_rev_by_suite:
-            .anchors/junit.xml: e26cdcd7410e
-        at_rev: e26cdcd7410e
-        ingested_at: "2026-10-17T02:23:52-03:00"
-      evidence_rev: 5baf2c012367
-      rule_revs: {CDCOE-B01: a7383a2020ff, CDCOE-B02: 61a887c58ac4, CDCOE-B03: 4a01373ad490, CDCOE-B04: 9cee12e1c956, CDCOE-B05: e7e1d0fd8ec7, CDCOE-E01: 723ad9f8a030, CDCOE-E02: 55258838dd1f, CDCOE-E03: cbdfca7189e1, CDCOE-E04: 58a8c36dcfe2, CDCOE-E05: be3c90c976ca, CDCOE-I01: dd82e8b4afd7}
-      rest_rev: ec519a8ec68d
+      evidence_rev: a3178936141b
+      rule_revs: {CDCOE-B01: a7383a2020ff, CDCOE-B02: 61a887c58ac4, CDCOE-B03: 4a01373ad490, CDCOE-B04: 9cee12e1c956, CDCOE-B05: e7e1d0fd8ec7, CDCOE-B06: 1f57071da010, CDCOE-E01: 723ad9f8a030, CDCOE-E02: 55258838dd1f, CDCOE-E03: cbdfca7189e1, CDCOE-E04: 58a8c36dcfe2, CDCOE-E05: be3c90c976ca, CDCOE-I01: dd82e8b4afd7}
+      rest_rev: 8ce42241ce05
     - id: internal/proto/codec_test.go
       kind: test
-      rev: 803d06a6088d
+      rev: e6ab5c631111
       updated_at: "2026-10-17"
       code: CDCOE
       file_code: CDTST
@@ -118,14 +283,16 @@ nodes:
       tags:
         - test
       signal:
-        passed: 20
+        passed: 22
         by_layer:
             unit:
-                passed: 20
-        at_rev: 803d06a6088d
-        ingested_at: "2026-10-17T02:23:52-03:00"
-      evidence_rev: ec4fa8ee192e
-      line_rev: 074073cd551b
+                passed: 22
+        seconds_by_suite:
+            .anchors/junit.xml: 0.02
+        at_rev: e6ab5c631111
+        ingested_at: "2026-10-17T03:15:53-03:00"
+      evidence_rev: 273875bb80e1
+      line_rev: 3ef0b40bdc73
     - id: internal/pty/pty.feature
       kind: feature
       rev: d28a87b89333
@@ -147,24 +314,25 @@ nodes:
       tags:
         - pty
       signal:
-        covered_lines: 54
+        covered_lines: 56
         total_lines: 58
-        line_coverage: 93.10344827586206
+        line_coverage: 96.55172413793103
+        prev_line_coverage: 93.10344827586206
         coverage_by_suite:
             .anchors/lcov.info:
                 instrumented: 25-32,52-65,69-76,80,83-86,89,92-107,110,115-119
-                covered: 25-32,52-65,69-76,80,83-86,89,92-96,99-105,110,115-119
-                covered_lines: 54
+                covered: 25-32,52-65,69-76,80,83-86,89,92-105,110,115-119
+                covered_lines: 56
                 total_lines: 58
                 at_rev: 54af5c9ddd6e
         coverage_rev: 54af5c9ddd6e
         at_rev: 54af5c9ddd6e
-        ingested_at: "2026-10-17T02:23:52-03:00"
+        ingested_at: "2026-10-17T03:15:53-03:00"
       evidence_rev: 22ff81cd9025
       line_rev: 9dea48b90297
     - id: internal/pty/pty.spec.md
       kind: spec
-      rev: 11d11107df4b
+      rev: 81623bc46d5a
       updated_at: "2026-10-17"
       code: PTYXX
       file_code: PTYXX
@@ -172,37 +340,9 @@ nodes:
       code_declared: true
       tags:
         - spec
-      signal:
-        proven_codes:
-            - PTYXX-B01
-            - PTYXX-B02
-            - PTYXX-B03
-            - PTYXX-B04
-            - PTYXX-B05
-            - PTYXX-B06
-            - PTYXX-E01
-            - PTYXX-E02
-            - PTYXX-I01
-        proven_by_suite:
-            .anchors/junit.xml:
-                - PTYXX-B01
-                - PTYXX-B02
-                - PTYXX-B03
-                - PTYXX-B04
-                - PTYXX-B05
-                - PTYXX-B06
-                - PTYXX-E01
-                - PTYXX-E02
-                - PTYXX-I01
-        proven_rev_by_suite:
-            .anchors/junit.xml: 11d11107df4b
-        at_rev: 11d11107df4b
-        stale_codes:
-            - PTYXX-B04
-        ingested_at: "2026-10-17T02:23:52-03:00"
-      evidence_rev: 305a5473aff5
+      evidence_rev: 155198ccd343
       rule_revs: {PTYXX-B01: fc303a3e3572, PTYXX-B02: b66105393218, PTYXX-B03: 74896e50bd51, PTYXX-B04: 6ae57f38ee8b, PTYXX-B05: a3427410a337, PTYXX-B06: c219964a3878, PTYXX-E01: 8207edb06602, PTYXX-E02: 45a2f57ce24a, PTYXX-I01: 6e9e54abd214}
-      rest_rev: 129539524d30
+      rest_rev: bef1ade386e4
     - id: internal/pty/pty_test.go
       kind: test
       rev: e5aec749babc
@@ -218,9 +358,9 @@ nodes:
             unit:
                 passed: 13
         seconds_by_suite:
-            .anchors/junit.xml: 0.18
+            .anchors/junit.xml: 0.16999999999999998
         at_rev: e5aec749babc
-        ingested_at: "2026-10-17T02:23:52-03:00"
+        ingested_at: "2026-10-17T03:15:53-03:00"
       evidence_rev: 9fd3311cb892
       line_rev: 9aa4ce2a09e9
     - id: internal/sshx/keys.feature
@@ -247,7 +387,7 @@ nodes:
         covered_lines: 89
         total_lines: 128
         line_coverage: 69.53125
-        prev_line_coverage: 69.29133858267717
+        prev_line_coverage: 69.53125
         coverage_by_suite:
             .anchors/lcov.info:
                 instrumented: 35-37,41-49,51-58,61-65,69-80,82-93,97-103,114,118-133,135-141,143-145,147-150,158-160,169,173-197,199,202-206,208-213
@@ -257,7 +397,7 @@ nodes:
                 at_rev: d35e75e79238
         coverage_rev: d35e75e79238
         at_rev: d35e75e79238
-        ingested_at: "2026-10-17T02:23:52-03:00"
+        ingested_at: "2026-10-17T03:15:53-03:00"
       evidence_rev: fc240cb33aac
       line_rev: c64a64a4cc9c
     - id: internal/sshx/keys.spec.md
@@ -301,7 +441,7 @@ nodes:
         proven_rev_by_suite:
             .anchors/junit.xml: 2ac58c3b7694
         at_rev: 2ac58c3b7694
-        ingested_at: "2026-10-17T02:23:52-03:00"
+        ingested_at: "2026-10-17T03:15:53-03:00"
       evidence_rev: b97f6cbeef06
       rule_revs: {KYSEX-B01: f05fcfc3a4e5, KYSEX-B02: b8d70acf5dc6, KYSEX-B03: 32162985f933, KYSEX-B04: 7756428d5aaf, KYSEX-B05: 1426ccdfc2f3, KYSEX-B06: bbb510c80482, KYSEX-B07: 867946b5dc53, KYSEX-E01: eaecee6f468d, KYSEX-E02: b0d0b90cc63a, KYSEX-E03: 26a79fdd4735, KYSEX-I01: c47712c89e11, KYSEX-I02: 6a0bf9b306be}
       rest_rev: 6eae1f902eca
@@ -320,12 +460,12 @@ nodes:
             unit:
                 passed: 16
         at_rev: 588331a01dca
-        ingested_at: "2026-10-17T02:23:52-03:00"
+        ingested_at: "2026-10-17T03:15:53-03:00"
       evidence_rev: 1e357f470117
       line_rev: 82b4778df5ca
     - id: plans/terminal-remoto.plan.md
       kind: plan
-      rev: 99697a5e521a
+      rev: 03470fc704da
       updated_at: "2026-10-17"
       code: TRRMT
       file_code: TRRMT
@@ -333,9 +473,64 @@ nodes:
       code_declared: true
       tags:
         - plan
-      evidence_rev: d2740f8cca3d
-      line_rev: c47e8ac11f31
+      evidence_rev: c6b23a4a80a0
+      line_rev: 63f820e8463b
 edges:
+    - from: internal/node/control.feature
+      to: internal/node/control_test.go
+      type: tested-by
+      origin: convention
+    - from: internal/node/control.spec.md
+      to: internal/node/control.feature
+      type: covered-by
+      origin: convention
+    - from: internal/node/control.spec.md
+      to: internal/node/control.go
+      type: specifies
+      origin: convention
+    - from: internal/node/server.feature
+      to: internal/node/server_test.go
+      type: tested-by
+      origin: convention
+      stamp:
+        validated_from_rev: 615ce6d1879e
+        validated_to_rev: b6b7a6e3c2d9
+        changed_at: "2026-10-17"
+        verdict: ok
+    - from: internal/node/server.spec.md
+      to: internal/node/server.feature
+      judgments:
+        - gate: rule-fulfilled
+          verdict: ok
+          validated_from_rev: a93d7350dd3a
+          validated_to_rev: 615ce6d1879e
+          changed_at: "2026-10-17"
+          config_rev: 10573beb519b
+      type: covered-by
+      origin: convention
+      stamp:
+        validated_from_rev: a93d7350dd3a
+        validated_to_rev: 615ce6d1879e
+        changed_at: "2026-10-17"
+        verdict: ok
+        gate: rule-fulfilled
+    - from: internal/node/server.spec.md
+      to: internal/node/server.go
+      judgments:
+        - gate: rule-fulfilled
+          verdict: ok
+          validated_from_rev: a93d7350dd3a
+          validated_to_rev: 3e53a870aa3d
+          changed_at: "2026-10-17"
+          config_rev: 10573beb519b
+      type: specifies
+      origin: convention
+      stamp:
+        validated_from_rev: a93d7350dd3a
+        validated_to_rev: 3e53a870aa3d
+        changed_at: "2026-10-17"
+        verdict: ok
+        gate: rule-fulfilled
     - from: internal/proto/codec.feature
       to: internal/proto/codec_test.go
       type: tested-by
@@ -461,6 +656,27 @@ edges:
         validated_to_rev: d35e75e79238
         changed_at: "2026-10-17"
         verdict: ok
+    - from: plans/terminal-remoto.plan.md
+      to: internal/node/control.spec.md
+      type: seeds
+      origin: declared
+    - from: plans/terminal-remoto.plan.md
+      to: internal/node/server.spec.md
+      judgments:
+        - gate: rule-fulfilled
+          verdict: ok
+          validated_from_rev: 03470fc704da
+          validated_to_rev: a93d7350dd3a
+          changed_at: "2026-10-17"
+          config_rev: 10573beb519b
+      type: seeds
+      origin: declared
+      stamp:
+        validated_from_rev: 03470fc704da
+        validated_to_rev: a93d7350dd3a
+        changed_at: "2026-10-17"
+        verdict: ok
+        gate: rule-fulfilled
     - from: plans/terminal-remoto.plan.md
       to: internal/proto/codec.spec.md
       judgments:

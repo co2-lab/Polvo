@@ -39,6 +39,11 @@ identificador é o `ID`: criado por `IntID` ou `StringID`, lido por `Int` ou `St
 Várias tarefas podem escrever no mesmo fluxo ao mesmo tempo. Cada mensagem chega inteira e numa
 linha só: nunca há bytes de uma mensagem no meio de outra.
 
+### CDCOE-B06 — A resposta de erro sem identificador leva o identificador nulo
+Quando o erro é de uma mensagem cujo identificador não se conseguiu ler (um erro de parse), a resposta
+de erro leva o identificador nulo (`NullID`, `IsNull`). Só uma resposta de erro o pode levar: um pedido
+ou uma resposta com resultado com o identificador nulo não é uma mensagem.
+
 ### CDCOE-B05 — O lote não é aceite
 Um lote (vários pedidos numa lista) é recusado como pedido inválido. O Polvo envia uma mensagem de cada
 vez.
@@ -82,12 +87,19 @@ vez.
 | `CDCOE-B03` | `line`, `Message` |
 | `CDCOE-B04` | `Message` |
 | `CDCOE-B05` | `line`, `CodeInvalidRequest` |
+| `CDCOE-B06` | `line`, `Message` |
 | `CDCOE-E01` | `line`, `CodeParseError` |
 | `CDCOE-E02` | `line`, `CodeInvalidRequest` |
 | `CDCOE-E03` | `line`, `MaxLine` |
 | `CDCOE-E04` | `line` |
 | `CDCOE-E05` | `Message` |
 | `CDCOE-I01` | `line`, `Message` |
+
+## Revisions
+
+> **CDCOE-R0001:** nasceu a `CDCOE-B06` (o identificador nulo). O controlo do nó (`CNTRL-E05`) tem de
+> responder a uma linha que não é JSON, e o JSON-RPC 2.0 manda responder-lhe com `"id": null`; o codec
+> não o representava. Nada do resto mudou.
 
 ## Open Decisions
 

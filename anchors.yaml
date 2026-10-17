@@ -83,7 +83,19 @@ dialect:
     family: go
     # O que afirma num teste aqui: as falhas do pacote testing e os ajudantes que falham o teste.
     tests:
-        assertion: '\bt\.(?:Error|Errorf|Fatal|Fatalf|Fail|FailNow)\b|\bwantReadError\(t\b'
+        assertion: '\bt\.(?:Error|Errorf|Fatal|Fatalf|Fail|FailNow)\b|\b(?:wantReadError|wantError|result)\(t\b'
+    # Como uma falha tratada fica REGISTADA aqui (`failure-logged`). Uma lista declarada substitui a da
+    # familia, por isso os defaults do Go repetem-se. Os do Polvo: devolver o erro a quem chamou
+    # (propagar nao e' calar) e a mensagem no canal de erro de uma sessao SSH (o stderr de quem ligou).
+    log_patterns:
+        - '\b(?:log|logger|slog)\.(?:Error|Warn|Fatal|Printf|Print)\b'
+        - '\bfmt\.Errorf\('
+        - '\breturn\b[^\n]*\.Error\s*(?:$|[,;)}])'
+        - '\breturn\b[^\n]*\bErr[A-Z]\w*'
+        - '\breturn\b[^\n]*\berrors\.New\('
+        - '\breturn\b[^\n]*\b(?:err|e)\b'
+        - '\bfmt\.Fprint(?:ln|f)?\(\s*os\.Stderr\b'
+        - '\bfmt\.Fprint(?:ln|f)?\(\s*\w+\.ch\.Stderr\(\)'
 gates:
     - name: spec-complete
       id: spec-complete

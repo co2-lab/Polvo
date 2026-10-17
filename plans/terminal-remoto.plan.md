@@ -39,8 +39,9 @@ Só começa depois da W01, porque o nó fala o protocolo e autentica com as chav
 
 - `internal/pty/pty.spec.md` — um terminal virtual com um processo dentro, o tamanho da janela e o fim
   do processo
-- `internal/node/server.spec.md` — o nó: quem entra, a sessão de terminal, o comando avulso e as
-  operações de controlo (ficheiros e processos)
+- `internal/node/server.spec.md` — o nó: quem entra, a sessão de terminal e o comando avulso
+- `internal/node/control.spec.md` — as operações de controlo do nó (ficheiros e processos), pelo
+  protocolo da W01
 
 ### TRRMT-W03 — O desktop na linha de comandos (depends on TRRMT-W02)
 

@@ -123,6 +123,23 @@ func TestCodec_concurrentWriters(t *testing.T) {
 	})
 }
 
+func TestCodec_nullID(t *testing.T) {
+	t.Run("CDCOE-B06: A resposta de erro com o identificador nulo vai e volta, e o pedido com ele é recusado", func(t *testing.T) {
+		var buf bytes.Buffer
+		if err := NewEncoder(&buf).Write(&Message{ID: NullID(), Error: &Error{Code: CodeParseError, Message: "parse error"}}); err != nil {
+			t.Fatal(err)
+		}
+		buf.WriteString(`{"jsonrpc":"2.0","id":null,"method":"a"}` + "\n")
+		d := NewDecoder(&buf)
+		m, err := d.Read()
+		if err != nil || m.Kind() != Response || !m.ID.IsNull() || m.Error.Code != CodeParseError {
+			t.Fatalf("want the error response with the null id, got %+v %v", m, err)
+		}
+		_, err = d.Read()
+		wantReadError(t, err, CodeInvalidRequest)
+	})
+}
+
 func TestCodec_batchRefused(t *testing.T) {
 	t.Run("CDCOE-B05: Um lote de dois pedidos é recusado como pedido inválido", func(t *testing.T) {
 		d := NewDecoder(strings.NewReader(`[{"jsonrpc":"2.0","id":1,"method":"a"},{"jsonrpc":"2.0","id":2,"method":"b"}]` + "\n"))

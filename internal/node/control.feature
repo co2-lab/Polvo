@@ -1,0 +1,81 @@
+# language: en
+# @anchors
+#   code: CNFTR
+#   ref: CNTRL
+#   updated_at: 2026-10-17
+#   layer: feature
+
+@CNTRL
+Feature: Control
+
+  @CNTRL-B01 @unit-level
+  Scenario: fs.read devolve o conteúdo e o tamanho
+    Given o ficheiro "a.txt" com o texto "ola polvo"
+    When o controlo recebe o pedido fs.read com o caminho dele
+    Then a resposta traz o conteúdo "ola polvo" em base64 e o tamanho 9
+
+  @CNTRL-B02 @unit-level
+  Scenario: fs.write cria o ficheiro com 0644 e depois substitui-o
+    Given uma pasta vazia
+    When o controlo recebe fs.write de "b.txt" com "um" e depois com "dois"
+    Then o ficheiro "b.txt" tem "dois" e as permissões 0644
+
+  @CNTRL-B03 @unit-level
+  Scenario: fs.list devolve as entradas por ordem de nome
+    Given uma pasta com o ficheiro "z.txt" de 3 bytes, a pasta "m" e o ficheiro "a.txt" de 1 byte
+    When o controlo recebe o pedido fs.list com o caminho da pasta
+    Then as entradas são "a.txt" (1 byte), "m" (pasta) e "z.txt" (3 bytes), por esta ordem
+
+  @CNTRL-B04 @unit-level
+  Scenario: proc.run devolve o código, a saída e o erro separados
+    Given o programa "sh -c 'cat; echo erro >&2; exit 5'" com a entrada "entrada"
+    When o controlo recebe o pedido proc.run
+    Then a resposta traz o código 5, a saída "entrada" e o erro "erro"
+
+  @CNTRL-B04 @unit-level
+  Scenario: proc.run corre na pasta pedida
+    Given o programa "pwd" e a pasta "/tmp"
+    When o controlo recebe o pedido proc.run
+    Then a saída é "/tmp"
+
+  @CNTRL-B05 @unit-level
+  Scenario: Um sleep lento não atrasa um fs.list que chega depois
+    Given o pedido 1 proc.run de "sleep 2" e o pedido 2 fs.list de uma pasta
+    When o controlo recebe os dois por esta ordem
+    Then a primeira resposta a chegar é a do pedido 2
+
+  @CNTRL-B06 @unit-level
+  Scenario: Uma notificação fs.read não tem resposta
+    Given a notificação fs.read de um ficheiro e depois o pedido 7 fs.list
+    When o controlo recebe as duas
+    Then a única resposta é a do pedido 7
+
+  @CNTRL-E01 @unit-level
+  Scenario: Um método desconhecido dá método não encontrado
+    Given o pedido 1 com o método "fs.apagatudo"
+    When o controlo o recebe
+    Then a resposta é o erro -32601
+
+  @CNTRL-E02 @unit-level
+  Scenario: Um fs.write com base64 inválido dá parâmetros inválidos
+    Given o pedido 1 fs.write com o caminho "c.txt" e o conteúdo "!!!"
+    When o controlo o recebe
+    Then a resposta é o erro -32602 e o ficheiro "c.txt" não existe
+
+  @CNTRL-E03 @unit-level
+  Scenario: Ler um ficheiro que não existe dá erro de operação
+    Given o pedido 1 fs.read do caminho "/nao/existe"
+    When o controlo o recebe
+    Then a resposta é o erro -32000 com uma mensagem que contém "/nao/existe"
+
+  @CNTRL-E04 @unit-level
+  Scenario: Um ficheiro maior do que 8 MiB não é lido
+    Given um ficheiro de 8 MiB e um byte
+    When o controlo recebe o pedido fs.read dele
+    Then a resposta é o erro -32000 com uma mensagem que contém "too large"
+
+  @CNTRL-E05 @unit-level
+  Scenario: Uma linha que não é mensagem tem resposta de erro e a sessão continua
+    Given a linha "isto nao e json" e depois o pedido 2 fs.list de uma pasta
+    When o controlo recebe as duas
+    Then a primeira resposta é o erro -32700 e a segunda é a do pedido 2

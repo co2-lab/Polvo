@@ -18,7 +18,8 @@ Mark `[x]` here, never in the plan.
 ## TRRMT-W02 — O nó
 
 - [x] `internal/pty/pty.spec.md`
-- [ ] `internal/node/server.spec.md`
+- [x] `internal/node/server.spec.md`
+- [x] `internal/node/control.spec.md`
 
 ## TRRMT-W03 — O desktop na linha de comandos
 
