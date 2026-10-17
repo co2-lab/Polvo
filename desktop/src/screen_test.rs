@@ -4,12 +4,13 @@
 
 use super::*;
 use crate::keys::{Modifiers, translate}; // @dep: KYIMK
+use futures::channel::mpsc::TryRecvError;
 use std::sync::{Arc, Mutex};
 use std::time::{Duration, Instant};
 
 /// What the terminal writes to the shell, kept for the test to read.
 #[derive(Clone, Default)]
-struct Sink(Arc<Mutex<Vec<u8>>>);
+pub(crate) struct Sink(Arc<Mutex<Vec<u8>>>);
 
 impl std::io::Write for Sink {
     fn write(&mut self, b: &[u8]) -> std::io::Result<usize> {
@@ -22,7 +23,7 @@ impl std::io::Write for Sink {
 }
 
 impl Sink {
-    fn take(&self) -> Vec<u8> {
+    pub(crate) fn take(&self) -> Vec<u8> {
         std::mem::take(&mut self.0.lock().unwrap())
     }
 }
@@ -50,10 +51,10 @@ fn wait_for(screen: &mut Screen, rx: &mut Events, want: &str) -> bool {
         if screen.text().contains(want) {
             return true;
         }
-        match rx.try_next() {
-            Ok(Some(Event::Output(b))) => screen.feed(&b),
-            Ok(Some(Event::Exit)) | Ok(None) => return screen.text().contains(want),
-            Err(_) => std::thread::sleep(Duration::from_millis(10)),
+        match rx.try_recv() {
+            Ok(Event::Output(b)) => screen.feed(&b),
+            Ok(Event::Exit) | Err(TryRecvError::Closed) => return screen.text().contains(want),
+            Err(TryRecvError::Empty) => std::thread::sleep(Duration::from_millis(10)),
         }
     }
     false
@@ -169,11 +170,11 @@ scenario!(scrne_b09_o_fim_da_shell_chega_pelo_canal, "SCRNE-B09: O fim da shell 
     let end = Instant::now() + Duration::from_secs(10);
     let mut exited = false;
     while Instant::now() < end && !exited {
-        match rx.try_next() {
-            Ok(Some(Event::Output(b))) => out.extend(b),
-            Ok(Some(Event::Exit)) => exited = true,
-            Ok(None) => break,
-            Err(_) => std::thread::sleep(Duration::from_millis(10)),
+        match rx.try_recv() {
+            Ok(Event::Output(b)) => out.extend(b),
+            Ok(Event::Exit) => exited = true,
+            Err(TryRecvError::Closed) => break,
+            Err(TryRecvError::Empty) => std::thread::sleep(Duration::from_millis(10)),
         }
     }
     assert!(String::from_utf8_lossy(&out).contains("adeus"));

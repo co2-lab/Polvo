@@ -363,4 +363,4 @@ fn rgb(c: RgbColor) -> Rgb {
 
 #[cfg(test)]
 #[path = "screen_test.rs"]
-mod tests;
+pub(crate) mod tests;

@@ -198,15 +198,15 @@ nodes:
       line_rev: da442fc882b2
     - id: desktop/src/main.rs
       kind: code
-      rev: 55a20b81f23b
+      rev: d11b984b826d
       updated_at: "2026-10-17"
       code: JNNTJ
       file_code: DSMND
       layer: desktop
       tags:
         - desktop
-      evidence_rev: 2c98de76c3ee
-      line_rev: 62f6c8be9c14
+      evidence_rev: 07a67b1448fa
+      line_rev: f46e422c658d
     - id: desktop/src/prefs.feature
       kind: feature
       rev: aeeeb64aadef
@@ -267,15 +267,15 @@ nodes:
       line_rev: 1109df9ad4db
     - id: desktop/src/screen.rs
       kind: code
-      rev: 1bd2280c3c50
+      rev: cf9cd6938988
       updated_at: "2026-10-17"
       code: SCRNE
       file_code: SCIMS
       layer: desktop
       tags:
         - desktop
-      evidence_rev: 1417d3f00202
-      line_rev: 2eb6375a7dff
+      evidence_rev: 6a76c911a951
+      line_rev: 49b1e7e11d9e
     - id: desktop/src/screen.spec.md
       kind: spec
       rev: e341268f5a68
@@ -291,7 +291,7 @@ nodes:
       rest_rev: 8d3db365bd43
     - id: desktop/src/screen_test.rs
       kind: test
-      rev: 8ead678c4304
+      rev: 1ae3e0de415d
       updated_at: "2026-10-17"
       code: SCRNE
       file_code: SCTSS
@@ -299,8 +299,55 @@ nodes:
       tags:
         - test
         - desktop
-      evidence_rev: 2458764976dd
-      line_rev: e0385c7bad89
+      evidence_rev: b3ec301a00a1
+      line_rev: 5258281b6d36
+    - id: desktop/src/window.feature
+      kind: feature
+      rev: 56684f2a5628
+      updated_at: "2026-10-17"
+      code: WNDWI
+      file_code: WNFTW
+      layer: feature
+      tags:
+        - feature
+      evidence_rev: ea18c73159da
+      line_rev: 011448507ffb
+    - id: desktop/src/window.rs
+      kind: code
+      rev: 7dd3fe2e204a
+      updated_at: "2026-10-17"
+      code: WNDWI
+      file_code: WNIMW
+      layer: desktop
+      tags:
+        - desktop
+      evidence_rev: bc5a4b33aa22
+      line_rev: 5c459faca8c0
+    - id: desktop/src/window.spec.md
+      kind: spec
+      rev: cd2a84b284d9
+      updated_at: "2026-10-17"
+      code: WNDWI
+      file_code: WNDWI
+      layer: spec
+      code_declared: true
+      tags:
+        - spec
+      evidence_rev: 0524d339157f
+      rule_revs: {WNDWI-B01: 4c62dcb1d9ea, WNDWI-B02: f7dfd0b60818, WNDWI-B03: bd4e54da2d1b, WNDWI-B04: ac4990e23913, WNDWI-B05: 0c70c5eead43, WNDWI-B06: 46658df7ffa3, WNDWI-B07: 844f0388231a, WNDWI-B08: a7cc3c6faf24, WNDWI-E01: 126da7c5fce0}
+      rest_rev: d0b1ca574a6d
+    - id: desktop/src/window_test.rs
+      kind: test
+      rev: be1b1e4df916
+      updated_at: "2026-10-17"
+      code: WNDWI
+      file_code: WNTSW
+      layer: desktoptest
+      tags:
+        - test
+        - desktop
+      evidence_rev: f46a978dd4d9
+      line_rev: 7ac687ef00a6
     - id: internal/hub/client.feature
       kind: feature
       rev: 9e853b78b359
@@ -1294,6 +1341,10 @@ edges:
       to: desktop/src/screen.rs
       type: depends-on
       origin: declared
+    - from: desktop/src/main.rs
+      to: desktop/src/window.rs
+      type: depends-on
+      origin: declared
     - from: desktop/src/prefs.feature
       to: desktop/src/prefs_test.rs
       type: tested-by
@@ -1339,6 +1390,38 @@ edges:
       origin: convention
     - from: desktop/src/screen_test.rs
       to: desktop/src/keys.rs
+      type: depends-on
+      origin: declared
+    - from: desktop/src/window.feature
+      to: desktop/src/window_test.rs
+      type: tested-by
+      origin: convention
+    - from: desktop/src/window.rs
+      to: desktop/src/keys.rs
+      type: depends-on
+      origin: declared
+    - from: desktop/src/window.rs
+      to: desktop/src/prefs.rs
+      type: depends-on
+      origin: declared
+    - from: desktop/src/window.rs
+      to: desktop/src/screen.rs
+      type: depends-on
+      origin: declared
+    - from: desktop/src/window.spec.md
+      to: desktop/src/window.feature
+      type: covered-by
+      origin: convention
+    - from: desktop/src/window.spec.md
+      to: desktop/src/window.rs
+      type: specifies
+      origin: convention
+    - from: desktop/src/window_test.rs
+      to: desktop/src/prefs.rs
+      type: depends-on
+      origin: declared
+    - from: desktop/src/window_test.rs
+      to: desktop/src/screen.rs
       type: depends-on
       origin: declared
     - from: internal/hub/client.feature
@@ -1791,6 +1874,10 @@ edges:
         verdict: ok
     - from: plans/janela.plan.md
       to: desktop/src/screen.spec.md
+      type: seeds
+      origin: declared
+    - from: plans/janela.plan.md
+      to: desktop/src/window.spec.md
       type: seeds
       origin: declared
     - from: plans/terminal-remoto.plan.md
