@@ -22,6 +22,7 @@ import (
 
 	"github.com/co2-lab/polvo/internal/hub"
 	"github.com/co2-lab/polvo/internal/mcp"
+	"github.com/co2-lab/polvo/internal/node"
 	"github.com/co2-lab/polvo/internal/proto"
 	"github.com/co2-lab/polvo/internal/pty"
 	"golang.org/x/net/websocket"
@@ -47,12 +48,19 @@ type Config struct {
 	Files fs.FS
 	// Token is the session secret; empty makes a random one.
 	Token string
+	// Shell is the program and arguments of the local node's shell; empty is /bin/sh.
+	Shell []string
 }
+
+// LocalNode is the name of the machine the server runs on (WEBSR-B07); no node address
+// (host:port) is it.
+const LocalNode = "local"
 
 // Server is the UI server of one session.
 type Server struct {
 	token string
 	files fs.FS
+	shell []string
 	pool  *mcp.Pool
 }
 
@@ -64,7 +72,11 @@ func New(cfg Config) *Server {
 		rand.Read(b)
 		tok = hex.EncodeToString(b)
 	}
-	return &Server{token: tok, files: cfg.Files, pool: mcp.NewPool(cfg.Hub)}
+	shell := cfg.Shell
+	if len(shell) == 0 {
+		shell = []string{"/bin/sh"}
+	}
+	return &Server{token: tok, files: cfg.Files, shell: shell, pool: mcp.NewPool(cfg.Hub)}
 }
 
 // Token is the session secret the browser has to show.
@@ -134,7 +146,17 @@ func (s *Server) call(w http.ResponseWriter, r *http.Request) {
 	}
 	var result json.RawMessage
 	err := errors.New("no node")
-	if req.Node != "" {
+	switch req.Node {
+	case "":
+	case LocalNode:
+		// WEBSR-B07: the operation is made here, with the node's own answer.
+		m := node.Answer(&proto.Message{ID: proto.IntID(1), Method: req.Method, Params: req.Params})
+		err = nil
+		if m.Error != nil {
+			err = m.Error
+		}
+		result = m.Result
+	default:
 		err = s.pool.With(req.Node, func(n *hub.Node) error { return n.Call(req.Method, req.Params, &result) })
 	}
 	w.Header().Set("Content-Type", "application/json")
@@ -173,6 +195,13 @@ func (s *Server) terminal() http.Handler {
 	})
 }
 
+// terminal is a shell, on a node (hub.Terminal) or here (pty.Session).
+type terminal interface {
+	io.ReadWriteCloser
+	Resize(pty.Size) error
+	Wait() (pty.ExitStatus, error)
+}
+
 type termMessage struct {
 	Input  string `json:"input"`
 	Resize []int  `json:"resize"`
@@ -183,11 +212,18 @@ func (s *Server) serveTerminal(c *websocket.Conn) {
 	q := c.Request().URL.Query()
 	rows, _ := strconv.Atoi(q.Get("rows"))
 	cols, _ := strconv.Atoi(q.Get("cols"))
-	var t *hub.Terminal
-	err := s.pool.With(q.Get("node"), func(n *hub.Node) (err error) {
-		t, err = n.Shell(pty.Size{Rows: uint16(rows), Cols: uint16(cols)})
-		return err
-	})
+	size := pty.Size{Rows: uint16(rows), Cols: uint16(cols)}
+	var t terminal
+	var err error
+	if name := q.Get("node"); name == LocalNode {
+		// WEBSR-B07: the shell of this machine.
+		t, err = pty.Start(s.shell, size)
+	} else {
+		err = s.pool.With(name, func(n *hub.Node) (err error) {
+			t, err = n.Shell(size)
+			return err
+		})
+	}
 	if err != nil {
 		// WEBSR-E01
 		websocket.JSON.Send(c, map[string]string{"error": err.Error()})

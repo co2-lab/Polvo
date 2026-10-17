@@ -77,6 +77,11 @@ Uma mensagem sem identificador não recebe resposta, mesmo de erro.
 | `CNTRL-E04` | `path`, `MaxFile` |
 | `CNTRL-E05` | `path` |
 
+## Revisions
+
+> **CNTRL-R0001:** o `Answer` responde a um pedido sem sessão, com as mesmas operações e os mesmos
+> erros: é como o servidor da UI atende o nó `local`, a própria máquina. As regras não mudam.
+
 ## Open Decisions
 
 | Code | Question | Who decides | Becomes |

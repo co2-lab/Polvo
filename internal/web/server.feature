@@ -56,6 +56,24 @@ Feature: Server
     When chega um pedido com o Host "polvo.mal.exemplo"
     Then a resposta é 403
 
+  @WEBSR-B07 @unit-level
+  Scenario: A chamada fs.list no nó local lista a pasta desta máquina
+    Given um servidor, sem nenhum nó, e uma pasta com o ficheiro "a.txt"
+    When o browser chama fs.list dessa pasta no nó "local" com o segredo
+    Then o resultado tem a entrada "a.txt"
+
+  @WEBSR-B07 @unit-level
+  Scenario: Uma recusa no nó local volta como objeto de erro
+    Given um servidor, sem nenhum nó
+    When o browser chama fs.read de "/nao/existe" no nó "local" com o segredo
+    Then a resposta tem o erro com o código -32000 e "/nao/existe"
+
+  @WEBSR-B07 @unit-level
+  Scenario: O terminal no nó local corre a shell desta máquina
+    Given um servidor, sem nenhum nó
+    When o browser abre o terminal de 30 por 100 no nó "local", muda para 40 por 120 e escreve "stty size; exit 4"
+    Then a saída tem "40 120" e a última mensagem diz o código 4
+
   @WEBSR-E01 @unit-level
   Scenario: Um nó que não responde volta como objeto de erro
     Given um servidor

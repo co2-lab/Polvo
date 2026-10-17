@@ -57,11 +57,12 @@ func ServeControl(rw io.ReadWriteCloser) {
 			continue
 		}
 		// CNTRL-B05: each request is answered on its own, so a slow one holds nobody.
-		go func(m *proto.Message) { enc.Write(answer(m)) }(m)
+		go func(m *proto.Message) { enc.Write(Answer(m)) }(m)
 	}
 }
 
-func answer(m *proto.Message) *proto.Message {
+// Answer is the answer to one request, made here, without a session (the UI's local node).
+func Answer(m *proto.Message) *proto.Message {
 	var res any
 	var err error
 	switch m.Method {

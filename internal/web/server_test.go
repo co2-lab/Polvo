@@ -170,6 +170,22 @@ func TestServer_calls(t *testing.T) {
 			}
 		}
 	})
+	t.Run("WEBSR-B07: A chamada fs.list no nó local lista a pasta desta máquina", func(t *testing.T) {
+		w := setup(t)
+		d := t.TempDir()
+		os.WriteFile(filepath.Join(d, "a.txt"), []byte("a"), 0o644)
+		a := w.call(t, "segredo", LocalNode, "fs.list", map[string]string{"path": d})
+		if a.Status != 200 || a.Error != nil || !strings.Contains(string(a.Result), `"a.txt"`) {
+			t.Fatalf("want the entry a.txt, got %+v %s", a, a.Result)
+		}
+	})
+	t.Run("WEBSR-B07: Uma recusa no nó local volta como objeto de erro", func(t *testing.T) {
+		w := setup(t)
+		a := w.call(t, "segredo", LocalNode, "fs.read", map[string]string{"path": "/nao/existe"})
+		if a.Error == nil || a.Error.Code != -32000 || !strings.Contains(a.Error.Message, "/nao/existe") {
+			t.Fatalf("want the error -32000, got %+v", a)
+		}
+	})
 	t.Run("WEBSR-E01: Um nó que não responde volta como objeto de erro", func(t *testing.T) {
 		w := setup(t)
 		a := w.call(t, "segredo", "127.0.0.1:1", "fs.list", map[string]string{"path": "/"})
@@ -194,9 +210,34 @@ func TestServer_calls(t *testing.T) {
 }
 
 func (w world) terminal(t *testing.T, origin string) (*websocket.Conn, error) {
+	return w.terminalOn(t, w.node, origin)
+}
+
+func (w world) terminalOn(t *testing.T, node, origin string) (*websocket.Conn, error) {
 	t.Helper()
-	u := strings.Replace(w.srv.URL, "http://", "ws://", 1) + "/ws/term?t=segredo&node=" + w.node + "&rows=30&cols=100"
+	u := strings.Replace(w.srv.URL, "http://", "ws://", 1) + "/ws/term?t=segredo&node=" + node + "&rows=30&cols=100"
 	return websocket.Dial(u, "", origin)
+}
+
+// sizeAndExit sends the resize and "stty size; exit 4", and gives the output and the last message.
+func sizeAndExit(t *testing.T, c *websocket.Conn) (string, string) {
+	t.Helper()
+	websocket.JSON.Send(c, map[string]any{"resize": []int{40, 120}})
+	websocket.JSON.Send(c, map[string]any{"input": "stty size; exit 4\n"})
+	var out bytes.Buffer
+	var last string
+	for {
+		var frame []byte
+		if err := websocket.Message.Receive(c, &frame); err != nil {
+			break
+		}
+		if bytes.HasPrefix(frame, []byte(`{"exit"`)) || bytes.HasPrefix(frame, []byte(`{"error"`)) {
+			last = string(frame)
+			continue
+		}
+		out.Write(frame)
+	}
+	return out.String(), last
 }
 
 func TestServer_terminal(t *testing.T) {
@@ -207,23 +248,21 @@ func TestServer_terminal(t *testing.T) {
 			t.Fatal(err)
 		}
 		defer c.Close()
-		websocket.JSON.Send(c, map[string]any{"resize": []int{40, 120}})
-		websocket.JSON.Send(c, map[string]any{"input": "stty size; exit 4\n"})
-		var out bytes.Buffer
-		var last string
-		for {
-			var frame []byte
-			if err := websocket.Message.Receive(c, &frame); err != nil {
-				break
-			}
-			if bytes.HasPrefix(frame, []byte(`{"exit"`)) {
-				last = string(frame)
-				continue
-			}
-			out.Write(frame)
+		out, last := sizeAndExit(t, c)
+		if !strings.Contains(out, "40 120") || !strings.Contains(last, `"exit":4`) {
+			t.Fatalf("want 40 120 and exit 4, got %q and %q", out, last)
 		}
-		if !strings.Contains(out.String(), "40 120") || !strings.Contains(last, `"exit":4`) {
-			t.Fatalf("want 40 120 and exit 4, got %q and %q", out.String(), last)
+	})
+	t.Run("WEBSR-B07: O terminal no nó local corre a shell desta máquina", func(t *testing.T) {
+		w := setup(t)
+		c, err := w.terminalOn(t, LocalNode, w.srv.URL)
+		if err != nil {
+			t.Fatal(err)
+		}
+		defer c.Close()
+		out, last := sizeAndExit(t, c)
+		if !strings.Contains(out, "40 120") || !strings.Contains(last, `"exit":4`) {
+			t.Fatalf("want 40 120 and exit 4, got %q and %q", out, last)
 		}
 	})
 	t.Run("WEBSR-B05: O WebSocket de outra origem é recusado", func(t *testing.T) {

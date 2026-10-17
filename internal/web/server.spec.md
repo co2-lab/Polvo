@@ -12,8 +12,8 @@ na máquina local. O servidor dá os ficheiros da UI, as chamadas de controlo ao
 WebSocket. Quem fala com ele chega aos nós, que são shells noutras máquinas. Por isso só aceita pedidos
 locais, e as chamadas exigem o segredo da sessão (`Token`), que o `polvo` dá ao browser que abre.
 
-A configuração é o `Config`: a configuração do cliente dos nós, os ficheiros da UI e o segredo (vazio
-para nascer um aleatório). O servidor nasce pelo `New`, responde pelo `Handler` e fecha as ligações aos
+A configuração é o `Config`: a configuração do cliente dos nós, os ficheiros da UI, o segredo (vazio
+para nascer um aleatório) e a shell da máquina local. O servidor nasce pelo `New`, responde pelo `Handler` e fecha as ligações aos
 nós pelo `Close`.
 
 ## Rules
@@ -47,13 +47,20 @@ Um pedido cujo destino (o `Host`) não é um endereço local (`127.0.0.1`, `::1`
 (403). É a defesa contra o DNS rebinding: uma página de outro sítio que aponte um nome seu para o
 endereço local.
 
+### WEBSR-B07 — O nó `local` é a própria máquina
+O nó com o nome `local` (`LocalNode`) é a máquina onde o servidor corre, sem SSH e sem `polvo node`:
+- a chamada de controlo faz a operação aqui mesmo, com as mesmas operações e os mesmos erros de um nó;
+- o terminal abre a shell do `Config` (o `/bin/sh` quando falta) num terminal desta máquina.
+
+Nenhum endereço de nó (máquina:porta) se confunde com o nome `local`.
+
 ## Domain
 
 | Input | Accepts | Outside the domain | Who guarantees |
 | --- | --- | --- | --- |
 | `Host` | um endereço local com a porta | qualquer outro | este módulo: 403 (`WEBSR-B06`) |
 | `X-Polvo-Token` | o segredo da sessão | vazio ou outro | este módulo: 401 (`WEBSR-B03`) |
-| `node` | o endereço de um nó | vazio | este módulo: o objeto de erro (`WEBSR-E01`) |
+| `node` | o endereço de um nó, ou `local` | vazio | este módulo: o objeto de erro (`WEBSR-E01`) |
 | `method` | um método de controlo do nó | outro | o nó: o erro de método não encontrado, devolvido como objeto de erro |
 
 ## Errors / Failures
@@ -72,6 +79,7 @@ endereço local.
 | `WEBSR-B04` | `X-Polvo-Token`, `node` |
 | `WEBSR-B05` | `Host` |
 | `WEBSR-B06` | `Host` |
+| `WEBSR-B07` | `node`, `method` |
 | `WEBSR-E01` | `node` |
 | `WEBSR-E02` | `method` |
 
@@ -79,6 +87,10 @@ endereço local.
 
 > **WEBSR-R0001:** o `UI` dá os ficheiros embutidos no executável (o bundle da UI do plano DSKTP-W02), que
 > o `polvo` passa ao `Config.Files`. As regras não mudam.
+
+> **WEBSR-R0002:** entra o nó `local` (`WEBSR-B07`): a UI abre o terminal e o editor na própria máquina
+> sem um `polvo node` (pedido do dono, 2026-10-17: o terminal abre local e remoto). O `Config` ganha a
+> `Shell`.
 
 ## Open Decisions
 
