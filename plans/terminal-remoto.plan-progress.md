@@ -12,7 +12,7 @@ Mark `[x]` here, never in the plan.
 
 ## TRRMT-W01 — O protocolo e as identidades
 
-- [ ] `internal/proto/codec.spec.md`
+- [x] `internal/proto/codec.spec.md`
 - [ ] `internal/sshx/keys.spec.md`
 
 ## TRRMT-W02 — O nó

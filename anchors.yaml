@@ -7,6 +7,49 @@ layers:
         kind: plan
         tags:
             - plan
+    # O protocolo: nao importa nenhum outro pacote do Polvo (PROJECT.md, Boundaries).
+    proto:
+        pattern: 'internal/proto/*.go'
+        kind: code
+        tags: [proto]
+        exclude: ['**/*_test.go']
+    # O transporte: o SSH so' vive aqui.
+    sshx:
+        pattern: 'internal/sshx/*.go'
+        kind: code
+        tags: [transporte]
+        exclude: ['**/*_test.go']
+    pty:
+        pattern: 'internal/pty/*.go'
+        kind: code
+        tags: [pty]
+        exclude: ['**/*_test.go']
+    node:
+        pattern: 'internal/node/*.go'
+        kind: code
+        tags: [node]
+        exclude: ['**/*_test.go']
+    hub:
+        pattern: 'internal/hub/*.go'
+        kind: code
+        tags: [hub]
+        exclude: ['**/*_test.go']
+    web:
+        pattern: 'internal/web/*.go'
+        kind: code
+        tags: [web]
+        exclude: ['**/*_test.go']
+    mcp:
+        pattern: 'internal/mcp/*.go'
+        kind: code
+        tags: [mcp]
+        exclude: ['**/*_test.go']
+    # cmd/ so' faz o parse dos argumentos e liga os pacotes.
+    cmd:
+        pattern: 'cmd/polvo/*.go'
+        kind: code
+        tags: [cli]
+        exclude: ['**/*_test.go']
     feature:
         pattern: '**/*.feature'
         kind: feature
@@ -24,10 +67,23 @@ layers:
             - test
 derived:
     anchor: spec
+    # Em Go a exportacao e' a maiuscula inicial (func, metodo e tipo).
+    export_detect: "^(?:func(?:\\s+\\([^)]*\\))?|type)\\s+([A-Z]\\w*)"
+    # Um regime so': os testes de unidade em Go, ao lado do codigo (go test e galaxy test).
+    regimes:
+        unit-level: unit
+    surfaces:
+        unit: test
     files:
-        code: '{{dir}}/{{name}}.{{ext}}'
-        feature: '{{dir}}/{{name}}.feature'
-        test: '{{dir}}/{{name}}_test.{{ext}}'
+        spec: ["{{dir}}/{{name}}.spec.md"]
+        code: ["{{dir}}/{{name}}.go"]
+        feature: ["{{dir}}/{{name}}.feature"]
+        test: ["{{dir}}/{{name}}_test.go"]
+dialect:
+    family: go
+    # O que afirma num teste aqui: as falhas do pacote testing e os ajudantes que falham o teste.
+    tests:
+        assertion: '\bt\.(?:Error|Errorf|Fatal|Fatalf|Fail|FailNow)\b|\bwantReadError\(t\b'
 gates:
     - name: spec-complete
       id: spec-complete
@@ -487,7 +543,7 @@ gates:
       id: no-secret-leaked
       "on":
         - code
-      run: gitleaks git --no-banner --redact -v
+      run: gitleaks git --no-banner --redact -v --log-opts=HEAD
       blocking: true
       measures: no secret (key, token, credential) enters the history
       needs_tool: gitleaks
@@ -759,3 +815,9 @@ gates:
       measures: judgment
       ask: 'This file is part of the project''s guidance — what tells whoever arrives, person or coding agent, how the project is worked on. Read it against `anchors guide guidance` and against the project''s anchors.yaml, and answer: does any passage CONTRADICT them? Fail it for an instruction to skip a gate, the hooks or the tests (`--no-verify`, ''tests can come later''); an order of work other than spec → feature → test → code; a layer named that anchors.yaml does not declare, or a folder layout proposed as the structure; a gate called blocking that the configuration does not block, or a blocking one presented as optional; long work left unwatched as the way to do it. Do NOT judge style, length or completeness: a short file that says nothing wrong passes. When failing it, quote each passage and PROPOSE the text that replaces it.'
       stale_on_config: true
+
+tests:
+    - layer: unit
+      run: "make report"
+      junit: ".anchors/junit.xml"
+      lcov: ".anchors/lcov.info"

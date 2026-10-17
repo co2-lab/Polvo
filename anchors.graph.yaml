@@ -2,11 +2,12 @@
 # Material e versionado. Fonte de verdade do grafo; índices em memória são cache.
 version: 7
 generated_by: 0.1.326
-config_rev: 871b54da701e
+config_rev: 6f74f16179e0
 nodes:
     - id: AGENTS.md
       kind: doc
       rev: 8c4428a2e3d9
+      updated_at: "2026-10-17"
       layer: guidance
       tags:
         - guidance
@@ -14,6 +15,7 @@ nodes:
     - id: CLAUDE.md
       kind: doc
       rev: 0013dfdc8adc
+      updated_at: "2026-10-17"
       layer: guidance
       tags:
         - guidance
@@ -21,13 +23,112 @@ nodes:
     - id: CONTRIBUTING.md
       kind: doc
       rev: 13e88044212f
+      updated_at: "2026-10-17"
       layer: guidance
       tags:
         - guidance
       regime: declarativo
+    - id: internal/proto/codec.feature
+      kind: feature
+      rev: e7c14ec8f277
+      updated_at: "2026-10-17"
+      code: CDCOE
+      file_code: CDFTC
+      layer: feature
+      tags:
+        - feature
+      evidence_rev: 9e86d1640c38
+      line_rev: 54aa38632f95
+    - id: internal/proto/codec.go
+      kind: code
+      rev: ebc6b01e1c5f
+      updated_at: "2026-10-17"
+      code: CDCOE
+      file_code: CDIMC
+      layer: proto
+      tags:
+        - proto
+      signal:
+        covered_lines: 126
+        total_lines: 155
+        line_coverage: 81.29032258064515
+        coverage_by_suite:
+            .anchors/lcov.info:
+                instrumented: 39,42-45,48,51-54,57-62,66,69,72-82,84-88,101-108,110,120,132-140,142,153,162,165-167,171-181,183-198,205-210,212-213,215,219-227,229-237,239-247,249-259,261-264,275,287-290,293-305
+                covered: 39,42-45,48,51-54,57-59,62,66,69,72-74,77-79,82,84-85,88,132-140,142,162,165-167,171-181,183-196,205-210,212-213,215,219-227,229-235,239-245,249-257,261-264,275,287-290,293-298,301-305
+                covered_lines: 126
+                total_lines: 155
+                at_rev: ebc6b01e1c5f
+        coverage_rev: ebc6b01e1c5f
+        at_rev: ebc6b01e1c5f
+        ingested_at: "2026-10-17T00:32:16-03:00"
+      evidence_rev: c0c5c3f86338
+      line_rev: aecb8da5d021
+    - id: internal/proto/codec.spec.md
+      kind: spec
+      rev: e26cdcd7410e
+      updated_at: "2026-10-17"
+      code: CDCOE
+      file_code: CDCOE
+      layer: spec
+      code_declared: true
+      tags:
+        - spec
+      signal:
+        proven_codes:
+            - CDCOE-B01
+            - CDCOE-B02
+            - CDCOE-B03
+            - CDCOE-B04
+            - CDCOE-B05
+            - CDCOE-E01
+            - CDCOE-E02
+            - CDCOE-E03
+            - CDCOE-E04
+            - CDCOE-E05
+            - CDCOE-I01
+        proven_by_suite:
+            .anchors/junit.xml:
+                - CDCOE-B01
+                - CDCOE-B02
+                - CDCOE-B03
+                - CDCOE-B04
+                - CDCOE-B05
+                - CDCOE-E01
+                - CDCOE-E02
+                - CDCOE-E03
+                - CDCOE-E04
+                - CDCOE-E05
+                - CDCOE-I01
+        proven_rev_by_suite:
+            .anchors/junit.xml: e26cdcd7410e
+        at_rev: e26cdcd7410e
+        ingested_at: "2026-10-17T00:32:16-03:00"
+      evidence_rev: 5baf2c012367
+      rule_revs: {CDCOE-B01: a7383a2020ff, CDCOE-B02: 61a887c58ac4, CDCOE-B03: 4a01373ad490, CDCOE-B04: 9cee12e1c956, CDCOE-B05: e7e1d0fd8ec7, CDCOE-E01: 723ad9f8a030, CDCOE-E02: 55258838dd1f, CDCOE-E03: cbdfca7189e1, CDCOE-E04: 58a8c36dcfe2, CDCOE-E05: be3c90c976ca, CDCOE-I01: dd82e8b4afd7}
+      rest_rev: ec519a8ec68d
+    - id: internal/proto/codec_test.go
+      kind: test
+      rev: 803d06a6088d
+      updated_at: "2026-10-17"
+      code: CDCOE
+      file_code: CDTST
+      layer: test
+      tags:
+        - test
+      signal:
+        passed: 20
+        by_layer:
+            unit:
+                passed: 20
+        at_rev: 803d06a6088d
+        ingested_at: "2026-10-17T00:32:16-03:00"
+      evidence_rev: ec4fa8ee192e
+      line_rev: 074073cd551b
     - id: plans/terminal-remoto.plan.md
       kind: plan
       rev: 99697a5e521a
+      updated_at: "2026-10-17"
       code: TRRMT
       file_code: TRRMT
       layer: plan
@@ -36,4 +137,61 @@ nodes:
         - plan
       evidence_rev: d2740f8cca3d
       line_rev: c47e8ac11f31
-edges: []
+edges:
+    - from: internal/proto/codec.feature
+      to: internal/proto/codec_test.go
+      type: tested-by
+      origin: convention
+      stamp:
+        validated_from_rev: e7c14ec8f277
+        validated_to_rev: 803d06a6088d
+        changed_at: "2026-10-17"
+        verdict: ok
+    - from: internal/proto/codec.spec.md
+      to: internal/proto/codec.feature
+      judgments:
+        - gate: rule-fulfilled
+          verdict: ok
+          validated_from_rev: e26cdcd7410e
+          validated_to_rev: e7c14ec8f277
+          changed_at: "2026-10-17"
+          config_rev: 14ac9ac707f7
+      type: covered-by
+      origin: convention
+      stamp:
+        validated_from_rev: e26cdcd7410e
+        validated_to_rev: e7c14ec8f277
+        changed_at: "2026-10-17"
+        verdict: ok
+    - from: internal/proto/codec.spec.md
+      to: internal/proto/codec.go
+      judgments:
+        - gate: rule-fulfilled
+          verdict: ok
+          validated_from_rev: e26cdcd7410e
+          validated_to_rev: ebc6b01e1c5f
+          changed_at: "2026-10-17"
+          config_rev: 14ac9ac707f7
+      type: specifies
+      origin: convention
+      stamp:
+        validated_from_rev: e26cdcd7410e
+        validated_to_rev: ebc6b01e1c5f
+        changed_at: "2026-10-17"
+        verdict: ok
+    - from: plans/terminal-remoto.plan.md
+      to: internal/proto/codec.spec.md
+      judgments:
+        - gate: rule-fulfilled
+          verdict: ok
+          validated_from_rev: 99697a5e521a
+          validated_to_rev: e26cdcd7410e
+          changed_at: "2026-10-17"
+          config_rev: 14ac9ac707f7
+      type: seeds
+      origin: declared
+      stamp:
+        validated_from_rev: 99697a5e521a
+        validated_to_rev: e26cdcd7410e
+        changed_at: "2026-10-17"
+        verdict: ok

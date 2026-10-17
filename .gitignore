@@ -3,3 +3,6 @@
 .anchors/telemetry-noticed
 /polvo
 /dist/
+.anchors/junit.xml
+.anchors/lcov.info
+.anchors/cover.out

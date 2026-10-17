@@ -1,0 +1,12 @@
+
+# The MAP is derived, and git merges it as TEXT — erasing judgment stamps
+# with no conflict and no warning (measured: 62 at once). The driver merges the
+# stamps from both sides. Register it with `anchors install-hooks`.
+anchors.graph.yaml merge=anchors-map
+
+# The PROGRESS of a plan is marked by whoever delivers, and two branches that
+# deliver specs of the same plan mark neighboring checkboxes: git asks for manual
+# resolution every time (measured: three PRs in a row, identical resolution in all three).
+# The driver merges both sides, and `[x]` beats `[ ]` — unchecking by merge would erase
+# a delivery that already happened.
+*-progress.md merge=anchors-progress
