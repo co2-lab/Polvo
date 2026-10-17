@@ -139,3 +139,39 @@ Feature: Window
     Given uma janela com o escolhedor aberto
     When o utilizador carrega fora dele
     Then o escolhedor fecha e a doca continua com um terminal
+
+  @WNDWI-B18#01 @unit-level
+  Scenario: A árvore de ficheiros abre a pasta da janela
+    Given uma janela cuja pasta tem "notas.txt"
+    When o utilizador escolhe a árvore de ficheiros no escolhedor
+    Then a doca tem a árvore da pasta, com "notas.txt", e com o foco
+
+  @WNDWI-B18#02 @unit-level
+  Scenario: Um ficheiro aberto na árvore abre num editor, uma vez
+    Given uma janela com a árvore da pasta, que tem "notas.txt"
+    When o utilizador abre "notas.txt" na árvore duas vezes
+    Then a doca tem um editor com "notas.txt"
+
+  @WNDWI-B19#01 @unit-level
+  Scenario: O editor vazio
+    Given uma janela com um terminal
+    When o utilizador escolhe o editor vazio no escolhedor
+    Then a doca tem um editor sem ficheiro, com o foco
+
+  @WNDWI-B19#02 @unit-level
+  Scenario: Abrir um ficheiro do computador
+    Given uma janela com um terminal
+    When o utilizador escolhe abrir um ficheiro e escolhe "notas.txt" no diálogo
+    Then a doca tem um editor com "notas.txt"
+
+  @WNDWI-B19#03 @unit-level
+  Scenario: Cancelar o diálogo deixa a doca como estava
+    Given uma janela com um terminal
+    When o utilizador escolhe abrir um ficheiro e cancela o diálogo
+    Then a doca continua só com o terminal
+
+  @WNDWI-B12#03 @unit-level
+  Scenario: A árvore e o editor voltam com a pasta e o ficheiro
+    Given uma janela com a árvore da pasta e um editor de "notas.txt", com a organização gravada
+    When a janela abre outra vez com o mesmo ficheiro da organização
+    Then a doca tem a árvore da mesma pasta e o editor de "notas.txt"

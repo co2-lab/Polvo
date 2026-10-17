@@ -7,6 +7,7 @@
 
 use std::cell::{Cell, RefCell};
 use std::collections::HashMap;
+use std::path::PathBuf;
 use std::rc::Rc;
 use std::sync::Arc;
 use std::time::Duration;
@@ -15,14 +16,16 @@ use gpui_kit::base::TestSupportExt as _;
 use gpui_kit::base::ResizeHandleContext;
 use gpui_kit::component::dock::{
     BasePanelView, DockArea, DockAreaRenderer, DockContext, DockEvent, DockLayout, DockPlacement, DockSkin, DropIndicator,
-    NodeId, PanelId, PanelState, PanelStyle, TabGroupContext, TabGroupRenderer, panel_handle, register_panel,
+    NodeId, PanelId, PanelInfo, PanelState, PanelStyle, TabGroupContext, TabGroupRenderer, panel_handle, register_panel,
 };
 use gpui_kit::component::{Icon, IconName, InteractiveElementExt as _, Sizable as _};
 use gpui_kit::{
-    AnyElement, AnyView, App, AppContext as _, Axis, Bounds, Context, Div, Entity, EntityId, Pixels, Stateful, canvas, Focusable as _, FocusHandle, FontWeight, Hsla, IntoElement, KeyDownEvent, MouseButton, ParentElement as _,
+    AnyElement, AnyView, App, AppContext as _, Axis, Bounds, Context, Div, Entity, EntityId, Pixels, Stateful, canvas, Focusable as _, FocusHandle, FontWeight, Hsla, IntoElement, KeyDownEvent, MouseButton, ParentElement as _, PathPromptOptions,
     Render, Styled as _, Subscription, Task, Window, div, prelude::*, px,
 };
 
+use crate::editor::EditorPanel; // @dep: EDIMP
+use crate::files::{FileTree, FileTreeEvent}; // @dep: FLIMP
 use crate::keymap::{Action, Keymap}; // @dep: KYIMA
 use crate::layout::{LAYOUT_VERSION, LayoutFile}; // @dep: DLIDC
 use crate::new_tab::{ChooserEvent, NewTabChooser, TabKind}; // @dep: NTIMP
@@ -41,8 +44,17 @@ pub type NewTerminal = Rc<dyn Fn(&Prefs, &mut Window, &mut App) -> std::io::Resu
 /// The terminal, the kind of tab the window always opens (WNDWI-B10).
 pub const TERMINAL: TabKind = TabKind { id: "terminal", label: "Terminal" };
 
+/// The file tree of the window's folder (WNDWI-B18).
+pub const FILES: TabKind = TabKind { id: "files", label: "Árvore de ficheiros" };
+
+/// An editor with no file (WNDWI-B19).
+pub const EDITOR: TabKind = TabKind { id: "editor", label: "Editor vazio" };
+
+/// A file of the computer, chosen in the system's dialog, in an editor (WNDWI-B19).
+pub const OPEN_FILE: TabKind = TabKind { id: "open-file", label: "Abrir um ficheiro…" };
+
 /// The kinds of tab the window can open (WNDWI-B10).
-pub const KINDS: [TabKind; 1] = [TERMINAL];
+pub const KINDS: [TabKind; 4] = [TERMINAL, FILES, EDITOR, OPEN_FILE];
 
 /// The chooser of the new tab, while it is open (WNDWI-B17).
 struct Choosing {
@@ -162,6 +174,12 @@ pub struct PolvoWindow {
     terminals: Vec<Entity<TerminalPanel>>,
     /// The settings tab, when it is in the dock (WNDWI-B15).
     settings: Option<Entity<SettingsPanel>>,
+    /// The file trees in the dock (WNDWI-B18).
+    trees: Vec<Entity<FileTree>>,
+    /// The editors in the dock (WNDWI-B19).
+    editors: Vec<Entity<EditorPanel>>,
+    /// The window's folder (WNDWI-B18).
+    root: PathBuf,
     /// What the window hears from each terminal, by the terminal's entity.
     heard: HashMap<EntityId, Subscription>,
     /// What the window hears from the dock.
@@ -178,6 +196,7 @@ impl PolvoWindow {
         prefs: Prefs,
         new_terminal: NewTerminal,
         layout: Option<LayoutFile>,
+        root: PathBuf,
         window: &mut Window,
         cx: &mut Context<Self>,
     ) -> Self {
@@ -199,6 +218,9 @@ impl PolvoWindow {
             layout,
             terminals: Vec::new(),
             settings: None,
+            trees: Vec::new(),
+            editors: Vec::new(),
+            root,
             heard: HashMap::new(),
             dock_heard: None,
             saving: None,
@@ -232,6 +254,29 @@ impl PolvoWindow {
                 panel_handle(panel)
             });
         }
+        // WNDWI-B12: the trees with their folder, the editors with their file.
+        let restored_trees: Rc<RefCell<Vec<Entity<FileTree>>>> = Rc::default();
+        {
+            let (restored, fallback) = (restored_trees.clone(), this.root.clone());
+            register_panel(cx, "files", move |ctx, window, cx| {
+                let root = kept(ctx.info(), "root").map_or_else(|| fallback.clone(), PathBuf::from);
+                let tree = cx.new(|cx| FileTree::new(root, window, cx));
+                restored.borrow_mut().push(tree.clone());
+                panel_handle(tree)
+            });
+        }
+        let restored_editors: Rc<RefCell<Vec<Entity<EditorPanel>>>> = Rc::default();
+        {
+            let restored = restored_editors.clone();
+            register_panel(cx, "editor", move |ctx, window, cx| {
+                let editor = match kept(ctx.info(), "path") {
+                    Some(path) => cx.new(|cx| EditorPanel::open(PathBuf::from(path), window, cx)),
+                    None => cx.new(|cx| EditorPanel::empty(window, cx)),
+                };
+                restored.borrow_mut().push(editor.clone());
+                panel_handle(editor)
+            });
+        }
         if let Some(state) = this.layout.as_ref().and_then(LayoutFile::read) {
             if let Err(e) = dock.update(cx, |dock, cx| dock.load(state, window, cx)) {
                 eprintln!("polvo: the layout could not be restored ({e}); starting with the default");
@@ -241,6 +286,10 @@ impl PolvoWindow {
             this.watch(panel, window, cx);
         }
         this.settings = restored.borrow_mut().take();
+        for tree in restored_trees.borrow_mut().drain(..) {
+            this.watch_tree(tree, window, cx);
+        }
+        this.editors.extend(restored_editors.borrow_mut().drain(..));
         if this.terminals.is_empty() {
             match (this.new_terminal)(&this.prefs, window, cx) {
                 Ok(first) => {
@@ -286,14 +335,21 @@ impl PolvoWindow {
         let dock = self.dock.read(cx);
         let gone: Vec<Entity<TerminalPanel>> =
             self.terminals.iter().filter(|t| dock.panel(PanelId::from(t.entity_id())).is_none()).cloned().collect();
-        if self.settings.as_ref().is_some_and(|s| dock.panel(PanelId::from(s.entity_id())).is_none()) {
+        let in_dock = |id: EntityId| dock.panel(PanelId::from(id)).is_some();
+        if self.settings.as_ref().is_some_and(|s| !in_dock(s.entity_id())) {
             self.settings = None;
+        }
+        let trees_gone: Vec<EntityId> = self.trees.iter().map(|t| t.entity_id()).filter(|id| !in_dock(*id)).collect();
+        self.trees.retain(|t| !trees_gone.contains(&t.entity_id()));
+        self.editors.retain(|e| in_dock(e.entity_id()));
+        for id in trees_gone {
+            self.heard.remove(&id);
         }
         for panel in &gone {
             self.heard.remove(&panel.entity_id());
         }
         self.terminals.retain(|t| !gone.contains(t));
-        if self.terminals.is_empty() && self.settings.is_none() {
+        if self.terminals.is_empty() && self.settings.is_none() && self.trees.is_empty() && self.editors.is_empty() {
             window.remove_window();
             return;
         }
@@ -352,7 +408,66 @@ impl PolvoWindow {
     fn open_kind(&mut self, kind: TabKind, window: &mut Window, cx: &mut Context<Self>) {
         if kind == TERMINAL {
             self.open_terminal(window, cx);
+        } else if kind == FILES {
+            self.open_tree(window, cx);
+        } else if kind == EDITOR {
+            let editor = cx.new(|cx| EditorPanel::empty(window, cx));
+            self.show_editor(editor, window, cx);
+        } else if kind == OPEN_FILE {
+            self.ask_file(window, cx);
         }
+    }
+
+    /// Opens the file tree of the window's folder, with the focus (WNDWI-B18).
+    fn open_tree(&mut self, window: &mut Window, cx: &mut Context<Self>) {
+        let root = self.root.clone();
+        let tree = cx.new(|cx| FileTree::new(root, window, cx));
+        self.dock.update(cx, |dock, cx| dock.add_panel(tree.clone(), DockPlacement::Center, None, window, cx));
+        let focus = tree.read(cx).focus_handle(cx);
+        window.focus(&focus, cx);
+        self.watch_tree(tree, window, cx);
+        cx.notify();
+    }
+
+    /// Hears the files the tree opens (WNDWI-B18).
+    fn watch_tree(&mut self, tree: Entity<FileTree>, window: &mut Window, cx: &mut Context<Self>) {
+        let sub = cx.subscribe_in(&tree, window, |this, _, ev: &FileTreeEvent, window, cx| match ev {
+            FileTreeEvent::Open(path) => this.open_file(path.clone(), window, cx),
+        });
+        self.heard.insert(tree.entity_id(), sub);
+        self.trees.push(tree);
+    }
+
+    /// Asks for a file in the system's dialog and opens it (WNDWI-B19); a cancelled dialog opens nothing.
+    fn ask_file(&mut self, window: &mut Window, cx: &mut Context<Self>) {
+        let asked = cx.prompt_for_paths(PathPromptOptions { files: true, directories: false, multiple: false, prompt: None });
+        cx.spawn_in(window, async move |this, cx| {
+            let Ok(Ok(Some(paths))) = asked.await else { return };
+            let Some(path) = paths.into_iter().next() else { return };
+            let _ = this.update_in(cx, |this, window, cx| this.open_file(path, window, cx));
+        })
+        .detach();
+    }
+
+    /// Opens the file in an editor, or shows the editor that has it (WNDWI-B18, WNDWI-B19).
+    fn open_file(&mut self, path: PathBuf, window: &mut Window, cx: &mut Context<Self>) {
+        if let Some(editor) = self.editors.iter().find(|e| e.read(cx).path() == Some(path.as_path())).cloned() {
+            let id = PanelId::from(editor.entity_id());
+            self.dock.update(cx, |dock, cx| dock.select_panel(id, window, cx));
+            let focus = editor.read(cx).focus_handle(cx);
+            window.focus(&focus, cx);
+            return;
+        }
+        let editor = cx.new(|cx| EditorPanel::open(path, window, cx));
+        self.show_editor(editor, window, cx);
+    }
+
+    fn show_editor(&mut self, editor: Entity<EditorPanel>, window: &mut Window, cx: &mut Context<Self>) {
+        self.dock.update(cx, |dock, cx| dock.add_panel(editor.clone(), DockPlacement::Center, None, window, cx));
+        let focus = editor.read(cx).focus_handle(cx);
+        window.focus(&focus, cx);
+        self.editors.push(editor);
+        cx.notify();
     }
 
     /// Opens a new terminal in the dock, with the focus (WNDWI-B10).
@@ -395,9 +510,14 @@ impl PolvoWindow {
 
     /// Closes the tab that has the focus (WNDWI-B16).
     fn close_focused(&mut self, window: &mut Window, cx: &mut Context<Self>) {
-        if let Some(panel) = self.terminals.iter().find(|t| t.read(cx).focus_handle(cx).contains_focused(window, cx)).cloned() {
+        let focused = |f: FocusHandle| f.contains_focused(window, cx);
+        if let Some(panel) = self.terminals.iter().find(|t| focused(t.read(cx).focus_handle(cx))).cloned() {
             self.dock.update(cx, |dock, cx| dock.remove_panel(panel, window, cx));
-        } else if let Some(panel) = self.settings.clone().filter(|s| s.read(cx).focus_handle(cx).contains_focused(window, cx)) {
+        } else if let Some(panel) = self.settings.clone().filter(|s| focused(s.read(cx).focus_handle(cx))) {
+            self.dock.update(cx, |dock, cx| dock.remove_panel(panel, window, cx));
+        } else if let Some(panel) = self.trees.iter().find(|t| focused(t.read(cx).focus_handle(cx))).cloned() {
+            self.dock.update(cx, |dock, cx| dock.remove_panel(panel, window, cx));
+        } else if let Some(panel) = self.editors.iter().find(|e| focused(e.read(cx).focus_handle(cx))).cloned() {
             self.dock.update(cx, |dock, cx| dock.remove_panel(panel, window, cx));
         } else {
             return;
@@ -577,6 +697,14 @@ impl Render for PolvoWindow {
     }
 }
 
+/// A text the dock kept for a panel (WNDWI-B12).
+fn kept(info: &PanelInfo, key: &str) -> Option<String> {
+    match info {
+        PanelInfo::Panel(v) => v.get(key).and_then(|x| x.as_str()).map(str::to_string),
+        _ => None,
+    }
+}
+
 /// Opens the window of Polvo with the user's `shell`, in `cwd`, following `prefs`, with the dock as
 /// the installation's layout file kept it.
 pub fn open(shell: String, cwd: Option<std::path::PathBuf>, prefs: Prefs, cx: &mut App) {
@@ -588,10 +716,11 @@ pub fn open(shell: String, cwd: Option<std::path::PathBuf>, prefs: Prefs, cx: &m
         app_id: Some("polvo".into()),
         ..gpui_kit::component::TitleBar::window_options()
     };
+    let root = cwd.clone().unwrap_or_else(|| PathBuf::from("."));
     let new_terminal: NewTerminal =
         Rc::new(move |prefs, window, cx| TerminalPanel::spawn(&shell, cwd.as_deref(), prefs, window, cx));
     let opened = gpui_kit::open_window(options, cx, |window, cx| {
-        cx.new(|cx| PolvoWindow::new(prefs, new_terminal, LayoutFile::default(), window, cx))
+        cx.new(|cx| PolvoWindow::new(prefs, new_terminal, LayoutFile::default(), root, window, cx))
     });
     if let Err(e) = opened {
         // WNDWI-E01

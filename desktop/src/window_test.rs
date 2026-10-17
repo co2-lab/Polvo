@@ -57,6 +57,10 @@ fn open_with(cx: &mut TestAppContext, prefs: Prefs, ok: usize) -> Opened {
 }
 
 fn open_full(cx: &mut TestAppContext, prefs: Prefs, ok: usize, layout: Option<LayoutFile>) -> Opened {
+    open_in(cx, prefs, ok, layout, std::env::temp_dir())
+}
+
+fn open_in(cx: &mut TestAppContext, prefs: Prefs, ok: usize, layout: Option<LayoutFile>, root: std::path::PathBuf) -> Opened {
     cx.update(gpui_kit::init);
     let made = Rc::new(RefCell::new(Made::default()));
     let new_terminal = offline_terminals(made.clone(), ok);
@@ -67,7 +71,7 @@ fn open_full(cx: &mut TestAppContext, prefs: Prefs, ok: usize, layout: Option<La
     let (handle, view) = cx
         .update(|cx| {
             gpui_kit::open_window(options, cx, |window, cx| {
-                cx.new(|cx| PolvoWindow::new(prefs, new_terminal, layout, window, cx))
+                cx.new(|cx| PolvoWindow::new(prefs, new_terminal, layout, root, window, cx))
             })
         })
         .unwrap();
@@ -384,4 +388,84 @@ scenario!(wndwi_b17_03_carregar_fora_fecha_o_escolhedor, "WNDWI-B17#03: Carregar
     click(cx, &o, "new-tab");
     click(cx, &o, "new-tab-backdrop");
     assert_eq!((chooser(cx, &o), terminals(cx, &o)), (None, 1));
+});
+
+/// Chooses the kind numbered `n` in the chooser the "+" opens.
+fn choose_kind(cx: &mut TestAppContext, o: &Opened, n: usize) {
+    click(cx, o, "new-tab");
+    press(cx, o, &n.to_string());
+}
+
+fn editors(cx: &mut TestAppContext, o: &Opened) -> Vec<Option<std::path::PathBuf>> {
+    o.view.read_with(cx, |v, cx| v.editors.iter().map(|e| e.read(cx).path().map(std::path::PathBuf::from)).collect())
+}
+
+/// A folder with a "notas.txt".
+fn with_notes() -> tempfile::TempDir {
+    let dir = tempfile::tempdir().unwrap();
+    std::fs::write(dir.path().join("notas.txt"), "ola").unwrap();
+    dir
+}
+
+scenario!(wndwi_b18_01_a_arvore_abre_a_pasta_da_janela, "WNDWI-B18#01: A árvore de ficheiros abre a pasta da janela", |cx| {
+    let dir = with_notes();
+    let o = open_in(cx, gnome_left(), usize::MAX, None, dir.path().to_path_buf());
+    choose_kind(cx, &o, 2);
+    let tree = o.view.read_with(cx, |v, _| v.trees.first().cloned()).expect("the tree");
+    let (root, listing) = tree.read_with(cx, |t, _| (t.root().to_path_buf(), t.listing()));
+    assert_eq!((root, listing, has_focus(cx, &o, &tree)), (dir.path().to_path_buf(), vec!["notas.txt".to_string()], true));
+});
+
+scenario!(wndwi_b18_02_um_ficheiro_da_arvore_abre_num_editor, "WNDWI-B18#02: Um ficheiro aberto na árvore abre num editor, uma vez", |cx| {
+    let dir = with_notes();
+    let o = open_in(cx, gnome_left(), usize::MAX, None, dir.path().to_path_buf());
+    choose_kind(cx, &o, 2);
+    click(cx, &o, "entry-notas.txt");
+    let tree = o.view.read_with(cx, |v, _| v.trees[0].clone());
+    let id = PanelId::from(tree.entity_id());
+    let dock = o.view.read_with(cx, |v, _| v.dock.clone());
+    cx.update_window(o.handle, |_, window, cx| dock.update(cx, |d, cx| d.select_panel(id, window, cx))).unwrap();
+    frame(cx, o.handle);
+    click(cx, &o, "entry-notas.txt");
+    assert_eq!(editors(cx, &o), vec![Some(dir.path().join("notas.txt"))]);
+});
+
+scenario!(wndwi_b19_01_o_editor_vazio, "WNDWI-B19#01: O editor vazio", |cx| {
+    let o = open_gnome(cx);
+    choose_kind(cx, &o, 3);
+    let editor = o.view.read_with(cx, |v, _| v.editors[0].clone());
+    assert_eq!((editors(cx, &o), has_focus(cx, &o, &editor)), (vec![None], true));
+});
+
+scenario!(wndwi_b19_02_abrir_um_ficheiro_do_computador, "WNDWI-B19#02: Abrir um ficheiro do computador", |cx| {
+    let dir = with_notes();
+    let o = open_gnome(cx);
+    choose_kind(cx, &o, 4);
+    let chosen = dir.path().join("notas.txt");
+    cx.simulate_path_prompt_response(move |_| Some(vec![chosen]));
+    cx.run_until_parked();
+    assert_eq!(editors(cx, &o), vec![Some(dir.path().join("notas.txt"))]);
+});
+
+scenario!(wndwi_b19_03_cancelar_o_dialogo, "WNDWI-B19#03: Cancelar o diálogo deixa a doca como estava", |cx| {
+    let o = open_gnome(cx);
+    choose_kind(cx, &o, 4);
+    cx.simulate_path_prompt_response(|_| None);
+    cx.run_until_parked();
+    assert_eq!((editors(cx, &o), terminals(cx, &o)), (Vec::new(), 1));
+});
+
+scenario!(wndwi_b12_03_a_arvore_e_o_editor_voltam, "WNDWI-B12#03: A árvore e o editor voltam com a pasta e o ficheiro", |cx| {
+    let dir = with_notes();
+    let file = LayoutFile::at(dir.path().join("layout.json"));
+    let first = open_in(cx, gnome_left(), usize::MAX, Some(file.clone()), dir.path().to_path_buf());
+    choose_kind(cx, &first, 2);
+    click(cx, &first, "entry-notas.txt");
+    settle(cx);
+    cx.update_window(first.handle, |_, window, _| window.remove_window()).unwrap();
+    cx.run_until_parked();
+
+    let again = open_in(cx, gnome_left(), usize::MAX, Some(file), std::env::temp_dir());
+    let roots = again.view.read_with(cx, |v, cx| v.trees.iter().map(|t| t.read(cx).root().to_path_buf()).collect::<Vec<_>>());
+    assert_eq!((roots, editors(cx, &again)), (vec![dir.path().to_path_buf()], vec![Some(dir.path().join("notas.txt"))]));
 });
