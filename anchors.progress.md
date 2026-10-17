@@ -51,4 +51,11 @@
 - [x] D04.T9 — O `polvo node` a correr no Galaxy (`GALAXY_ENGINE=go galaxy run ./cmd/polvo node`) aceita o · 1 (estimate) · done 2026-10-17 by migrated
 - [x] D04.T10 — `anchors check` sem gates bloqueantes a falhar. · 1 (estimate) · done 2026-10-17 by migrated
 
-<!-- anchors:progress sum=eb4a8d59db41 -->
+## D05 — Espelho remoto (plan: plans/espelho.plan.md) — — (0/0)
+### D05.S1 — ESRMS-W01 — As sessões no nó — — (0/0)
+### D05.S2 — ESRMS-W02 — A janela como cliente dos nós (depends on ESRMS-W01) — — (0/0)
+### D05.S3 — ESRMS-W03 — Descoberta e emparelhamento (depends on ESRMS-W02) — — (0/0)
+### D05.S4 — ESRMS-W04 — P2P através de NAT (depends on ESRMS-W03) — — (0/0)
+### D05.S5 — ESRMS-W05 — Os ficheiros de qualquer máquina (depends on ESRMS-W02) — — (0/0)
+
+<!-- anchors:progress sum=9f80743628d3 -->

@@ -1253,9 +1253,21 @@ nodes:
         - plan
       evidence_rev: 8f52214418f5
       line_rev: 4443f8d9c69a
+    - id: plans/espelho.plan.md
+      kind: plan
+      rev: d4501dec19d7
+      updated_at: "2026-10-17"
+      code: ESRMS
+      file_code: ESRMS
+      layer: plan
+      code_declared: true
+      tags:
+        - plan
+      evidence_rev: 5b04612baa36
+      line_rev: 58161cf019cb
     - id: plans/janela.plan.md
       kind: plan
-      rev: 4bb5804e8010
+      rev: e9b93aec7b68
       updated_at: "2026-10-17"
       code: JNNTJ
       file_code: JNNTJ
@@ -1263,8 +1275,8 @@ nodes:
       code_declared: true
       tags:
         - plan
-      evidence_rev: aad9e7fed0b9
-      line_rev: a519239dba79
+      evidence_rev: 3366b0aabab5
+      line_rev: 114fbcb6728b
     - id: plans/terminal-remoto.plan.md
       kind: plan
       rev: 03470fc704da
@@ -2004,6 +2016,26 @@ edges:
         validated_to_rev: e425514f5b98
         changed_at: "2026-10-17"
         verdict: ok
+    - from: plans/espelho.plan.md
+      to: desktop/src/screen.spec.md
+      type: seeds
+      origin: declared
+    - from: plans/espelho.plan.md
+      to: internal/hub/client.spec.md
+      type: seeds
+      origin: declared
+    - from: plans/espelho.plan.md
+      to: internal/mcp/tools.spec.md
+      type: seeds
+      origin: declared
+    - from: plans/espelho.plan.md
+      to: internal/node/control.spec.md
+      type: seeds
+      origin: declared
+    - from: plans/espelho.plan.md
+      to: internal/node/server.spec.md
+      type: seeds
+      origin: declared
     - from: plans/janela.plan.md
       to: desktop/src/keys.spec.md
       type: seeds

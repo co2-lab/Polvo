@@ -49,16 +49,7 @@ janela; tirar um painel para uma janela à parte fica fora desta fase.
   janela fecha quando sai o último terminal
 - `desktop/src/layout.spec.md` — nasce: a organização da doca guardada e restaurada
 
-### JNNTJ-W03 — Os nós (depends on JNNTJ-W02)
-
-Os terminais nos nós remotos e no nó local, pelo servidor Go que já existe (`internal/web`, `internal/hub`).
-A forma da ligação entre a janela e o Go decide-se nesta fase.
-
-### JNNTJ-W04 — O editor (depends on JNNTJ-W03)
-
-O editor do gpui-component, com o realce de sintaxe, e a árvore de pastas de um nó.
-
-### JNNTJ-W05 — Um executável (depends on JNNTJ-W04)
+### JNNTJ-W03 — Um executável (depends on JNNTJ-W02)
 
 O Go e o Rust num só executável `polvo`, e o `polvo` sem subcomando abre a janela nativa.
 
@@ -77,6 +68,11 @@ O Go e o Rust num só executável `polvo`, e o `polvo` sem subcomando abre a jan
 > utilizador, arrastando e soltando"), depois de ver o terminal nativo. Os nós, o editor e o executável
 > passam a W03, W04 e W05. Os separadores e a divisão do ecrã, que estavam fora do âmbito, são agora a
 > W02.
+
+> **JNNTJ-R0002:** as fases dos nós e do editor passam para o plano `espelho.plan.md` (ESRMS), quando o
+> dono pediu a 2026-10-17 que a janela espelhe os terminais abertos noutras máquinas, em intranets e em
+> P2P: as sessões passam a viver no `polvo node`, o que muda o nó, o cliente e a janela. O executável
+> único passa a W03.
 
 ## Definition of Done
 
