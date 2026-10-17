@@ -24,6 +24,12 @@ layers:
         kind: code
         tags: [pty]
         exclude: ['**/*_test.go']
+    # A configuracao do no': quem pode o que' nas sessoes (plano ESRMS).
+    nodeconf:
+        pattern: 'internal/nodeconf/*.go'
+        kind: code
+        tags: [nodeconf]
+        exclude: ['**/*_test.go']
     # As sessoes de terminal do no', com os espectadores (plano ESRMS).
     sessions:
         pattern: 'internal/sessions/*.go'

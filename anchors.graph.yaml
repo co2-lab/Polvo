@@ -2,7 +2,7 @@
 # Material e versionado. Fonte de verdade do grafo; índices em memória são cache.
 version: 8
 generated_by: 0.1.353
-config_rev: 27fb62e79c88
+config_rev: 7ee73f169274
 nodes:
     - id: AGENTS.md
       kind: doc
@@ -885,6 +885,52 @@ nodes:
         ingested_at: "2026-10-17T07:51:38-03:00"
       evidence_rev: 424645cad26a
       line_rev: 2794e0960b56
+    - id: internal/nodeconf/nodeconf.feature
+      kind: feature
+      rev: d1b4305c9a15
+      updated_at: "2026-10-17"
+      code: NDCNN
+      file_code: NCFND
+      layer: feature
+      tags:
+        - feature
+      evidence_rev: fa54108bcf7b
+      line_rev: fa8437f89607
+    - id: internal/nodeconf/nodeconf.go
+      kind: code
+      rev: 1cf440c950a4
+      updated_at: "2026-10-17"
+      code: NDCNN
+      file_code: NCIND
+      layer: nodeconf
+      tags:
+        - nodeconf
+      evidence_rev: 0e41df9f6620
+      line_rev: db3ada77df85
+    - id: internal/nodeconf/nodeconf.spec.md
+      kind: spec
+      rev: fbaf2511aa27
+      updated_at: "2026-10-17"
+      code: NDCNN
+      file_code: NDCNN
+      layer: spec
+      code_declared: true
+      tags:
+        - spec
+      evidence_rev: 3edc127d881d
+      rule_revs: {NDCNN-B01: 399f29e294ca, NDCNN-B02: b5b0a0f5a161, NDCNN-B03: 840ab8ec780a, NDCNN-E01: c5a1e4b6adec, NDCNN-E02: b44848c22801}
+      rest_rev: 29956e75ddf1
+    - id: internal/nodeconf/nodeconf_test.go
+      kind: test
+      rev: b9c4f630c2c3
+      updated_at: "2026-10-17"
+      code: NDCNN
+      file_code: NCTND
+      layer: test
+      tags:
+        - test
+      evidence_rev: 78ed5deafa31
+      line_rev: 776fb7fe361e
     - id: internal/proto/codec.feature
       kind: feature
       rev: 6be08d1e69b3
@@ -1796,6 +1842,18 @@ edges:
         validated_to_rev: 3e53a870aa3d
         changed_at: "2026-10-17"
         verdict: ok
+    - from: internal/nodeconf/nodeconf.feature
+      to: internal/nodeconf/nodeconf_test.go
+      type: tested-by
+      origin: convention
+    - from: internal/nodeconf/nodeconf.spec.md
+      to: internal/nodeconf/nodeconf.feature
+      type: covered-by
+      origin: convention
+    - from: internal/nodeconf/nodeconf.spec.md
+      to: internal/nodeconf/nodeconf.go
+      type: specifies
+      origin: convention
     - from: internal/proto/codec.feature
       to: internal/proto/codec_test.go
       type: tested-by
@@ -2091,6 +2149,10 @@ edges:
       origin: declared
     - from: plans/espelho.plan.md
       to: internal/node/server.spec.md
+      type: seeds
+      origin: declared
+    - from: plans/espelho.plan.md
+      to: internal/nodeconf/nodeconf.spec.md
       type: seeds
       origin: declared
     - from: plans/espelho.plan.md
