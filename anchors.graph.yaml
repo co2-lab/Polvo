@@ -2,7 +2,7 @@
 # Material e versionado. Fonte de verdade do grafo; índices em memória são cache.
 version: 7
 generated_by: 0.1.326
-config_rev: b82f76d8297a
+config_rev: 81fecf90e6d2
 nodes:
     - id: AGENTS.md
       kind: doc
@@ -134,6 +134,111 @@ nodes:
         coverage_omitted: efa7c0f1ab23
       evidence_rev: b5390c42c42e
       line_rev: 4b0cfe8a5737
+    - id: desktop/src/keys.feature
+      kind: feature
+      rev: 30a0bef1f86b
+      updated_at: "2026-10-17"
+      code: KYSEA
+      file_code: KYFTK
+      layer: feature
+      tags:
+        - feature
+      evidence_rev: a375d12850bf
+      line_rev: 2ff42c09847f
+    - id: desktop/src/keys.rs
+      kind: code
+      rev: c5c7c7b3eeec
+      updated_at: "2026-10-17"
+      code: KYSEA
+      file_code: KYIMK
+      layer: desktop
+      tags:
+        - desktop
+      evidence_rev: 8f0d01e5f4a0
+      line_rev: a378f2a9c313
+    - id: desktop/src/keys.spec.md
+      kind: spec
+      rev: ea448da911a9
+      updated_at: "2026-10-17"
+      code: KYSEA
+      file_code: KYSEA
+      layer: spec
+      code_declared: true
+      tags:
+        - spec
+      evidence_rev: 41bcff5d4527
+      rule_revs: {KYSEA-B01: d04dcdc54a3e, KYSEA-B02: 8c74b4518adb, KYSEA-B03: dba62541bbdc, KYSEA-B04: 4ba5821d18f5, KYSEA-B05: b8c984f23519, KYSEA-B06: 1180ff1091f5, KYSEA-B07: 06d0b7919868, KYSEA-E01: 0ba9462bb05e}
+      rest_rev: f84d3a73e379
+    - id: desktop/src/keys_test.rs
+      kind: test
+      rev: 4b945bc83cdc
+      updated_at: "2026-10-17"
+      code: KYSEA
+      file_code: KYTSK
+      layer: desktoptest
+      tags:
+        - test
+        - desktop
+      evidence_rev: 9312fd18311a
+      line_rev: da442fc882b2
+    - id: desktop/src/main.rs
+      kind: code
+      rev: d8d8129e0cc9
+      updated_at: "2026-10-17"
+      code: JNNTJ
+      file_code: DSMND
+      layer: desktop
+      tags:
+        - desktop
+      evidence_rev: 873417f2b910
+      line_rev: 53ceef0ed696
+    - id: desktop/src/prefs.feature
+      kind: feature
+      rev: aeeeb64aadef
+      updated_at: "2026-10-17"
+      code: PRFSE
+      file_code: PRFTP
+      layer: feature
+      tags:
+        - feature
+      evidence_rev: 00375a6d3bbd
+      line_rev: f77f760d9856
+    - id: desktop/src/prefs.rs
+      kind: code
+      rev: cd5b1ba68a40
+      updated_at: "2026-10-17"
+      code: PRFSE
+      file_code: PRIMP
+      layer: desktop
+      tags:
+        - desktop
+      evidence_rev: 744fe59b6cfa
+      line_rev: 48333c41cb39
+    - id: desktop/src/prefs.spec.md
+      kind: spec
+      rev: 0443d3f16e2c
+      updated_at: "2026-10-17"
+      code: PRFSE
+      file_code: PRFSE
+      layer: spec
+      code_declared: true
+      tags:
+        - spec
+      evidence_rev: 9296ec2e72c4
+      rule_revs: {PRFSE-B01: 0619443af1b1, PRFSE-B02: 8edb2b5aebe3, PRFSE-B03: cfcde2b09fd6, PRFSE-B04: ac6a99f59163, PRFSE-E01: cbac20870149}
+      rest_rev: 8087503f97e3
+    - id: desktop/src/prefs_test.rs
+      kind: test
+      rev: 1456b1526586
+      updated_at: "2026-10-17"
+      code: PRFSE
+      file_code: PRTSP
+      layer: desktoptest
+      tags:
+        - test
+        - desktop
+      evidence_rev: ffe2d9432827
+      line_rev: c1c6cf951c28
     - id: internal/hub/client.feature
       kind: feature
       rev: 9e853b78b359
@@ -945,6 +1050,18 @@ nodes:
         - plan
       evidence_rev: 8f52214418f5
       line_rev: 4443f8d9c69a
+    - id: plans/janela.plan.md
+      kind: plan
+      rev: 707d11544df2
+      updated_at: "2026-10-17"
+      code: JNNTJ
+      file_code: JNNTJ
+      layer: plan
+      code_declared: true
+      tags:
+        - plan
+      evidence_rev: 3971275f97ac
+      line_rev: d76629787400
     - id: plans/terminal-remoto.plan.md
       kind: plan
       rev: 03470fc704da
@@ -1061,6 +1178,30 @@ edges:
         changed_at: "2026-10-17"
         verdict: ok
         gate: rule-fulfilled
+    - from: desktop/src/keys.feature
+      to: desktop/src/keys_test.rs
+      type: tested-by
+      origin: convention
+    - from: desktop/src/keys.spec.md
+      to: desktop/src/keys.feature
+      type: covered-by
+      origin: convention
+    - from: desktop/src/keys.spec.md
+      to: desktop/src/keys.rs
+      type: specifies
+      origin: convention
+    - from: desktop/src/prefs.feature
+      to: desktop/src/prefs_test.rs
+      type: tested-by
+      origin: convention
+    - from: desktop/src/prefs.spec.md
+      to: desktop/src/prefs.feature
+      type: covered-by
+      origin: convention
+    - from: desktop/src/prefs.spec.md
+      to: desktop/src/prefs.rs
+      type: specifies
+      origin: convention
     - from: internal/hub/client.feature
       to: internal/hub/client_test.go
       type: tested-by
@@ -1471,6 +1612,14 @@ edges:
         changed_at: "2026-10-17"
         verdict: ok
         gate: rule-fulfilled
+    - from: plans/janela.plan.md
+      to: desktop/src/keys.spec.md
+      type: seeds
+      origin: declared
+    - from: plans/janela.plan.md
+      to: desktop/src/prefs.spec.md
+      type: seeds
+      origin: declared
     - from: plans/terminal-remoto.plan.md
       to: cmd/polvo/cli.spec.md
       judgments:

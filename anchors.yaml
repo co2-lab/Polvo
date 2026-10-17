@@ -60,6 +60,16 @@ layers:
         pattern: 'ui/*.test.ts'
         kind: test
         tags: [test, ui]
+    # A janela nativa (Rust, plano JNNTJ): o codigo e os testes do cargo, ao lado.
+    desktop:
+        pattern: 'desktop/src/*.rs'
+        kind: code
+        tags: [desktop]
+        exclude: ['desktop/src/*_test.rs']
+    desktoptest:
+        pattern: 'desktop/src/*_test.rs'
+        kind: test
+        tags: [test, desktop]
     feature:
         pattern: '**/*.feature'
         kind: feature
@@ -77,8 +87,8 @@ layers:
             - test
 derived:
     anchor: spec
-    # Em Go a exportacao e' a maiuscula inicial (func, metodo e tipo).
-    export_detect: "^(?:func(?:\\s+\\([^)]*\\))?|type)\\s+([A-Z]\\w*)"
+    # Em Go a exportacao e' a maiuscula inicial (func, metodo e tipo); em Rust, os tipos `pub`.
+    export_detect: "^(?:func(?:\\s+\\([^)]*\\))?|type|pub\\s+(?:struct|enum|trait|type|const))\\s+([A-Z]\\w*)"
     # Um regime so': os testes de unidade em Go, ao lado do codigo (go test e galaxy test).
     regimes:
         unit-level: unit
@@ -86,9 +96,9 @@ derived:
         unit: test
     files:
         spec: ["{{dir}}/{{name}}.spec.md"]
-        code: ["{{dir}}/{{name}}.go"]
+        code: ["{{dir}}/{{name}}.go", "{{dir}}/{{name}}.rs"]
         feature: ["{{dir}}/{{name}}.feature"]
-        test: ["{{dir}}/{{name}}_test.go"]
+        test: ["{{dir}}/{{name}}_test.go", "{{dir}}/{{name}}_test.rs"]
     # a spec da UI liga-se ao `app.ts`, ao `main.ts` (a ligacao as pecas reais) e ao teste do vitest
     overrides:
         - code: APPUI
@@ -101,8 +111,13 @@ derived:
 dialect:
     family: go
     # O que afirma num teste aqui: as falhas do pacote testing e os ajudantes que falham o teste.
+    # As definicoes: as do Go (a familia) e as do Rust da janela (desktop/), para o teste que chega
+    # a unidade pelo nome de algo que ela define.
+    definition: '(?m)^(?:func\s+\(\s*(?:\w+\s+)?\*?(?P<owner>\w+)(?:\[[^\]]*\])?\s*\)\s+(\w+)|func\s+(\w+)|type\s+(\w+)|(?:pub(?:\([a-z]+\))?\s+)?(?:fn|struct|enum|trait|const)\s+(\w+))'
     tests:
-        assertion: '\bt\.(?:Error|Errorf|Fatal|Fatalf|Fail|FailNow)\b|\b(?:wantReadError|wantError|result|waitFor)\(t\b'
+        # O titulo de um teste: o t.Run do Go, e o scenario!(nome, "CODIGO: titulo", { ... }) do Rust.
+        pattern: '\bt\.Run\(|\bscenario!\(\s*\w+\s*,'
+        assertion: '\bassert(?:_eq|_ne)?!\(|\bt\.(?:Error|Errorf|Fatal|Fatalf|Fail|FailNow)\b|\b(?:wantReadError|wantError|result|waitFor)\(t\b'
     # Como uma falha tratada fica REGISTADA aqui (`failure-logged`). Uma lista declarada substitui a da
     # familia, por isso os defaults do Go repetem-se. Os do Polvo: devolver o erro a quem chamou
     # (propagar nao e' calar) e a mensagem no canal de erro de uma sessao SSH (o stderr de quem ligou).
@@ -116,6 +131,9 @@ dialect:
         - '\breturn\b[^\n]*\b(?:fmt\.Errorf|errors\.New)\('
         - '\bcatch\s*[({]'
         - '\bif\s*\(\s*!'
+        - '\bErr\([^)]*\)\s*=>'
+        - '\bif\s+let\s+Err\b'
+        - '\(None,\s*Some\([^)]*\)\)\s*=>'
     log_patterns:
         - '\b(?:log|logger|slog)\.(?:Error|Warn|Fatal|Printf|Print)\b'
         - '\bfmt\.Errorf\('
@@ -127,6 +145,8 @@ dialect:
         - '\bfmt\.Fprint(?:ln|f)?\(\s*\w+\.ch\.Stderr\(\)'
         - '\bthis\.fail\('
         - '\bmessages\.(?:noToken|error)\b'
+        - '\beprintln!\('
+        - '\breturn\s+Err\('
 gates:
     - name: spec-complete
       id: spec-complete
@@ -867,3 +887,6 @@ tests:
     - layer: uitest
       run: "cd ui && npx vitest run --reporter=junit --outputFile=../.anchors/junit-ui.xml"
       junit: ".anchors/junit-ui.xml"
+    - layer: desktoptest
+      run: "make report-desktop"
+      junit: ".anchors/junit-desktop.xml"

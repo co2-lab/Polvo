@@ -3,9 +3,21 @@ GALAXY ?= galaxy
 GALAXY_MEM ?= 6G
 PKGS ?= ./...
 
-.PHONY: test test-go test-galaxy test-ui vet ui
+.PHONY: test test-go test-galaxy test-ui test-desktop vet ui desktop
 
-test: vet test-go test-galaxy test-ui
+test: vet test-go test-galaxy test-ui test-desktop
+
+# A janela nativa (desktop/, Rust): a libghostty-vt compila a Ghostty com o Zig 0.15 (ZIG), e o
+# target fica fora da arvore (CARGO_TARGET_DIR), que e' grande.
+ZIG ?= $(HOME)/.local/share/bavel-oraculos/zig-x86_64-linux-0.15.2
+CARGO_TARGET_DIR ?= $(HOME)/.cache/polvo-desktop-target
+CARGO = PATH="$(ZIG):$(HOME)/.cargo/bin:$$PATH" CARGO_TARGET_DIR="$(CARGO_TARGET_DIR)" cargo
+
+desktop:
+	cd desktop && $(CARGO) build --release
+
+test-desktop:
+	cd desktop && $(CARGO) test
 
 # A UI (ui/): o bundle vai para internal/web/dist, embutido no executavel.
 ui:
@@ -36,3 +48,10 @@ report:
 	go test -count=1 -v -coverpkg=./internal/...,./cmd/... -coverprofile=.anchors/cover.out ./... 2>&1 \
 	  | go tool go-junit-report -set-exit-code > .anchors/junit.xml
 	go tool gcov2lcov -infile .anchors/cover.out -outfile .anchors/lcov.info
+
+# O JUnit da janela nativa (o nextest escreve-o em desktop/target/nextest, fora do git).
+.PHONY: report-desktop
+report-desktop:
+	@mkdir -p .anchors
+	cd desktop && $(CARGO) nextest run --profile default --no-fail-fast; \
+	  cp target/nextest/default/junit.xml ../.anchors/junit-desktop.xml

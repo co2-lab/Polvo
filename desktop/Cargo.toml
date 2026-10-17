@@ -1,0 +1,16 @@
+[package]
+name = "polvo-desktop"
+version = "0.1.0"
+edition = "2024"
+license = "Apache-2.0"
+description = "The native window of Polvo: GPUI, libghostty-vt and portable-pty"
+
+[[bin]]
+name = "polvo-desktop"
+path = "src/main.rs"
+
+[dependencies]
+futures = "0.3"
+gpui-kit = "0.7.3"
+libghostty-vt = "0.2.2"
+portable-pty = "0.9.0"
