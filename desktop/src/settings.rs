@@ -16,11 +16,13 @@ pub struct Settings {
     pub keys: BTreeMap<String, String>,
 }
 
-/// The file of the settings.
+/// The file of the settings; the application's, as a global, is where the settings tab saves.
 #[derive(Clone, Debug)]
 pub struct SettingsFile {
     path: PathBuf,
 }
+
+impl gpui_kit::Global for SettingsFile {}
 
 impl SettingsFile {
     /// The file of this installation: `polvo/settings.json` in the user's configuration directory

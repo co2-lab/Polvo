@@ -34,6 +34,7 @@ mod panel; // @dep: TPITR
 mod prefs; // @dep: PRIMP
 mod screen; // @dep: SCIMS
 mod settings; // @dep: STIMS
+mod settings_panel; // @dep: SPIST
 mod window; // @dep: WNIMW
 
 fn main() {
@@ -42,6 +43,11 @@ fn main() {
     let prefs = prefs::read();
     gpui_kit::application().with_assets(gpui_kit::assets::Assets).run(move |cx| {
         gpui_kit::init(cx);
+        // CEACN-W01: the shortcuts the user changed, and the file the settings tab saves to.
+        if let Some(file) = settings::SettingsFile::default() {
+            cx.set_global(keymap::Keymap::with_overrides(&file.read().keys));
+            cx.set_global(file);
+        }
         if prefs.dark {
             gpui_kit::component::Theme::change(gpui_kit::component::ThemeMode::Dark, None, cx);
         }

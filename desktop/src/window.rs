@@ -19,13 +19,16 @@ use gpui_kit::component::dock::{
 };
 use gpui_kit::component::{Icon, IconName, InteractiveElementExt as _, Sizable as _};
 use gpui_kit::{
-    AnyElement, AnyView, App, AppContext as _, Axis, Bounds, Context, Div, Entity, EntityId, Pixels, Stateful, canvas, Focusable as _, FontWeight, Hsla, IntoElement, MouseButton, ParentElement as _,
+    AnyElement, AnyView, App, AppContext as _, Axis, Bounds, Context, Div, Entity, EntityId, Pixels, Stateful, canvas, Focusable as _, FontWeight, Hsla, IntoElement, KeyDownEvent, MouseButton, ParentElement as _,
     Render, Styled as _, Subscription, Task, Window, div, prelude::*, px,
 };
 
+use crate::keymap::{Action, Keymap}; // @dep: KYIMA
 use crate::layout::{LAYOUT_VERSION, LayoutFile}; // @dep: DLIDC
 use crate::panel::{TerminalEvent, TerminalPanel}; // @dep: TPITR
 use crate::prefs::{Button, Prefs}; // @dep: PRIMP
+use crate::settings::SettingsFile; // @dep: STIMS
+use crate::settings_panel::SettingsPanel; // @dep: SPIST
 
 /// The height of the title bar (WNDWI-B01), GNOME's (libadwaita).
 pub const TITLE_H: f32 = 38.;
@@ -142,6 +145,8 @@ pub struct PolvoWindow {
     layout: Option<LayoutFile>,
     /// The terminals in the dock, in the order they were opened.
     terminals: Vec<Entity<TerminalPanel>>,
+    /// The settings tab, when it is in the dock (WNDWI-B15).
+    settings: Option<Entity<SettingsPanel>>,
     /// What the window hears from each terminal, by the terminal's entity.
     heard: HashMap<EntityId, Subscription>,
     /// What the window hears from the dock.
@@ -177,6 +182,7 @@ impl PolvoWindow {
             new_terminal,
             layout,
             terminals: Vec::new(),
+            settings: None,
             heard: HashMap::new(),
             dock_heard: None,
             saving: None,
@@ -199,6 +205,16 @@ impl PolvoWindow {
                 panel_handle(panel)
             });
         }
+        // WNDWI-B15: the settings tab comes back too.
+        let restored: Rc<RefCell<Option<Entity<SettingsPanel>>>> = Rc::default();
+        {
+            let restored = restored.clone();
+            register_panel(cx, "settings", move |_, window, cx| {
+                let panel = cx.new(|cx| SettingsPanel::new(cx.try_global::<SettingsFile>().cloned(), window, cx));
+                *restored.borrow_mut() = Some(panel.clone());
+                panel_handle(panel)
+            });
+        }
         if let Some(state) = this.layout.as_ref().and_then(LayoutFile::read) {
             if let Err(e) = dock.update(cx, |dock, cx| dock.load(state, window, cx)) {
                 eprintln!("polvo: the layout could not be restored ({e}); starting with the default");
@@ -207,6 +223,7 @@ impl PolvoWindow {
         for panel in built.borrow_mut().drain(..) {
             this.watch(panel, window, cx);
         }
+        this.settings = restored.borrow_mut().take();
         if this.terminals.is_empty() {
             match (this.new_terminal)(&this.prefs, window, cx) {
                 Ok(first) => {
@@ -246,17 +263,20 @@ impl PolvoWindow {
     }
 
     /// After any change of the dock: the terminals whose tab left are let go, so their shells end
-    /// (WNDWI-B13); the window closes with the last (WNDWI-B11); and the organisation is saved, once the
-    /// changes stop (WNDWI-B12).
+    /// (WNDWI-B13); the window closes with the last tab (WNDWI-B11, WNDWI-B16); and the organisation is
+    /// saved, once the changes stop (WNDWI-B12).
     fn layout_changed(&mut self, window: &mut Window, cx: &mut Context<Self>) {
         let dock = self.dock.read(cx);
         let gone: Vec<Entity<TerminalPanel>> =
             self.terminals.iter().filter(|t| dock.panel(PanelId::from(t.entity_id())).is_none()).cloned().collect();
+        if self.settings.as_ref().is_some_and(|s| dock.panel(PanelId::from(s.entity_id())).is_none()) {
+            self.settings = None;
+        }
         for panel in &gone {
             self.heard.remove(&panel.entity_id());
         }
         self.terminals.retain(|t| !gone.contains(t));
-        if self.terminals.is_empty() {
+        if self.terminals.is_empty() && self.settings.is_none() {
             window.remove_window();
             return;
         }
@@ -294,6 +314,51 @@ impl PolvoWindow {
         window.focus(&focus, cx);
         self.watch(panel, window, cx);
         cx.notify();
+    }
+
+    /// Opens the settings tab with the focus, or shows the one already open (WNDWI-B15).
+    pub fn open_settings(&mut self, window: &mut Window, cx: &mut Context<Self>) {
+        let panel = match &self.settings {
+            Some(panel) => {
+                let id = PanelId::from(panel.entity_id());
+                self.dock.update(cx, |dock, cx| dock.select_panel(id, window, cx));
+                panel.clone()
+            }
+            None => {
+                let file = cx.try_global::<SettingsFile>().cloned();
+                let panel = cx.new(|cx| SettingsPanel::new(file, window, cx));
+                self.dock.update(cx, |dock, cx| dock.add_panel(panel.clone(), DockPlacement::Center, None, window, cx));
+                self.settings = Some(panel.clone());
+                panel
+            }
+        };
+        let focus = panel.read(cx).focus_handle(cx);
+        window.focus(&focus, cx);
+        cx.notify();
+    }
+
+    /// Closes the tab that has the focus (WNDWI-B16).
+    fn close_focused(&mut self, window: &mut Window, cx: &mut Context<Self>) {
+        if let Some(panel) = self.terminals.iter().find(|t| t.read(cx).focus_handle(cx).contains_focused(window, cx)).cloned() {
+            self.dock.update(cx, |dock, cx| dock.remove_panel(panel, window, cx));
+        } else if let Some(panel) = self.settings.clone().filter(|s| s.read(cx).focus_handle(cx).contains_focused(window, cx)) {
+            self.dock.update(cx, |dock, cx| dock.remove_panel(panel, window, cx));
+        } else {
+            return;
+        }
+        self.layout_changed(window, cx);
+    }
+
+    /// The window's shortcuts, from any tab (WNDWI-B16): the tabs leave the window's actions to it.
+    fn key_down(&mut self, ev: &KeyDownEvent, window: &mut Window, cx: &mut Context<Self>) {
+        let keymap = cx.try_global::<Keymap>().cloned().unwrap_or_default();
+        match keymap.action_for(&ev.keystroke.unparse()) {
+            Some(Action::NewTab) => self.open_terminal(window, cx),
+            Some(Action::CloseTab) => self.close_focused(window, cx),
+            Some(Action::Settings) => self.open_settings(window, cx),
+            Some(Action::Copy | Action::Paste) | None => return,
+        }
+        cx.stop_propagation();
     }
 
     /// The colours of the theme the preferences ask for (WNDWI-B07).
@@ -360,6 +425,11 @@ impl PolvoWindow {
             cx.stop_propagation();
             this.open_terminal(window, cx);
         }));
+        // WNDWI-B15
+        let settings = round("settings", IconName::Settings).on_click(cx.listener(|this, _, window, cx| {
+            cx.stop_propagation();
+            this.open_settings(window, cx);
+        }));
         let side = move |buttons: &[Button]| {
             div().flex().items_center().gap(px(12.)).children(
                 buttons
@@ -375,9 +445,9 @@ impl PolvoWindow {
         };
         let (mut left, mut right) = (side(&self.prefs.left), side(&self.prefs.right));
         if self.prefs.left.is_empty() {
-            left = left.child(new_terminal);
+            left = left.child(new_terminal).child(settings);
         } else {
-            right = right.child(new_terminal);
+            right = right.child(settings).child(new_terminal);
         }
         div()
             .id("title-bar")
@@ -423,6 +493,7 @@ impl Render for PolvoWindow {
                 .flex()
                 .flex_col()
                 .size_full()
+                .on_key_down(cx.listener(Self::key_down))
                 .child(self.title_bar(window, cx))
                 .child(div().flex_1().min_h_0().w_full().child(self.dock.clone())),
         )

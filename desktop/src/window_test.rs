@@ -6,6 +6,7 @@ use super::*;
 use crate::layout::{DockAreaState, LayoutFile}; // @dep: DLIDC
 use crate::prefs::{Button, Prefs}; // @dep: PRIMP
 use crate::screen::tests::Sink; // @dep: SCIMS
+use crate::keymap::{Action, Keymap}; // @dep: KYIMA
 use crate::screen::{Event, Screen, Size}; // @dep: SCIMS
 use futures::channel::mpsc::{self, UnboundedSender};
 use gpui_kit::test::{TestAppContextExt as _, TestWindowExt as _};
@@ -270,4 +271,79 @@ scenario!(wndwi_b14_as_abas_ficam_em_baixo, "WNDWI-B14: As abas ficam em baixo",
         .update_window(o.handle, |_, window, _| (window.find("terminal").bounds(), window.within("tab-bar").find(0usize).bounds()))
         .unwrap();
     assert!(tab.top() >= terminal.bottom() - px(1.), "the tab {tab:?} is below the terminal {terminal:?}");
+});
+
+/// The settings tab, when the window has one.
+fn settings_tab(cx: &mut TestAppContext, o: &Opened) -> Option<Entity<SettingsPanel>> {
+    o.view.read_with(cx, |v, _| v.settings.clone())
+}
+
+/// The settings tabs in the dock.
+fn settings_in_dock(cx: &mut TestAppContext, o: &Opened) -> usize {
+    let state = o.view.read_with(cx, |v, cx| v.dock.read(cx).dump(cx));
+    fn count(p: &gpui_kit::component::dock::PanelState) -> usize {
+        usize::from(p.panel_name == "settings") + p.children.iter().map(count).sum::<usize>()
+    }
+    count(&state.center)
+}
+
+fn has_focus<P: gpui_kit::Focusable>(cx: &mut TestAppContext, o: &Opened, panel: &Entity<P>) -> bool {
+    cx.update_window(o.handle, |_, window, cx| panel.read(cx).focus_handle(cx).is_focused(window)).unwrap()
+}
+
+fn press(cx: &mut TestAppContext, o: &Opened, key: &str) {
+    cx.update_window(o.handle, |_, window, cx| window.press(key, cx)).unwrap();
+    cx.run_until_parked();
+    frame(cx, o.handle);
+}
+
+fn click(cx: &mut TestAppContext, o: &Opened, id: &'static str) {
+    cx.update_window(o.handle, |_, window, cx| window.click(id, cx)).unwrap();
+    cx.run_until_parked();
+    frame(cx, o.handle);
+}
+
+scenario!(wndwi_b15_01_o_botao_de_configuracao, "WNDWI-B15#01: O botão de configuração abre a configuração", |cx| {
+    let o = open_gnome(cx);
+    click(cx, &o, "settings");
+    let tab = settings_tab(cx, &o).expect("the settings tab");
+    assert_eq!((settings_in_dock(cx, &o), has_focus(cx, &o, &tab)), (1, true));
+});
+
+scenario!(wndwi_b15_02_a_configuracao_so_abre_uma_vez, "WNDWI-B15#02: A configuração só abre uma vez", |cx| {
+    let o = open_gnome(cx);
+    click(cx, &o, "settings");
+    let first = settings_tab(cx, &o).expect("the settings tab");
+    click(cx, &o, "new-terminal");
+    click(cx, &o, "settings");
+    let again = settings_tab(cx, &o).expect("the settings tab");
+    assert_eq!((settings_in_dock(cx, &o), again == first, has_focus(cx, &o, &again)), (1, true, true));
+});
+
+scenario!(wndwi_b16_01_o_atalho_de_aba_nova, "WNDWI-B16#01: O atalho de aba nova abre um terminal", |cx| {
+    let o = open_gnome(cx);
+    click(cx, &o, "terminal");
+    press(cx, &o, "ctrl-shift-t");
+    assert_eq!((terminals(cx, &o), o.made.borrow().sinks[0].take()), (2, Vec::new()));
+});
+
+scenario!(wndwi_b16_02_o_atalho_de_fechar, "WNDWI-B16#02: O atalho de fechar fecha a aba com o foco", |cx| {
+    let o = open_gnome(cx);
+    let first = o.view.read_with(cx, |v, _| v.terminals[0].clone());
+    click(cx, &o, "new-terminal");
+    press(cx, &o, "ctrl-shift-w");
+    let left = o.view.read_with(cx, |v, _| v.terminals.clone());
+    assert_eq!(left, vec![first]);
+});
+
+scenario!(wndwi_b16_03_os_atalhos_seguem_o_mapa, "WNDWI-B16#03: Os atalhos seguem o mapa da aplicação", |cx| {
+    let o = open_gnome(cx);
+    cx.update(|cx| {
+        let mut keymap = Keymap::default();
+        keymap.set(Action::Settings, "ctrl-alt-s").unwrap();
+        cx.set_global(keymap);
+    });
+    click(cx, &o, "terminal");
+    press(cx, &o, "ctrl-alt-s");
+    assert_eq!(settings_in_dock(cx, &o), 1);
 });

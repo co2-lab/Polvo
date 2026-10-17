@@ -91,3 +91,33 @@ Feature: Window
     Given uma janela cujos terminais não arrancam
     When a janela abre
     Then a janela deixa de existir
+
+  @WNDWI-B15#01 @unit-level
+  Scenario: O botão de configuração abre a configuração
+    Given uma janela com um terminal
+    When o utilizador carrega no botão de configuração
+    Then a doca tem a aba da configuração, com o foco
+
+  @WNDWI-B15#02 @unit-level
+  Scenario: A configuração só abre uma vez
+    Given uma janela com a configuração aberta e um terminal novo à frente
+    When o utilizador carrega outra vez no botão de configuração
+    Then a doca continua com uma aba da configuração, e é ela que tem o foco
+
+  @WNDWI-B16#01 @unit-level
+  Scenario: O atalho de aba nova abre um terminal
+    Given uma janela com um terminal com o foco
+    When o utilizador prime Ctrl+Shift+T
+    Then a doca tem dois terminais, e o terminal não recebeu as teclas
+
+  @WNDWI-B16#02 @unit-level
+  Scenario: O atalho de fechar fecha a aba com o foco
+    Given uma janela com dois terminais, o segundo com o foco
+    When o utilizador prime Ctrl+Shift+W
+    Then fica o primeiro terminal
+
+  @WNDWI-B16#03 @unit-level
+  Scenario: Os atalhos seguem o mapa da aplicação
+    Given o mapa com a configuração em Ctrl+Alt+S
+    When o utilizador prime Ctrl+Alt+S num terminal
+    Then a doca tem a aba da configuração

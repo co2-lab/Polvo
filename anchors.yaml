@@ -197,6 +197,7 @@ dialect:
         - '\bmessages\.(?:noToken|error)\b'
         - '\beprintln!\('
         - '\breturn\s+Err\('
+        - '\bself\.tell\('
     exported_func: (?m)^func\s+(?:\([^)]*\)\s+)?([A-Z]\w*)\s*\(
     param_name: (\w+)\s+\*?\w
     loop: \bfor\b

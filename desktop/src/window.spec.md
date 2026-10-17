@@ -55,6 +55,17 @@ Ao abrir, quando o ficheiro da organização tem uma, a doca fica igual a como f
 grupos, as divisões e os tamanhos), e cada terminal arranca uma shell nova. Sem organização, a doca
 abre com um terminal. Cada mudança da doca grava a organização, `SAVE_DELAY` depois da última mudança.
 
+### WNDWI-B15 — O botão de configuração
+O botão de configuração da barra (a roda dentada, ao lado do "+") abre a aba da configuração na doca,
+com o foco. A janela só tem uma: se já está aberta, o botão mostra-a. A aba da configuração também
+volta com a organização (`WNDWI-B12`).
+
+### WNDWI-B16 — Os atalhos da janela
+As ações da janela fazem-se pelos atalhos do mapa da aplicação (`Keymap`), em qualquer aba: a aba
+nova abre um terminal novo (como o "+"), fechar a aba fecha a aba que tem o foco (o terminal termina
+a shell, como no `WNDWI-B13`), e a configuração abre-a (como o botão). Fechar a última aba fecha a
+janela.
+
 ## Domain
 
 | Input | Accepts | Outside the domain | Who guarantees |
@@ -62,6 +73,7 @@ abre com um terminal. Cada mudança da doca grava a organização, `SAVE_DELAY` 
 | `Prefs` | as preferências do `prefs::read` | — | o `Prefs`: nunca falta nenhum valor (os de omissão) |
 | `NewTerminal` | a forma de fazer um terminal novo | um terminal que não arranca | esta unidade: o aviso (`WNDWI-E02`, `WNDWI-E04`) |
 | `LayoutFile` | o ficheiro da organização, ou nenhum | um ficheiro que não se grava | esta unidade: o aviso (`WNDWI-E03`) |
+| `Keymap` | o mapa de atalhos da aplicação, ou nenhum (os de omissão) | — | o `Keymap`: cada ação tem um atalho |
 
 ## Errors / Failures
 | Rule | Condition | Failure |
@@ -94,6 +106,8 @@ abre com um terminal. Cada mudança da doca grava a organização, `SAVE_DELAY` 
 | `WNDWI-E02` | `NewTerminal` |
 | `WNDWI-E03` | `LayoutFile` |
 | `WNDWI-E04` | `NewTerminal` |
+| `WNDWI-B15` | `Prefs`, `LayoutFile` |
+| `WNDWI-B16` | `Keymap`, `NewTerminal` |
 
 ## Revisions
 
@@ -110,6 +124,9 @@ abre com um terminal. Cada mudança da doca grava a organização, `SAVE_DELAY` 
 > painel.
 
 > **WNDWI-R0003:** entra o `WNDWI-B14` (as abas em baixo), pedido pelo dono depois de experimentar a doca.
+
+> **WNDWI-R0004:** entram o `WNDWI-B15` (o botão de configuração) e o `WNDWI-B16` (os atalhos da janela),
+> do plano CEACN, fase W01. A janela fecha com a última aba, seja de terminal ou da configuração.
 
 ## Open Decisions
 
