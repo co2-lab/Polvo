@@ -7,7 +7,10 @@ tool (
 	github.com/jstemmer/go-junit-report/v2
 )
 
-require golang.org/x/crypto v0.58.0
+require (
+	github.com/creack/pty v1.1.24
+	golang.org/x/crypto v0.58.0
+)
 
 require (
 	github.com/jandelgado/gcov2lcov v1.1.1 // indirect
