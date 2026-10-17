@@ -59,14 +59,20 @@ impl LayoutFile {
     /// Writes the organisation: the directory when it is missing, the file beside it, then its name
     /// at once (DCLYD-B02). The error when they cannot be written (DCLYD-E02).
     pub fn write(&self, state: &DockAreaState) -> std::io::Result<()> {
-        if let Some(dir) = self.path.parent() {
-            std::fs::create_dir_all(dir)?;
-        }
         let text = serde_json::to_string_pretty(state).map_err(std::io::Error::other)?;
-        let beside = self.path.with_extension("json.tmp");
-        std::fs::write(&beside, text)?;
-        std::fs::rename(&beside, &self.path)
+        write_at_once(&self.path, &text)
     }
+}
+
+/// Writes text to path at once: the directory when it is missing, the file beside it, then its name
+/// (DCLYD-B02). The settings file is written the same way.
+pub(crate) fn write_at_once(path: &Path, text: &str) -> std::io::Result<()> {
+    if let Some(dir) = path.parent() {
+        std::fs::create_dir_all(dir)?;
+    }
+    let beside = path.with_extension("json.tmp");
+    std::fs::write(&beside, text)?;
+    std::fs::rename(&beside, path)
 }
 
 #[cfg(test)]

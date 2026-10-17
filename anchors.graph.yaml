@@ -149,6 +149,53 @@ nodes:
         coverage_omitted: efa7c0f1ab23
       evidence_rev: b5390c42c42e
       line_rev: 4b0cfe8a5737
+    - id: desktop/src/keymap.feature
+      kind: feature
+      rev: 9f1d7e894ecb
+      updated_at: "2026-10-17"
+      code: KYMPE
+      file_code: KYFTA
+      layer: feature
+      tags:
+        - feature
+      evidence_rev: b1de3a9b5c45
+      line_rev: 5e81916aecc1
+    - id: desktop/src/keymap.rs
+      kind: code
+      rev: 79bafe2aaa43
+      updated_at: "2026-10-17"
+      code: KYMPE
+      file_code: KYIMA
+      layer: desktop
+      tags:
+        - desktop
+      evidence_rev: 59a8f10735c9
+      line_rev: 94e5a6826d94
+    - id: desktop/src/keymap.spec.md
+      kind: spec
+      rev: 03bb48436fc8
+      updated_at: "2026-10-17"
+      code: KYMPE
+      file_code: KYMPE
+      layer: spec
+      code_declared: true
+      tags:
+        - spec
+      evidence_rev: a4f11d6ea870
+      rule_revs: {KYMPE-B01: c62661eae6ba, KYMPE-B02: 731ace8b3460, KYMPE-B03: 8ad7a2206a78, KYMPE-B04: 06d8019b5832, KYMPE-B05: 7048ee03acde, KYMPE-E01: 45e5fbcc2c28, KYMPE-E02: 2b9b7f1027bc, KYMPE-E03: 3a480eeeb313}
+      rest_rev: 7465c88deef6
+    - id: desktop/src/keymap_test.rs
+      kind: test
+      rev: 76ecbbbb3367
+      updated_at: "2026-10-17"
+      code: KYMPE
+      file_code: KYTSA
+      layer: desktoptest
+      tags:
+        - test
+        - desktop
+      evidence_rev: 41285c1f4e5b
+      line_rev: b14a8374d07c
     - id: desktop/src/keys.feature
       kind: feature
       rev: 30a0bef1f86b
@@ -209,15 +256,15 @@ nodes:
       line_rev: 5ab3c05c2f3a
     - id: desktop/src/layout.rs
       kind: code
-      rev: 3b25a669642b
+      rev: f245e24b4416
       updated_at: "2026-10-17"
       code: DCLYD
       file_code: DLIDC
       layer: desktop
       tags:
         - desktop
-      evidence_rev: 77a4f901bff6
-      line_rev: 665b5e7797ff
+      evidence_rev: 9cad130f3d18
+      line_rev: 12f7a6948d02
     - id: desktop/src/layout.spec.md
       kind: spec
       rev: 1a7289800dfc
@@ -245,40 +292,40 @@ nodes:
       line_rev: de67fd82f66c
     - id: desktop/src/main.rs
       kind: code
-      rev: 75b8d6c9e55a
+      rev: 42f190592cf8
       updated_at: "2026-10-17"
       code: JNNTJ
       file_code: DSMND
       layer: desktop
       tags:
         - desktop
-      evidence_rev: 56813ad16f60
-      line_rev: 3216df4a19f7
+      evidence_rev: 6ef65c4b4aca
+      line_rev: 4a73cdd51e2d
     - id: desktop/src/panel.feature
       kind: feature
-      rev: 46fa6992fcc3
+      rev: 5630a14bcfb0
       updated_at: "2026-10-17"
       code: TRPNT
       file_code: TPFTR
       layer: feature
       tags:
         - feature
-      evidence_rev: afcaf25cfd65
-      line_rev: abc592fa175c
+      evidence_rev: 555612f02e8c
+      line_rev: 9fc0e1383bf5
     - id: desktop/src/panel.rs
       kind: code
-      rev: 96f23bd1ee98
+      rev: e3d4aa6b10ec
       updated_at: "2026-10-17"
       code: TRPNT
       file_code: TPITR
       layer: desktop
       tags:
         - desktop
-      evidence_rev: 3231f0141bd1
-      line_rev: 997cf6e6949c
+      evidence_rev: aa7dbd68299c
+      line_rev: 49e3356527f5
     - id: desktop/src/panel.spec.md
       kind: spec
-      rev: 7aaeb545f414
+      rev: bf91600617c8
       updated_at: "2026-10-17"
       code: TRPNT
       file_code: TRPNT
@@ -286,12 +333,12 @@ nodes:
       code_declared: true
       tags:
         - spec
-      evidence_rev: 77d311c17ed2
-      rule_revs: {TRPNT-B01: c05571808a47, TRPNT-B02: c1560e8fb351, TRPNT-B03: f7ef66db290b, TRPNT-B04: f7a01e1c91ea, TRPNT-B05: 70c089047341, TRPNT-B06: 6cd87e8ace25, TRPNT-B07: 0594fb55e06d, TRPNT-B08: 6467ebe5173a, TRPNT-B09: bf64d3bb157c, TRPNT-E01: b287746f8024}
-      rest_rev: 653644f024c1
+      evidence_rev: d0d339b45b96
+      rule_revs: {TRPNT-B01: ff2e607eb0f1, TRPNT-B02: 23b875ccd71e, TRPNT-B03: f7ef66db290b, TRPNT-B04: f7a01e1c91ea, TRPNT-B05: 70c089047341, TRPNT-B06: 6cd87e8ace25, TRPNT-B07: 0594fb55e06d, TRPNT-B08: 6467ebe5173a, TRPNT-B09: bf64d3bb157c, TRPNT-E01: b287746f8024}
+      rest_rev: 406da3affceb
     - id: desktop/src/panel_test.rs
       kind: test
-      rev: d91da4ca4d0e
+      rev: ed61df7e93f3
       updated_at: "2026-10-17"
       code: TRPNT
       file_code: TPTTR
@@ -299,8 +346,8 @@ nodes:
       tags:
         - test
         - desktop
-      evidence_rev: cd1d1638327e
-      line_rev: ddf540065c5b
+      evidence_rev: 060e866aa335
+      line_rev: 4d99aa820bd7
     - id: desktop/src/prefs.feature
       kind: feature
       rev: aeeeb64aadef
@@ -395,6 +442,53 @@ nodes:
         - desktop
       evidence_rev: 4064a8a71548
       line_rev: 7651756329dd
+    - id: desktop/src/settings.feature
+      kind: feature
+      rev: c96b84bcb0e5
+      updated_at: "2026-10-17"
+      code: STTNG
+      file_code: STFTS
+      layer: feature
+      tags:
+        - feature
+      evidence_rev: ef7b7cf9f5cc
+      line_rev: 4abfa5883484
+    - id: desktop/src/settings.rs
+      kind: code
+      rev: 17fa0fa1d70a
+      updated_at: "2026-10-17"
+      code: STTNG
+      file_code: STIMS
+      layer: desktop
+      tags:
+        - desktop
+      evidence_rev: 7ab162c78661
+      line_rev: 2c3408e89efa
+    - id: desktop/src/settings.spec.md
+      kind: spec
+      rev: 09f131bf8865
+      updated_at: "2026-10-17"
+      code: STTNG
+      file_code: STTNG
+      layer: spec
+      code_declared: true
+      tags:
+        - spec
+      evidence_rev: 170096eddd01
+      rule_revs: {STTNG-B01: 59c96a7667ce, STTNG-B02: fb6f46a72915, STTNG-B03: e21be35b5a7e, STTNG-E01: 16eb08988575, STTNG-E02: 718a41b0e509}
+      rest_rev: 92c6d09b7a8b
+    - id: desktop/src/settings_test.rs
+      kind: test
+      rev: 25d6ab250256
+      updated_at: "2026-10-17"
+      code: STTNG
+      file_code: STTSS
+      layer: desktoptest
+      tags:
+        - test
+        - desktop
+      evidence_rev: 134a2740981f
+      line_rev: 9b1a1a858376
     - id: desktop/src/window.feature
       kind: feature
       rev: 66da22259dea
@@ -1440,6 +1534,18 @@ edges:
         validated_to_rev: de5a54a2ca33
         changed_at: "2026-10-17"
         verdict: ok
+    - from: desktop/src/keymap.feature
+      to: desktop/src/keymap_test.rs
+      type: tested-by
+      origin: convention
+    - from: desktop/src/keymap.spec.md
+      to: desktop/src/keymap.feature
+      type: covered-by
+      origin: convention
+    - from: desktop/src/keymap.spec.md
+      to: desktop/src/keymap.rs
+      type: specifies
+      origin: convention
     - from: desktop/src/keys.feature
       to: desktop/src/keys_test.rs
       type: tested-by
@@ -1480,6 +1586,10 @@ edges:
       type: specifies
       origin: convention
     - from: desktop/src/main.rs
+      to: desktop/src/keymap.rs
+      type: depends-on
+      origin: declared
+    - from: desktop/src/main.rs
       to: desktop/src/keys.rs
       type: depends-on
       origin: declared
@@ -1500,6 +1610,10 @@ edges:
       type: depends-on
       origin: declared
     - from: desktop/src/main.rs
+      to: desktop/src/settings.rs
+      type: depends-on
+      origin: declared
+    - from: desktop/src/main.rs
       to: desktop/src/window.rs
       type: depends-on
       origin: declared
@@ -1507,6 +1621,10 @@ edges:
       to: desktop/src/panel_test.rs
       type: tested-by
       origin: convention
+    - from: desktop/src/panel.rs
+      to: desktop/src/keymap.rs
+      type: depends-on
+      origin: declared
     - from: desktop/src/panel.rs
       to: desktop/src/keys.rs
       type: depends-on
@@ -1527,6 +1645,10 @@ edges:
       to: desktop/src/panel.rs
       type: specifies
       origin: convention
+    - from: desktop/src/panel_test.rs
+      to: desktop/src/keymap.rs
+      type: depends-on
+      origin: declared
     - from: desktop/src/panel_test.rs
       to: desktop/src/prefs.rs
       type: depends-on
@@ -1582,6 +1704,22 @@ edges:
       to: desktop/src/keys.rs
       type: depends-on
       origin: declared
+    - from: desktop/src/settings.feature
+      to: desktop/src/settings_test.rs
+      type: tested-by
+      origin: convention
+    - from: desktop/src/settings.rs
+      to: desktop/src/layout.rs
+      type: depends-on
+      origin: declared
+    - from: desktop/src/settings.spec.md
+      to: desktop/src/settings.feature
+      type: covered-by
+      origin: convention
+    - from: desktop/src/settings.spec.md
+      to: desktop/src/settings.rs
+      type: specifies
+      origin: convention
     - from: desktop/src/window.feature
       to: desktop/src/window_test.rs
       type: tested-by
@@ -1983,6 +2121,14 @@ edges:
         validated_to_rev: bffe1ddf2fdf
         changed_at: "2026-10-17"
         verdict: ok
+    - from: plans/abas.plan.md
+      to: desktop/src/keymap.spec.md
+      type: seeds
+      origin: declared
+    - from: plans/abas.plan.md
+      to: desktop/src/settings.spec.md
+      type: seeds
+      origin: declared
     - from: plans/abas.plan.md
       to: desktop/src/window.spec.md
       type: seeds

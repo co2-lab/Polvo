@@ -20,6 +20,7 @@ use gpui_kit::{
     prelude::*, px,
 };
 
+use crate::keymap::{Action, Keymap}; // @dep: KYIMA
 use crate::keys::{Modifiers, translate}; // @dep: KYIMK
 use crate::prefs::Prefs; // @dep: PRIMP
 use crate::screen::{Event, Events, Frame, Rgb, Screen, Size}; // @dep: SCIMS
@@ -184,19 +185,25 @@ impl TerminalPanel {
     fn key_down(&mut self, ev: &KeyDownEvent, _: &mut Window, cx: &mut Context<Self>) {
         let ks = &ev.keystroke;
         let m = ks.modifiers;
-        // TRPNT-B02: the copy and paste shortcuts are the panel's, not the shell's.
-        if m.control && m.shift && ks.key == "c" {
-            if let Some(text) = self.screen.selection_text() {
-                cx.write_to_clipboard(ClipboardItem::new_string(text));
+        let action = cx.try_global::<Keymap>().cloned().unwrap_or_default().action_for(&ks.unparse());
+        match action {
+            // TRPNT-B02: the copy and paste shortcuts are the panel's, not the shell's.
+            Some(Action::Copy) => {
+                if let Some(text) = self.screen.selection_text() {
+                    cx.write_to_clipboard(ClipboardItem::new_string(text));
+                }
             }
-        } else if m.control && m.shift && ks.key == "v" {
-            if let Some(text) = cx.read_from_clipboard().and_then(|i| i.text()) {
-                self.screen.paste(&text);
+            Some(Action::Paste) => {
+                if let Some(text) = cx.read_from_clipboard().and_then(|i| i.text()) {
+                    self.screen.paste(&text);
+                }
             }
-        } else {
-            // TRPNT-B01
-            let mods = Modifiers { control: m.control, alt: m.alt, shift: m.shift };
-            self.screen.key(&translate(&ks.key, ks.key_char.as_deref(), mods));
+            // TRPNT-B01: the window's actions go on to the window
+            Some(_) => return,
+            None => {
+                let mods = Modifiers { control: m.control, alt: m.alt, shift: m.shift };
+                self.screen.key(&translate(&ks.key, ks.key_char.as_deref(), mods));
+            }
         }
         cx.stop_propagation();
         cx.notify();

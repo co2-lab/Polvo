@@ -20,6 +20,12 @@ Feature: Panel
     When o utilizador carrega em Ctrl+Shift+C, e depois em Ctrl+Shift+V
     Then a área de transferência tem "def", a shell recebe "def", e não recebe nenhum dos atalhos
 
+  @TRPNT-B02#03 @unit-level
+  Scenario: Copiar segue o mapa de atalhos, e as ações da janela não vão para a shell
+    Given um painel com "abc def" no terminal e "def" selecionado, e o atalho de copiar mudado para "ctrl-alt-c"
+    When o utilizador carrega em Ctrl+Alt+C e em Ctrl+Shift+T
+    Then a área de transferência tem "def", e a shell não recebe nada
+
   @TRPNT-B02#02 @unit-level
   Scenario: Selecionar copia para a seleção primária e o botão do meio cola
     Given um painel com "abc def" no terminal

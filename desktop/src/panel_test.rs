@@ -3,6 +3,7 @@
 //   ref: TRPNT
 
 use super::*;
+use crate::keymap::{Action, Keymap}; // @dep: KYIMA
 use crate::prefs::{Button, Prefs}; // @dep: PRIMP
 use crate::screen::tests::Sink; // @dep: SCIMS
 use crate::screen::{Event, Screen, Size}; // @dep: SCIMS
@@ -102,6 +103,21 @@ scenario!(trpnt_b02_01_copiar_e_colar, "TRPNT-B02#01: Ctrl+Shift+C copia a sele�
     assert_eq!(copied.as_deref(), Some("def"));
     cx.update_window(o.handle, |_, window, cx| window.press("ctrl-shift-v", cx)).unwrap();
     assert_eq!(o.sink.take(), b"def".to_vec());
+});
+
+scenario!(trpnt_b02_03_copiar_segue_o_mapa_de_atalhos, "TRPNT-B02#03: Copiar segue o mapa de atalhos, e as ações da janela não vão para a shell", |cx| {
+    let o = open_panel(cx);
+    let mut keymap = Keymap::default();
+    keymap.set(Action::Copy, "ctrl-alt-c").unwrap();
+    cx.update(|cx| cx.set_global(keymap));
+    feed(cx, &o, b"abc def\r\n");
+    drag_over(cx, &o, 4, 6, 0);
+    o.sink.take();
+    for key in ["ctrl-alt-c", "ctrl-shift-t"] {
+        cx.update_window(o.handle, |_, window, cx| window.press(key, cx)).unwrap();
+    }
+    let copied = cx.update(|cx| cx.read_from_clipboard().and_then(|i| i.text()));
+    assert_eq!((copied.as_deref(), o.sink.take()), (Some("def"), Vec::new()));
 });
 
 scenario!(trpnt_b02_02_a_selecao_primaria, "TRPNT-B02#02: Selecionar copia para a seleção primária e o botão do meio cola", |cx| {

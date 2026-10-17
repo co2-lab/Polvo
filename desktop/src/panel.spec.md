@@ -19,11 +19,12 @@ da shell e as preferências (`Prefs`); o `spawn` arranca a shell do utilizador e
 
 ### TRPNT-B01 — O teclado vai para a shell
 Uma tecla no painel com o foco vai para a shell como o `Keys` a traduz e a libghostty-vt a codifica.
-Os atalhos de copiar e colar (`TRPNT-B02`) não vão.
+Os atalhos do mapa de atalhos (o `Keymap` da aplicação) não vão: os de copiar e colar são do painel
+(`TRPNT-B02`), e os das ações da janela (aba nova, fechar a aba, configuração) seguem para a janela.
 
 ### TRPNT-B02 — Copiar e colar
-- Ctrl+Shift+C copia a seleção para a área de transferência.
-- Ctrl+Shift+V cola a área de transferência na shell.
+- O atalho de copiar (por omissão Ctrl+Shift+C) copia a seleção para a área de transferência.
+- O atalho de colar (por omissão Ctrl+Shift+V) cola a área de transferência na shell.
 - Selecionar com o rato copia também para a seleção primária do sistema, e o botão do meio cola-a.
 
 ### TRPNT-B03 — O rato seleciona e a roda faz scroll
@@ -94,6 +95,9 @@ fechar.
 > **TRPNT-R0001:** entra o `TRPNT-B09` (o painel de um terminal que não arrancou), para a organização
 > restaurada da doca: a doca reconstrói cada aba por um construtor que tem de dar sempre um painel, e um
 > terminal cuja shell já não arranca fica com o motivo à vista em vez de desaparecer em silêncio.
+
+> **TRPNT-R0002:** copiar e colar passam a ser os atalhos do mapa de atalhos (plano CEACN, W01), que o
+> utilizador muda; os atalhos das ações da janela deixam de ir para a shell.
 
 ## Open Decisions
 

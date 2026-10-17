@@ -27,11 +27,13 @@ macro_rules! scenario {
     };
 }
 
+mod keymap; // @dep: KYIMA
 mod keys; // @dep: KYIMK
 mod layout; // @dep: DLIDC
 mod panel; // @dep: TPITR
 mod prefs; // @dep: PRIMP
 mod screen; // @dep: SCIMS
+mod settings; // @dep: STIMS
 mod window; // @dep: WNIMW
 
 fn main() {
