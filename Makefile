@@ -3,9 +3,16 @@ GALAXY ?= galaxy
 GALAXY_MEM ?= 6G
 PKGS ?= ./...
 
-.PHONY: test test-go test-galaxy vet
+.PHONY: test test-go test-galaxy test-ui vet ui
 
-test: vet test-go test-galaxy
+test: vet test-go test-galaxy test-ui
+
+# A UI (ui/): o bundle vai para internal/web/dist, embutido no executavel.
+ui:
+	cd ui && npm ci && npm run build
+
+test-ui:
+	cd ui && npm test && npm run typecheck
 
 vet:
 	go vet $(PKGS)

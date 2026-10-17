@@ -1,0 +1,35 @@
+:root {
+  --fundo: #fbfbfa; --texto: #1d1d1b; --linha: #e2e1dc; --suave: #6b6a65; --realce: #2f6f5e;
+}
+@media (prefers-color-scheme: dark) {
+  :root { --fundo: #1b1c1e; --texto: #e6e4df; --linha: #34363a; --suave: #9a988f; --realce: #6cc3a5; }
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; height: 100%; background: var(--fundo); color: var(--texto);
+  font: 14px/1.4 system-ui, sans-serif; }
+#app { display: grid; height: 100vh; grid-template-columns: 260px 1fr;
+  grid-template-rows: 1fr 40% auto; grid-template-areas: "side main" "side bottom" "status status"; }
+.side { grid-area: side; border-right: 1px solid var(--linha); overflow: auto; padding: 8px; }
+.side input { width: 100%; margin: 4px 0; padding: 4px 6px; background: transparent; color: inherit;
+  border: 1px solid var(--linha); border-radius: 4px; font: inherit; }
+.nodes, .tree { list-style: none; margin: 0; padding: 0; }
+.nodes li, .tree li { padding: 2px 6px; border-radius: 4px; cursor: pointer; white-space: nowrap; }
+.nodes li:hover, .tree li:hover { background: var(--linha); }
+.node.selected { color: var(--realce); font-weight: 600; }
+.tree .dir { color: var(--realce); }
+.main { grid-area: main; display: flex; flex-direction: column; min-height: 0; }
+.head { display: flex; gap: 8px; align-items: center; padding: 6px 10px; border-bottom: 1px solid var(--linha); }
+.title { font-family: ui-monospace, monospace; }
+.mark { color: var(--realce); }
+.head .save { margin-left: auto; }
+button { background: transparent; color: inherit; border: 1px solid var(--linha); border-radius: 4px;
+  padding: 3px 10px; font: inherit; cursor: pointer; }
+button:hover { border-color: var(--realce); }
+.editor { flex: 1; overflow: auto; }
+.editor .cm-editor { height: 100%; }
+.bottom { grid-area: bottom; border-top: 1px solid var(--linha); display: flex; flex-direction: column; min-height: 0; }
+.new-terminal { align-self: flex-start; margin: 4px 8px; }
+.terminals { flex: 1; display: flex; gap: 4px; min-height: 0; padding: 0 4px 4px; }
+.terminal { flex: 1; min-width: 0; }
+.status { grid-area: status; padding: 4px 10px; border-top: 1px solid var(--linha); color: var(--suave);
+  font-size: 12px; min-height: 24px; }

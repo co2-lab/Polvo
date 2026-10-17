@@ -14,6 +14,12 @@ Feature: Server
     When o browser pede "/" sem segredo
     Then a resposta é 200 com "<h1>polvo</h1>"
 
+  @WEBSR-B01 @unit-level
+  Scenario: Os ficheiros embutidos da UI servem-se
+    Given um servidor com os ficheiros embutidos no executável
+    When o browser pede "/", "/app.js", "/style.css" e "/xterm.css"
+    Then as quatro respostas são 200
+
   @WEBSR-B02 @unit-level
   Scenario: A chamada fs.list com o segredo devolve as entradas do nó
     Given um servidor e um nó com a pasta que tem o ficheiro "a.txt"

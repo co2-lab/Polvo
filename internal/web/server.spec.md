@@ -20,7 +20,7 @@ nós pelo `Close`.
 
 ### WEBSR-B01 — Os ficheiros da UI servem-se sem segredo
 Um `GET` a um caminho da UI (a raiz dá o `index.html`) devolve o ficheiro, sem pedir o segredo: os
-ficheiros não guardam nada que se possa usar sem ele.
+ficheiros não guardam nada que se possa usar sem ele. Os ficheiros vêm embutidos no executável (`UI`).
 
 ### WEBSR-B02 — A chamada de controlo leva o segredo e devolve o resultado
 Um `POST` a `/api/call` com o segredo no cabeçalho `X-Polvo-Token` e o corpo com o nó, o método e os
@@ -74,6 +74,11 @@ endereço local.
 | `WEBSR-B06` | `Host` |
 | `WEBSR-E01` | `node` |
 | `WEBSR-E02` | `method` |
+
+## Revisions
+
+> **WEBSR-R0001:** o `UI` dá os ficheiros embutidos no executável (o bundle da UI do plano DSKTP-W02), que
+> o `polvo` passa ao `Config.Files`. As regras não mudam.
 
 ## Open Decisions
 

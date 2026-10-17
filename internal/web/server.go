@@ -8,6 +8,7 @@ package web
 
 import (
 	"crypto/rand"
+	"embed"
 	"crypto/subtle"
 	"encoding/hex"
 	"encoding/json"
@@ -25,6 +26,18 @@ import (
 	"github.com/co2-lab/polvo/internal/pty"
 	"golang.org/x/net/websocket"
 )
+
+//go:embed dist
+var dist embed.FS
+
+// UI is the UI bundle embedded in the executable (ui/, built by `npm run build`) (WEBSR-B01).
+func UI() fs.FS {
+	sub, err := fs.Sub(dist, "dist")
+	if err != nil {
+		panic(err)
+	}
+	return sub
+}
 
 // Config is what the UI server runs with.
 type Config struct {

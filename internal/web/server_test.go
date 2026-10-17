@@ -107,6 +107,22 @@ func TestServer_files(t *testing.T) {
 			t.Fatalf("want 200 and the index, got %d %q", resp.StatusCode, b)
 		}
 	})
+	t.Run("WEBSR-B01: Os ficheiros embutidos da UI servem-se", func(t *testing.T) {
+		s := New(Config{Files: UI(), Token: "x"})
+		defer s.Close()
+		srv := httptest.NewServer(s.Handler())
+		defer srv.Close()
+		for _, p := range []string{"/", "/app.js", "/style.css", "/xterm.css"} {
+			resp, err := http.Get(srv.URL + p)
+			if err != nil {
+				t.Fatal(err)
+			}
+			resp.Body.Close()
+			if resp.StatusCode != 200 {
+				t.Fatalf("%s: want 200, got %d", p, resp.StatusCode)
+			}
+		}
+	})
 	t.Run("WEBSR-B06: Um pedido para um nome que não é local é recusado", func(t *testing.T) {
 		w := setup(t)
 		req, _ := http.NewRequest(http.MethodGet, w.srv.URL+"/", nil)
@@ -210,7 +226,7 @@ func TestServer_terminal(t *testing.T) {
 		req.Header.Set("Connection", "Upgrade")
 		req.Header.Set("Upgrade", "websocket")
 		req.Header.Set("Sec-WebSocket-Version", "13")
-		req.Header.Set("Sec-WebSocket-Key", "dGhlIHNhbXBsZSBub25jZQ==")
+		req.Header.Set("Sec-WebSocket-Key", "dGhlIHNhbXBsZSBub25jZQ==") // gitleaks:allow (the sample nonce of RFC 6455)
 		req.Header.Set("Origin", "http://mal.exemplo")
 		resp, err := http.DefaultClient.Do(req)
 		if err != nil {

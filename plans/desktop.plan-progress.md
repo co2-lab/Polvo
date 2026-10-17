@@ -16,7 +16,7 @@ Mark `[x]` here, never in the plan.
 
 ## DSKTP-W02 — A UI
 
-- [ ] `ui/app.spec.md`
+- [x] `ui/app.spec.md`
 
 ## DSKTP-W03 — O subcomando
 

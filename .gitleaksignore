@@ -1,0 +1,2 @@
+# o nonce de exemplo do RFC 6455 (Sec-WebSocket-Key) num teste: nao e um segredo
+78ba1aef76d47236b4ea98d5314d8f897e2db10a:internal/web/server_test.go:generic-api-key:213

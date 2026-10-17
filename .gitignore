@@ -6,3 +6,4 @@
 .anchors/junit.xml
 .anchors/lcov.info
 .anchors/cover.out
+.anchors/junit-ui.xml
