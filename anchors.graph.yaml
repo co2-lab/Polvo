@@ -1243,7 +1243,7 @@ nodes:
       line_rev: ac6693b41ce0
     - id: plans/agentes.plan.md
       kind: plan
-      rev: f3a10dfdcbb9
+      rev: fc4d2639c63f
       updated_at: "2026-10-17"
       code: AGPRG
       file_code: AGPRG
@@ -1251,8 +1251,8 @@ nodes:
       code_declared: true
       tags:
         - plan
-      evidence_rev: a4808966b12e
-      line_rev: e442e1e96583
+      evidence_rev: eeff02e4c82d
+      line_rev: 695d979e8a06
     - id: plans/desktop.plan.md
       kind: plan
       rev: 8ceec0ebc810
