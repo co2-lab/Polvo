@@ -95,9 +95,9 @@ describe("App", () => {
     w.app.addNode("10.0.0.1:2222");
     await flush();
     expect(JSON.parse(w.store.get("polvo.nodes")!)).toEqual(["10.0.0.1:2222"]);
-    expect(w.calls[0]).toEqual({ node: "10.0.0.1:2222", method: "fs.list", params: { path: "/" } });
+    expect(w.calls.at(-1)).toEqual({ node: "10.0.0.1:2222", method: "fs.list", params: { path: "/" } });
     const again = setup("#t=abc", () => ({ result: { entries: [] } }), ["10.0.0.9:2222"]);
-    expect([...again.root.querySelectorAll(".node")].map((n) => n.textContent)).toEqual(["10.0.0.9:2222"]);
+    expect([...again.root.querySelectorAll(".node")].map((n) => n.textContent)).toEqual([messages.local, "10.0.0.9:2222"]);
   });
 
   it("APPUI-B03: A árvore mostra a pasta de cima, as pastas e os ficheiros por ordem", async () => {
@@ -156,6 +156,23 @@ describe("App", () => {
     s.receive(JSON.stringify({ exit: 0, signal: "" }));
     expect(t.out).toContain("ola");
     expect(t.out).toContain("[terminou: código 0]");
+  });
+
+  it("APPUI-B07: A própria máquina vem primeiro e já escolhida, sem ficar guardada", async () => {
+    const w = setup("#t=abc", () => ({ result: { entries: [] } }));
+    await flush();
+    const first = w.root.querySelector(".node")!;
+    expect(first.textContent).toBe(messages.local);
+    expect(first.classList.contains("selected")).toBe(true);
+    expect(w.calls[0]).toEqual({ node: "local", method: "fs.list", params: { path: "/" } });
+    w.app.newTerminal();
+    expect(w.sockets[0].url).toBe("ws://127.0.0.1:8080/ws/term?t=abc&node=local&rows=24&cols=80");
+    w.app.addNode("10.0.0.1:2222");
+    expect(JSON.parse(w.store.get("polvo.nodes")!)).toEqual(["10.0.0.1:2222"]);
+  });
+
+  it("APPUI-M05: O nome da própria máquina", () => {
+    expect(messages.local).toBe("esta máquina");
   });
 
   it("APPUI-E01: Uma chamada que falha mostra o erro na barra", async () => {

@@ -7,13 +7,17 @@
 // ones), so the window's behaviour is tested on its own.
 
 /** The messages the user reads: APPUI-M01 (no secret), APPUI-M02 (an error), APPUI-M03 (saved),
- * APPUI-M04 (the shell ended). */
+ * APPUI-M04 (the shell ended), APPUI-M05 (the machine itself). */
 export const messages = {
   noToken: "Abra o Polvo pelo endereço que o comando polvo mostrou (falta o segredo da sessão).",
   error: (m: string) => `Erro: ${m}`,
   saved: (path: string) => `Gravado: ${path}`,
   ended: (code: number) => `[terminou: código ${code}]`,
+  local: "esta máquina",
 };
+
+/** The node that is the machine the UI server runs on (APPUI-B07). */
+export const localNode = "local";
 
 /** The session secret from the address fragment, `#t=…` (APPUI-B01). */
 export function tokenFromHash(hash: string): string {
@@ -144,7 +148,8 @@ export class App {
     } catch {
       this.nodes = [];
     }
-    this.renderNodes();
+    // APPUI-B07: the machine itself, chosen from the start.
+    this.selectNode(localNode);
     // APPUI-S02: ready, with the node list, the add field and the status bar.
     return true;
   }
@@ -212,8 +217,9 @@ export class App {
 
   private renderNodes() {
     this.ui.nodes.replaceChildren(
-      ...this.nodes.map((n) => {
-        const li = el("li", n === this.node ? "node selected" : "node", n);
+      ...[localNode, ...this.nodes].map((n) => {
+        // APPUI-M05
+        const li = el("li", n === this.node ? "node selected" : "node", n === localNode ? messages.local : n);
         li.addEventListener("click", () => this.selectNode(n));
         return li;
       }),
@@ -223,7 +229,7 @@ export class App {
   /** Adds a node and remembers it (APPUI-B02). */
   addNode(addr: string) {
     if (!addr) return;
-    if (!this.nodes.includes(addr)) {
+    if (addr !== localNode && !this.nodes.includes(addr)) {
       this.nodes.push(addr);
       this.deps.storage.setItem(nodesKey, JSON.stringify(this.nodes));
     }

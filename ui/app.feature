@@ -50,6 +50,12 @@ Feature: App
     When o utilizador abre um terminal de 24 por 80, escreve "ls", o terminal muda para 30 por 100, chega a saída "ola" e chega o fim com o código 0
     Then o WebSocket é o do terminal com o segredo, o nó e 24 por 80, as mensagens enviadas são a entrada "ls" e o tamanho 30 por 100, e o terminal mostra "ola" e "[terminou: código 0]"
 
+  @APPUI-B07 @unit-level
+  Scenario: A própria máquina vem primeiro e já escolhida, sem ficar guardada
+    Given uma janela pronta com o armazenamento vazio
+    When a janela arranca, abre um terminal e o utilizador acrescenta o nó "10.0.0.1:2222"
+    Then o primeiro nó é "esta máquina", escolhido, a janela pede a lista de "/" ao nó "local", o terminal abre no nó "local", e o armazenamento guarda só "10.0.0.1:2222"
+
   @APPUI-E01 @unit-level
   Scenario: Uma chamada que falha mostra o erro na barra
     Given um nó que responde ao fs.read com o erro "open /x: no such file or directory"
@@ -97,3 +103,9 @@ Feature: App
     Given um terminal cuja shell terminou com o código 3
     When chega o fim
     Then o terminal mostra "[terminou: código 3]"
+
+  @APPUI-M05 @unit-level
+  Scenario: O nome da própria máquina
+    Given a lista dos nós
+    When aparece a própria máquina
+    Then o nome dela é "esta máquina"

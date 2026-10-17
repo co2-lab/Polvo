@@ -45,12 +45,17 @@ terminal.
 - A saída da shell aparece no terminal.
 - Quando a shell termina, aparece a mensagem de fim com o código.
 
+### APPUI-B07 — A própria máquina é o primeiro nó, e já vem escolhida
+A lista dos nós começa sempre pela própria máquina (o nó `local` do servidor da UI, com o nome
+`APPUI-M05`), que fica escolhida quando a janela arranca: a árvore mostra a pasta dela e um terminal novo
+abre a shell dela, sem nenhum `polvo node`. Ela não se guarda na lista lembrada, porque está sempre lá.
+
 ## Domain
 
 | Input | Accepts | Outside the domain | Who guarantees |
 | --- | --- | --- | --- |
 | `hash` | o fragmento do endereço com `t=` | sem `t=` | esta unidade: a mensagem de falta de segredo (`APPUI-E02`) |
-| `node` | um endereço de nó (máquina:porta) | vazio | esta unidade: o campo vazio não acrescenta nada |
+| `node` | um endereço de nó (máquina:porta), ou o nó `local` | vazio | esta unidade: o campo vazio não acrescenta nada |
 | `path` | um caminho no nó | vazio | esta unidade: o vazio é a raiz |
 
 ## States
@@ -68,7 +73,7 @@ terminal.
 
 **Elements** — `[V]` visible · `[D]` dynamic · `[X]` disabled · `[H]` hidden · `[O]` optional:
 
-- `[V]` a lista dos nós e o campo para acrescentar
+- `[V]` a lista dos nós, com a própria máquina primeiro e escolhida, e o campo para acrescentar
 - `[D]` a árvore da pasta do nó escolhido
 - `[D]` o editor com o título do ficheiro e a marca de alterado
 - `[D]` os terminais
@@ -87,6 +92,7 @@ terminal.
 | `APPUI-M02` | uma chamada falhou | Erro: {mensagem} |
 | `APPUI-M03` | o ficheiro foi gravado | Gravado: {caminho} |
 | `APPUI-M04` | a shell do terminal terminou | [terminou: código {código}] |
+| `APPUI-M05` | o nome da própria máquina na lista dos nós | esta máquina |
 
 ## Rule uses
 
@@ -98,6 +104,7 @@ terminal.
 | `APPUI-B04` | `node`, `path` |
 | `APPUI-B05` | `node`, `path`, `APPUI-M03` |
 | `APPUI-B06` | `node`, `APPUI-M04` |
+| `APPUI-B07` | `node`, `path`, `APPUI-M05` |
 | `APPUI-E01` | `node`, `APPUI-M02` |
 | `APPUI-E02` | `hash`, `APPUI-M01` |
 | `APPUI-S01` | `hash`, `APPUI-M01` |
@@ -106,6 +113,13 @@ terminal.
 | `APPUI-M02` | `node` |
 | `APPUI-M03` | `path` |
 | `APPUI-M04` | `node` |
+| `APPUI-M05` | `node` |
+
+## Revisions
+
+> **APPUI-R0001:** entra o `APPUI-B07` (a própria máquina como primeiro nó), pedido do dono em
+> 2026-10-17: o terminal abre na máquina local e nas remotas. O teste do `APPUI-B02` passa a contar com
+> ela à cabeça da lista; a regra não muda.
 
 ## Open Decisions
 

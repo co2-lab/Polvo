@@ -1008,18 +1008,18 @@ nodes:
       line_rev: 63f820e8463b
     - id: ui/app.feature
       kind: feature
-      rev: ed3f56b439f5
+      rev: 2a057370a382
       updated_at: "2026-10-17"
       code: APPUI
       file_code: APFTR
       layer: feature
       tags:
         - feature
-      evidence_rev: 278062d16cdc
-      line_rev: 223792c2bc65
+      evidence_rev: a86acc124e41
+      line_rev: f2e63641ef25
     - id: ui/app.spec.md
       kind: spec
-      rev: 7ca871443510
+      rev: e425514f5b98
       updated_at: "2026-10-17"
       code: APPUI
       file_code: APPUI
@@ -1027,48 +1027,12 @@ nodes:
       code_declared: true
       tags:
         - spec
-      signal:
-        proven_codes:
-            - APPUI-B01
-            - APPUI-B02
-            - APPUI-B03
-            - APPUI-B04
-            - APPUI-B05
-            - APPUI-B06
-            - APPUI-E01
-            - APPUI-E02
-            - APPUI-M01
-            - APPUI-M02
-            - APPUI-M03
-            - APPUI-M04
-            - APPUI-S01
-            - APPUI-S02
-        proven_by_suite:
-            .anchors/junit-ui.xml:
-                - APPUI-B01
-                - APPUI-B02
-                - APPUI-B03
-                - APPUI-B04
-                - APPUI-B05
-                - APPUI-B06
-                - APPUI-E01
-                - APPUI-E02
-                - APPUI-M01
-                - APPUI-M02
-                - APPUI-M03
-                - APPUI-M04
-                - APPUI-S01
-                - APPUI-S02
-        proven_rev_by_suite:
-            .anchors/junit-ui.xml: 7ca871443510
-        at_rev: 7ca871443510
-        ingested_at: "2026-10-17T07:51:40-03:00"
-      evidence_rev: b133ae72214f
-      rule_revs: {APPUI-B01: 0da4894baa4e, APPUI-B02: 093ca6de7a3e, APPUI-B03: 46e4b129e829, APPUI-B04: 91e24b5fc0df, APPUI-B05: 7c7e10e16333, APPUI-B06: f111ab9cc271, APPUI-E01: 782f29752d08, APPUI-E02: 8b0afadea523, APPUI-M01: a1efc39f1807, APPUI-M02: ee17b8128749, APPUI-M03: e6600cf58a7e, APPUI-M04: e684085fe8ac, APPUI-S01: ed8fcacd95d2, APPUI-S02: 405e526e44d1}
-      rest_rev: 90a220e398d2
+      evidence_rev: d49f35e56bfc
+      rule_revs: {APPUI-B01: 0da4894baa4e, APPUI-B02: 093ca6de7a3e, APPUI-B03: 46e4b129e829, APPUI-B04: 91e24b5fc0df, APPUI-B05: 7c7e10e16333, APPUI-B06: f111ab9cc271, APPUI-B07: 4a66785c2214, APPUI-E01: 782f29752d08, APPUI-E02: 8b0afadea523, APPUI-M01: a1efc39f1807, APPUI-M02: ee17b8128749, APPUI-M03: e6600cf58a7e, APPUI-M04: e684085fe8ac, APPUI-M05: eb7ba2c3eb53, APPUI-S01: ed8fcacd95d2, APPUI-S02: 65e1ef011481}
+      rest_rev: 45fc5fb54ed6
     - id: ui/app.test.ts
       kind: test
-      rev: b69779547303
+      rev: 388f53dcf9fe
       updated_at: "2026-10-17"
       code: APPUI
       file_code: APTST
@@ -1076,21 +1040,19 @@ nodes:
       tags:
         - test
         - ui
-      evidence_rev: a77dfc759dfa
-      line_rev: 81ee3e3f552e
+      evidence_rev: d8b477dbbf29
+      line_rev: cb372d491f8a
     - id: ui/app.ts
       kind: code
-      rev: 4aae621e3e2a
+      rev: ae4833f72279
       updated_at: "2026-10-17"
       code: APPUI
       file_code: APIMP
       layer: ui
       tags:
         - ui
-      signal:
-        coverage_omitted: 4aae621e3e2a
-      evidence_rev: b5967c17e71a
-      line_rev: 59c3a888a244
+      evidence_rev: 279849c74ebc
+      line_rev: 610d6fe669d7
     - id: ui/main.ts
       kind: code
       rev: c0d46cf353a2
