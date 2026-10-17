@@ -1,5 +1,5 @@
 <!-- anchors:progress v1 — written by `anchors progress`; never edit by hand -->
-# Progress — 96% (28/29 points)
+# Progress — 100% (29/29 points)
 
 ## D01 — AgenteLocal (plan: plans/agente-local.plan.md) — 100% (6/6)
 ### D01.S1 — AGLCG-W01 — A ponte MCP — 100% (2/2)
@@ -24,16 +24,16 @@
 - [x] D02.T5 — Num Chrome real (headless, puppeteer-core) contra `galaxy run ./cmd/polvo ui --no-browser` e um · 1 (estimate) · done 2026-10-17 by migrated
 - [x] D02.T6 — `anchors check` sem gates bloqueantes a falhar (o pre-commit). · 1 (estimate) · done 2026-10-17 by migrated
 
-## D03 — Janela nativa (plan: plans/janela.plan.md) — 85% (6/7)
+## D03 — Janela nativa (plan: plans/janela.plan.md) — 100% (7/7)
 ### D03.S1 — JNNTJ-W01 — O terminal nativo — 100% (4/4)
 - [x] D03.T1 — `desktop/src/prefs.spec.md` · 1 (estimate) · done 2026-10-17 by migrated
 - [x] D03.T2 — `desktop/src/keys.spec.md` · 1 (estimate) · done 2026-10-17 by migrated
 - [x] D03.T3 — `desktop/src/screen.spec.md` · 1 (estimate) · done 2026-10-17 by OK-BR-PE0EF71F/polvo-main
 - [x] D03.T4 — `desktop/src/window.spec.md` · 1 (estimate) · done 2026-10-17 by OK-BR-PE0EF71F/polvo-main
-### D03.S2 — JNNTJ-W02 — A doca — 66% (2/3)
+### D03.S2 — JNNTJ-W02 — A doca — 100% (3/3)
 - [x] D03.T5 — `desktop/src/panel.spec.md` · 1 · done 2026-10-17 by OK-BR-PE0EF71F/polvo-main
 - [x] D03.T6 — `desktop/src/window.spec.md` (muda) · 1 · done 2026-10-17 by OK-BR-PE0EF71F/polvo-main
-- [ ] D03.T7 — `desktop/src/layout.spec.md` · 1
+- [x] D03.T7 — `desktop/src/layout.spec.md` · 1 · done 2026-10-17 by OK-BR-PE0EF71F/polvo-main
 
 ## D04 — TerminalRemoto (plan: plans/terminal-remoto.plan.md) — 100% (10/10)
 ### D04.S1 — TRRMT-W01 — O protocolo e as identidades — 100% (2/2)
@@ -51,4 +51,4 @@
 - [x] D04.T9 — O `polvo node` a correr no Galaxy (`GALAXY_ENGINE=go galaxy run ./cmd/polvo node`) aceita o · 1 (estimate) · done 2026-10-17 by migrated
 - [x] D04.T10 — `anchors check` sem gates bloqueantes a falhar. · 1 (estimate) · done 2026-10-17 by migrated
 
-<!-- anchors:progress sum=2be7735517d8 -->
+<!-- anchors:progress sum=eb4a8d59db41 -->
