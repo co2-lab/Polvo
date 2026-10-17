@@ -24,6 +24,12 @@ layers:
         kind: code
         tags: [pty]
         exclude: ['**/*_test.go']
+    # As sessoes de terminal do no', com os espectadores (plano ESRMS).
+    sessions:
+        pattern: 'internal/sessions/*.go'
+        kind: code
+        tags: [sessions]
+        exclude: ['**/*_test.go']
     node:
         pattern: 'internal/node/*.go'
         kind: code

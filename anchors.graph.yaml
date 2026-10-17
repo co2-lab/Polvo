@@ -2,7 +2,7 @@
 # Material e versionado. Fonte de verdade do grafo; índices em memória são cache.
 version: 8
 generated_by: 0.1.353
-config_rev: ce544cf6a063
+config_rev: 27fb62e79c88
 nodes:
     - id: AGENTS.md
       kind: doc
@@ -1046,6 +1046,52 @@ nodes:
         - test
       evidence_rev: f50c2997b0a9
       line_rev: d73a40cfd559
+    - id: internal/sessions/sessions.feature
+      kind: feature
+      rev: 57743b523996
+      updated_at: "2026-10-17"
+      code: SSSNS
+      file_code: SSFTS
+      layer: feature
+      tags:
+        - feature
+      evidence_rev: 90682380cdc6
+      line_rev: 8272f8baa91c
+    - id: internal/sessions/sessions.go
+      kind: code
+      rev: 6f5541cd23fb
+      updated_at: "2026-10-17"
+      code: SSSNS
+      file_code: SSIMS
+      layer: sessions
+      tags:
+        - sessions
+      evidence_rev: 888eea86bd8d
+      line_rev: 5e1c80ce943d
+    - id: internal/sessions/sessions.spec.md
+      kind: spec
+      rev: 9272be23e13f
+      updated_at: "2026-10-17"
+      code: SSSNS
+      file_code: SSSNS
+      layer: spec
+      code_declared: true
+      tags:
+        - spec
+      evidence_rev: 5506012e1609
+      rule_revs: {SSSNS-B01: 63ac826e4d21, SSSNS-B02: 48aae25e35f2, SSSNS-B03: 5a764596d918, SSSNS-B04: 03888e7656c6, SSSNS-B05: b9b639fa4bde, SSSNS-B06: 0eda3a50e68f, SSSNS-B07: 763e0fc3e38f, SSSNS-B08: fb7aed3a1f82, SSSNS-B09: 3a1898975082, SSSNS-B10: ae2081157b06, SSSNS-E01: 278ddc6d675f, SSSNS-E02: 31b9f3852b8a, SSSNS-E03: a6c6b74719e8, SSSNS-E04: fb0be3c1d784}
+      rest_rev: def65360fb8b
+    - id: internal/sessions/sessions_test.go
+      kind: test
+      rev: e30e7e321c13
+      updated_at: "2026-10-17"
+      code: SSSNS
+      file_code: SSTSS
+      layer: test
+      tags:
+        - test
+      evidence_rev: 787b62fe8b5b
+      line_rev: 2fd0885858e2
     - id: internal/sshx/keys.feature
       kind: feature
       rev: aa9564dcdff1
@@ -1832,6 +1878,18 @@ edges:
         validated_to_rev: 78923e692577
         changed_at: "2026-10-17"
         verdict: ok
+    - from: internal/sessions/sessions.feature
+      to: internal/sessions/sessions_test.go
+      type: tested-by
+      origin: convention
+    - from: internal/sessions/sessions.spec.md
+      to: internal/sessions/sessions.feature
+      type: covered-by
+      origin: convention
+    - from: internal/sessions/sessions.spec.md
+      to: internal/sessions/sessions.go
+      type: specifies
+      origin: convention
     - from: internal/sshx/keys.feature
       to: internal/sshx/keys_test.go
       type: tested-by
@@ -2033,6 +2091,10 @@ edges:
       origin: declared
     - from: plans/espelho.plan.md
       to: internal/node/server.spec.md
+      type: seeds
+      origin: declared
+    - from: plans/espelho.plan.md
+      to: internal/sessions/sessions.spec.md
       type: seeds
       origin: declared
     - from: plans/janela.plan.md
