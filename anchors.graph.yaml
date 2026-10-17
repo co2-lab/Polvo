@@ -971,15 +971,15 @@ nodes:
       line_rev: 82b4778df5ca
     - id: internal/web/server.feature
       kind: feature
-      rev: 608f19c7af1a
+      rev: e835bc8ec436
       updated_at: "2026-10-17"
       code: WEBSR
       file_code: WBFTS
       layer: feature
       tags:
         - feature
-      evidence_rev: caf05624c860
-      line_rev: 88f9c7186895
+      evidence_rev: 98c30ac857e1
+      line_rev: 2e6f085c3eca
     - id: internal/web/server.go
       kind: code
       rev: 21579ed23295
@@ -1030,24 +1030,15 @@ nodes:
       rest_rev: dfb127a414e7
     - id: internal/web/server_test.go
       kind: test
-      rev: 5c8787041a02
+      rev: 6842ac25c40d
       updated_at: "2026-10-17"
       code: WEBSR
       file_code: WBTST
       layer: test
       tags:
         - test
-      signal:
-        passed: 13
-        by_layer:
-            unit:
-                passed: 13
-        seconds_by_suite:
-            .anchors/junit.xml: 0.08
-        at_rev: 5c8787041a02
-        ingested_at: "2026-10-17T07:51:38-03:00"
-      evidence_rev: 1949358b9032
-      line_rev: 131136c3556f
+      evidence_rev: 046aba08418f
+      line_rev: 3e7dfac45a28
     - id: plans/agente-local.plan.md
       kind: plan
       rev: c3c291c6ec67

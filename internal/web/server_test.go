@@ -10,6 +10,7 @@ import (
 	"crypto/rand"
 	"encoding/json"
 	"io"
+	"io/fs"
 	"net"
 	"net/http"
 	"net/http/httptest"
@@ -117,9 +118,15 @@ func TestServer_files(t *testing.T) {
 			if err != nil {
 				t.Fatal(err)
 			}
+			body, err := io.ReadAll(resp.Body)
 			resp.Body.Close()
-			if resp.StatusCode != 200 {
-				t.Fatalf("%s: want 200, got %d", p, resp.StatusCode)
+			name := strings.TrimPrefix(p, "/")
+			if name == "" {
+				name = "index.html"
+			}
+			want, _ := fs.ReadFile(UI(), name)
+			if resp.StatusCode != 200 || err != nil || !bytes.Equal(body, want) {
+				t.Fatalf("%s: want 200 and the whole file (%d bytes), got %d, %d bytes, %v", p, len(want), resp.StatusCode, len(body), err)
 			}
 		}
 	})
