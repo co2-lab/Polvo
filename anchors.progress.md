@@ -63,4 +63,10 @@
 ### D06.S2 — AGPRG-W02 — As ferramentas do agente (depends on AGPRG-W01) — — (0/0)
 ### D06.S3 — AGPRG-W03 — O painel dos agentes (depends on AGPRG-W02) — — (0/0)
 
-<!-- anchors:progress sum=08fb161de1d9 -->
+## D07 — Configuracao e tipos de aba (plan: plans/abas.plan.md) — — (0/0)
+### D07.S1 — CEACN-W01 — A configuração e os atalhos — — (0/0)
+### D07.S2 — CEACN-W02 — O escolhedor do tipo de aba (depends on CEACN-W01) — — (0/0)
+### D07.S3 — CEACN-W03 — Os ficheiros (depends on CEACN-W02) — — (0/0)
+### D07.S4 — CEACN-W04 — O git (depends on CEACN-W02) — — (0/0)
+
+<!-- anchors:progress sum=bdf68a984e51 -->

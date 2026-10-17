@@ -74,11 +74,12 @@ SSH do Polvo corre por cima, como corre sobre TCP.
 
 ### ESRMS-W05 — Os ficheiros de qualquer máquina (depends on ESRMS-W02)
 
-A árvore de pastas e o editor do gpui-component sobre os ficheiros de qualquer nó, pelo controlo que o
-nó já tem (`fs.list`, `fs.read`, `fs.write`).
+A árvore de ficheiros e o editor (que nascem no plano `abas.plan.md`, CEACN-W03, para a máquina local)
+passam a servir os ficheiros de qualquer nó, pelo controlo que o nó já tem (`fs.list`, `fs.read`,
+`fs.write`).
 
-- `desktop/src/files.spec.md` — nasce: a árvore de pastas de um nó
-- `desktop/src/editor.spec.md` — nasce: abrir, editar e gravar um ficheiro de um nó
+- `desktop/src/files.spec.md` — muda: a árvore de ficheiros de um nó
+- `desktop/src/editor.spec.md` — muda: abrir, editar e gravar um ficheiro de um nó
 
 ### ESRMS-W06 — O agente e os sockets entre máquinas (depends on ESRMS-W02)
 
@@ -109,6 +110,9 @@ valem para os dois.
 > todos escrevem: cada máquina decide, com uma configuração por omissão, se quem se liga de fora só vê ou
 > controla, e pode travar uma sessão para só ver. Entra também a W06: o `claude` local nas sessões das
 > outras máquinas pelo `polvo mcp`, e os sockets encaminhados entre máquinas.
+
+> **ESRMS-R0002:** a árvore de ficheiros e o editor nascem no plano `abas.plan.md` (CEACN-W03), para a
+> máquina local, quando o dono pediu os tipos de aba; a W05 passa a estendê-los às outras máquinas.
 
 ## Definition of Done
 

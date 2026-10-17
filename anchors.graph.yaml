@@ -1229,6 +1229,18 @@ nodes:
         - test
       evidence_rev: cb2c88fc0047
       line_rev: 5ecc238e0e55
+    - id: plans/abas.plan.md
+      kind: plan
+      rev: 669c28de36d4
+      updated_at: "2026-10-17"
+      code: CEACN
+      file_code: CEACN
+      layer: plan
+      code_declared: true
+      tags:
+        - plan
+      evidence_rev: 40a8ad4b6482
+      line_rev: 5da8d44e4396
     - id: plans/agente-local.plan.md
       kind: plan
       rev: c3c291c6ec67
@@ -1267,7 +1279,7 @@ nodes:
       line_rev: 4443f8d9c69a
     - id: plans/espelho.plan.md
       kind: plan
-      rev: d4501dec19d7
+      rev: 5ee15c41bc89
       updated_at: "2026-10-17"
       code: ESRMS
       file_code: ESRMS
@@ -1275,8 +1287,8 @@ nodes:
       code_declared: true
       tags:
         - plan
-      evidence_rev: 5b04612baa36
-      line_rev: 58161cf019cb
+      evidence_rev: 1010b6688f47
+      line_rev: e8a73f7f58ce
     - id: plans/janela.plan.md
       kind: plan
       rev: e9b93aec7b68
@@ -1939,6 +1951,10 @@ edges:
         validated_to_rev: bffe1ddf2fdf
         changed_at: "2026-10-17"
         verdict: ok
+    - from: plans/abas.plan.md
+      to: desktop/src/window.spec.md
+      type: seeds
+      origin: declared
     - from: plans/agente-local.plan.md
       to: cmd/polvo/cli.spec.md
       judgments:
