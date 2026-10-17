@@ -8,8 +8,8 @@ package web
 
 import (
 	"crypto/rand"
-	"embed"
 	"crypto/subtle"
+	"embed"
 	"encoding/hex"
 	"encoding/json"
 	"errors"

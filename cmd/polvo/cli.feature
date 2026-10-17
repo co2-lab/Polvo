@@ -44,6 +44,24 @@ Feature: Cli
     When o polvo mcp recebe a inicialização, a lista das ferramentas e a chamada polvo_run de "echo do-agente" no nó, e o stdin acaba
     Then o servidor é "polvo", a lista tem polvo_run, polvo_read_file, polvo_write_file e polvo_list, o resultado tem "do-agente", e o código de saída é 0
 
+  @CLIXX-B07 @unit-level
+  Scenario: ui escreve o endereço com o segredo, abre o browser e serve a UI e as chamadas
+    Given um nó a correr que autoriza a identidade da pasta de configuração
+    When o polvo ui corre com --listen 127.0.0.1:0
+    Then a saída tem o endereço "http://127.0.0.1:…/#t=…", o browser é aberto nesse endereço, a raiz dá a página da UI, e a chamada fs.list ao nó com o segredo devolve as entradas
+
+  @CLIXX-B07 @unit-level
+  Scenario: polvo sem subcomando é a UI, e --no-browser não abre o browser
+    Given uma pasta de configuração
+    When o polvo corre sem subcomando com --no-browser
+    Then a saída tem o endereço da UI e o browser não é aberto
+
+  @CLIXX-B07 @unit-level
+  Scenario: ui recusa escutar num endereço que não é local
+    Given uma pasta de configuração
+    When o polvo ui corre com --listen 0.0.0.0:0
+    Then a saída de erro começa por "polvo: " e o código de saída é 1
+
   @CLIXX-E01 @unit-level
   Scenario: um subcomando desconhecido mostra o uso e dá 2
     Given os argumentos "voar"

@@ -12,6 +12,7 @@ import (
 	"encoding/binary"
 	"encoding/json"
 	"io"
+	"net/http"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -198,6 +199,81 @@ func TestCli_mcp(t *testing.T) {
 		text := answers[3]["content"].([]any)[0].(map[string]any)["text"].(string)
 		if !strings.Contains(text, "do-agente") || answers[3]["isError"] != false {
 			t.Fatalf("want do-agente, got %v", answers[3])
+		}
+	})
+}
+
+var uiURL = regexp.MustCompile(`(http://127\.0\.0\.1:\d+)/#t=(\w+)`)
+
+// startUI runs the UI command with args and returns the base URL and the secret it printed.
+func startUI(t *testing.T, args []string) (string, string, chan string) {
+	t.Helper()
+	opened := make(chan string, 1)
+	old := openBrowser
+	openBrowser = func(u string) error { opened <- u; return nil }
+	t.Cleanup(func() { openBrowser = old })
+	r, w := io.Pipe()
+	go Run(args, Stdio{Stdout: w, Stderr: io.Discard})
+	line, err := bufio.NewReader(r).ReadString('\n')
+	if err != nil {
+		t.Fatal(err)
+	}
+	go io.Copy(io.Discard, r)
+	m := uiURL.FindStringSubmatch(line)
+	if m == nil {
+		t.Fatalf("want the UI address, got %q", line)
+	}
+	return m[1], m[2], opened
+}
+
+func TestCli_ui(t *testing.T) {
+	t.Run("CLIXX-B07: ui escreve o endereço com o segredo, abre o browser e serve a UI e as chamadas", func(t *testing.T) {
+		d := t.TempDir()
+		addr := startNode(t, d)
+		base, tok, opened := startUI(t, []string{"ui", "--dir", d, "--listen", "127.0.0.1:0"})
+		select {
+		case u := <-opened:
+			if u != base+"/#t="+tok {
+				t.Fatalf("want the browser on %s/#t=%s, got %s", base, tok, u)
+			}
+		case <-time.After(5 * time.Second):
+			t.Fatal("the browser was not opened")
+		}
+		resp, err := http.Get(base + "/")
+		if err != nil {
+			t.Fatal(err)
+		}
+		page, _ := io.ReadAll(resp.Body)
+		resp.Body.Close()
+		if !strings.Contains(string(page), "<title>Polvo</title>") {
+			t.Fatalf("want the UI page, got %q", page)
+		}
+		body, _ := json.Marshal(map[string]any{"node": addr, "method": "fs.list", "params": map[string]string{"path": d}})
+		req, _ := http.NewRequest(http.MethodPost, base+"/api/call", bytes.NewReader(body))
+		req.Header.Set("X-Polvo-Token", tok)
+		resp, err = http.DefaultClient.Do(req)
+		if err != nil {
+			t.Fatal(err)
+		}
+		b, _ := io.ReadAll(resp.Body)
+		resp.Body.Close()
+		if !strings.Contains(string(b), `"id_ed25519"`) {
+			t.Fatalf("want the entries of the folder, got %s", b)
+		}
+	})
+	t.Run("CLIXX-B07: polvo sem subcomando é a UI, e --no-browser não abre o browser", func(t *testing.T) {
+		_, _, opened := startUI(t, []string{"--dir", t.TempDir(), "--no-browser"})
+		select {
+		case u := <-opened:
+			t.Fatalf("want no browser, got %s", u)
+		case <-time.After(300 * time.Millisecond):
+		}
+	})
+	t.Run("CLIXX-B07: ui recusa escutar num endereço que não é local", func(t *testing.T) {
+		var errb bytes.Buffer
+		code := Run([]string{"ui", "--dir", t.TempDir(), "--listen", "0.0.0.0:0"}, Stdio{Stdout: io.Discard, Stderr: &errb})
+		if code != 1 || !strings.HasPrefix(errb.String(), "polvo: ") {
+			t.Fatalf("want polvo: and 1, got %d %q", code, errb.String())
 		}
 	})
 }

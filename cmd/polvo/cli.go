@@ -10,14 +10,19 @@ import (
 	"fmt"
 	"io"
 	"net"
+	"net/http"
 	"os"
+	"os/exec"
 	"path/filepath"
+	"runtime"
+	"strings"
 
 	"github.com/co2-lab/polvo/internal/hub"
 	"github.com/co2-lab/polvo/internal/mcp"
 	"github.com/co2-lab/polvo/internal/node"
 	"github.com/co2-lab/polvo/internal/pty"
 	"github.com/co2-lab/polvo/internal/sshx"
+	"github.com/co2-lab/polvo/internal/web"
 	"golang.org/x/crypto/ssh"
 	"golang.org/x/term"
 )
@@ -33,6 +38,8 @@ const usage = `usage:
   polvo node    [--dir DIR] [--listen ADDR]     serve this machine as a node
   polvo connect [--dir DIR] ADDR                open a shell on a node
   polvo mcp     [--dir DIR]                     serve the MCP bridge of the local agent on stdin/stdout
+  polvo [ui]    [--dir DIR] [--listen ADDR] [--no-browser]
+                                                open the desktop application (the default)
 `
 
 // version is this executable's version, the one the MCP server reports (CLIXX-B06).
@@ -45,8 +52,14 @@ var errUsage = errors.New("usage")
 func Run(args []string, std Stdio) int {
 	err := errUsage
 	code := 0
+	// CLIXX-B07: no subcommand (only options, or nothing) is the desktop application.
+	if len(args) == 0 || strings.HasPrefix(args[0], "-") {
+		args = append([]string{"ui"}, args...)
+	}
 	if len(args) > 0 {
 		switch args[0] {
+		case "ui":
+			err = serveUI(args[1:], std)
 		case "keygen":
 			err = keygen(args[1:], std)
 		case "node":
@@ -214,4 +227,64 @@ func serveMCP(args []string, std Stdio) error {
 	defer pool.Close()
 	s := &mcp.Server{Name: "polvo", Version: version, Tools: pool.Tools()}
 	return s.Serve(std.Stdin, std.Stdout)
+}
+
+// openBrowser opens url in the system's browser.
+var openBrowser = func(url string) error {
+	var cmd *exec.Cmd
+	switch runtime.GOOS {
+	case "darwin":
+		cmd = exec.Command("open", url)
+	case "windows":
+		cmd = exec.Command("rundll32", "url.dll,FileProtocolHandler", url)
+	default:
+		cmd = exec.Command("xdg-open", url)
+	}
+	return cmd.Start()
+}
+
+// serveUI is CLIXX-B07: the local UI server, its address with the session secret, and the browser.
+func serveUI(args []string, std Stdio) error {
+	var listen string
+	var noBrowser bool
+	fs, dir, err := flags("ui", args, func(fs *flag.FlagSet) {
+		fs.StringVar(&listen, "listen", "127.0.0.1:0", "the local address to listen on")
+		fs.BoolVar(&noBrowser, "no-browser", false, "only print the address")
+	})
+	if err != nil {
+		return err
+	}
+	if fs.NArg() != 0 {
+		return errUsage
+	}
+	// only the machine itself opens the UI: it gives shells on the nodes
+	host, _, err := net.SplitHostPort(listen)
+	if err != nil {
+		return err
+	}
+	if ip := net.ParseIP(host); host != "localhost" && (ip == nil || !ip.IsLoopback()) {
+		return fmt.Errorf("the UI only listens on a local address, not %s", listen)
+	}
+	id, _, err := sshx.LoadOrCreateIdentity(filepath.Join(dir, "id_ed25519"))
+	if err != nil {
+		return err
+	}
+	s := web.New(web.Config{
+		Hub:   hub.Config{Identity: id, KnownHosts: sshx.NewKnownHosts(filepath.Join(dir, "known_hosts"))},
+		Files: web.UI(),
+	})
+	defer s.Close()
+	l, err := net.Listen("tcp", listen)
+	if err != nil {
+		return err
+	}
+	defer l.Close()
+	url := fmt.Sprintf("http://%s/#t=%s", l.Addr(), s.Token())
+	fmt.Fprintf(std.Stdout, "polvo: the UI is at %s\n", url)
+	if !noBrowser {
+		if err := openBrowser(url); err != nil {
+			fmt.Fprintf(std.Stderr, "polvo: could not open the browser (%v); open the address above\n", err)
+		}
+	}
+	return http.Serve(l, s.Handler())
 }

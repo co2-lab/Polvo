@@ -20,4 +20,4 @@ Mark `[x]` here, never in the plan.
 
 ## DSKTP-W03 — O subcomando
 
-- [ ] `cmd/polvo/cli.spec.md` (o `polvo` sem subcomando e o `polvo ui`)
+- [x] `cmd/polvo/cli.spec.md` (o `polvo` sem subcomando e o `polvo ui`)
