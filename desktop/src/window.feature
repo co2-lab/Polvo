@@ -171,7 +171,19 @@ Feature: Window
     Then a doca continua só com o terminal
 
   @WNDWI-B12#03 @unit-level
-  Scenario: A árvore e o editor voltam com a pasta e o ficheiro
-    Given uma janela com a árvore da pasta e um editor de "notas.txt", com a organização gravada
+  Scenario: A árvore, o git e o editor voltam com a pasta e o ficheiro
+    Given uma janela com a árvore da pasta, a aba do git dela e um editor de "notas.txt", com a organização gravada
     When a janela abre outra vez com o mesmo ficheiro da organização
-    Then a doca tem a árvore da mesma pasta e o editor de "notas.txt"
+    Then a doca tem a árvore e a aba do git da mesma pasta, e o editor de "notas.txt"
+
+  @WNDWI-B20#01 @unit-level
+  Scenario: A informação de git abre a pasta da janela
+    Given uma janela cuja pasta é um repositório git
+    When o utilizador escolhe a informação de git no escolhedor
+    Then a doca tem a aba do git da pasta, com o foco
+
+  @WNDWI-B20#02 @unit-level
+  Scenario: Um ficheiro alterado abre num editor
+    Given uma janela com a aba do git de um repositório com "notas.txt" alterado
+    When o utilizador carrega em "notas.txt"
+    Then a doca tem um editor com "notas.txt"

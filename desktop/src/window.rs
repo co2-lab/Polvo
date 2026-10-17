@@ -26,6 +26,7 @@ use gpui_kit::{
 
 use crate::editor::EditorPanel; // @dep: EDIMP
 use crate::files::{FileTree, FileTreeEvent}; // @dep: FLIMP
+use crate::git::{GitEvent, GitPanel}; // @dep: GTIMP
 use crate::keymap::{Action, Keymap}; // @dep: KYIMA
 use crate::layout::{LAYOUT_VERSION, LayoutFile}; // @dep: DLIDC
 use crate::new_tab::{ChooserEvent, NewTabChooser, TabKind}; // @dep: NTIMP
@@ -47,6 +48,9 @@ pub const TERMINAL: TabKind = TabKind { id: "terminal", label: "Terminal" };
 /// The file tree of the window's folder (WNDWI-B18).
 pub const FILES: TabKind = TabKind { id: "files", label: "Árvore de ficheiros" };
 
+/// The git information of the window's folder (WNDWI-B20).
+pub const GIT_INFO: TabKind = TabKind { id: "git", label: "Informação de git" };
+
 /// An editor with no file (WNDWI-B19).
 pub const EDITOR: TabKind = TabKind { id: "editor", label: "Editor vazio" };
 
@@ -54,7 +58,7 @@ pub const EDITOR: TabKind = TabKind { id: "editor", label: "Editor vazio" };
 pub const OPEN_FILE: TabKind = TabKind { id: "open-file", label: "Abrir um ficheiro…" };
 
 /// The kinds of tab the window can open (WNDWI-B10).
-pub const KINDS: [TabKind; 4] = [TERMINAL, FILES, EDITOR, OPEN_FILE];
+pub const KINDS: [TabKind; 5] = [TERMINAL, FILES, GIT_INFO, EDITOR, OPEN_FILE];
 
 /// The chooser of the new tab, while it is open (WNDWI-B17).
 struct Choosing {
@@ -176,6 +180,8 @@ pub struct PolvoWindow {
     settings: Option<Entity<SettingsPanel>>,
     /// The file trees in the dock (WNDWI-B18).
     trees: Vec<Entity<FileTree>>,
+    /// The git tabs in the dock (WNDWI-B20).
+    gits: Vec<Entity<GitPanel>>,
     /// The editors in the dock (WNDWI-B19).
     editors: Vec<Entity<EditorPanel>>,
     /// The window's folder (WNDWI-B18).
@@ -219,6 +225,7 @@ impl PolvoWindow {
             terminals: Vec::new(),
             settings: None,
             trees: Vec::new(),
+            gits: Vec::new(),
             editors: Vec::new(),
             root,
             heard: HashMap::new(),
@@ -265,6 +272,16 @@ impl PolvoWindow {
                 panel_handle(tree)
             });
         }
+        let restored_gits: Rc<RefCell<Vec<Entity<GitPanel>>>> = Rc::default();
+        {
+            let (restored, fallback) = (restored_gits.clone(), this.root.clone());
+            register_panel(cx, "git", move |ctx, window, cx| {
+                let root = kept(ctx.info(), "root").map_or_else(|| fallback.clone(), PathBuf::from);
+                let tab = cx.new(|cx| GitPanel::new(root, window, cx));
+                restored.borrow_mut().push(tab.clone());
+                panel_handle(tab)
+            });
+        }
         let restored_editors: Rc<RefCell<Vec<Entity<EditorPanel>>>> = Rc::default();
         {
             let restored = restored_editors.clone();
@@ -288,6 +305,9 @@ impl PolvoWindow {
         this.settings = restored.borrow_mut().take();
         for tree in restored_trees.borrow_mut().drain(..) {
             this.watch_tree(tree, window, cx);
+        }
+        for tab in restored_gits.borrow_mut().drain(..) {
+            this.watch_git(tab, window, cx);
         }
         this.editors.extend(restored_editors.borrow_mut().drain(..));
         if this.terminals.is_empty() {
@@ -339,8 +359,15 @@ impl PolvoWindow {
         if self.settings.as_ref().is_some_and(|s| !in_dock(s.entity_id())) {
             self.settings = None;
         }
-        let trees_gone: Vec<EntityId> = self.trees.iter().map(|t| t.entity_id()).filter(|id| !in_dock(*id)).collect();
+        let trees_gone: Vec<EntityId> = self
+            .trees
+            .iter()
+            .map(|t| t.entity_id())
+            .chain(self.gits.iter().map(|g| g.entity_id()))
+            .filter(|id| !in_dock(*id))
+            .collect();
         self.trees.retain(|t| !trees_gone.contains(&t.entity_id()));
+        self.gits.retain(|g| !trees_gone.contains(&g.entity_id()));
         self.editors.retain(|e| in_dock(e.entity_id()));
         for id in trees_gone {
             self.heard.remove(&id);
@@ -349,7 +376,7 @@ impl PolvoWindow {
             self.heard.remove(&panel.entity_id());
         }
         self.terminals.retain(|t| !gone.contains(t));
-        if self.terminals.is_empty() && self.settings.is_none() && self.trees.is_empty() && self.editors.is_empty() {
+        if self.terminals.is_empty() && self.settings.is_none() && self.trees.is_empty() && self.gits.is_empty() && self.editors.is_empty() {
             window.remove_window();
             return;
         }
@@ -410,6 +437,8 @@ impl PolvoWindow {
             self.open_terminal(window, cx);
         } else if kind == FILES {
             self.open_tree(window, cx);
+        } else if kind == GIT_INFO {
+            self.open_git(window, cx);
         } else if kind == EDITOR {
             let editor = cx.new(|cx| EditorPanel::empty(window, cx));
             self.show_editor(editor, window, cx);
@@ -436,6 +465,26 @@ impl PolvoWindow {
         });
         self.heard.insert(tree.entity_id(), sub);
         self.trees.push(tree);
+    }
+
+    /// Opens the git tab of the window's folder, with the focus (WNDWI-B20).
+    fn open_git(&mut self, window: &mut Window, cx: &mut Context<Self>) {
+        let root = self.root.clone();
+        let tab = cx.new(|cx| GitPanel::new(root, window, cx));
+        self.dock.update(cx, |dock, cx| dock.add_panel(tab.clone(), DockPlacement::Center, None, window, cx));
+        let focus = tab.read(cx).focus_handle(cx);
+        window.focus(&focus, cx);
+        self.watch_git(tab, window, cx);
+        cx.notify();
+    }
+
+    /// Hears the changed files the git tab opens (WNDWI-B20).
+    fn watch_git(&mut self, tab: Entity<GitPanel>, window: &mut Window, cx: &mut Context<Self>) {
+        let sub = cx.subscribe_in(&tab, window, |this, _, ev: &GitEvent, window, cx| match ev {
+            GitEvent::Open(path) => this.open_file(path.clone(), window, cx),
+        });
+        self.heard.insert(tab.entity_id(), sub);
+        self.gits.push(tab);
     }
 
     /// Asks for a file in the system's dialog and opens it (WNDWI-B19); a cancelled dialog opens nothing.
@@ -516,6 +565,8 @@ impl PolvoWindow {
         } else if let Some(panel) = self.settings.clone().filter(|s| focused(s.read(cx).focus_handle(cx))) {
             self.dock.update(cx, |dock, cx| dock.remove_panel(panel, window, cx));
         } else if let Some(panel) = self.trees.iter().find(|t| focused(t.read(cx).focus_handle(cx))).cloned() {
+            self.dock.update(cx, |dock, cx| dock.remove_panel(panel, window, cx));
+        } else if let Some(panel) = self.gits.iter().find(|g| focused(g.read(cx).focus_handle(cx))).cloned() {
             self.dock.update(cx, |dock, cx| dock.remove_panel(panel, window, cx));
         } else if let Some(panel) = self.editors.iter().find(|e| focused(e.read(cx).focus_handle(cx))).cloned() {
             self.dock.update(cx, |dock, cx| dock.remove_panel(panel, window, cx));

@@ -432,7 +432,7 @@ scenario!(wndwi_b18_02_um_ficheiro_da_arvore_abre_num_editor, "WNDWI-B18#02: Um 
 
 scenario!(wndwi_b19_01_o_editor_vazio, "WNDWI-B19#01: O editor vazio", |cx| {
     let o = open_gnome(cx);
-    choose_kind(cx, &o, 3);
+    choose_kind(cx, &o, 4);
     let editor = o.view.read_with(cx, |v, _| v.editors[0].clone());
     assert_eq!((editors(cx, &o), has_focus(cx, &o, &editor)), (vec![None], true));
 });
@@ -440,7 +440,7 @@ scenario!(wndwi_b19_01_o_editor_vazio, "WNDWI-B19#01: O editor vazio", |cx| {
 scenario!(wndwi_b19_02_abrir_um_ficheiro_do_computador, "WNDWI-B19#02: Abrir um ficheiro do computador", |cx| {
     let dir = with_notes();
     let o = open_gnome(cx);
-    choose_kind(cx, &o, 4);
+    choose_kind(cx, &o, 5);
     let chosen = dir.path().join("notas.txt");
     cx.simulate_path_prompt_response(move |_| Some(vec![chosen]));
     cx.run_until_parked();
@@ -449,16 +449,17 @@ scenario!(wndwi_b19_02_abrir_um_ficheiro_do_computador, "WNDWI-B19#02: Abrir um 
 
 scenario!(wndwi_b19_03_cancelar_o_dialogo, "WNDWI-B19#03: Cancelar o diálogo deixa a doca como estava", |cx| {
     let o = open_gnome(cx);
-    choose_kind(cx, &o, 4);
+    choose_kind(cx, &o, 5);
     cx.simulate_path_prompt_response(|_| None);
     cx.run_until_parked();
     assert_eq!((editors(cx, &o), terminals(cx, &o)), (Vec::new(), 1));
 });
 
-scenario!(wndwi_b12_03_a_arvore_e_o_editor_voltam, "WNDWI-B12#03: A árvore e o editor voltam com a pasta e o ficheiro", |cx| {
+scenario!(wndwi_b12_03_a_arvore_e_o_editor_voltam, "WNDWI-B12#03: A árvore, o git e o editor voltam com a pasta e o ficheiro", |cx| {
     let dir = with_notes();
     let file = LayoutFile::at(dir.path().join("layout.json"));
     let first = open_in(cx, gnome_left(), usize::MAX, Some(file.clone()), dir.path().to_path_buf());
+    choose_kind(cx, &first, 3);
     choose_kind(cx, &first, 2);
     click(cx, &first, "entry-notas.txt");
     settle(cx);
@@ -467,5 +468,47 @@ scenario!(wndwi_b12_03_a_arvore_e_o_editor_voltam, "WNDWI-B12#03: A árvore e o 
 
     let again = open_in(cx, gnome_left(), usize::MAX, Some(file), std::env::temp_dir());
     let roots = again.view.read_with(cx, |v, cx| v.trees.iter().map(|t| t.read(cx).root().to_path_buf()).collect::<Vec<_>>());
+    let gits = again.view.read_with(cx, |v, cx| v.gits.iter().map(|g| g.read(cx).root().to_path_buf()).collect::<Vec<_>>());
     assert_eq!((roots, editors(cx, &again)), (vec![dir.path().to_path_buf()], vec![Some(dir.path().join("notas.txt"))]));
+    assert_eq!(gits, vec![dir.path().to_path_buf()]);
+});
+
+/// A repository with "notas.txt" committed and then changed.
+fn repo_with_changed_notes() -> tempfile::TempDir {
+    let dir = with_notes();
+    let git = |args: &[&str]| {
+        let ok = std::process::Command::new("git")
+            .args(["-c", "user.name=T", "-c", "user.email=t@e", "-c", "commit.gpgsign=false"])
+            .args(args)
+            .current_dir(dir.path())
+            .output()
+            .unwrap()
+            .status
+            .success();
+        assert!(ok, "git {args:?}");
+    };
+    git(&["init", "-q"]);
+    git(&["add", "."]);
+    git(&["commit", "-q", "-m", "um"]);
+    std::fs::write(dir.path().join("notas.txt"), "mudou").unwrap();
+    dir
+}
+
+scenario!(wndwi_b20_01_a_informacao_de_git, "WNDWI-B20#01: A informação de git abre a pasta da janela", |cx| {
+    let dir = repo_with_changed_notes();
+    let o = open_in(cx, gnome_left(), usize::MAX, None, dir.path().to_path_buf());
+    choose_kind(cx, &o, 3);
+    let tab = o.view.read_with(cx, |v, _| v.gits.first().cloned()).expect("the git tab");
+    let root = tab.read_with(cx, |g, _| g.root().to_path_buf());
+    assert_eq!((root, has_focus(cx, &o, &tab)), (dir.path().to_path_buf(), true));
+});
+
+scenario!(wndwi_b20_02_um_ficheiro_alterado_abre_num_editor, "WNDWI-B20#02: Um ficheiro alterado abre num editor", |cx| {
+    let dir = repo_with_changed_notes();
+    let o = open_in(cx, gnome_left(), usize::MAX, None, dir.path().to_path_buf());
+    choose_kind(cx, &o, 3);
+    cx.run_until_parked();
+    frame(cx, o.handle);
+    click(cx, &o, "change-changed-notas.txt");
+    assert_eq!(editors(cx, &o), vec![Some(dir.path().join("notas.txt"))]);
 });

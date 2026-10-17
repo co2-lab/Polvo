@@ -43,8 +43,8 @@ Em cada grupo da doca, a barra das abas fica por baixo dos terminais (o dono ped
 
 ### WNDWI-B10 — O botão de aba nova
 O botão "+" da barra abre o escolhedor do tipo da aba nova (`NWTBS`), com os tipos que a janela sabe
-abrir (`KINDS`): o terminal, a árvore de ficheiros (`WNDWI-B18`), o editor vazio e um ficheiro do
-computador (`WNDWI-B19`). Escolher o terminal abre um terminal novo numa aba da doca, com o foco.
+abrir (`KINDS`): o terminal, a árvore de ficheiros (`WNDWI-B18`), a informação de git (`WNDWI-B20`), o
+editor vazio e um ficheiro do computador (`WNDWI-B19`). Escolher o terminal abre um terminal novo numa aba da doca, com o foco.
 
 ### WNDWI-B11 — O fim de uma shell tira a aba dela
 Quando a shell de um terminal termina, a aba dele sai da doca. Quando sai a última, a janela fecha.
@@ -54,8 +54,8 @@ Fechar a aba de um terminal na doca termina a shell dele. Fechar a última aba f
 
 ### WNDWI-B12 — A organização volta
 Ao abrir, quando o ficheiro da organização tem uma, a doca fica igual a como ficou (as abas, os
-grupos, as divisões e os tamanhos), cada terminal arranca uma shell nova, cada árvore volta com a pasta
-dela e cada editor com o ficheiro dele (um editor sem ficheiro volta vazio). Sem organização, a doca
+grupos, as divisões e os tamanhos), cada terminal arranca uma shell nova, cada árvore e cada aba do git voltam com
+a pasta delas e cada editor com o ficheiro dele (um editor sem ficheiro volta vazio). Sem organização, a doca
 abre com um terminal. Cada mudança da doca grava a organização, `SAVE_DELAY` depois da última mudança.
 
 ### WNDWI-B15 — O botão de configuração
@@ -83,6 +83,10 @@ O tipo "Editor vazio" abre um editor sem ficheiro numa aba, com o foco. O tipo "
 pergunta qual pelo diálogo do sistema e abre-o num editor (como no `WNDWI-B18`); cancelar o diálogo
 deixa a doca como estava.
 
+### WNDWI-B20 — A informação de git
+O tipo "Informação de git" abre a aba do git (`GITRS`) da pasta da janela, com o foco. Um ficheiro
+alterado aberto nela abre-se num editor, como no `WNDWI-B18`.
+
 ## Domain
 
 | Input | Accepts | Outside the domain | Who guarantees |
@@ -105,7 +109,7 @@ deixa a doca como estava.
 | Constant | Value | Why |
 | --- | --- | --- |
 | `TITLE_H` | 38 px | a altura da barra do GNOME (libadwaita) |
-| `KINDS` | `[TERMINAL, FILES, EDITOR, OPEN_FILE]` | os tipos de aba que o escolhedor mostra (`WNDWI-B10`), pela ordem do mais usado |
+| `KINDS` | `[TERMINAL, FILES, GIT_INFO, EDITOR, OPEN_FILE]` | os tipos de aba que o escolhedor mostra (`WNDWI-B10`), pela ordem do mais usado |
 | `SAVE_DELAY` | 500 ms | um arrasto muda a doca muitas vezes seguidas; grava-se uma vez, no fim |
 
 ## Rule uses
@@ -130,6 +134,7 @@ deixa a doca como estava.
 | `WNDWI-B17` | `Keymap` |
 | `WNDWI-B18` | `root` |
 | `WNDWI-B19` | `KINDS` |
+| `WNDWI-B20` | `root` |
 
 ## Revisions
 
@@ -157,6 +162,9 @@ deixa a doca como estava.
 > **WNDWI-R0006:** o escolhedor ganha a árvore de ficheiros, o editor vazio e abrir um ficheiro do
 > computador (plano CEACN, fase W03): entram o `WNDWI-B18` e o `WNDWI-B19`, o `WNDWI-B12` passa a guardar
 > a pasta das árvores e o ficheiro dos editores, e o `new` passa a receber a pasta da janela.
+
+> **WNDWI-R0007:** o escolhedor ganha a informação de git (plano CEACN, fase W04): entra o `WNDWI-B20`, e
+> o `WNDWI-B12` passa a guardar a pasta das abas do git.
 
 ## Open Decisions
 
