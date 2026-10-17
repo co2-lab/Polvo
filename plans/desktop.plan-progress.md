@@ -12,7 +12,7 @@ Mark `[x]` here, never in the plan.
 
 ## DSKTP-W01 — O servidor da UI
 
-- [ ] `internal/web/server.spec.md`
+- [x] `internal/web/server.spec.md`
 
 ## DSKTP-W02 — A UI
 

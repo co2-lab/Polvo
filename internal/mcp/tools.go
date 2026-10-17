@@ -61,8 +61,8 @@ func (p *Pool) drop(addr string, n *hub.Node) {
 	n.Close()
 }
 
-// with runs f on the node at addr; a dropped connection is made again once (MCPTL-B06).
-func (p *Pool) with(addr string, f func(*hub.Node) error) error {
+// With runs f on the node at addr; a dropped connection is made again once (MCPTL-B06).
+func (p *Pool) With(addr string, f func(*hub.Node) error) error {
 	for try := 0; ; try++ {
 		n, err := p.node(addr)
 		if err != nil {
@@ -134,7 +134,7 @@ func (p *Pool) run(raw json.RawMessage) (Result, error) {
 		return Result{}, err
 	}
 	var r hub.RunResult
-	err := p.with(a.Node, func(n *hub.Node) (err error) {
+	err := p.With(a.Node, func(n *hub.Node) (err error) {
 		r, err = n.Run([]string{"sh", "-c", a.Command}, a.Dir, []byte(a.Stdin))
 		return err
 	})
@@ -159,7 +159,7 @@ func (p *Pool) readFile(raw json.RawMessage) (Result, error) {
 		return Result{}, err
 	}
 	var data []byte
-	err := p.with(a.Node, func(n *hub.Node) (err error) {
+	err := p.With(a.Node, func(n *hub.Node) (err error) {
 		data, err = n.ReadFile(a.Path)
 		return err
 	})
@@ -179,7 +179,7 @@ func (p *Pool) writeFile(raw json.RawMessage) (Result, error) {
 	if err := args(raw, &a, map[string]*string{"node": &a.Node, "path": &a.Path}); err != nil {
 		return Result{}, err
 	}
-	err := p.with(a.Node, func(n *hub.Node) error { return n.WriteFile(a.Path, []byte(a.Content)) })
+	err := p.With(a.Node, func(n *hub.Node) error { return n.WriteFile(a.Path, []byte(a.Content)) })
 	if err != nil {
 		return Result{}, err
 	}
@@ -193,7 +193,7 @@ func (p *Pool) list(raw json.RawMessage) (Result, error) {
 		return Result{}, err
 	}
 	var es []hub.Entry
-	err := p.with(a.Node, func(n *hub.Node) (err error) {
+	err := p.With(a.Node, func(n *hub.Node) (err error) {
 		es, err = n.List(a.Path)
 		return err
 	})

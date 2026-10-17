@@ -32,7 +32,7 @@ A ferramenta `polvo_list` devolve as entradas de uma pasta do nó por ordem de n
 pastas com uma barra no fim, e os ficheiros com o tamanho.
 
 ### MCPTL-B05 — A ligação a um nó é reutilizada
-Duas chamadas ao mesmo nó usam a mesma ligação.
+Duas chamadas ao mesmo nó usam a mesma ligação. O conjunto dá a ligação a quem a pede para uma operação (`With`); a UI usa-o assim.
 
 ### MCPTL-B06 — Uma ligação caída é refeita
 Quando a ligação a um nó cai, a chamada seguinte a esse nó liga-se outra vez.
@@ -71,6 +71,11 @@ Quando a ligação a um nó cai, a chamada seguinte a esse nó liga-se outra vez
 
 - **@TBD: Windows** para a shell do `polvo_run`: num nó Windows a shell é outra (o `cmd`/PowerShell), e
   isso entra com a caixa 1391 do Bavel. Num nó Unix é o `sh -c`.
+
+## Revisions
+
+> **MCPTL-R0001:** o `With` passa a ser público: o servidor da UI (`WEBSR`, plano DSKTP) reutiliza o
+> conjunto das ligações em vez de o repetir. As regras não mudam.
 
 ## Open Decisions
 
