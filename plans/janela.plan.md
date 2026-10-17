@@ -37,16 +37,28 @@ A crate `desktop/` (Rust) com a janela e o terminal da máquina local. É a base
 - `desktop/src/window.spec.md` — a janela GPUI: a barra de título ao estilo do sistema, o desenho do
   ecrã do terminal, o teclado, o rato, copiar e colar
 
-### JNNTJ-W02 — Os nós (depends on JNNTJ-W01)
+### JNNTJ-W02 — A doca (depends on JNNTJ-W01)
+
+A janela passa a ser uma doca: os terminais são painéis que o utilizador organiza arrastando e
+largando, em abas ou divididos lado a lado, e a organização volta igual na próxima vez. Só dentro da
+janela; tirar um painel para uma janela à parte fica fora desta fase.
+
+- `desktop/src/panel.spec.md` — nasce: um terminal como painel da doca (o desenho, o teclado, o rato,
+  copiar e colar e o tamanho, que saem da janela)
+- `desktop/src/window.spec.md` — muda: o corpo da janela é a doca; o botão de abrir um terminal; a
+  janela fecha quando sai o último terminal
+- `desktop/src/layout.spec.md` — nasce: a organização da doca guardada e restaurada
+
+### JNNTJ-W03 — Os nós (depends on JNNTJ-W02)
 
 Os terminais nos nós remotos e no nó local, pelo servidor Go que já existe (`internal/web`, `internal/hub`).
 A forma da ligação entre a janela e o Go decide-se nesta fase.
 
-### JNNTJ-W03 — O editor (depends on JNNTJ-W02)
+### JNNTJ-W04 — O editor (depends on JNNTJ-W03)
 
 O editor do gpui-component, com o realce de sintaxe, e a árvore de pastas de um nó.
 
-### JNNTJ-W04 — Um executável (depends on JNNTJ-W03)
+### JNNTJ-W05 — Um executável (depends on JNNTJ-W04)
 
 O Go e o Rust num só executável `polvo`, e o `polvo` sem subcomando abre a janela nativa.
 
@@ -55,7 +67,16 @@ O Go e o Rust num só executável `polvo`, e o `polvo` sem subcomando abre a jan
 - O macOS e o Windows: o GPUI, a libghostty-vt e o portable-pty correm nos três, mas aqui só há Linux
   para provar. A prova nos outros dois fica para quando houver a máquina (o dono testa em Win e Mac).
 - Correr a janela no Galaxy: é o plano do Bavel "Rust e Zig no Galaxy", medido contra esta crate.
-- Separadores, divisão do ecrã e a configuração do utilizador.
+- Tirar um painel para uma janela do sistema à parte (vários monitores): o dono decidiu a 2026-10-17
+  que, por agora, a organização é dentro da janela.
+- A configuração do utilizador (atalhos, temas próprios).
+
+## Revisions
+
+> **JNNTJ-R0001:** entra a fase W02, a doca, pedida pelo dono a 2026-10-17 ("janelas organizadas pelo
+> utilizador, arrastando e soltando"), depois de ver o terminal nativo. Os nós, o editor e o executável
+> passam a W03, W04 e W05. Os separadores e a divisão do ecrã, que estavam fora do âmbito, são agora a
+> W02.
 
 ## Definition of Done
 

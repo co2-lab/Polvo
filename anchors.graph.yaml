@@ -1161,7 +1161,7 @@ nodes:
       line_rev: 4443f8d9c69a
     - id: plans/janela.plan.md
       kind: plan
-      rev: 707d11544df2
+      rev: 4bb5804e8010
       updated_at: "2026-10-17"
       code: JNNTJ
       file_code: JNNTJ
@@ -1169,8 +1169,8 @@ nodes:
       code_declared: true
       tags:
         - plan
-      evidence_rev: 3971275f97ac
-      line_rev: d76629787400
+      evidence_rev: aad9e7fed0b9
+      line_rev: a519239dba79
     - id: plans/terminal-remoto.plan.md
       kind: plan
       rev: 03470fc704da
