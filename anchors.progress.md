@@ -61,7 +61,6 @@
 ### D05.S3 — ESRMS-W03 — Descoberta e emparelhamento (depends on ESRMS-W02) — — (0/0)
 ### D05.S4 — ESRMS-W04 — P2P através de NAT (depends on ESRMS-W03) — — (0/0)
 ### D05.S5 — ESRMS-W05 — Os ficheiros de qualquer máquina (depends on ESRMS-W02) — — (0/0)
-### D05.S6 — ESRMS-W01 — As sessões no nó — — (0/0)
 
 ## D06 — Agentes (plan: plans/agentes.plan.md) — — (0/0)
 ### D06.S1 — AGPRG-W01 — O progresso no nó — — (0/0)
@@ -74,4 +73,4 @@
 ### D07.S3 — CEACN-W03 — Os ficheiros (depends on CEACN-W02) — — (0/0)
 ### D07.S4 — CEACN-W04 — O git (depends on CEACN-W02) — — (0/0)
 
-<!-- anchors:progress sum=85345aa5ebb4 -->
+<!-- anchors:progress sum=dc7a4f07570d -->
