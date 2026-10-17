@@ -269,10 +269,14 @@ func serveUI(args []string, std Stdio) error {
 	if err != nil {
 		return err
 	}
-	s := web.New(web.Config{
+	cfg := web.Config{
 		Hub:   hub.Config{Identity: id, KnownHosts: sshx.NewKnownHosts(filepath.Join(dir, "known_hosts"))},
 		Files: web.UI(),
-	})
+	}
+	if sh := os.Getenv("SHELL"); sh != "" {
+		cfg.Shell = []string{sh}
+	}
+	s := web.New(cfg)
 	defer s.Close()
 	l, err := net.Listen("tcp", listen)
 	if err != nil {

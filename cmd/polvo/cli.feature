@@ -45,6 +45,12 @@ Feature: Cli
     Then o servidor é "polvo", a lista tem polvo_run, polvo_read_file, polvo_write_file e polvo_list, o resultado tem "do-agente", e o código de saída é 0
 
   @CLIXX-B07 @unit-level
+  Scenario: o terminal local da UI corre a shell do SHELL
+    Given o SHELL é um programa que escreve "shell-do-SHELL" e sai com 3
+    When o browser abre o terminal do nó "local" na UI
+    Then a saída tem "shell-do-SHELL" e a última mensagem diz o código 3
+
+  @CLIXX-B07 @unit-level
   Scenario: ui escreve o endereço com o segredo, abre o browser e serve a UI e as chamadas
     Given um nó a correr que autoriza a identidade da pasta de configuração
     When o polvo ui corre com --listen 127.0.0.1:0

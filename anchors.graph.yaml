@@ -30,43 +30,29 @@ nodes:
       regime: declarativo
     - id: cmd/polvo/cli.feature
       kind: feature
-      rev: 656d830cf141
+      rev: 106541f13f63
       updated_at: "2026-10-17"
       code: CLIXX
       file_code: CLFEA
       layer: feature
       tags:
         - feature
-      evidence_rev: 626e9f001fb7
-      line_rev: 1b0816dbb38e
+      evidence_rev: 955dabadc099
+      line_rev: 8db3a2e38157
     - id: cmd/polvo/cli.go
       kind: code
-      rev: 89723210cce5
+      rev: de5a54a2ca33
       updated_at: "2026-10-17"
       code: CLIXX
       file_code: CLIMX
       layer: cmd
       tags:
         - cli
-      signal:
-        covered_lines: 145
-        total_lines: 208
-        line_coverage: 69.71153846153845
-        coverage_by_suite:
-            .anchors/lcov.info:
-                instrumented: 52-70,73-80,82,86-101,103,107-120,124-153,157-181,183-187,189-210,214-229,233-241,243,247-259,261-287,289
-                covered: 52-70,73-80,82,86-93,96,103,107-109,112,115-116,119-120,124-129,132,135-136,139-140,143-153,157-159,162-166,169-181,183-184,187,189-190,193-200,203-204,207,210,214-216,219,222-223,226-229,247-254,257,261-262,265-269,272-278,281-285,289
-                covered_lines: 145
-                total_lines: 208
-                at_rev: 89723210cce5
-        coverage_rev: 89723210cce5
-        at_rev: 89723210cce5
-        ingested_at: "2026-10-17T07:51:38-03:00"
-      evidence_rev: c12eb1772009
-      line_rev: 26dce763e3bd
+      evidence_rev: 9ca21a5697f6
+      line_rev: 0a0c0602ab6a
     - id: cmd/polvo/cli.spec.md
       kind: spec
-      rev: 5cc589201a6b
+      rev: 99b24a8915a7
       updated_at: "2026-10-17"
       code: CLIXX
       file_code: CLIXX
@@ -74,55 +60,20 @@ nodes:
       code_declared: true
       tags:
         - spec
-      signal:
-        proven_codes:
-            - CLIXX-B01
-            - CLIXX-B02
-            - CLIXX-B03
-            - CLIXX-B04
-            - CLIXX-B05
-            - CLIXX-B06
-            - CLIXX-B07
-            - CLIXX-E01
-            - CLIXX-E02
-        proven_by_suite:
-            .anchors/junit.xml:
-                - CLIXX-B01
-                - CLIXX-B02
-                - CLIXX-B03
-                - CLIXX-B04
-                - CLIXX-B05
-                - CLIXX-B06
-                - CLIXX-B07
-                - CLIXX-E01
-                - CLIXX-E02
-        proven_rev_by_suite:
-            .anchors/junit.xml: 5cc589201a6b
-        at_rev: 5cc589201a6b
-        ingested_at: "2026-10-17T07:51:38-03:00"
-      evidence_rev: 303d05bebb3f
-      rule_revs: {CLIXX-B01: e1849a836c74, CLIXX-B02: 62ac80b87834, CLIXX-B03: e9a2876a236e, CLIXX-B04: c74927522eb2, CLIXX-B05: 95b51a43a683, CLIXX-B06: 405564fb7737, CLIXX-B07: 8a725b07e328, CLIXX-E01: 076b85d1b0b4, CLIXX-E02: 854a3dabe9f0}
-      rest_rev: ce88d6830740
+      evidence_rev: a92198f22ec2
+      rule_revs: {CLIXX-B01: e1849a836c74, CLIXX-B02: 62ac80b87834, CLIXX-B03: e9a2876a236e, CLIXX-B04: c74927522eb2, CLIXX-B05: 95b51a43a683, CLIXX-B06: 405564fb7737, CLIXX-B07: 33fa866166fb, CLIXX-E01: 076b85d1b0b4, CLIXX-E02: 854a3dabe9f0}
+      rest_rev: 674a899f5ccd
     - id: cmd/polvo/cli_test.go
       kind: test
-      rev: 6dac05afc86c
+      rev: 0a5644b92f7b
       updated_at: "2026-10-17"
       code: CLIXX
       file_code: CLTSX
       layer: test
       tags:
         - test
-      signal:
-        passed: 18
-        by_layer:
-            unit:
-                passed: 18
-        seconds_by_suite:
-            .anchors/junit.xml: 4.35
-        at_rev: 6dac05afc86c
-        ingested_at: "2026-10-17T07:51:38-03:00"
-      evidence_rev: c1781a6deac9
-      line_rev: 1a34a63fb895
+      evidence_rev: a91500111e74
+      line_rev: e24e37cea356
     - id: cmd/polvo/main.go
       kind: code
       rev: 4da95951342e

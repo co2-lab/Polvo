@@ -47,13 +47,14 @@ Acaba sem erro quando o stdin acaba.
 O `polvo` sem subcomando, ou o `polvo ui`, arranca o servidor local da UI no endereço da opção
 `--listen` (por omissão "127.0.0.1:0", uma porta livre), com a identidade e os nós conhecidos da pasta
 de configuração. Escreve na saída o endereço da UI com o segredo da sessão e abre-o no browser do
-sistema; com `--no-browser`, só o escreve. Serve até o processo acabar. Um `--listen` que não é um endereço local é
+sistema; com `--no-browser`, só o escreve. O terminal da própria máquina (o nó `local`) corre a shell
+do `SHELL`. Serve até o processo acabar. Um `--listen` que não é um endereço local é
 recusado (o erro e o código 1): a UI dá shells nos nós, e só a própria máquina a pode abrir.
 
 ## Environment Variables
 | Variable | Type | Required | Default | Values | Deprecated | Description |
 | --- | --- | --- | --- | --- | --- | --- |
-| SHELL | string | no | /bin/sh | o caminho de uma shell | no | a shell que o `polvo node` dá às sessões |
+| SHELL | string | no | /bin/sh | o caminho de uma shell | no | a shell que o `polvo node` dá às sessões, e a do terminal local da UI |
 
 ## Domain
 
@@ -78,7 +79,7 @@ recusado (o erro e o código 1): a UI dá shells nos nós, e só a própria máq
 | `CLIXX-B04` | `args` |
 | `CLIXX-B05` | `args` |
 | `CLIXX-B06` | `args`, `--dir` |
-| `CLIXX-B07` | `args`, `--dir` |
+| `CLIXX-B07` | `args`, `--dir`, `SHELL` |
 | `CLIXX-E01` | `args` |
 | `CLIXX-E02` | `args`, `--dir` |
 
@@ -96,6 +97,9 @@ recusado (o erro e o código 1): a UI dá shells nos nós, e só a própria máq
 > **CLIXX-R0002:** nasceu o `CLIXX-B07` (a UI), pela fase W03 do plano DSKTP: o `polvo` sem subcomando
 > deixa de ser um erro de uso e passa a abrir a aplicação desktop, que é o produto. O `CLIXX-E01`
 > continua a valer para um subcomando desconhecido, uma opção inválida ou um argumento em falta.
+
+> **CLIXX-R0003:** o `CLIXX-B07` dá à UI a shell do `SHELL` para o terminal da própria máquina (o nó
+> `local` do servidor da UI). As regras anteriores não mudam.
 
 ## Open Decisions
 

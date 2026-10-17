@@ -25,6 +25,8 @@ import (
 	"unsafe"
 
 	cpty "github.com/creack/pty"
+
+	"golang.org/x/net/websocket"
 )
 
 // syncBuffer is a bytes.Buffer safe for the writer goroutine and the test reading it.
@@ -259,6 +261,29 @@ func TestCli_ui(t *testing.T) {
 		resp.Body.Close()
 		if !strings.Contains(string(b), `"id_ed25519"`) {
 			t.Fatalf("want the entries of the folder, got %s", b)
+		}
+	})
+	t.Run("CLIXX-B07: o terminal local da UI corre a shell do SHELL", func(t *testing.T) {
+		sh := filepath.Join(t.TempDir(), "shell")
+		os.WriteFile(sh, []byte("#!/bin/sh\necho shell-do-SHELL\nexit 3\n"), 0o755)
+		t.Setenv("SHELL", sh)
+		base, tok, _ := startUI(t, []string{"ui", "--dir", t.TempDir(), "--no-browser"})
+		c, err := websocket.Dial(strings.Replace(base, "http://", "ws://", 1)+"/ws/term?t="+tok+"&node=local", "", base)
+		if err != nil {
+			t.Fatal(err)
+		}
+		defer c.Close()
+		c.SetDeadline(time.Now().Add(10 * time.Second))
+		var out bytes.Buffer
+		for {
+			var frame []byte
+			if err := websocket.Message.Receive(c, &frame); err != nil {
+				break
+			}
+			out.Write(frame)
+		}
+		if !strings.Contains(out.String(), "shell-do-SHELL") || !strings.Contains(out.String(), `"exit":3`) {
+			t.Fatalf("want the SHELL's output and exit 3, got %q", out.String())
 		}
 	})
 	t.Run("CLIXX-B07: polvo sem subcomando é a UI, e --no-browser não abre o browser", func(t *testing.T) {
