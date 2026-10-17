@@ -58,4 +58,9 @@
 ### D05.S4 — ESRMS-W04 — P2P através de NAT (depends on ESRMS-W03) — — (0/0)
 ### D05.S5 — ESRMS-W05 — Os ficheiros de qualquer máquina (depends on ESRMS-W02) — — (0/0)
 
-<!-- anchors:progress sum=9f80743628d3 -->
+## D06 — Agentes (plan: plans/agentes.plan.md) — — (0/0)
+### D06.S1 — AGPRG-W01 — O progresso no nó — — (0/0)
+### D06.S2 — AGPRG-W02 — As ferramentas do agente (depends on AGPRG-W01) — — (0/0)
+### D06.S3 — AGPRG-W03 — O painel dos agentes (depends on AGPRG-W02) — — (0/0)
+
+<!-- anchors:progress sum=08fb161de1d9 -->
