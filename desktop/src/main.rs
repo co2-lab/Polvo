@@ -19,34 +19,30 @@ macro_rules! scenario {
         #[gpui_kit::test]
         fn $name($cx: &mut gpui_kit::TestAppContext) $body
     };
+    // The same, for a test that waits on the window.
+    ($name:ident, $title:literal, async |$cx:ident| $body:block) => {
+        #[doc = $title]
+        #[gpui_kit::test]
+        async fn $name($cx: &mut gpui_kit::TestAppContext) $body
+    };
 }
 
 mod keys; // @dep: KYIMK
+mod panel; // @dep: TPITR
 mod prefs; // @dep: PRIMP
 mod screen; // @dep: SCIMS
 mod window; // @dep: WNIMW
 
-use screen::{Screen, Size};
-
 fn main() {
-    let shell = std::env::var("SHELL").unwrap_or_else(|_| "/bin/sh".into());
+    let shell = std::env::var("SHELL").unwrap_or_else(|_| panel::SHELL_FALLBACK.into());
     let home = std::env::var_os("HOME").map(std::path::PathBuf::from);
-    // The window fits the terminal to its size once it is laid out.
-    let size = Size { rows: 24, cols: 80, cell_w: 9, cell_h: 20 };
-    let (screen, events) = match Screen::spawn(&[shell], home.as_deref(), size) {
-        Ok(s) => s,
-        Err(e) => {
-            eprintln!("polvo: the shell did not start: {e}");
-            std::process::exit(1);
-        }
-    };
     let prefs = prefs::read();
     gpui_kit::application().with_assets(gpui_kit::assets::Assets).run(move |cx| {
         gpui_kit::init(cx);
         if prefs.dark {
             gpui_kit::component::Theme::change(gpui_kit::component::ThemeMode::Dark, None, cx);
         }
-        window::open(screen, events, prefs, cx);
+        window::open(shell, home, prefs, cx);
         cx.activate(true);
     });
 }
