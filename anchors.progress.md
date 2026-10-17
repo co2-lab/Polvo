@@ -1,5 +1,5 @@
 <!-- anchors:progress v1 — written by `anchors progress`; never edit by hand -->
-# Progress — 100% (33/33 points)
+# Progress — 100% (37/37 points)
 
 ## D01 — AgenteLocal (plan: plans/agente-local.plan.md) — 100% (6/6)
 ### D01.S1 — AGLCG-W01 — A ponte MCP — 100% (2/2)
@@ -67,10 +67,14 @@
 ### D06.S2 — AGPRG-W02 — As ferramentas do agente (depends on AGPRG-W01) — — (0/0)
 ### D06.S3 — AGPRG-W03 — O painel dos agentes (depends on AGPRG-W02) — — (0/0)
 
-## D07 — Configuracao e tipos de aba (plan: plans/abas.plan.md) — — (0/0)
-### D07.S1 — CEACN-W01 — A configuração e os atalhos — — (0/0)
+## D07 — Configuracao e tipos de aba (plan: plans/abas.plan.md) — 100% (4/4)
+### D07.S1 — CEACN-W01 — A configuração e os atalhos — 100% (4/4)
+- [x] D07.T1 — `desktop/src/settings.spec.md` · 1 · done 2026-10-17 by OK-BR-PE0EF71F/polvo-main
+- [x] D07.T2 — `desktop/src/keymap.spec.md` · 1 · done 2026-10-17 by OK-BR-PE0EF71F/polvo-main
+- [x] D07.T3 — `desktop/src/settings_panel.spec.md` · 1 · done 2026-10-17 by OK-BR-PE0EF71F/polvo-main
+- [x] D07.T4 — `desktop/src/window.spec.md` (muda) · 1 · done 2026-10-17 by OK-BR-PE0EF71F/polvo-main
 ### D07.S2 — CEACN-W02 — O escolhedor do tipo de aba (depends on CEACN-W01) — — (0/0)
 ### D07.S3 — CEACN-W03 — Os ficheiros (depends on CEACN-W02) — — (0/0)
 ### D07.S4 — CEACN-W04 — O git (depends on CEACN-W02) — — (0/0)
 
-<!-- anchors:progress sum=dc7a4f07570d -->
+<!-- anchors:progress sum=d140444d5ae7 -->
