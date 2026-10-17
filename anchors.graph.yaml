@@ -734,29 +734,29 @@ nodes:
       line_rev: 2de8ceef65e8
     - id: internal/node/control.feature
       kind: feature
-      rev: 1b60413b791e
+      rev: 4da51f66528e
       updated_at: "2026-10-17"
       code: CNTRL
       file_code: CNFTR
       layer: feature
       tags:
         - feature
-      evidence_rev: 9c1480b5bcf6
-      line_rev: 037c037547df
+      evidence_rev: 616c4d0c5e45
+      line_rev: 6b95d106947b
     - id: internal/node/control.go
       kind: code
-      rev: 07595d592b20
+      rev: cfec9ac2578e
       updated_at: "2026-10-17"
       code: CNTRL
       file_code: CNIMP
       layer: node
       tags:
         - node
-      evidence_rev: 0ecaf15cc10c
-      line_rev: 4fafe4e9b9b6
+      evidence_rev: 53b40123cde8
+      line_rev: 5a69fe0a3722
     - id: internal/node/control.spec.md
       kind: spec
-      rev: 28d9af3950d1
+      rev: 169eb9f6cd94
       updated_at: "2026-10-17"
       code: CNTRL
       file_code: CNTRL
@@ -764,31 +764,31 @@ nodes:
       code_declared: true
       tags:
         - spec
-      evidence_rev: 02d6963c3662
-      rule_revs: {CNTRL-B01: "316986563459", CNTRL-B02: 802b79876f2f, CNTRL-B03: 884e4c321bc7, CNTRL-B04: 8d1e498da8c5, CNTRL-B05: 342a2b0f5cb6, CNTRL-B06: c5b173133779, CNTRL-E01: d1a2b67829aa, CNTRL-E02: 4449c1568c95, CNTRL-E03: ae2d67e525fc, CNTRL-E04: b89eadab3a8c, CNTRL-E05: f410ddb5ff2d}
-      rest_rev: 7c5a3404ff4f
+      evidence_rev: dd087c6d2701
+      rule_revs: {CNTRL-B01: "316986563459", CNTRL-B02: 802b79876f2f, CNTRL-B03: 884e4c321bc7, CNTRL-B04: 8d1e498da8c5, CNTRL-B05: 342a2b0f5cb6, CNTRL-B06: c5b173133779, CNTRL-B07: 1e17e1789fbc, CNTRL-B08: dfea3168b418, CNTRL-E01: d1a2b67829aa, CNTRL-E02: 4449c1568c95, CNTRL-E03: ae2d67e525fc, CNTRL-E04: b89eadab3a8c, CNTRL-E05: f410ddb5ff2d, CNTRL-E06: 75edab71ac20}
+      rest_rev: c3f3663a01aa
     - id: internal/node/control_test.go
       kind: test
-      rev: 5e07957b370b
+      rev: 7c2dce2e437e
       updated_at: "2026-10-17"
       code: CNTRL
       file_code: CNTST
       layer: test
       tags:
         - test
-      evidence_rev: de5fe4dcbd24
-      line_rev: 27e4d3a3b535
+      evidence_rev: 967a19e990b0
+      line_rev: 74f82aeaca14
     - id: internal/node/server.feature
       kind: feature
-      rev: c455521a1a36
+      rev: ae89e0a81a6c
       updated_at: "2026-10-17"
       code: SRVRE
       file_code: SRFTR
       layer: feature
       tags:
         - feature
-      evidence_rev: 970af2d4d2a6
-      line_rev: d881dc40b912
+      evidence_rev: 8cf9e820ac85
+      line_rev: 7b239b6b86f2
     - id: internal/node/server.go
       kind: code
       rev: d39996f560de
@@ -829,15 +829,15 @@ nodes:
       rest_rev: 375c49a903aa
     - id: internal/node/server_test.go
       kind: test
-      rev: 4c24add7ee96
+      rev: fbb2d3c6ce22
       updated_at: "2026-10-17"
       code: SRVRE
       file_code: SRTST
       layer: test
       tags:
         - test
-      evidence_rev: 7e8b84802186
-      line_rev: fb87fd33668f
+      evidence_rev: f4b9e296b864
+      line_rev: 9f6e9ae2658f
     - id: internal/nodeconf/nodeconf.feature
       kind: feature
       rev: d1b4305c9a15

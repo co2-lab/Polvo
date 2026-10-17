@@ -322,8 +322,8 @@ func TestServer_sessions(t *testing.T) {
 		m := sessions.NewManager()
 		f := startNode(t, func(c *Config) { c.Sessions = m })
 		c, in, out := openShell(t, f)
-		io.WriteString(in, "echo $((1+1))\n")
-		waitFor(t, out, "\n2")
+		io.WriteString(in, "echo marca-$((1+1))\n")
+		waitFor(t, out, "marca-2")
 		c.Close()
 		time.Sleep(200 * time.Millisecond)
 		if len(m.List()) != 1 {
@@ -335,8 +335,8 @@ func TestServer_sessions(t *testing.T) {
 		m := sessions.NewManager()
 		f := startNode(t, func(c *Config) { c.Sessions = m })
 		c, in, out := openShell(t, f)
-		io.WriteString(in, "echo marca-1\n")
-		waitFor(t, out, "\nmarca-1")
+		io.WriteString(in, "echo marca-$((0+1))\n")
+		waitFor(t, out, "marca-1")
 		c.Close()
 		id := m.List()[0].ID
 		defer m.Close(id)
@@ -348,8 +348,8 @@ func TestServer_sessions(t *testing.T) {
 		}
 		got := collect(out2)
 		waitFor(t, got, "marca-1")
-		io.WriteString(in2, "echo $((2+3))\n")
-		waitFor(t, got, "\n5")
+		io.WriteString(in2, "echo soma-$((2+3))\n")
+		waitFor(t, got, "soma-5")
 	})
 	t.Run("SRVRE-B10: Uma ligação que só vê não cria sessões nem escreve", func(t *testing.T) {
 		m := sessions.NewManager()

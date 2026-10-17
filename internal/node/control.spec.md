@@ -38,6 +38,25 @@ resposta leva o identificador do seu pedido.
 ### CNTRL-B06 — Uma notificação não tem resposta
 Uma mensagem sem identificador não recebe resposta, mesmo de erro.
 
+### CNTRL-B07 — As sessões do nó pelo controlo
+O controlo de um nó com sessões (o `Controller`, com as `Sessions`) atende:
+- `session.list`: as sessões vivas, cada uma com o id, o programa, as linhas e as colunas, os
+  espectadores, se está travada e quando nasceu;
+- `session.new`: cria uma sessão (o programa pedido, ou a shell do nó; a pasta e o tamanho pedidos) e
+  devolve o id dela;
+- `session.close`: termina uma sessão;
+- `session.lock`: trava uma sessão para só ver, ou destrava-a.
+
+O `ServeControl` é o controlo sem sessões: os pedidos de sessão dão erro de operação.
+
+### CNTRL-B08 — O que cada permissão pode fazer
+O controlo atende com a permissão da ligação:
+- quem só vê lê e lista ficheiros e sessões;
+- escrever ficheiros, correr processos, e criar e terminar sessões pede controlar;
+- travar e destravar uma sessão pede ser o dono.
+
+O pedido sem a permissão é recusado com o erro de permissão (`CNTRL-E06`), sem fazer nada.
+
 ## Domain
 
 | Input | Accepts | Outside the domain | Who guarantees |
@@ -54,12 +73,14 @@ Uma mensagem sem identificador não recebe resposta, mesmo de erro.
 | `CNTRL-E03` | o sistema recusa a operação (o ficheiro não existe, sem permissão, o programa não arranca) | erro de operação (`CodeOperation`), com a mensagem do sistema |
 | `CNTRL-E04` | o ficheiro a ler é maior do que o limite | erro de operação com o motivo do tamanho, sem ler o ficheiro |
 | `CNTRL-E05` | a linha recebida não é uma mensagem | erro do codec respondido com o identificador quando o há, e a sessão continua |
+| `CNTRL-E06` | o pedido pede mais do que a permissão da ligação | erro de permissão (`CodeForbidden`), sem fazer nada |
 
 ## Business Constants
 | Constant | Value | Why |
 | --- | --- | --- |
 | `MaxFile` | 8 MiB | em base64 cabe numa linha do codec (16 MiB), com folga |
 | `CodeOperation` | -32000 | o primeiro código do intervalo que o JSON-RPC 2.0 deixa às aplicações |
+| `CodeForbidden` | -32001 | o seguinte do intervalo das aplicações: a permissão não chega |
 
 ## Rule uses
 
@@ -73,6 +94,9 @@ Uma mensagem sem identificador não recebe resposta, mesmo de erro.
 | `CNTRL-B06` | `path` |
 | `CNTRL-E01` | `path` |
 | `CNTRL-E02` | `path`, `argv`, `data` |
+| `CNTRL-B07` | `argv`, `path` |
+| `CNTRL-B08` | `argv`, `path`, `CodeForbidden` |
+| `CNTRL-E06` | `CodeForbidden` |
 | `CNTRL-E03` | `path`, `argv`, `CodeOperation` |
 | `CNTRL-E04` | `path`, `MaxFile` |
 | `CNTRL-E05` | `path` |
@@ -81,6 +105,10 @@ Uma mensagem sem identificador não recebe resposta, mesmo de erro.
 
 > **CNTRL-R0001:** o `Answer` responde a um pedido sem sessão, com as mesmas operações e os mesmos
 > erros: é como o servidor da UI atende o nó `local`, a própria máquina. As regras não mudam.
+
+> **CNTRL-R0002:** entram as sessões do nó (`CNTRL-B07`) e as permissões (`CNTRL-B08`, `CNTRL-E06`), do
+> plano ESRMS (W01): o controlo passa a saber a permissão da ligação, e escrever e correr deixam de ser
+> de qualquer chave autorizada.
 
 ## Open Decisions
 

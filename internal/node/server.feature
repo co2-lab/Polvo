@@ -83,8 +83,8 @@ Feature: Server
   @SRVRE-B09 @unit-level
   Scenario: Ligar-se a uma sessão que já existe
     Given uma sessão do nó onde a shell escreveu "marca-1", e a ligação que a criou já fechada
-    When outra ligação se liga a ela pelo id e escreve 2+3
-    Then recebe "marca-1" do ecrã atual e depois o 5
+    When outra ligação se liga a ela pelo id e escreve a soma 2+3
+    Then recebe "marca-1" do ecrã atual e depois "soma-5"
 
   @SRVRE-B10 @unit-level
   Scenario: Uma ligação que só vê não cria sessões nem escreve

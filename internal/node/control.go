@@ -15,8 +15,10 @@ import (
 	"os/exec"
 	"sort"
 	"syscall"
+	"time"
 
 	"github.com/co2-lab/polvo/internal/proto"
+	"github.com/co2-lab/polvo/internal/pty"
 	"github.com/co2-lab/polvo/internal/sessions"
 )
 
@@ -26,12 +28,29 @@ const MaxFile = 8 << 20
 // CodeOperation is the error of an operation the system refused (CNTRL-E03).
 const CodeOperation = -32000
 
+// CodeForbidden is the error of a request beyond the connection's permission (CNTRL-E06).
+const CodeForbidden = -32001
+
+type forbiddenError struct{ error }
+
+// Controller is the control of a node with sessions (CNTRL-B07).
+type Controller struct {
+	// Sessions are the node's sessions; nil answers the session requests with an error.
+	Sessions *sessions.Manager
+	// Shell is what session.new runs when it names no program; empty is /bin/sh.
+	Shell []string
+}
+
 type opError struct{ error }
 
 type paramsError struct{ error }
 
-// ServeControl speaks the control protocol over rw until it ends, for a connection with perm.
-func ServeControl(rw io.ReadWriteCloser, perm sessions.Perm) {
+// ServeControl speaks the control protocol over rw until it ends, for a connection with perm, on a
+// node with no sessions.
+func ServeControl(rw io.ReadWriteCloser, perm sessions.Perm) { Controller{}.Serve(rw, perm) }
+
+// Serve speaks the control protocol over rw until it ends, for a connection with perm.
+func (c Controller) Serve(rw io.ReadWriteCloser, perm sessions.Perm) {
 	defer rw.Close()
 	enc, dec := proto.NewEncoder(rw), proto.NewDecoder(rw)
 	for {
@@ -58,30 +77,40 @@ func ServeControl(rw io.ReadWriteCloser, perm sessions.Perm) {
 			continue
 		}
 		// CNTRL-B05: each request is answered on its own, so a slow one holds nobody.
-		go func(m *proto.Message) { enc.Write(Answer(m)) }(m)
+		go func(m *proto.Message) { enc.Write(c.answer(m, perm)) }(m)
 	}
 }
 
 // Answer is the answer to one request, made here, without a session (the UI's local node).
-func Answer(m *proto.Message) *proto.Message {
+func Answer(m *proto.Message) *proto.Message { return Controller{}.answer(m, sessions.Owner) }
+
+// need is the permission each request asks for (CNTRL-B08).
+var need = map[string]sessions.Perm{
+	"fs.read": sessions.View, "fs.list": sessions.View, "session.list": sessions.View,
+	"fs.write": sessions.Control, "proc.run": sessions.Control, "session.new": sessions.Control,
+	"session.close": sessions.Control, "session.lock": sessions.Owner,
+}
+
+var errUnknownMethod = errors.New("unknown method")
+
+func (c Controller) answer(m *proto.Message, perm sessions.Perm) *proto.Message {
 	var res any
 	var err error
-	switch m.Method {
-	case "fs.read":
-		res, err = fsRead(m.Params)
-	case "fs.write":
-		res, err = fsWrite(m.Params)
-	case "fs.list":
-		res, err = fsList(m.Params)
-	case "proc.run":
-		res, err = procRun(m.Params)
-	default:
-		// CNTRL-E01
-		return &proto.Message{ID: m.ID, Error: &proto.Error{Code: proto.CodeMethodNotFound, Message: "method not found: " + m.Method}}
+	if n, known := need[m.Method]; known && perm < n {
+		// CNTRL-E06
+		err = forbiddenError{fmt.Errorf("permission denied: %s needs more than this connection may do", m.Method)}
+	} else {
+		res, err = c.dispatch(m)
 	}
 	var pe paramsError
 	var oe opError
+	var fe forbiddenError
 	switch {
+	case errors.Is(err, errUnknownMethod):
+		// CNTRL-E01
+		return &proto.Message{ID: m.ID, Error: &proto.Error{Code: proto.CodeMethodNotFound, Message: "method not found: " + m.Method}}
+	case errors.As(err, &fe):
+		return &proto.Message{ID: m.ID, Error: &proto.Error{Code: CodeForbidden, Message: fe.Error()}}
 	case errors.As(err, &pe):
 		return &proto.Message{ID: m.ID, Error: &proto.Error{Code: proto.CodeInvalidParams, Message: pe.Error()}}
 	case errors.As(err, &oe):
@@ -94,6 +123,83 @@ func Answer(m *proto.Message) *proto.Message {
 		return &proto.Message{ID: m.ID, Error: &proto.Error{Code: proto.CodeInternalError, Message: err.Error()}}
 	}
 	return &proto.Message{ID: m.ID, Result: b}
+}
+
+func (c Controller) dispatch(m *proto.Message) (any, error) {
+	switch m.Method {
+	case "fs.read":
+		return fsRead(m.Params)
+	case "fs.write":
+		return fsWrite(m.Params)
+	case "fs.list":
+		return fsList(m.Params)
+	case "proc.run":
+		return procRun(m.Params)
+	case "session.list", "session.new", "session.close", "session.lock":
+		return c.session(m)
+	}
+	return nil, errUnknownMethod
+}
+
+type sessionParams struct {
+	ID     string   `json:"id"`
+	Argv   []string `json:"argv"`
+	Dir    string   `json:"dir"`
+	Rows   uint16   `json:"rows"`
+	Cols   uint16   `json:"cols"`
+	Locked bool     `json:"locked"`
+}
+
+type sessionInfo struct {
+	ID      string   `json:"id"`
+	Argv    []string `json:"argv"`
+	Rows    uint16   `json:"rows"`
+	Cols    uint16   `json:"cols"`
+	Viewers int      `json:"viewers"`
+	Locked  bool     `json:"locked"`
+	Created string   `json:"created"`
+}
+
+// session answers the session requests (CNTRL-B07).
+func (c Controller) session(m *proto.Message) (any, error) {
+	if c.Sessions == nil {
+		return nil, opError{errors.New("this node has no sessions")}
+	}
+	var p sessionParams
+	if len(m.Params) > 0 {
+		if err := params(m.Params, &p); err != nil {
+			return nil, err
+		}
+	}
+	switch m.Method {
+	case "session.list":
+		out := []sessionInfo{}
+		for _, i := range c.Sessions.List() {
+			out = append(out, sessionInfo{ID: i.ID, Argv: i.Argv, Rows: i.Size.Rows, Cols: i.Size.Cols,
+				Viewers: i.Viewers, Locked: i.Locked, Created: i.Created.UTC().Format(time.RFC3339)})
+		}
+		return map[string]any{"sessions": out}, nil
+	case "session.new":
+		argv := p.Argv
+		if len(argv) == 0 {
+			argv = Config{Shell: c.Shell}.shell()
+		}
+		info, err := c.Sessions.Create(argv, p.Dir, pty.Size{Rows: p.Rows, Cols: p.Cols})
+		if err != nil {
+			return nil, opError{err}
+		}
+		return map[string]any{"id": info.ID}, nil
+	case "session.close":
+		if err := c.Sessions.Close(p.ID); err != nil {
+			return nil, opError{err}
+		}
+		return struct{}{}, nil
+	default:
+		if err := c.Sessions.Lock(p.ID, p.Locked); err != nil {
+			return nil, opError{err}
+		}
+		return struct{}{}, nil
+	}
 }
 
 // params decodes the request's params into v; a wrong shape is CNTRL-E02.

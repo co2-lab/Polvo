@@ -79,3 +79,28 @@ Feature: Control
     Given a linha "isto nao e json" e depois o pedido 2 fs.list de uma pasta
     When o controlo recebe as duas
     Then a primeira resposta é o erro -32700 e a segunda é a do pedido 2
+
+  @CNTRL-B07#01 @unit-level
+  Scenario: Criar, listar e terminar uma sessão pelo controlo
+    Given um nó com sessões
+    When o controlo cria uma sessão de "sleep 5", lista as sessões, e termina-a
+    Then a lista tem a sessão com o programa, e depois de terminada já não a tem
+
+  @CNTRL-B07#02 @unit-level
+  Scenario: O dono trava uma sessão
+    Given um nó com uma sessão
+    When o dono a trava
+    Then a lista diz que está travada
+
+  @CNTRL-B07#03 @unit-level
+  Scenario: Sem sessões, os pedidos de sessão dão erro
+    Given o controlo de um nó sem sessões
+    When pede a lista das sessões
+    Then dá erro de operação
+
+  @CNTRL-B08 @CNTRL-E06 @unit-level
+  Scenario: O que cada permissão pode fazer
+    Given um nó com sessões, uma ligação que só vê e outra que controla
+    When a que só vê lê um ficheiro, lista as sessões, escreve um ficheiro, corre um processo e cria uma sessão, e a que controla trava uma sessão
+    Then ler e listar dão resultado, e escrever, correr, criar e travar dão erro de permissão
+
