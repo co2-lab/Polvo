@@ -30,6 +30,7 @@ macro_rules! scenario {
 mod keymap; // @dep: KYIMA
 mod keys; // @dep: KYIMK
 mod layout; // @dep: DLIDC
+mod new_tab; // @dep: NTIMP
 mod panel; // @dep: TPITR
 mod prefs; // @dep: PRIMP
 mod screen; // @dep: SCIMS

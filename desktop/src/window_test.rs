@@ -87,6 +87,13 @@ fn frame(cx: &mut TestAppContext, handle: AnyWindowHandle) {
     cx.update_window(handle, |_, window, cx| window.render_frame(cx)).unwrap();
 }
 
+/// Asks for a new tab with the "+" and chooses the terminal (WNDWI-B10).
+fn new_terminal(cx: &mut TestAppContext, handle: AnyWindowHandle) {
+    cx.update_window(handle, |_, window, cx| window.click("new-tab", cx)).unwrap();
+    frame(cx, handle);
+    cx.update_window(handle, |_, window, cx| window.press("enter", cx)).unwrap();
+}
+
 fn x_of(cx: &mut TestAppContext, handle: AnyWindowHandle, id: &'static str) -> f32 {
     cx.update_window(handle, |_, window, _| f32::from(window.find(id).bounds().origin.x)).unwrap()
 }
@@ -125,7 +132,7 @@ scenario!(wndwi_b07_o_tema_da_barra_segue_as_preferencias, "WNDWI-B07: O tema da
 
 scenario!(wndwi_b09_arrastar_a_aba_para_a_borda_divide_a_doca, "WNDWI-B09: Arrastar a aba para a borda divide a doca", async |cx| {
     let o = open_gnome(cx);
-    cx.update_window(o.handle, |_, window, cx| window.click("new-terminal", cx)).unwrap();
+    new_terminal(cx, o.handle);
     frame(cx, o.handle);
     cx.update_window(o.handle, |_, window, cx| {
         let visible = window.find("terminal").bounds();
@@ -147,7 +154,7 @@ scenario!(wndwi_b09_arrastar_a_aba_para_a_borda_divide_a_doca, "WNDWI-B09: Arras
 
 scenario!(wndwi_b10_o_botao_de_terminal_novo, "WNDWI-B10: O botão de terminal novo", |cx| {
     let o = open_gnome(cx);
-    cx.update_window(o.handle, |_, window, cx| window.click("new-terminal", cx)).unwrap();
+    new_terminal(cx, o.handle);
     frame(cx, o.handle);
     cx.update_window(o.handle, |_, window, cx| window.press("x", cx)).unwrap();
     assert_eq!(terminals(cx, &o), 2);
@@ -157,7 +164,7 @@ scenario!(wndwi_b10_o_botao_de_terminal_novo, "WNDWI-B10: O botão de terminal n
 
 scenario!(wndwi_b11_o_fim_de_uma_shell_tira_a_aba, "WNDWI-B11: O fim de uma shell tira a aba, e a última fecha a janela", |cx| {
     let o = open_gnome(cx);
-    cx.update_window(o.handle, |_, window, cx| window.click("new-terminal", cx)).unwrap();
+    new_terminal(cx, o.handle);
     frame(cx, o.handle);
     let ends = o.made.borrow().ends.clone();
     ends[0].unbounded_send(Event::Exit).unwrap();
@@ -171,7 +178,7 @@ scenario!(wndwi_b11_o_fim_de_uma_shell_tira_a_aba, "WNDWI-B11: O fim de uma shel
 
 scenario!(wndwi_e02_um_terminal_novo_que_nao_arranca, "WNDWI-E02: Um terminal novo que não arranca deixa a doca como estava", |cx| {
     let o = open_with(cx, gnome_left(), 1);
-    cx.update_window(o.handle, |_, window, cx| window.click("new-terminal", cx)).unwrap();
+    new_terminal(cx, o.handle);
     frame(cx, o.handle);
     assert_eq!(terminals(cx, &o), 1);
 });
@@ -194,7 +201,7 @@ scenario!(wndwi_b12_01_cada_mudanca_grava_a_organizacao, "WNDWI-B12#01: Cada mud
     let dir = tempfile::tempdir().unwrap();
     let file = LayoutFile::at(dir.path().join("layout.json"));
     let o = open_full(cx, gnome_left(), usize::MAX, Some(file.clone()));
-    cx.update_window(o.handle, |_, window, cx| window.click("new-terminal", cx)).unwrap();
+    new_terminal(cx, o.handle);
     settle(cx);
     let kept = file.read().expect("the organisation was saved");
     assert_eq!(terminals_in(&kept), 2);
@@ -204,7 +211,7 @@ scenario!(wndwi_b12_02_ao_abrir_a_organizacao_volta, "WNDWI-B12#02: Ao abrir, a 
     let dir = tempfile::tempdir().unwrap();
     let file = LayoutFile::at(dir.path().join("layout.json"));
     let first = open_full(cx, gnome_left(), usize::MAX, Some(file.clone()));
-    cx.update_window(first.handle, |_, window, cx| window.click("new-terminal", cx)).unwrap();
+    new_terminal(cx, first.handle);
     frame(cx, first.handle);
     cx.update_window(first.handle, |_, window, cx| {
         let visible = window.find("terminal").bounds();
@@ -234,7 +241,7 @@ scenario!(wndwi_e03_uma_organizacao_que_nao_se_grava, "WNDWI-E03: Uma organizaç
     let not_a_dir = dir.path().join("ficheiro");
     std::fs::write(&not_a_dir, "").unwrap();
     let o = open_full(cx, gnome_left(), usize::MAX, Some(LayoutFile::at(not_a_dir.join("layout.json"))));
-    cx.update_window(o.handle, |_, window, cx| window.click("new-terminal", cx)).unwrap();
+    new_terminal(cx, o.handle);
     settle(cx);
     assert!(!cx.update(|cx| cx.windows().is_empty()));
     assert_eq!(terminals(cx, &o), 2);
@@ -247,7 +254,7 @@ scenario!(wndwi_e04_sem_nenhum_terminal_a_janela_fecha, "WNDWI-E04: Sem nenhum t
 
 scenario!(wndwi_b13_fechar_a_aba_termina_a_shell, "WNDWI-B13: Fechar a aba termina a shell", |cx| {
     let o = open_gnome(cx);
-    cx.update_window(o.handle, |_, window, cx| window.click("new-terminal", cx)).unwrap();
+    new_terminal(cx, o.handle);
     frame(cx, o.handle);
     let (panels, dock) = o.view.read_with(cx, |v, _| (v.terminals.clone(), v.dock.clone()));
     let ends = o.made.borrow().ends.clone();
@@ -264,7 +271,7 @@ scenario!(wndwi_b13_fechar_a_aba_termina_a_shell, "WNDWI-B13: Fechar a aba termi
 
 scenario!(wndwi_b14_as_abas_ficam_em_baixo, "WNDWI-B14: As abas ficam em baixo", |cx| {
     let o = open_gnome(cx);
-    cx.update_window(o.handle, |_, window, cx| window.click("new-terminal", cx)).unwrap();
+    new_terminal(cx, o.handle);
     frame(cx, o.handle);
     frame(cx, o.handle);
     let (terminal, tab) = cx
@@ -314,23 +321,24 @@ scenario!(wndwi_b15_02_a_configuracao_so_abre_uma_vez, "WNDWI-B15#02: A configur
     let o = open_gnome(cx);
     click(cx, &o, "settings");
     let first = settings_tab(cx, &o).expect("the settings tab");
-    click(cx, &o, "new-terminal");
+    new_terminal(cx, o.handle);
     click(cx, &o, "settings");
     let again = settings_tab(cx, &o).expect("the settings tab");
     assert_eq!((settings_in_dock(cx, &o), again == first, has_focus(cx, &o, &again)), (1, true, true));
 });
 
-scenario!(wndwi_b16_01_o_atalho_de_aba_nova, "WNDWI-B16#01: O atalho de aba nova abre um terminal", |cx| {
+scenario!(wndwi_b16_01_o_atalho_de_aba_nova, "WNDWI-B16#01: O atalho de aba nova abre o escolhedor", |cx| {
     let o = open_gnome(cx);
     click(cx, &o, "terminal");
     press(cx, &o, "ctrl-shift-t");
+    press(cx, &o, "enter");
     assert_eq!((terminals(cx, &o), o.made.borrow().sinks[0].take()), (2, Vec::new()));
 });
 
 scenario!(wndwi_b16_02_o_atalho_de_fechar, "WNDWI-B16#02: O atalho de fechar fecha a aba com o foco", |cx| {
     let o = open_gnome(cx);
     let first = o.view.read_with(cx, |v, _| v.terminals[0].clone());
-    click(cx, &o, "new-terminal");
+    new_terminal(cx, o.handle);
     press(cx, &o, "ctrl-shift-w");
     let left = o.view.read_with(cx, |v, _| v.terminals.clone());
     assert_eq!(left, vec![first]);
@@ -346,4 +354,34 @@ scenario!(wndwi_b16_03_os_atalhos_seguem_o_mapa, "WNDWI-B16#03: Os atalhos segue
     click(cx, &o, "terminal");
     press(cx, &o, "ctrl-alt-s");
     assert_eq!(settings_in_dock(cx, &o), 1);
+});
+
+fn chooser(cx: &mut TestAppContext, o: &Opened) -> Option<gpui_kit::EntityId> {
+    o.view.read_with(cx, |v, _| v.chooser().map(|c| c.entity_id()))
+}
+
+scenario!(wndwi_b17_01_o_esc_fecha_o_escolhedor, "WNDWI-B17#01: O Esc fecha o escolhedor e devolve o foco", |cx| {
+    let o = open_gnome(cx);
+    click(cx, &o, "terminal");
+    click(cx, &o, "new-tab");
+    let opened = chooser(cx, &o).is_some();
+    press(cx, &o, "escape");
+    let first = o.view.read_with(cx, |v, _| v.terminals[0].clone());
+    assert_eq!((opened, chooser(cx, &o), terminals(cx, &o), has_focus(cx, &o, &first)), (true, None, 1, true));
+});
+
+scenario!(wndwi_b17_02_so_um_escolhedor, "WNDWI-B17#02: Só um escolhedor de cada vez", |cx| {
+    let o = open_gnome(cx);
+    click(cx, &o, "new-tab");
+    let before = chooser(cx, &o);
+    press(cx, &o, "ctrl-shift-t");
+    assert!(before.is_some());
+    assert_eq!(chooser(cx, &o), before);
+});
+
+scenario!(wndwi_b17_03_carregar_fora_fecha_o_escolhedor, "WNDWI-B17#03: Carregar fora do escolhedor fecha-o", |cx| {
+    let o = open_gnome(cx);
+    click(cx, &o, "new-tab");
+    click(cx, &o, "new-tab-backdrop");
+    assert_eq!((chooser(cx, &o), terminals(cx, &o)), (None, 1));
 });

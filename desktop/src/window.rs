@@ -19,12 +19,13 @@ use gpui_kit::component::dock::{
 };
 use gpui_kit::component::{Icon, IconName, InteractiveElementExt as _, Sizable as _};
 use gpui_kit::{
-    AnyElement, AnyView, App, AppContext as _, Axis, Bounds, Context, Div, Entity, EntityId, Pixels, Stateful, canvas, Focusable as _, FontWeight, Hsla, IntoElement, KeyDownEvent, MouseButton, ParentElement as _,
+    AnyElement, AnyView, App, AppContext as _, Axis, Bounds, Context, Div, Entity, EntityId, Pixels, Stateful, canvas, Focusable as _, FocusHandle, FontWeight, Hsla, IntoElement, KeyDownEvent, MouseButton, ParentElement as _,
     Render, Styled as _, Subscription, Task, Window, div, prelude::*, px,
 };
 
 use crate::keymap::{Action, Keymap}; // @dep: KYIMA
 use crate::layout::{LAYOUT_VERSION, LayoutFile}; // @dep: DLIDC
+use crate::new_tab::{ChooserEvent, NewTabChooser, TabKind}; // @dep: NTIMP
 use crate::panel::{TerminalEvent, TerminalPanel}; // @dep: TPITR
 use crate::prefs::{Button, Prefs}; // @dep: PRIMP
 use crate::settings::SettingsFile; // @dep: STIMS
@@ -36,6 +37,20 @@ pub const TITLE_H: f32 = 38.;
 /// How the window makes a new terminal (WNDWI-B10): the user's shell in the application, terminals
 /// with no shell in the tests.
 pub type NewTerminal = Rc<dyn Fn(&Prefs, &mut Window, &mut App) -> std::io::Result<Entity<TerminalPanel>>>;
+
+/// The terminal, the kind of tab the window always opens (WNDWI-B10).
+pub const TERMINAL: TabKind = TabKind { id: "terminal", label: "Terminal" };
+
+/// The kinds of tab the window can open (WNDWI-B10).
+pub const KINDS: [TabKind; 1] = [TERMINAL];
+
+/// The chooser of the new tab, while it is open (WNDWI-B17).
+struct Choosing {
+    chooser: Entity<NewTabChooser>,
+    /// What had the focus before it, to give it back.
+    before: Option<FocusHandle>,
+    _heard: Subscription,
+}
 
 /// The colours of the window for the theme (WNDWI-B07).
 #[derive(Clone, Copy, Debug)]
@@ -153,6 +168,7 @@ pub struct PolvoWindow {
     dock_heard: Option<Subscription>,
     saving: Option<Task<()>>,
     moving: bool,
+    choosing: Option<Choosing>,
 }
 
 impl PolvoWindow {
@@ -187,6 +203,7 @@ impl PolvoWindow {
             dock_heard: None,
             saving: None,
             moving: false,
+            choosing: None,
         };
         // WNDWI-B12: the kept organisation, each terminal with a new shell.
         let built: Rc<RefCell<Vec<Entity<TerminalPanel>>>> = Rc::default();
@@ -299,6 +316,45 @@ impl PolvoWindow {
         }
     }
 
+    /// The chooser of the new tab, while it is open.
+    #[cfg(test)]
+    pub fn chooser(&self) -> Option<&Entity<NewTabChooser>> {
+        self.choosing.as_ref().map(|c| &c.chooser)
+    }
+
+    /// Opens the chooser of the new tab's kind (WNDWI-B10), or keeps the one open (WNDWI-B17).
+    pub fn new_tab(&mut self, window: &mut Window, cx: &mut Context<Self>) {
+        if let Some(c) = &self.choosing {
+            let focus = c.chooser.read(cx).focus_handle(cx);
+            window.focus(&focus, cx);
+            return;
+        }
+        let before = window.focused(cx);
+        let chooser = cx.new(|cx| NewTabChooser::new(KINDS.to_vec(), window, cx));
+        let heard = cx.subscribe_in(&chooser, window, |this, _, ev: &ChooserEvent, window, cx| {
+            let before = this.choosing.take().and_then(|c| c.before);
+            match ev {
+                ChooserEvent::Chosen(kind) => this.open_kind(*kind, window, cx),
+                // WNDWI-B17
+                ChooserEvent::Dismissed => {
+                    if let Some(focus) = before {
+                        window.focus(&focus, cx);
+                    }
+                }
+            }
+            cx.notify();
+        });
+        self.choosing = Some(Choosing { chooser, before, _heard: heard });
+        cx.notify();
+    }
+
+    /// Opens a tab of the kind chosen (WNDWI-B10).
+    fn open_kind(&mut self, kind: TabKind, window: &mut Window, cx: &mut Context<Self>) {
+        if kind == TERMINAL {
+            self.open_terminal(window, cx);
+        }
+    }
+
     /// Opens a new terminal in the dock, with the focus (WNDWI-B10).
     pub fn open_terminal(&mut self, window: &mut Window, cx: &mut Context<Self>) {
         let panel = match (self.new_terminal)(&self.prefs, window, cx) {
@@ -353,7 +409,7 @@ impl PolvoWindow {
     fn key_down(&mut self, ev: &KeyDownEvent, window: &mut Window, cx: &mut Context<Self>) {
         let keymap = cx.try_global::<Keymap>().cloned().unwrap_or_default();
         match keymap.action_for(&ev.keystroke.unparse()) {
-            Some(Action::NewTab) => self.open_terminal(window, cx),
+            Some(Action::NewTab) => self.new_tab(window, cx),
             Some(Action::CloseTab) => self.close_focused(window, cx),
             Some(Action::Settings) => self.open_settings(window, cx),
             Some(Action::Copy | Action::Paste) | None => return,
@@ -421,9 +477,9 @@ impl PolvoWindow {
                 }
             })
         };
-        let new_terminal = round("new-terminal", IconName::Plus).on_click(cx.listener(|this, _, window, cx| {
+        let new_tab = round("new-tab", IconName::Plus).on_click(cx.listener(|this, _, window, cx| {
             cx.stop_propagation();
-            this.open_terminal(window, cx);
+            this.new_tab(window, cx);
         }));
         // WNDWI-B15
         let settings = round("settings", IconName::Settings).on_click(cx.listener(|this, _, window, cx| {
@@ -445,9 +501,9 @@ impl PolvoWindow {
         };
         let (mut left, mut right) = (side(&self.prefs.left), side(&self.prefs.right));
         if self.prefs.left.is_empty() {
-            left = left.child(new_terminal).child(settings);
+            left = left.child(new_tab).child(settings);
         } else {
-            right = right.child(settings).child(new_terminal);
+            right = right.child(settings).child(new_tab);
         }
         div()
             .id("title-bar")
@@ -493,9 +549,30 @@ impl Render for PolvoWindow {
                 .flex()
                 .flex_col()
                 .size_full()
+                .relative()
                 .on_key_down(cx.listener(Self::key_down))
                 .child(self.title_bar(window, cx))
-                .child(div().flex_1().min_h_0().w_full().child(self.dock.clone())),
+                .child(div().flex_1().min_h_0().w_full().child(self.dock.clone()))
+                .children(self.choosing.as_ref().map(|c| {
+                    let chooser = c.chooser.clone();
+                    // WNDWI-B17: a click outside the chooser closes it
+                    div()
+                        .id("new-tab-backdrop")
+                        .test_support()
+                        .absolute()
+                        .top_0()
+                        .left_0()
+                        .size_full()
+                        .flex()
+                        .justify_center()
+                        .items_start()
+                        .pt(px(TITLE_H + 60.))
+                        .bg(gpui_kit::hsla(0., 0., 0., 0.25))
+                        .on_mouse_down(MouseButton::Left, move |_, _, cx| {
+                            chooser.update(cx, |_, cx| cx.emit(ChooserEvent::Dismissed));
+                        })
+                        .child(div().on_mouse_down(MouseButton::Left, |_, _, cx| cx.stop_propagation()).child(c.chooser.clone()))
+                })),
         )
     }
 }

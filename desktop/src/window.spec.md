@@ -41,8 +41,9 @@ Os divisores entre os grupos arrastam-se para mudar o tamanho de cada um.
 Em cada grupo da doca, a barra das abas fica por baixo dos terminais (o dono pediu-a assim a
 2026-10-17). Arrastar e largar as abas funciona como em cima.
 
-### WNDWI-B10 — O botão de terminal novo
-O botão "+" da barra abre um terminal novo numa aba da doca, com o foco.
+### WNDWI-B10 — O botão de aba nova
+O botão "+" da barra abre o escolhedor do tipo da aba nova (`NWTBS`), com os tipos que a janela sabe
+abrir: hoje o terminal. Escolher o terminal abre um terminal novo numa aba da doca, com o foco.
 
 ### WNDWI-B11 — O fim de uma shell tira a aba dela
 Quando a shell de um terminal termina, a aba dele sai da doca. Quando sai a última, a janela fecha.
@@ -62,9 +63,13 @@ volta com a organização (`WNDWI-B12`).
 
 ### WNDWI-B16 — Os atalhos da janela
 As ações da janela fazem-se pelos atalhos do mapa da aplicação (`Keymap`), em qualquer aba: a aba
-nova abre um terminal novo (como o "+"), fechar a aba fecha a aba que tem o foco (o terminal termina
+nova abre o escolhedor (como o "+"), fechar a aba fecha a aba que tem o foco (o terminal termina
 a shell, como no `WNDWI-B13`), e a configuração abre-a (como o botão). Fechar a última aba fecha a
 janela.
+
+### WNDWI-B17 — Fechar o escolhedor sem escolher
+Fechar o escolhedor sem escolher (o Esc, ou carregar fora dele) deixa a doca como estava e devolve o
+foco à aba que o tinha. Pedir outra aba nova com o escolhedor aberto não abre um segundo.
 
 ## Domain
 
@@ -79,7 +84,7 @@ janela.
 | Rule | Condition | Failure |
 | --- | --- | --- |
 | `WNDWI-E01` | o sistema não abre a janela (sem ecrã, sem GPU) @no-scenario: a plataforma de teste abre sempre a janela | o aviso com o motivo na saída de erro, e a aplicação termina |
-| `WNDWI-E02` | o terminal novo do botão "+" não arranca | o aviso com o motivo na saída de erro, e a doca fica como estava |
+| `WNDWI-E02` | o terminal novo escolhido não arranca | o aviso com o motivo na saída de erro, e a doca fica como estava |
 | `WNDWI-E03` | a organização não se grava | o aviso com o motivo na saída de erro, e a janela continua |
 | `WNDWI-E04` | ao abrir, nenhum terminal arranca | o aviso com o motivo na saída de erro, e a janela fecha; um terminal restaurado que não arranca fica na aba com o motivo escrito nele |
 
@@ -87,6 +92,7 @@ janela.
 | Constant | Value | Why |
 | --- | --- | --- |
 | `TITLE_H` | 38 px | a altura da barra do GNOME (libadwaita) |
+| `KINDS` | `[TERMINAL]` | os tipos de aba que o escolhedor mostra (`WNDWI-B10`); crescem com as fases W03 e W04 do plano CEACN |
 | `SAVE_DELAY` | 500 ms | um arrasto muda a doca muitas vezes seguidas; grava-se uma vez, no fim |
 
 ## Rule uses
@@ -97,7 +103,7 @@ janela.
 | `WNDWI-B02` | `Prefs` |
 | `WNDWI-B07` | `Prefs` |
 | `WNDWI-B09` | `Prefs` |
-| `WNDWI-B10` | `NewTerminal` |
+| `WNDWI-B10` | `NewTerminal`, `KINDS` |
 | `WNDWI-B14` | `Prefs` |
 | `WNDWI-B11` | `NewTerminal` |
 | `WNDWI-E01` | `Prefs` @no-scenario: a plataforma de teste abre sempre a janela |
@@ -108,6 +114,7 @@ janela.
 | `WNDWI-E04` | `NewTerminal` |
 | `WNDWI-B15` | `Prefs`, `LayoutFile` |
 | `WNDWI-B16` | `Keymap`, `NewTerminal` |
+| `WNDWI-B17` | `Keymap` |
 
 ## Revisions
 
@@ -127,6 +134,10 @@ janela.
 
 > **WNDWI-R0004:** entram o `WNDWI-B15` (o botão de configuração) e o `WNDWI-B16` (os atalhos da janela),
 > do plano CEACN, fase W01. A janela fecha com a última aba, seja de terminal ou da configuração.
+
+> **WNDWI-R0005:** o `WNDWI-B10` passa a abrir o escolhedor do tipo da aba nova em vez de um terminal, e o
+> atalho de aba nova do `WNDWI-B16` também (plano CEACN, fase W02). Entra o `WNDWI-B17`: fechar o
+> escolhedor sem escolher.
 
 ## Open Decisions
 

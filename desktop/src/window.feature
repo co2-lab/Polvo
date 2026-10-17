@@ -45,9 +45,9 @@ Feature: Window
     Then as abas ficam por baixo do terminal à vista
 
   @WNDWI-B10 @unit-level
-  Scenario: O botão de terminal novo
+  Scenario: O botão de aba nova
     Given uma janela com um terminal
-    When o utilizador carrega em "+" e escreve "x"
+    When o utilizador carrega em "+", escolhe o terminal e escreve "x"
     Then a doca tem dois terminais, e só a shell do novo recebe "x"
 
   @WNDWI-B11 @unit-level
@@ -77,7 +77,7 @@ Feature: Window
   @WNDWI-E02 @unit-level
   Scenario: Um terminal novo que não arranca deixa a doca como estava
     Given uma janela com um terminal, cujos terminais novos não arrancam
-    When o utilizador carrega em "+"
+    When o utilizador carrega em "+" e escolhe o terminal
     Then a doca continua com um terminal
 
   @WNDWI-E03 @unit-level
@@ -105,9 +105,9 @@ Feature: Window
     Then a doca continua com uma aba da configuração, e é ela que tem o foco
 
   @WNDWI-B16#01 @unit-level
-  Scenario: O atalho de aba nova abre um terminal
+  Scenario: O atalho de aba nova abre o escolhedor
     Given uma janela com um terminal com o foco
-    When o utilizador prime Ctrl+Shift+T
+    When o utilizador prime Ctrl+Shift+T e o Enter
     Then a doca tem dois terminais, e o terminal não recebeu as teclas
 
   @WNDWI-B16#02 @unit-level
@@ -121,3 +121,21 @@ Feature: Window
     Given o mapa com a configuração em Ctrl+Alt+S
     When o utilizador prime Ctrl+Alt+S num terminal
     Then a doca tem a aba da configuração
+
+  @WNDWI-B17#01 @unit-level
+  Scenario: O Esc fecha o escolhedor e devolve o foco
+    Given uma janela com um terminal com o foco
+    When o utilizador carrega em "+" e prime o Esc
+    Then a doca continua com um terminal, o escolhedor fechou, e o terminal tem o foco
+
+  @WNDWI-B17#02 @unit-level
+  Scenario: Só um escolhedor de cada vez
+    Given uma janela com o escolhedor aberto
+    When o utilizador prime o atalho de aba nova
+    Then o escolhedor continua o mesmo
+
+  @WNDWI-B17#03 @unit-level
+  Scenario: Carregar fora do escolhedor fecha-o
+    Given uma janela com o escolhedor aberto
+    When o utilizador carrega fora dele
+    Then o escolhedor fecha e a doca continua com um terminal
