@@ -1,0 +1,8 @@
+id: judge-guidance-honored-CLAUDE
+changed: CLAUDE.md
+kind: judgment
+origin: check
+suggested_next: review
+reason: 'gate ''guidance-honored'' — record the verdict with `anchors judge CLAUDE.md --gate guidance-honored --verdict pass|fail|waived --reason ...` — question: This file is part of the project''s guidance — what tells whoever arrives, person or coding agent, how the project is worked on. Read it against `anchors guide guidance` and against the project''s anchors.yaml, and answer: does any passage CONTRADICT them? Fail it for an instruction to skip a gate, the hooks or the tests (`--no-verify`, ''tests can come later''); an order of work other than spec → feature → test → code; a layer named that anchors.yaml does not declare, or a folder layout proposed as the structure; a gate called blocking that the configuration does not block, or a blocking one presented as optional; long work left unwatched as the way to do it. Do NOT judge style, length or completeness: a short file that says nothing wrong passes. When failing it, quote each passage and PROPOSE the text that replaces it.'
+state: pending
+created_at: "2026-10-17T10:01:34-03:00"

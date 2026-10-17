@@ -1,6 +1,6 @@
 # anchors.yaml — Anchors project configuration
 # The `layers` section is the Project Structure (the virtual graph).
-version: 1
+version: 8
 layers:
     plan:
         pattern: 'plans/*.plan.md'
@@ -110,14 +110,49 @@ derived:
                   - "ui/app.test.ts"
 dialect:
     family: go
+    # O Polvo nao navega entre ecras (nem app movel nem router): o nav-annotated nao tem o que medir.
+    opt_out: [navigation_call]
+    # O que cada ficheiro importa e declara (as gates da cadeia e as que perguntam se um teste chega a
+    # unidade). O Go e o TypeScript pelos exemplos das familias (o que o anchors lia sozinho antes do
+    # formato 8); o Rust da janela pelo `mod` e pelo `use`.
+    imports:
+        - re: '(?m)^import\s+(?:[\w.]+\s+)?"(?P<path>[^"]+)"'
+          files: '**/*.go'
+        - within: '(?m)^import\s*\((?P<within>[^)]*)\)'
+          each: '(?m)^[ \t]*(?:[\w.]+\s+)?"(?P<path>[^"]+)"'
+          files: '**/*.go'
+        - re: '(?m)^[ \t]*(?:import|export)\b(?:[^''";{}\n]|\{[^}]*\})*?\bfrom\s*[''"](?P<path>[^''"]+)[''"]'
+          files: 'ui/**/*.ts'
+          runs: true
+        - re: '(?m)^[ \t]*import\s*[''"](?P<path>[^''"]+)[''"]'
+          files: 'ui/**/*.ts'
+          runs: true
+        - re: '(?m)^\s*(?:pub\s+)?mod\s+(?P<path>\w+)\s*;'
+          files: 'desktop/**/*.rs'
+          relative: true
+    import_names:
+        - within: '^[ \t]*(?:import|export)\b[^{''"]*\{(?P<within>[^}]*)\}'
+          each: '(?:^|,)\s*(?:type\s+)?(?P<name>[\p{L}_$][\p{L}\p{N}_$]*)'
+        - re: '^[ \t]*import\s+(?:type\s+)?(?P<default>[\p{L}_$][\p{L}\p{N}_$]*)\s*(?:,|\s+from\b)'
+    declarations:
+        - '(?m)^func\s+(?:\([^)]*\)\s*)?(?P<name>[\p{L}_][\p{L}\p{N}_]*)'
+        - '(?m)^(?:type|var|const)\s+(?P<name>[\p{L}_][\p{L}\p{N}_]*)'
+        - '(?m)^(?:export\s+)?(?:declare\s+)?(?:default\s+)?(?:abstract\s+)?(?:async\s+)?(?:function\*?|const|let|var|class|interface|type|enum)\s+(?P<name>[\p{L}_$][\p{L}\p{N}_$]*)'
+        - '(?m)^pub(?:\([a-z]+\))?\s+(?:fn|struct|enum|trait|type|const|mod)\s+(?P<name>[\p{L}_][\p{L}\p{N}_]*)'
+    import_resolve:
+        extensions: [".ts", ".rs"]
     # O que afirma num teste aqui: as falhas do pacote testing e os ajudantes que falham o teste.
     # As definicoes: as do Go (a familia) e as do Rust da janela (desktop/), para o teste que chega
     # a unidade pelo nome de algo que ela define.
     definition: '(?m)^(?:func\s+\(\s*(?:\w+\s+)?\*?(?P<owner>\w+)(?:\[[^\]]*\])?\s*\)\s+(\w+)|func\s+(\w+)|type\s+(\w+)|(?:pub(?:\([a-z]+\))?\s+)?(?:fn|struct|enum|trait|const)\s+(\w+))'
     tests:
-        # O titulo de um teste: o t.Run do Go, e o scenario!(nome, "CODIGO: titulo", { ... }) do Rust.
-        pattern: '\bt\.Run\(|\bscenario!\(\s*\w+\s*,'
-        assertion: '\bassert(?:_eq|_ne)?!\(|\bt\.(?:Error|Errorf|Fatal|Fatalf|Fail|FailNow)\b|\b(?:wantReadError|wantError|result|waitFor)\(t\b'
+        # O titulo de um teste: o t.Run do Go, o it do vitest (ui/) e o scenario!(nome, "CODIGO: titulo",
+        # { ... }) do Rust (desktop/).
+        pattern: '\bt\.Run\(\s*"(?P<title>[^"]*)"|\bit\(\s*"(?P<title2>[^"]*)"|\bscenario!\(\s*\w+\s*,\s*"(?P<title3>[^"]*)"'
+        assertion: '\bexpect\(|\bassert(?:_eq|_ne)?!\(|\bt\.(?:Error|Errorf|Fatal|Fatalf|Fail|FailNow)\b|\b(?:wantReadError|wantError|result|waitFor)\(t\b'
+        block_open: '[{(\[]\s*$'
+        block_close: ^\s*[}\])]
+        empty_body: \{\s*\}
     # Como uma falha tratada fica REGISTADA aqui (`failure-logged`). Uma lista declarada substitui a da
     # familia, por isso os defaults do Go repetem-se. Os do Polvo: devolver o erro a quem chamou
     # (propagar nao e' calar) e a mensagem no canal de erro de uma sessao SSH (o stderr de quem ligou).
@@ -147,6 +182,44 @@ dialect:
         - '\bmessages\.(?:noToken|error)\b'
         - '\beprintln!\('
         - '\breturn\s+Err\('
+    exported_func: (?m)^func\s+(?:\([^)]*\)\s+)?([A-Z]\w*)\s*\(
+    param_name: (\w+)\s+\*?\w
+    loop: \bfor\b
+    cursor: (?i)(nextToken|continuationToken|nextPageToken|cursor|offset)
+    set_promise: (?:^|_|[a-z0-9])(?:[Ll]ist|[Gg]etAll|get_all|[Ff]indAll|find_all|[Ff]etchAll|fetch_all|[Qq]ueryAll|query_all|[Aa]ll|[Tt]odos|[Ll]istar)(?:$|_|[A-Z]|\b)
+    set_slice: (?i)^(list|get|find|fetch|query|listar|buscar)_?(First|Recent|Latest|Top|Page|Some|Sample|Next|Primeiros|Recentes)
+    http_status: WriteHeader\(\s*(\d{3})\s*\)|\bJSON\(\s*(\d{3})\s*,|http\.Status(\w+)
+    http_status_dynamic: WriteHeader\(\s*[a-z]
+    env_read: os\.(?:Getenv|LookupEnv)\(\s*"([A-Za-z_][A-Za-z0-9_]*)"\s*\)
+    guard_patterns:
+      - \.filter\([^)]*{{param}}\b
+      - \b{{param}}\s*\.\s*filter\(
+      - if\s*\(?[^\n{:]*\b{{param}}\b[^\n{:]*\)?\s*[:{]?\s*(throw|return|raise|panic)
+      - \b{{param}}\b[^\n]*\?\?
+      - (throw|assert|raise|panic)[^\n]*\b{{param}}\b
+    signature_end: \{
+    limits:
+      - (?i)\b(?P<name>limit|max|maxItems|maxKeys|maxResults|pageSize|page_size|take|top|first)\b[^=\n]*?=\s*(?P<value>\d+)
+      - (?i)\b(?P<name>limit|max|maxItems|maxKeys|maxResults|pageSize|page_size|take|top|first)\b\s*[:=]\s*(?P<value>\d+)
+      - (?i)\b(?P<name>limit|max|maxItems|maxKeys|maxResults|pageSize|page_size|take|top|first)\b\s*[:=]\s*(?P<param>\w+)
+      - (?i)\b(?P<name>limit|max|maxItems|maxKeys|maxResults|pageSize|page_size|take|top|first)\b\s*:\s*(?P<type>(?i:number|int|integer|long|short|byte|float|double|decimal|uint\d*|int\d*|usize|i\d+|u\d+|bigint|size_t))\b
+    statement_end: '[;})]$'
+    comments:
+      - files: '**/*.{ts,tsx,js,jsx,mjs,cjs,mts,cts}'
+        line: [//]
+        block: [['{/*', '*/}'], [/*, '*/']]
+        strings: ['"', '''', '`']
+        multiline: ['`']
+        no_line_after: '>\s*$'
+      - files: '**/*.go'
+        line: [//]
+        block: [[/*, '*/']]
+        strings: ['"', '''', '`']
+        multiline: ['`']
+      - files: '**/*.rs'
+        line: [//]
+        block: [[/*, '*/']]
+        strings: ['"', '''']
 gates:
     - name: spec-complete
       id: spec-complete
@@ -890,3 +963,12 @@ tests:
     - layer: desktoptest
       run: "make report-desktop"
       junit: ".anchors/junit-desktop.xml"
+
+monitor:
+  runners:
+    - name: vitest
+      kind: unit
+      match: (^|[\s/])vitest(\s|$)
+      stall: 10m
+      pass: (?m)^\s*Tests\s+.*\d+ passed
+      fail: (?m)^\s*Tests\s+.*\d+ failed

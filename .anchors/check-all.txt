@@ -1,0 +1,266 @@
+# anchors check --all
+# when: 2026-10-17 10:02:28 -0300
+# HEAD:   590bbfe docs(plans): JNNTJ-W01, as preferencias e o teclado feitos
+# tree: 28 modified file(s) (uncommitted)
+#
+# Mirror of the check output — reread from here instead of re-running.
+# If HEAD or the tree changed since `when`, this snapshot has aged.
+
+⚠ STALE map: 2 governed file(s) are not in the map — e.g.: desktop/src/screen.feature (and 1 more)
+  The gates only see what is in the map; run `anchors map build` before trusting this result.
+
+check --all — 64 nodes, 89 gates
+
+  branch-coverage                  informative  ✓ 0  ✗0  ⚠1  ? 8  ~ 9
+  circular                         informative  ✓ 0  ✗0      ? 1  ~ 0
+  code-cataloged                   blocking     ✓13  ✗0           ~ 0
+  code-reference-valid             blocking     ✓13  ✗0           ~ 0
+  contract-impact                  blocking     ✓13  ✗0           ~ 0
+  contract-status-declared         blocking     ✓ 0  ✗0           ~13
+  count-honored                    blocking     ✓ 0  ✗0           ~13
+  coverage-delta                   informative  ✓ 8  ✗0  ⚠1  ? 9  ~ 0
+  cross-unit-citation              blocking     ✓13  ✗0           ~ 0
+  deadcode                         informative  ✓ 0  ✗0      ? 1  ~ 0
+  dep-declared                     blocking     ✓31  ✗0           ~ 0
+  dep-honored                      blocking     ✓ 3  ✗0           ~28
+  dependency-honored               blocking     ✓13  ✗0           ~ 0
+  dependency-vulnerable            informative  ✓ 0  ✗1           ~ 0
+  doc-required                     blocking     ✓ 0  ✗0           ~ 1
+  doc-self-contained               blocking     ✓13  ✗0           ~ 0
+  docs-covered                     blocking     ✓ 0  ✗0           ~13
+  docs-fresh                       blocking     ✓ 0  ✗0           ~13
+  doctrine-not-duplicated          blocking     ✓ 0  ✗0           ~13
+  domain-declared                  blocking     ✓13  ✗0           ~ 0
+  env-declared                     blocking     ✓ 1  ✗0           ~12
+  evidence-fresh                   blocking     ✓ 8  ✗0           ~ 5
+  examples-match                   blocking     ✓ 0  ✗0           ~13
+  failure-declared                 blocking     ✓13  ✗0           ~ 0
+  failure-handled                  blocking     ✓13  ✗0           ~ 0
+  failure-logged                   blocking     ✓13  ✗0           ~ 0
+  feature-not-empty                blocking     ✓13  ✗0           ~ 0
+  feature-spec-match               blocking     ✓13  ✗0           ~ 0
+  feature-test-match               blocking     ✓ 4  ✗0  ⚠9       ~ 0
+  flag-scenario-exists             blocking     ✓ 0  ✗0           ~13
+  freeze-consistent                blocking     ✓ 0  ✗0           ~ 1
+  frozen-touched                   blocking     ✓ 0  ✗0           ~57
+  guidance-honored                 judgment     ⏳3 AI pending
+  guidance-linked                  blocking     ✓ 3  ✗0           ~ 0
+  header-layer-declared            blocking     ✓13  ✗0           ~44
+  header-valid                     blocking     ✓61  ✗0           ~ 3
+  layer-boundary                   blocking     ✓ 0  ✗0      ?18  ~ 0
+  license-compatible               informative  ✓ 0  ✗0      ? 1  ~ 0
+  line-coverage                    informative  ✓ 8  ✗1  ⚠1  ? 8  ~ 0
+  mutation-score                   informative  ✓ 0  ✗0      ?18  ~ 0
+  nav-annotated                    blocking     ✓ 0  ✗0           ~18
+  nav-matches-spec                 blocking     ✓ 0  ✗0           ~13
+  nav-reachable                    blocking     ✓ 0  ✗0           ~13
+  nav-symmetric                    blocking     ✓ 0  ✗0           ~13
+  no-duplication                   informative  ✓13  ✗5           ~ 0
+  no-secret-leaked                 blocking     ✓ 1  ✗0           ~ 0
+  obligation-honored               blocking     ✓ 0  ✗0           ~13
+  open-questions-resolved          blocking     ✓13  ✗0           ~ 0
+  pagination-honored               blocking     ✓ 0  ✗0      ?18  ~ 0
+  parent-valid                     blocking     ✓ 0  ✗0           ~31
+  phase-exists                     blocking     ✓ 0  ✗0           ~13
+  placeholder-filled               blocking     ✓26  ✗0           ~ 0
+  presentation-conflict            blocking     ✓ 0  ✗0           ~13
+  presentation-copy-single-source  blocking     ✓ 0  ✗0           ~13
+  presentation-exhaustive          blocking     ✓ 0  ✗0           ~13
+  presentation-observable          blocking     ✓ 0  ✗0           ~13
+  proof-crosses-boundary           blocking     ✓ 0  ✗0           ~13
+  ref-resolves                     blocking     ✓37  ✗0           ~ 7
+  region-pair-honored              blocking     ✓ 0  ✗0           ~31
+  revision-orphans                 blocking     ✓ 0  ✗0      ? 7  ~ 6
+  rule-fulfilled                   judgment     ⏳9 AI pending
+  rule-implemented                 blocking     ✓13  ✗0           ~ 0
+  rule-types                       blocking     ✓13  ✗0           ~ 0
+  rule-uses-declared               blocking     ✓13  ✗0           ~ 0
+  rule-uses-implemented            blocking     ✓13  ✗0           ~ 0
+  rule-uses-resolve                blocking     ✓13  ✗0           ~ 0
+  sbom-generated                   informative  ✓ 1  ✗0           ~ 0
+  scenario-asserts                 blocking     ✓13  ✗0           ~ 0
+  scenario-coverage                informative  ✓ 7  ✗6           ~ 0
+  scenario-identity                blocking     ✓ 5  ✗0  ⚠8       ~ 0
+  scenario-letter-declared         blocking     ✓13  ✗0           ~ 0
+  sibling-guard                    blocking     ✓ 6  ✗0           ~12
+  single-test-per-unit             blocking     ✓12  ✗0           ~ 6
+  spec-complete                    blocking     ✓13  ✗0           ~ 0
+  spec-doctrine-exists             blocking     ✓ 0  ✗0           ~13
+  spec-feature-match               blocking     ✓13  ✗0           ~ 0
+  spec-has-code                    blocking     ✓13  ✗0           ~ 0
+  spec-realizes-doctrine           blocking     ✓ 0  ✗0           ~13
+  spellcheck                       informative  ✓ 0  ✗0           ~ 1
+  test-exercises-unit              blocking     ✓12  ✗0           ~ 1
+  test-feature-match               blocking     ✓13  ✗0           ~ 0
+  test-has-assertion               blocking     ✓13  ✗0           ~ 0
+  test-ref-matches-unit            blocking     ✓13  ✗0           ~ 0
+  test-traceable                   blocking     ✓13  ✗0           ~ 0
+  tests-green                      informative  ✓ 8  ✗0      ? 5  ~ 0
+  unit-complete                    blocking     ✓13  ✗0           ~ 0
+  updated-at-atual                 blocking     ✓26  ✗0           ~31
+  used-by-declared                 blocking     ✓31  ✗0           ~ 0
+
+  ✓  passed
+  ✗  failed — becomes an issue
+  ⚠  divergence — measured and found something short of wrong
+  ?  pending — had something to confront and could not measure it
+  ~  indeterminate — the gate had nothing to confront
+  ⏳ awaiting AI judgment
+
+13 failure(s) — 0 blocking, 13 informative — plus 20 divergence(s) ⚠ and 94 pending item(s) ?; each level blocks, informs or is ignored as the gate's `severity` says (`--show-drift` lists each):
+  ✗ [informative] line-coverage @ cmd/polvo/main.go
+      line coverage 0% < 70%
+  ✗ [informative] scenario-coverage @ cmd/polvo/cli.spec.md
+      9 scenario(s) with a test WRITTEN but no execution ingested: CLIXX-B01,
+      CLIXX-B02,
+      CLIXX-B03,
+      CLIXX-B04,
+      CLIXX-B05,
+      CLIXX-B06,
+      CLIXX-B07,
+      CLIXX-E01,
+      CLIXX-E02.
+      The test names the code and nobody knows whether it passes — written is not green. Run the suite and ingest the report (`anchors ingest --junit`).
+  ✗ [informative] scenario-coverage @ desktop/src/keys.spec.md
+      7 scenario(s) with a test WRITTEN but no execution ingested: KYSEA-B01,
+      KYSEA-B02,
+      KYSEA-B03,
+      KYSEA-B04,
+      KYSEA-B05,
+      KYSEA-B06,
+      KYSEA-B07.
+      The test names the code and nobody knows whether it passes — written is not green. Run the suite and ingest the report (`anchors ingest --junit`).
+  ✗ [informative] scenario-coverage @ desktop/src/prefs.spec.md
+      7 scenario(s) with a test WRITTEN but no execution ingested: PRFSE-B01#01,
+      PRFSE-B01#02,
+      PRFSE-B02,
+      PRFSE-B03#01,
+      PRFSE-B03#02,
+      PRFSE-B04,
+      PRFSE-E01.
+      The test names the code and nobody knows whether it passes — written is not green. Run the suite and ingest the report (`anchors ingest --junit`).
+  ✗ [informative] scenario-coverage @ internal/node/control.spec.md
+      11 scenario(s) with a test WRITTEN but no execution ingested: CNTRL-B01,
+      CNTRL-B02,
+      CNTRL-B03,
+      CNTRL-B04,
+      CNTRL-B05,
+      CNTRL-B06,
+      CNTRL-E01,
+      CNTRL-E02,
+      CNTRL-E03,
+      CNTRL-E04,
+      CNTRL-E05.
+      The test names the code and nobody knows whether it passes — written is not green. Run the suite and ingest the report (`anchors ingest --junit`).
+  ✗ [informative] scenario-coverage @ internal/web/server.spec.md
+      9 scenario(s) with a test WRITTEN but no execution ingested: WEBSR-B01,
+      WEBSR-B02,
+      WEBSR-B03,
+      WEBSR-B04,
+      WEBSR-B05,
+      WEBSR-B06,
+      WEBSR-B07,
+      WEBSR-E01,
+      WEBSR-E02.
+      The test names the code and nobody knows whether it passes — written is not green. Run the suite and ingest the report (`anchors ingest --junit`).
+  ✗ [informative] scenario-coverage @ ui/app.spec.md
+      16 scenario(s) with a test WRITTEN but no execution ingested: APPUI-B01,
+      APPUI-B02,
+      APPUI-B03,
+      APPUI-B04,
+      APPUI-B05,
+      APPUI-B06,
+      APPUI-B07,
+      APPUI-S01,
+      APPUI-S02,
+      APPUI-E01,
+      APPUI-E02,
+      APPUI-M01,
+      APPUI-M02,
+      APPUI-M03,
+      APPUI-M04,
+      APPUI-M05.
+      The test names the code and nobody knows whether it passes — written is not green. Run the suite and ingest the report (`anchors ingest --junit`).
+  ✗ [informative] dependency-vulnerable @ (project)
+      Scanning dir .
+      Starting filesystem walk for root: /
+      Scanned /home/adriel-silva/Documentos/co2lab/Polvo-galaxy/desktop/Cargo.lock file and found 810 packages
+      Scanned /home/adriel-silva/Documentos/co2lab/Polvo-galaxy/go.mod file and found 8 packages
+      Scanned /home/adriel-silva/Documentos/co2lab/Polvo-galaxy/ui/package-lock.json file and found 161 packages
+      End status: 27 dirs visited, 177 inodes visited, 3 Extract calls, 14.923512ms elapsed, 14.926864ms wall time
+      
+      Total 5 packages affected by 5 known vulnerabilities (0 Critical, 0 High, 0 Medium, 0 Low, 5 Unknown) from 2 ecosystems.
+      0 vulnerabilities can be fixed.
+      
+      +-----------------------------------+------+-----------+----------------+---------+---------------+--------------------+
+      | OSV URL                           | CVSS | ECOSYSTEM | PACKAGE        | VERSION | FIXED VERSION | SOURCE             |
+      +-----------------------------------+------+-----------+----------------+---------+---------------+--------------------+
+      | https://osv.dev/RUSTSEC-2024-0384 |      | crates.io | instant        | 0.1.13  | --            | desktop/Cargo.lock |
+      | https://osv.dev/RUSTSEC-2024-0436 |      | crates.io | paste          | 1.0.15  | --            | desktop/Cargo.lock |
+      | https://osv.dev/RUSTSEC-2025-0134 |      | crates.io | rustls-pemfile | 2.2.0   | --            | desktop/Cargo.lock |
+      | https://osv.dev/RUSTSEC-2026-0206 |      | crates.io | rustybuzz      | 0.20.1  | --            | desktop/Cargo.lock |
+      | https://osv.dev/RUSTSEC-2026-0192 |      | crates.io | ttf-parser     | 0.25.1  | --            | desktop/Cargo.lock |
+      +-----------------------------------+------+-----------+----------------+---------+---------------+--------------------+
+  ✗ [informative] no-duplication @ cmd/polvo/cli.go
+      1 block(s) of this file are copied elsewhere:
+        :108-118 ≡ :215-225 (11 lines)
+      Unify them, or tell jscpd they are meant to stay apart (`.jscpd.json` `ignore`, or `jscpd:ignore-start` markers)
+  ✗ [informative] no-duplication @ internal/hub/client.go
+      1 block(s) of this file are copied elsewhere:
+        :123-134 ≡ :202-213 (12 lines)
+      Unify them, or tell jscpd they are meant to stay apart (`.jscpd.json` `ignore`, or `jscpd:ignore-start` markers)
+  ✗ [informative] no-duplication @ internal/mcp/server.go
+      2 block(s) of this file are copied elsewhere:
+        :55-64 ≡ internal/node/control.go:43-52 (10 lines)
+        :85-92 ≡ internal/node/control.go:89-96 (8 lines)
+      Unify them, or tell jscpd they are meant to stay apart (`.jscpd.json` `ignore`, or `jscpd:ignore-start` markers)
+  ✗ [informative] no-duplication @ internal/mcp/tools.go
+      1 block(s) of this file are copied elsewhere:
+        :156-161 ≡ :190-195 (6 lines)
+      Unify them, or tell jscpd they are meant to stay apart (`.jscpd.json` `ignore`, or `jscpd:ignore-start` markers)
+  ✗ [informative] no-duplication @ internal/node/control.go
+      2 block(s) of this file are copied elsewhere:
+        :43-52 ≡ internal/mcp/server.go:55-64 (10 lines)
+        :89-96 ≡ internal/mcp/server.go:85-92 (8 lines)
+      Unify them, or tell jscpd they are meant to stay apart (`.jscpd.json` `ignore`, or `jscpd:ignore-start` markers)
+  → `anchors guide gates line-coverage` explains a gate: what it measures, whether it bars here, and the ways out of a failure
+
+✓ can promote (blocking passed) — but 13 INFORMATIVE finding(s) open
+  (+20 divergence(s) — `anchors check` by unit shows which)
+  Informative does not block promotion; it also does not go away. Read before continuing — it is where things that blockers do not confront live.
+
+○ 3 informative gate(s) CLEAN — ready to become blocking:
+    coverage-delta             8 node(s) passed, 0 failed
+    sbom-generated             1 node(s) passed, 0 failed
+    tests-green                8 node(s) passed, 0 failed
+  Informative measures and does not defend. As long as it is not `blocking: true` in
+  anchors.yaml, nothing prevents the next commit from undoing what is already compliant.
+
+⚠ 1 declared gate(s) with nothing to measure — no graph node matches their `on:` and `tags:`:
+    no-test-proof-real  on: [spec]
+  Not a failure, and it protects nothing: either the artifact it measures does not exist (yet), or no
+  node carries the tags it asks — tags a gate of the catalog inherits when the declaration names none.
+  A unit's layer counts as a tag (`layer: screen` in the spec's header). Create the artifact, tag the
+  layer, declare the gate's `tags:`, or remove the gate.
+
+🔍 13 target(s) to review — `anchors review --pending` lists them (informs, never blocks)
+
+recorded: 55 edge(s) stamped; 0 new issue(s), 0 resolved in issues/
+
+⚠ still open locally after this check (not only what it opened):
+  tasks: 12 pending, 0 claimed (0 past the work window — `anchors reclaim` returns them) — `anchors next` takes the next one
+
+output mirrored to .anchors/check-all.txt — read it from there instead of running again.
+
+ℹ Governance Tip (fallible_patterns): the `go` family knows 3 call(s) that can fail in this stack (data fetching, HTTP, database), and the project declares no `dialect.fallible_patterns` — so failure-declared and failure-handled never see a fetch whose failure nobody declared or handled. Adopt them under `dialect:` (and add the project's own data hooks), measure with the gates informative, then let them bar; or decline with `fallible_patterns: []`:
+    fallible_patterns:
+      - call: '(?P<propagates>\breturn\s+)?\bhttp\.(?P<name>Get|Post|Head|PostForm)\('
+        handled: '\berr\s*!=\s*nil|\berrors\.'
+      - call: '\.(?P<name>Do)\('
+        handled: '\berr\s*!=\s*nil|\berrors\.'
+      - call: '\.(?P<name>(?:Query|QueryRow|Exec)(?:Context)?)\('
+        handled: '\berr\s*!=\s*nil|\.Err\(\)|\berrors\.'
+ℹ Governance Tip (plan-seeds-valid): a catalog gate covers a layer this project declares and is not declared: the plan only seeds specs in a layer that has specs. Declare it with `- name: plan-seeds-valid` under `gates:` in anchors.yaml
+  (run `anchors doctor` for full diagnostics)
+
+ℹ 7 catalog gate(s) cover the layers this project declares and are not declared: plan-seeds-valid, plan-source-declared, plan-doctrine-exists, plan-revised, phase-ordered, progress-intact, … — `anchors doctor` says what each measures

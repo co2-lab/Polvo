@@ -6,7 +6,7 @@
 import { basicSetup, EditorView } from "codemirror";
 import { Terminal as XTerm } from "@xterm/xterm";
 import { FitAddon } from "@xterm/addon-fit";
-import { App, Editor, SocketLike, Terminal } from "./app";
+import { App, Editor, SocketLike, Terminal } from "./app"; // @dep: APIMP
 
 function makeEditor(parent: HTMLElement): Editor {
   let changed: () => void = () => {};

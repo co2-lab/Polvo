@@ -1,3 +1,7 @@
+<!-- @anchors
+  code: CNGDC
+-->
+
 # Contributing
 
 This project is kept coherent by [Anchors](https://github.com/co2-lab/anchors). The

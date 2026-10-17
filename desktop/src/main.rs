@@ -13,7 +13,7 @@ macro_rules! scenario {
     };
 }
 
-mod keys;
-mod prefs;
+mod keys; // @dep: KYIMK
+mod prefs; // @dep: PRIMP
 
 fn main() {}

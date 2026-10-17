@@ -1,33 +1,48 @@
 # anchors.graph.yaml — o mapa de dependências (gerado por `anchors map build`)
 # Material e versionado. Fonte de verdade do grafo; índices em memória são cache.
-version: 7
-generated_by: 0.1.326
-config_rev: 81fecf90e6d2
+version: 8
+generated_by: 0.1.353
+config_rev: 74b0bccb7671
 nodes:
     - id: AGENTS.md
       kind: doc
-      rev: 8c4428a2e3d9
+      rev: 79e2350c6a8b
       updated_at: "2026-10-17"
+      code: AGGDG
+      file_code: AGGDG
       layer: guidance
+      code_declared: true
       tags:
         - guidance
       regime: declarativo
+      evidence_rev: 9c1fc9be36ad
+      line_rev: 8ac0aa08215a
     - id: CLAUDE.md
       kind: doc
-      rev: 0013dfdc8adc
+      rev: 1b34b73187a2
       updated_at: "2026-10-17"
+      code: CLGDC
+      file_code: CLGDC
       layer: guidance
+      code_declared: true
       tags:
         - guidance
       regime: declarativo
+      evidence_rev: 3f34e8276dad
+      line_rev: 7622d6434fb3
     - id: CONTRIBUTING.md
       kind: doc
-      rev: 13e88044212f
+      rev: ba2a3e817379
       updated_at: "2026-10-17"
+      code: CNGDC
+      file_code: CNGDC
       layer: guidance
+      code_declared: true
       tags:
         - guidance
       regime: declarativo
+      evidence_rev: 8e70bbe7b209
+      line_rev: 266be064740d
     - id: cmd/polvo/cli.feature
       kind: feature
       rev: 106541f13f63
@@ -37,8 +52,8 @@ nodes:
       layer: feature
       tags:
         - feature
-      evidence_rev: 955dabadc099
-      line_rev: 8db3a2e38157
+      evidence_rev: 8bf0f84a5105
+      line_rev: 15ef716e5105
     - id: cmd/polvo/cli.go
       kind: code
       rev: de5a54a2ca33
@@ -143,8 +158,8 @@ nodes:
       layer: feature
       tags:
         - feature
-      evidence_rev: a375d12850bf
-      line_rev: 2ff42c09847f
+      evidence_rev: a3f3d3f31e1f
+      line_rev: cda58ec65347
     - id: desktop/src/keys.rs
       kind: code
       rev: c5c7c7b3eeec
@@ -183,7 +198,7 @@ nodes:
       line_rev: da442fc882b2
     - id: desktop/src/main.rs
       kind: code
-      rev: d8d8129e0cc9
+      rev: e010abac79e8
       updated_at: "2026-10-17"
       code: JNNTJ
       file_code: DSMND
@@ -201,8 +216,8 @@ nodes:
       layer: feature
       tags:
         - feature
-      evidence_rev: 00375a6d3bbd
-      line_rev: f77f760d9856
+      evidence_rev: 2fb8b42b388d
+      line_rev: c677a6ba0c44
     - id: desktop/src/prefs.rs
       kind: code
       rev: cd5b1ba68a40
@@ -248,8 +263,8 @@ nodes:
       layer: feature
       tags:
         - feature
-      evidence_rev: e03df359fd05
-      line_rev: 50ccd24a6263
+      evidence_rev: 3d306007833f
+      line_rev: e9323edf1c06
     - id: internal/hub/client.go
       kind: code
       rev: 990620a003d7
@@ -344,8 +359,8 @@ nodes:
       layer: feature
       tags:
         - feature
-      evidence_rev: d3482e65db5a
-      line_rev: 8da638920d69
+      evidence_rev: fdbf0695e97d
+      line_rev: 502ffa1c6c2b
     - id: internal/mcp/server.go
       kind: code
       rev: bbfdf6cbbdfc
@@ -442,8 +457,8 @@ nodes:
       layer: feature
       tags:
         - feature
-      evidence_rev: c8c402e9a668
-      line_rev: b028f54229bd
+      evidence_rev: b40040668a79
+      line_rev: cb966669b931
     - id: internal/mcp/tools.go
       kind: code
       rev: f9473f12c69d
@@ -538,8 +553,8 @@ nodes:
       layer: feature
       tags:
         - feature
-      evidence_rev: a2669fdb3e3a
-      line_rev: eed045b77564
+      evidence_rev: 9c1480b5bcf6
+      line_rev: 037c037547df
     - id: internal/node/control.go
       kind: code
       rev: 671f77108189
@@ -593,8 +608,8 @@ nodes:
       layer: feature
       tags:
         - feature
-      evidence_rev: 4bf508c80d1f
-      line_rev: 552453e68e69
+      evidence_rev: c815168c606f
+      line_rev: 680df9cff05a
     - id: internal/node/server.go
       kind: code
       rev: 3e53a870aa3d
@@ -691,8 +706,8 @@ nodes:
       layer: feature
       tags:
         - feature
-      evidence_rev: d464c676d171
-      line_rev: 98da388c5967
+      evidence_rev: 722576dc0103
+      line_rev: 053f5ca7ecb5
     - id: internal/proto/codec.go
       kind: code
       rev: 5ecacbb0e6b8
@@ -793,8 +808,8 @@ nodes:
       layer: feature
       tags:
         - feature
-      evidence_rev: d80f70a39a2e
-      line_rev: 87367499026f
+      evidence_rev: b0ef6053d8cb
+      line_rev: 8203892e9a8c
     - id: internal/pty/pty.go
       kind: code
       rev: 78923e692577
@@ -889,8 +904,8 @@ nodes:
       layer: feature
       tags:
         - feature
-      evidence_rev: 8a02bc5a89da
-      line_rev: 6ea102e6abc4
+      evidence_rev: 5277f9d390b2
+      line_rev: 8582ff227ebd
     - id: internal/sshx/keys.go
       kind: code
       rev: d35e75e79238
@@ -989,8 +1004,8 @@ nodes:
       layer: feature
       tags:
         - feature
-      evidence_rev: 5484232f4f55
-      line_rev: 3c1048ff1602
+      evidence_rev: 834a32ac5b4f
+      line_rev: d1493b06f39b
     - id: internal/web/server.go
       kind: code
       rev: bffe1ddf2fdf
@@ -1024,8 +1039,8 @@ nodes:
       layer: test
       tags:
         - test
-      evidence_rev: c5aabd6b05af
-      line_rev: 7912ce76bed6
+      evidence_rev: cb2c88fc0047
+      line_rev: 5ecc238e0e55
     - id: plans/agente-local.plan.md
       kind: plan
       rev: c3c291c6ec67
@@ -1083,8 +1098,8 @@ nodes:
       layer: feature
       tags:
         - feature
-      evidence_rev: a86acc124e41
-      line_rev: f2e63641ef25
+      evidence_rev: 569df46ef838
+      line_rev: a674a911974a
     - id: ui/app.spec.md
       kind: spec
       rev: e425514f5b98
@@ -1100,7 +1115,7 @@ nodes:
       rest_rev: 45fc5fb54ed6
     - id: ui/app.test.ts
       kind: test
-      rev: 388f53dcf9fe
+      rev: 96b9994daea2
       updated_at: "2026-10-17"
       code: APPUI
       file_code: APTST
@@ -1108,22 +1123,33 @@ nodes:
       tags:
         - test
         - ui
+      evidence_kept:
+        - from: 388f53dcf9fe
+          to: 96b9994daea2
+          reason: comments written by `anchors check --fix` (header, date, dependency or used-by flags)
+          at: "2026-10-17"
+          lines: true
       evidence_rev: d8b477dbbf29
       line_rev: cb372d491f8a
     - id: ui/app.ts
       kind: code
-      rev: ae4833f72279
+      rev: 2eaa468020d2
       updated_at: "2026-10-17"
       code: APPUI
       file_code: APIMP
       layer: ui
       tags:
         - ui
+      evidence_kept:
+        - from: ae4833f72279
+          to: 2eaa468020d2
+          reason: comments written by `anchors check --fix` (header, date, dependency or used-by flags)
+          at: "2026-10-17"
       evidence_rev: 279849c74ebc
-      line_rev: 610d6fe669d7
+      line_rev: 68b4acc8c8da
     - id: ui/main.ts
       kind: code
-      rev: c0d46cf353a2
+      rev: c1d9db88d9b8
       updated_at: "2026-10-17"
       code: APPUI
       file_code: APMAN
@@ -1132,6 +1158,12 @@ nodes:
         - ui
       signal:
         coverage_omitted: c0d46cf353a2
+      evidence_kept:
+        - from: c0d46cf353a2
+          to: c1d9db88d9b8
+          reason: comments written by `anchors check --fix` (header, date, dependency or used-by flags)
+          at: "2026-10-17"
+          lines: true
       evidence_rev: 356c1aa8ff9a
       line_rev: 14d9d8fc479b
 edges:
@@ -1140,8 +1172,8 @@ edges:
       type: tested-by
       origin: convention
       stamp:
-        validated_from_rev: 656d830cf141
-        validated_to_rev: 6dac05afc86c
+        validated_from_rev: 106541f13f63
+        validated_to_rev: 0a5644b92f7b
         changed_at: "2026-10-17"
         verdict: ok
     - from: cmd/polvo/cli.spec.md
@@ -1156,11 +1188,10 @@ edges:
       type: covered-by
       origin: convention
       stamp:
-        validated_from_rev: 5cc589201a6b
-        validated_to_rev: 656d830cf141
+        validated_from_rev: 99b24a8915a7
+        validated_to_rev: 106541f13f63
         changed_at: "2026-10-17"
         verdict: ok
-        gate: rule-fulfilled
     - from: cmd/polvo/cli.spec.md
       to: cmd/polvo/cli.go
       judgments:
@@ -1173,35 +1204,72 @@ edges:
       type: specifies
       origin: convention
       stamp:
-        validated_from_rev: 5cc589201a6b
-        validated_to_rev: 89723210cce5
+        validated_from_rev: 99b24a8915a7
+        validated_to_rev: de5a54a2ca33
         changed_at: "2026-10-17"
         verdict: ok
-        gate: rule-fulfilled
     - from: desktop/src/keys.feature
       to: desktop/src/keys_test.rs
       type: tested-by
       origin: convention
+      stamp:
+        validated_from_rev: 30a0bef1f86b
+        validated_to_rev: 4b945bc83cdc
+        changed_at: "2026-10-17"
+        verdict: ok
     - from: desktop/src/keys.spec.md
       to: desktop/src/keys.feature
       type: covered-by
       origin: convention
+      stamp:
+        validated_from_rev: ea448da911a9
+        validated_to_rev: 30a0bef1f86b
+        changed_at: "2026-10-17"
+        verdict: ok
     - from: desktop/src/keys.spec.md
       to: desktop/src/keys.rs
       type: specifies
       origin: convention
+      stamp:
+        validated_from_rev: ea448da911a9
+        validated_to_rev: c5c7c7b3eeec
+        changed_at: "2026-10-17"
+        verdict: ok
+    - from: desktop/src/main.rs
+      to: desktop/src/keys.rs
+      type: depends-on
+      origin: declared
+    - from: desktop/src/main.rs
+      to: desktop/src/prefs.rs
+      type: depends-on
+      origin: declared
     - from: desktop/src/prefs.feature
       to: desktop/src/prefs_test.rs
       type: tested-by
       origin: convention
+      stamp:
+        validated_from_rev: aeeeb64aadef
+        validated_to_rev: 1456b1526586
+        changed_at: "2026-10-17"
+        verdict: ok
     - from: desktop/src/prefs.spec.md
       to: desktop/src/prefs.feature
       type: covered-by
       origin: convention
+      stamp:
+        validated_from_rev: 0443d3f16e2c
+        validated_to_rev: aeeeb64aadef
+        changed_at: "2026-10-17"
+        verdict: ok
     - from: desktop/src/prefs.spec.md
       to: desktop/src/prefs.rs
       type: specifies
       origin: convention
+      stamp:
+        validated_from_rev: 0443d3f16e2c
+        validated_to_rev: cd5b1ba68a40
+        changed_at: "2026-10-17"
+        verdict: ok
     - from: internal/hub/client.feature
       to: internal/hub/client_test.go
       type: tested-by
@@ -1227,7 +1295,6 @@ edges:
         validated_to_rev: 9e853b78b359
         changed_at: "2026-10-17"
         verdict: ok
-        gate: rule-fulfilled
     - from: internal/hub/client.spec.md
       to: internal/hub/client.go
       judgments:
@@ -1241,10 +1308,9 @@ edges:
       origin: convention
       stamp:
         validated_from_rev: af02845957a9
-        validated_to_rev: 1283eacd44c5
+        validated_to_rev: 990620a003d7
         changed_at: "2026-10-17"
         verdict: ok
-        gate: rule-fulfilled
     - from: internal/mcp/server.feature
       to: internal/mcp/server_test.go
       type: tested-by
@@ -1270,7 +1336,6 @@ edges:
         validated_to_rev: 9b9a7633445b
         changed_at: "2026-10-17"
         verdict: ok
-        gate: rule-fulfilled
     - from: internal/mcp/server.spec.md
       to: internal/mcp/server.go
       judgments:
@@ -1287,31 +1352,60 @@ edges:
         validated_to_rev: bbfdf6cbbdfc
         changed_at: "2026-10-17"
         verdict: ok
-        gate: rule-fulfilled
     - from: internal/mcp/tools.feature
       to: internal/mcp/tools_test.go
       type: tested-by
       origin: convention
+      stamp:
+        validated_from_rev: fccffcd30eda
+        validated_to_rev: c94ac9c26294
+        changed_at: "2026-10-17"
+        verdict: ok
     - from: internal/mcp/tools.spec.md
       to: internal/mcp/tools.feature
       type: covered-by
       origin: convention
+      stamp:
+        validated_from_rev: 98883c88cbff
+        validated_to_rev: fccffcd30eda
+        changed_at: "2026-10-17"
+        verdict: ok
     - from: internal/mcp/tools.spec.md
       to: internal/mcp/tools.go
       type: specifies
       origin: convention
+      stamp:
+        validated_from_rev: 98883c88cbff
+        validated_to_rev: f9473f12c69d
+        changed_at: "2026-10-17"
+        verdict: ok
     - from: internal/node/control.feature
       to: internal/node/control_test.go
       type: tested-by
       origin: convention
+      stamp:
+        validated_from_rev: 1b60413b791e
+        validated_to_rev: 46b14d1acc7c
+        changed_at: "2026-10-17"
+        verdict: ok
     - from: internal/node/control.spec.md
       to: internal/node/control.feature
       type: covered-by
       origin: convention
+      stamp:
+        validated_from_rev: 28d9af3950d1
+        validated_to_rev: 1b60413b791e
+        changed_at: "2026-10-17"
+        verdict: ok
     - from: internal/node/control.spec.md
       to: internal/node/control.go
       type: specifies
       origin: convention
+      stamp:
+        validated_from_rev: 28d9af3950d1
+        validated_to_rev: 671f77108189
+        changed_at: "2026-10-17"
+        verdict: ok
     - from: internal/node/server.feature
       to: internal/node/server_test.go
       type: tested-by
@@ -1337,7 +1431,6 @@ edges:
         validated_to_rev: 615ce6d1879e
         changed_at: "2026-10-17"
         verdict: ok
-        gate: rule-fulfilled
     - from: internal/node/server.spec.md
       to: internal/node/server.go
       judgments:
@@ -1354,14 +1447,13 @@ edges:
         validated_to_rev: 3e53a870aa3d
         changed_at: "2026-10-17"
         verdict: ok
-        gate: rule-fulfilled
     - from: internal/proto/codec.feature
       to: internal/proto/codec_test.go
       type: tested-by
       origin: convention
       stamp:
-        validated_from_rev: e7c14ec8f277
-        validated_to_rev: 803d06a6088d
+        validated_from_rev: 6be08d1e69b3
+        validated_to_rev: e6ab5c631111
         changed_at: "2026-10-17"
         verdict: ok
     - from: internal/proto/codec.spec.md
@@ -1376,8 +1468,8 @@ edges:
       type: covered-by
       origin: convention
       stamp:
-        validated_from_rev: e26cdcd7410e
-        validated_to_rev: e7c14ec8f277
+        validated_from_rev: 733b595adb02
+        validated_to_rev: 6be08d1e69b3
         changed_at: "2026-10-17"
         verdict: ok
     - from: internal/proto/codec.spec.md
@@ -1392,8 +1484,8 @@ edges:
       type: specifies
       origin: convention
       stamp:
-        validated_from_rev: e26cdcd7410e
-        validated_to_rev: ebc6b01e1c5f
+        validated_from_rev: 733b595adb02
+        validated_to_rev: 5ecacbb0e6b8
         changed_at: "2026-10-17"
         verdict: ok
     - from: internal/pty/pty.feature
@@ -1402,7 +1494,7 @@ edges:
       origin: convention
       stamp:
         validated_from_rev: d28a87b89333
-        validated_to_rev: e5aec749babc
+        validated_to_rev: 4d25ce1aec08
         changed_at: "2026-10-17"
         verdict: ok
     - from: internal/pty/pty.spec.md
@@ -1417,11 +1509,10 @@ edges:
       type: covered-by
       origin: convention
       stamp:
-        validated_from_rev: 11d11107df4b
+        validated_from_rev: c746b82bc8ce
         validated_to_rev: d28a87b89333
         changed_at: "2026-10-17"
         verdict: ok
-        gate: rule-fulfilled
     - from: internal/pty/pty.spec.md
       to: internal/pty/pty.go
       judgments:
@@ -1434,11 +1525,10 @@ edges:
       type: specifies
       origin: convention
       stamp:
-        validated_from_rev: 11d11107df4b
-        validated_to_rev: 54af5c9ddd6e
+        validated_from_rev: c746b82bc8ce
+        validated_to_rev: 78923e692577
         changed_at: "2026-10-17"
         verdict: ok
-        gate: rule-fulfilled
     - from: internal/sshx/keys.feature
       to: internal/sshx/keys_test.go
       type: tested-by
@@ -1485,8 +1575,8 @@ edges:
       type: tested-by
       origin: convention
       stamp:
-        validated_from_rev: 06c9d7d06bb0
-        validated_to_rev: 077588035d52
+        validated_from_rev: fe0b35e9322c
+        validated_to_rev: e623fd352b1b
         changed_at: "2026-10-17"
         verdict: ok
     - from: internal/web/server.spec.md
@@ -1501,11 +1591,10 @@ edges:
       type: covered-by
       origin: convention
       stamp:
-        validated_from_rev: 25825e7bdf84
-        validated_to_rev: 06c9d7d06bb0
+        validated_from_rev: a1b8d7f1a60d
+        validated_to_rev: fe0b35e9322c
         changed_at: "2026-10-17"
         verdict: ok
-        gate: rule-fulfilled
     - from: internal/web/server.spec.md
       to: internal/web/server.go
       judgments:
@@ -1518,11 +1607,10 @@ edges:
       type: specifies
       origin: convention
       stamp:
-        validated_from_rev: 25825e7bdf84
-        validated_to_rev: 852fc139995b
+        validated_from_rev: a1b8d7f1a60d
+        validated_to_rev: bffe1ddf2fdf
         changed_at: "2026-10-17"
         verdict: ok
-        gate: rule-fulfilled
     - from: plans/agente-local.plan.md
       to: cmd/polvo/cli.spec.md
       judgments:
@@ -1536,10 +1624,9 @@ edges:
       origin: declared
       stamp:
         validated_from_rev: c3c291c6ec67
-        validated_to_rev: 5cc589201a6b
+        validated_to_rev: 99b24a8915a7
         changed_at: "2026-10-17"
         verdict: ok
-        gate: rule-fulfilled
     - from: plans/agente-local.plan.md
       to: internal/mcp/server.spec.md
       judgments:
@@ -1556,11 +1643,15 @@ edges:
         validated_to_rev: be2ffc856a6e
         changed_at: "2026-10-17"
         verdict: ok
-        gate: rule-fulfilled
     - from: plans/agente-local.plan.md
       to: internal/mcp/tools.spec.md
       type: seeds
       origin: declared
+      stamp:
+        validated_from_rev: c3c291c6ec67
+        validated_to_rev: 98883c88cbff
+        changed_at: "2026-10-17"
+        verdict: ok
     - from: plans/desktop.plan.md
       to: cmd/polvo/cli.spec.md
       judgments:
@@ -1574,10 +1665,9 @@ edges:
       origin: declared
       stamp:
         validated_from_rev: 8ceec0ebc810
-        validated_to_rev: 5cc589201a6b
+        validated_to_rev: 99b24a8915a7
         changed_at: "2026-10-17"
         verdict: ok
-        gate: rule-fulfilled
     - from: plans/desktop.plan.md
       to: internal/web/server.spec.md
       judgments:
@@ -1591,10 +1681,9 @@ edges:
       origin: declared
       stamp:
         validated_from_rev: 8ceec0ebc810
-        validated_to_rev: 25825e7bdf84
+        validated_to_rev: a1b8d7f1a60d
         changed_at: "2026-10-17"
         verdict: ok
-        gate: rule-fulfilled
     - from: plans/desktop.plan.md
       to: ui/app.spec.md
       judgments:
@@ -1608,18 +1697,27 @@ edges:
       origin: declared
       stamp:
         validated_from_rev: 8ceec0ebc810
-        validated_to_rev: 7ca871443510
+        validated_to_rev: e425514f5b98
         changed_at: "2026-10-17"
         verdict: ok
-        gate: rule-fulfilled
     - from: plans/janela.plan.md
       to: desktop/src/keys.spec.md
       type: seeds
       origin: declared
+      stamp:
+        validated_from_rev: 707d11544df2
+        validated_to_rev: ea448da911a9
+        changed_at: "2026-10-17"
+        verdict: ok
     - from: plans/janela.plan.md
       to: desktop/src/prefs.spec.md
       type: seeds
       origin: declared
+      stamp:
+        validated_from_rev: 707d11544df2
+        validated_to_rev: 0443d3f16e2c
+        changed_at: "2026-10-17"
+        verdict: ok
     - from: plans/terminal-remoto.plan.md
       to: cmd/polvo/cli.spec.md
       judgments:
@@ -1633,10 +1731,9 @@ edges:
       origin: declared
       stamp:
         validated_from_rev: 03470fc704da
-        validated_to_rev: 5cc589201a6b
+        validated_to_rev: 99b24a8915a7
         changed_at: "2026-10-17"
         verdict: ok
-        gate: rule-fulfilled
     - from: plans/terminal-remoto.plan.md
       to: internal/hub/client.spec.md
       judgments:
@@ -1653,11 +1750,15 @@ edges:
         validated_to_rev: af02845957a9
         changed_at: "2026-10-17"
         verdict: ok
-        gate: rule-fulfilled
     - from: plans/terminal-remoto.plan.md
       to: internal/node/control.spec.md
       type: seeds
       origin: declared
+      stamp:
+        validated_from_rev: 03470fc704da
+        validated_to_rev: 28d9af3950d1
+        changed_at: "2026-10-17"
+        verdict: ok
     - from: plans/terminal-remoto.plan.md
       to: internal/node/server.spec.md
       judgments:
@@ -1674,7 +1775,6 @@ edges:
         validated_to_rev: a93d7350dd3a
         changed_at: "2026-10-17"
         verdict: ok
-        gate: rule-fulfilled
     - from: plans/terminal-remoto.plan.md
       to: internal/proto/codec.spec.md
       judgments:
@@ -1687,8 +1787,8 @@ edges:
       type: seeds
       origin: declared
       stamp:
-        validated_from_rev: 99697a5e521a
-        validated_to_rev: e26cdcd7410e
+        validated_from_rev: 03470fc704da
+        validated_to_rev: 733b595adb02
         changed_at: "2026-10-17"
         verdict: ok
     - from: plans/terminal-remoto.plan.md
@@ -1703,11 +1803,10 @@ edges:
       type: seeds
       origin: declared
       stamp:
-        validated_from_rev: 99697a5e521a
-        validated_to_rev: 11d11107df4b
+        validated_from_rev: 03470fc704da
+        validated_to_rev: c746b82bc8ce
         changed_at: "2026-10-17"
         verdict: ok
-        gate: rule-fulfilled
     - from: plans/terminal-remoto.plan.md
       to: internal/sshx/keys.spec.md
       judgments:
@@ -1720,7 +1819,7 @@ edges:
       type: seeds
       origin: declared
       stamp:
-        validated_from_rev: 99697a5e521a
+        validated_from_rev: 03470fc704da
         validated_to_rev: 2ac58c3b7694
         changed_at: "2026-10-17"
         verdict: ok
@@ -1729,8 +1828,8 @@ edges:
       type: tested-by
       origin: convention
       stamp:
-        validated_from_rev: ed3f56b439f5
-        validated_to_rev: b69779547303
+        validated_from_rev: 2a057370a382
+        validated_to_rev: 96b9994daea2
         changed_at: "2026-10-17"
         verdict: ok
     - from: ui/app.spec.md
@@ -1745,11 +1844,10 @@ edges:
       type: covered-by
       origin: convention
       stamp:
-        validated_from_rev: 7ca871443510
-        validated_to_rev: ed3f56b439f5
+        validated_from_rev: e425514f5b98
+        validated_to_rev: 2a057370a382
         changed_at: "2026-10-17"
         verdict: ok
-        gate: rule-fulfilled
     - from: ui/app.spec.md
       to: ui/app.ts
       judgments:
@@ -1762,25 +1860,33 @@ edges:
       type: specifies
       origin: convention
       stamp:
-        validated_from_rev: 7ca871443510
-        validated_to_rev: 4aae621e3e2a
+        validated_from_rev: e425514f5b98
+        validated_to_rev: 2eaa468020d2
         changed_at: "2026-10-17"
         verdict: ok
-        gate: rule-fulfilled
     - from: ui/app.spec.md
       to: ui/main.ts
       judgments:
         - gate: rule-fulfilled
           verdict: ok
           validated_from_rev: 7ca871443510
-          validated_to_rev: c0d46cf353a2
+          validated_to_rev: c1d9db88d9b8
           changed_at: "2026-10-17"
           config_rev: 749693eab74a
       type: specifies
       origin: convention
       stamp:
-        validated_from_rev: 7ca871443510
-        validated_to_rev: c0d46cf353a2
+        validated_from_rev: e425514f5b98
+        validated_to_rev: c1d9db88d9b8
         changed_at: "2026-10-17"
         verdict: ok
-        gate: rule-fulfilled
+    - from: ui/app.test.ts
+      to: ui/app.ts
+      type: depends-on
+      origin: declared
+      method: App, Deps, Editor, SocketLike, Terminal, messages, tokenFromHash
+    - from: ui/main.ts
+      to: ui/app.ts
+      type: depends-on
+      origin: declared
+      method: App, Editor, SocketLike, Terminal

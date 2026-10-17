@@ -3,7 +3,7 @@
 //   ref: APPUI
 
 import { describe, expect, it } from "vitest";
-import { App, Deps, Editor, SocketLike, Terminal, messages, tokenFromHash } from "./app";
+import { App, Deps, Editor, SocketLike, Terminal, messages, tokenFromHash } from "./app"; // @dep: APIMP
 
 type Call = { node: string; method: string; params: any };
 

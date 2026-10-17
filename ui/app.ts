@@ -8,6 +8,7 @@
 
 /** The messages the user reads: APPUI-M01 (no secret), APPUI-M02 (an error), APPUI-M03 (saved),
  * APPUI-M04 (the shell ended), APPUI-M05 (the machine itself). */
+// @used-by: APTST
 export const messages = {
   noToken: "Abra o Polvo pelo endereço que o comando polvo mostrou (falta o segredo da sessão).",
   error: (m: string) => `Erro: ${m}`,
@@ -20,17 +21,20 @@ export const messages = {
 export const localNode = "local";
 
 /** The session secret from the address fragment, `#t=…` (APPUI-B01). */
+// @used-by: APTST
 export function tokenFromHash(hash: string): string {
   const m = /(?:^#|&)t=([^&]*)/.exec(hash);
   return m ? decodeURIComponent(m[1]) : "";
 }
 
+// @used-by: APMAN, APTST
 export interface Editor {
   setText(text: string): void;
   getText(): string;
   onChange(cb: () => void): void;
 }
 
+// @used-by: APMAN, APTST
 export interface Terminal {
   rows: number;
   cols: number;
@@ -40,6 +44,7 @@ export interface Terminal {
   dispose(): void;
 }
 
+// @used-by: APMAN, APTST
 export interface SocketLike {
   binaryType: string;
   send(data: string): void;
@@ -48,6 +53,7 @@ export interface SocketLike {
   onclose: (() => void) | null;
 }
 
+// @used-by: APTST
 export interface Deps {
   fetch: typeof fetch;
   openSocket(url: string): SocketLike;
@@ -112,6 +118,7 @@ export class Api {
   }
 }
 
+// @used-by: APMAN, APTST
 export class App {
   private token = "";
   private api!: Api;
