@@ -20,6 +20,12 @@ Feature: Cli
     When o polvo node corre com --listen 127.0.0.1:0
     Then a saída tem uma linha com o endereço em que escuta e a impressão digital "SHA256:" da chave do nó
 
+  @CLIXX-B02 @unit-level
+  Scenario: node não arranca com um node.json estragado
+    Given uma pasta de configuração com um node.json que não é JSON
+    When o polvo node arranca
+    Then a saída de erro começa por "polvo: ", diz "node.json", e o código é 1
+
   @CLIXX-B03 @unit-level
   Scenario: connect sem terminal corre a shell com 24 por 80 e devolve o código dela
     Given um nó a correr e a entrada "stty size; exit 4" sem terminal

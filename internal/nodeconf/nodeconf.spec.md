@@ -18,8 +18,9 @@ O `PermFor` dá a permissão (`sessions.Perm`) de uma chave. A chave da própria
 
 ## Rules
 
-### NDCNN-B01 — Sem ficheiro, quem vem de fora só vê
-Sem o `node.json`, a configuração é a de omissão: quem se liga de fora só vê (`DEFAULT_GUEST`).
+### NDCNN-B01 — Sem ficheiro, uma chave autorizada controla
+Sem o `node.json`, a configuração é a de omissão: quem se liga com uma chave autorizada controla
+(`DEFAULT_GUEST`). Autorizar uma chave já é confiar nela; só ver é o que a configuração restringe.
 
 ### NDCNN-B02 — A permissão de uma chave
 O `PermFor` dá a permissão que o ficheiro dá à impressão digital da chave (`view` ou `control`), e a
@@ -46,7 +47,7 @@ a janela da própria máquina controla sempre as sessões dela.
 ## Business Constants
 | Constant | Value | Why |
 | --- | --- | --- |
-| `DEFAULT_GUEST` | `view` | sem configuração, ninguém de fora controla as sessões da máquina |
+| `DEFAULT_GUEST` | `control` | a chave autorizada já é de confiança (como o `polvo connect` e o agente precisam); só ver é escolha de quem configura |
 
 ## Rule uses
 
@@ -57,6 +58,12 @@ a janela da própria máquina controla sempre as sessões dela.
 | `NDCNN-B03` | `keys` |
 | `NDCNN-E01` | `node.json` |
 | `NDCNN-E02` | `guest`, `keys` |
+
+## Revisions
+
+> **NDCNN-R0001:** o `DEFAULT_GUEST` passa de `view` a `control`. Com `view`, a chave do desktop
+> autorizada num nó só via, e o `polvo connect`, os terminais remotos e o `polvo mcp` deixavam de abrir
+> shells; autorizar uma chave já é confiar nela. Decisão do agente, por rever pelo dono.
 
 ## Open Decisions
 

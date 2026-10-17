@@ -26,6 +26,10 @@ O `polvo node` serve como nó no endereço da opção `--listen` (por omissão "
 a lista de chaves autorizadas da pasta de configuração; a chave do nó nasce na primeira vez. A shell das sessões é a da variável `SHELL`. Escreve na
 saída uma linha com o endereço em que ficou a escutar e a impressão digital da chave do nó.
 
+As shells do nó são sessões que vivem sem quem as vê, e o que cada chave pode fazer nelas vem do
+`node.json` da pasta de configuração; a chave da própria instalação (a identidade `id_ed25519`) é a
+dona. Um `node.json` estragado não deixa o nó arrancar (`CLIXX-E02`).
+
 ### CLIXX-B03 — `connect` liga o terminal local a uma shell do nó
 O `polvo connect ENDEREÇO` abre uma shell no nó com o tamanho do terminal local (24 por 80 se a
 entrada não é um terminal). A entrada vai para a shell, a saída da shell vai para a saída, e o código de
@@ -100,6 +104,9 @@ recusado (o erro e o código 1): a UI dá shells nos nós, e só a própria máq
 
 > **CLIXX-R0003:** o `CLIXX-B07` dá à UI a shell do `SHELL` para o terminal da própria máquina (o nó
 > `local` do servidor da UI). As regras anteriores não mudam.
+
+> **CLIXX-R0004:** o `CLIXX-B02` liga o nó às sessões e à configuração das permissões (plano ESRMS,
+> W01). As regras anteriores não mudam.
 
 ## Open Decisions
 

@@ -20,7 +20,9 @@ import (
 	"github.com/co2-lab/polvo/internal/hub"
 	"github.com/co2-lab/polvo/internal/mcp"
 	"github.com/co2-lab/polvo/internal/node"
+	"github.com/co2-lab/polvo/internal/nodeconf"
 	"github.com/co2-lab/polvo/internal/pty"
+	"github.com/co2-lab/polvo/internal/sessions"
 	"github.com/co2-lab/polvo/internal/sshx"
 	"github.com/co2-lab/polvo/internal/web"
 	"golang.org/x/crypto/ssh"
@@ -136,6 +138,15 @@ func serveNode(args []string, std Stdio) error {
 	if err != nil {
 		return err
 	}
+	// the installation's own key is the owner of the node's sessions
+	own, _, err := sshx.LoadOrCreateIdentity(filepath.Join(dir, "id_ed25519"))
+	if err != nil {
+		return err
+	}
+	perms, err := nodeconf.Load(filepath.Join(dir, "node.json"), own.PublicKey())
+	if err != nil {
+		return err
+	}
 	l, err := net.Listen("tcp", listen)
 	if err != nil {
 		return err
@@ -145,11 +156,13 @@ func serveNode(args []string, std Stdio) error {
 	cfg := node.Config{
 		HostKey:    host,
 		Authorized: sshx.NewAuthorizedKeys(filepath.Join(dir, "authorized_keys")),
-		Control:    node.ServeControl,
+		Sessions:   sessions.NewManager(),
+		Perms:      perms.PermFor,
 	}
 	if sh := os.Getenv("SHELL"); sh != "" {
 		cfg.Shell = []string{sh}
 	}
+	cfg.Control = node.Controller{Sessions: cfg.Sessions, Shell: cfg.Shell}.Serve
 	return node.Serve(l, cfg)
 }
 

@@ -45,29 +45,29 @@ nodes:
       line_rev: 266be064740d
     - id: cmd/polvo/cli.feature
       kind: feature
-      rev: 106541f13f63
+      rev: dc0c8d81e194
       updated_at: "2026-10-17"
       code: CLIXX
       file_code: CLFEA
       layer: feature
       tags:
         - feature
-      evidence_rev: 8bf0f84a5105
-      line_rev: 15ef716e5105
+      evidence_rev: 6fc087fb3c8e
+      line_rev: 9c846c49c8fd
     - id: cmd/polvo/cli.go
       kind: code
-      rev: de5a54a2ca33
+      rev: 0bb1306baf15
       updated_at: "2026-10-17"
       code: CLIXX
       file_code: CLIMX
       layer: cmd
       tags:
         - cli
-      evidence_rev: 9ca21a5697f6
-      line_rev: 0a0c0602ab6a
+      evidence_rev: 6f692b2200df
+      line_rev: ece215691fa0
     - id: cmd/polvo/cli.spec.md
       kind: spec
-      rev: 99b24a8915a7
+      rev: baf8d6c455d7
       updated_at: "2026-10-17"
       code: CLIXX
       file_code: CLIXX
@@ -75,20 +75,20 @@ nodes:
       code_declared: true
       tags:
         - spec
-      evidence_rev: a92198f22ec2
-      rule_revs: {CLIXX-B01: e1849a836c74, CLIXX-B02: 62ac80b87834, CLIXX-B03: e9a2876a236e, CLIXX-B04: c74927522eb2, CLIXX-B05: 95b51a43a683, CLIXX-B06: 405564fb7737, CLIXX-B07: 33fa866166fb, CLIXX-E01: 076b85d1b0b4, CLIXX-E02: 854a3dabe9f0}
-      rest_rev: 674a899f5ccd
+      evidence_rev: 75cb27b3556e
+      rule_revs: {CLIXX-B01: e1849a836c74, CLIXX-B02: c7da3b0b0ebc, CLIXX-B03: e9a2876a236e, CLIXX-B04: c74927522eb2, CLIXX-B05: 95b51a43a683, CLIXX-B06: 405564fb7737, CLIXX-B07: 33fa866166fb, CLIXX-E01: 076b85d1b0b4, CLIXX-E02: 854a3dabe9f0}
+      rest_rev: 637493dabb83
     - id: cmd/polvo/cli_test.go
       kind: test
-      rev: 0a5644b92f7b
+      rev: 3c9006e687f1
       updated_at: "2026-10-17"
       code: CLIXX
       file_code: CLTSX
       layer: test
       tags:
         - test
-      evidence_rev: a91500111e74
-      line_rev: e24e37cea356
+      evidence_rev: e9b0a958553c
+      line_rev: 5c4c8c9491ae
     - id: cmd/polvo/main.go
       kind: code
       rev: 4da95951342e
@@ -840,29 +840,29 @@ nodes:
       line_rev: 9f6e9ae2658f
     - id: internal/nodeconf/nodeconf.feature
       kind: feature
-      rev: d1b4305c9a15
+      rev: a0cc7c666519
       updated_at: "2026-10-17"
       code: NDCNN
       file_code: NCFND
       layer: feature
       tags:
         - feature
-      evidence_rev: fa54108bcf7b
-      line_rev: fa8437f89607
+      evidence_rev: a3d2b00c2925
+      line_rev: 958af94a539e
     - id: internal/nodeconf/nodeconf.go
       kind: code
-      rev: 1cf440c950a4
+      rev: c15b26614ca8
       updated_at: "2026-10-17"
       code: NDCNN
       file_code: NCIND
       layer: nodeconf
       tags:
         - nodeconf
-      evidence_rev: 0e41df9f6620
-      line_rev: db3ada77df85
+      evidence_rev: 0638f69cfd9a
+      line_rev: cda7eb8adfe4
     - id: internal/nodeconf/nodeconf.spec.md
       kind: spec
-      rev: fbaf2511aa27
+      rev: 88ccc6f547d9
       updated_at: "2026-10-17"
       code: NDCNN
       file_code: NDCNN
@@ -870,20 +870,20 @@ nodes:
       code_declared: true
       tags:
         - spec
-      evidence_rev: 3edc127d881d
-      rule_revs: {NDCNN-B01: 399f29e294ca, NDCNN-B02: b5b0a0f5a161, NDCNN-B03: 840ab8ec780a, NDCNN-E01: c5a1e4b6adec, NDCNN-E02: b44848c22801}
-      rest_rev: 29956e75ddf1
+      evidence_rev: abeb4e26b3df
+      rule_revs: {NDCNN-B01: 7b9728f24e6c, NDCNN-B02: b5b0a0f5a161, NDCNN-B03: 840ab8ec780a, NDCNN-E01: c5a1e4b6adec, NDCNN-E02: b44848c22801}
+      rest_rev: 9d1f68981917
     - id: internal/nodeconf/nodeconf_test.go
       kind: test
-      rev: b9c4f630c2c3
+      rev: 348c9de2ef3d
       updated_at: "2026-10-17"
       code: NDCNN
       file_code: NCTND
       layer: test
       tags:
         - test
-      evidence_rev: 78ed5deafa31
-      line_rev: 776fb7fe361e
+      evidence_rev: c33abb205b84
+      line_rev: c5dad1e732a5
     - id: internal/proto/codec.feature
       kind: feature
       rev: 6be08d1e69b3

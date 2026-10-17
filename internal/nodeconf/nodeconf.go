@@ -17,8 +17,9 @@ import (
 	"github.com/co2-lab/polvo/internal/sessions"
 )
 
-// DEFAULT_GUEST is the permission of who connects from outside when nothing says otherwise (NDCNN-B01).
-const DEFAULT_GUEST = sessions.View
+// DEFAULT_GUEST is the permission of an authorized key when nothing says otherwise (NDCNN-B01): to
+// authorize a key is to trust it; watching only is what the configuration restricts.
+const DEFAULT_GUEST = sessions.Control
 
 // Config is the node's configuration: the permission of the guests, of each named key, and the owner.
 type Config struct {

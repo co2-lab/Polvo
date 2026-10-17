@@ -107,6 +107,15 @@ func TestCli_node(t *testing.T) {
 			t.Fatalf("want the real address, got %q", addr)
 		}
 	})
+	t.Run("CLIXX-B02: node não arranca com um node.json estragado", func(t *testing.T) {
+		d := t.TempDir()
+		os.WriteFile(filepath.Join(d, "node.json"), []byte("isto não é json"), 0o600)
+		var errb bytes.Buffer
+		code := Run([]string{"node", "--dir", d, "--listen", "127.0.0.1:0"}, Stdio{Stdout: io.Discard, Stderr: &errb})
+		if code != 1 || !strings.HasPrefix(errb.String(), "polvo: ") || !strings.Contains(errb.String(), "node.json") {
+			t.Fatalf("want polvo: with node.json and 1, got %d %q", code, errb.String())
+		}
+	})
 }
 
 func TestCli_connect(t *testing.T) {

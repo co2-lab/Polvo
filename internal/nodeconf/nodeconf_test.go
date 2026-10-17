@@ -35,10 +35,10 @@ func write(t *testing.T, text string) string {
 }
 
 func TestNodeconf(t *testing.T) {
-	t.Run("NDCNN-B01: Sem ficheiro, quem vem de fora só vê", func(t *testing.T) {
+	t.Run("NDCNN-B01: Sem ficheiro, uma chave autorizada controla", func(t *testing.T) {
 		c, err := Load(filepath.Join(t.TempDir(), "node.json"), key(t))
-		if err != nil || c.PermFor(key(t)) != sessions.View {
-			t.Fatalf("want view, got %v and %v", c, err)
+		if err != nil || c.PermFor(key(t)) != sessions.Control {
+			t.Fatalf("want control, got %v and %v", c, err)
 		}
 	})
 	t.Run("NDCNN-B02: A permissão de uma chave", func(t *testing.T) {

@@ -9,10 +9,10 @@
 Feature: Nodeconf
 
   @NDCNN-B01 @unit-level
-  Scenario: Sem ficheiro, quem vem de fora só vê
+  Scenario: Sem ficheiro, uma chave autorizada controla
     Given uma pasta sem o node.json
     When o nó lê a configuração
-    Then uma chave de fora só vê
+    Then uma chave de fora controla
 
   @NDCNN-B02 @unit-level
   Scenario: A permissão de uma chave
