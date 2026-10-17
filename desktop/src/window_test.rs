@@ -260,3 +260,14 @@ scenario!(wndwi_b13_fechar_a_aba_termina_a_shell, "WNDWI-B13: Fechar a aba termi
     cx.run_until_parked();
     assert!(cx.update(|cx| cx.windows().is_empty()));
 });
+
+scenario!(wndwi_b14_as_abas_ficam_em_baixo, "WNDWI-B14: As abas ficam em baixo", |cx| {
+    let o = open_gnome(cx);
+    cx.update_window(o.handle, |_, window, cx| window.click("new-terminal", cx)).unwrap();
+    frame(cx, o.handle);
+    frame(cx, o.handle);
+    let (terminal, tab) = cx
+        .update_window(o.handle, |_, window, _| (window.find("terminal").bounds(), window.within("tab-bar").find(0usize).bounds()))
+        .unwrap();
+    assert!(tab.top() >= terminal.bottom() - px(1.), "the tab {tab:?} is below the terminal {terminal:?}");
+});

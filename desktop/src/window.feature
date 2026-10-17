@@ -38,6 +38,12 @@ Feature: Window
     When o utilizador arrasta a aba do segundo para a borda direita do terminal à vista
     Then os dois terminais ficam à vista, lado a lado, o segundo à direita
 
+  @WNDWI-B14 @unit-level
+  Scenario: As abas ficam em baixo
+    Given uma janela com dois terminais em abas no mesmo grupo
+    When a janela é desenhada
+    Then as abas ficam por baixo do terminal à vista
+
   @WNDWI-B10 @unit-level
   Scenario: O botão de terminal novo
     Given uma janela com um terminal

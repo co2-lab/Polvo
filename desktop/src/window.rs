@@ -5,18 +5,21 @@
 //! The window of Polvo (WNDWI): the title bar the desktop's way, and below it the dock of the
 //! terminals.
 
-use std::cell::RefCell;
+use std::cell::{Cell, RefCell};
 use std::collections::HashMap;
 use std::rc::Rc;
+use std::sync::Arc;
 use std::time::Duration;
 
 use gpui_kit::base::TestSupportExt as _;
+use gpui_kit::base::ResizeHandleContext;
 use gpui_kit::component::dock::{
-    DockArea, DockEvent, DockLayout, DockPlacement, DockSkin, PanelId, PanelStyle, panel_handle, register_panel,
+    BasePanelView, DockArea, DockAreaRenderer, DockContext, DockEvent, DockLayout, DockPlacement, DockSkin, DropIndicator,
+    NodeId, PanelId, PanelState, PanelStyle, TabGroupContext, TabGroupRenderer, panel_handle, register_panel,
 };
 use gpui_kit::component::{Icon, IconName, InteractiveElementExt as _, Sizable as _};
 use gpui_kit::{
-    App, AppContext as _, Bounds, Context, Entity, EntityId, Focusable as _, FontWeight, Hsla, IntoElement, MouseButton, ParentElement as _,
+    AnyElement, AnyView, App, AppContext as _, Axis, Bounds, Context, Div, Entity, EntityId, Pixels, Stateful, canvas, Focusable as _, FontWeight, Hsla, IntoElement, MouseButton, ParentElement as _,
     Render, Styled as _, Subscription, Task, Window, div, prelude::*, px,
 };
 
@@ -38,6 +41,94 @@ pub struct Colors {
     pub fg: Hsla,
     pub button: Hsla,
     pub button_hover: Hsla,
+}
+
+/// The height of the tab bar before it is first measured (WNDWI-B14).
+const TAB_BAR_H: f32 = 32.;
+
+/// The dock's look, the gpui-component skin, with the tabs below each group (WNDWI-B14). The dock lays a
+/// group out as its tab bar above its content; this renderer draws the bar at the group's bottom edge
+/// instead, and keeps the content clear of it.
+struct BottomTabs {
+    skin: Rc<DockSkin>,
+    groups: Rc<dyn TabGroupRenderer>,
+}
+
+impl BottomTabs {
+    fn new(skin: Rc<DockSkin>) -> Self {
+        let inner = skin.tab_group_renderer();
+        BottomTabs { skin, groups: Rc::new(BottomTabGroup { inner, bar: Rc::new(Cell::new(px(TAB_BAR_H))) }) }
+    }
+}
+
+impl DockAreaRenderer for BottomTabs {
+    fn frame(&self, window: &mut Window, cx: &mut App) -> Stateful<Div> {
+        self.skin.frame(window, cx)
+    }
+
+    fn split_frame(&self, node: NodeId, axis: Axis, window: &mut Window, cx: &mut App) -> Stateful<Div> {
+        self.skin.split_frame(node, axis, window, cx)
+    }
+
+    fn center_frame(&self, window: &mut Window, cx: &mut App) -> Stateful<Div> {
+        self.skin.center_frame(window, cx)
+    }
+
+    fn render_split_handle(&self, handle: &ResizeHandleContext, window: &mut Window, cx: &mut App) -> Option<AnyElement> {
+        self.skin.render_split_handle(handle, window, cx)
+    }
+
+    fn render_dock(&self, dock: &DockContext, content: AnyElement, window: &mut Window, cx: &mut App) -> AnyElement {
+        self.skin.render_dock(dock, content, window, cx)
+    }
+
+    fn build_placeholder(&self, state: &PanelState, window: &mut Window, cx: &mut App) -> Option<Arc<dyn BasePanelView>> {
+        self.skin.build_placeholder(state, window, cx)
+    }
+
+    fn tab_group_renderer(&self) -> Rc<dyn TabGroupRenderer> {
+        self.groups.clone()
+    }
+}
+
+/// A group of tabs with its bar at the bottom: the bar, measured as it is drawn, and the content above it.
+struct BottomTabGroup {
+    inner: Rc<dyn TabGroupRenderer>,
+    bar: Rc<Cell<Pixels>>,
+}
+
+impl TabGroupRenderer for BottomTabGroup {
+    fn frame(&self, group: &TabGroupContext, window: &mut Window, cx: &mut App) -> Stateful<Div> {
+        self.inner.frame(group, window, cx).relative()
+    }
+
+    fn content_frame(&self, group: &TabGroupContext, window: &mut Window, cx: &mut App) -> Stateful<Div> {
+        self.inner.content_frame(group, window, cx).mb(self.bar.get())
+    }
+
+    fn render_tab_bar(&self, group: &TabGroupContext, window: &mut Window, cx: &mut App) -> AnyElement {
+        let bar = self.bar.clone();
+        div()
+            .absolute()
+            .left_0()
+            .right_0()
+            .bottom_0()
+            .child(self.inner.render_tab_bar(group, window, cx))
+            .child(canvas(move |bounds, _, _| bar.set(bounds.size.height), |_, _, _, _| {}).absolute().top_0().left_0().size_full())
+            .into_any_element()
+    }
+
+    fn render_active_panel(&self, panel: AnyView, group: &TabGroupContext, window: &mut Window, cx: &mut App) -> AnyElement {
+        self.inner.render_active_panel(panel, group, window, cx)
+    }
+
+    fn render_drop_indicator(&self, indicator: DropIndicator, window: &mut Window, cx: &mut App) -> Option<AnyElement> {
+        self.inner.render_drop_indicator(indicator, window, cx)
+    }
+
+    fn render_empty(&self, group: &TabGroupContext, window: &mut Window, cx: &mut App) -> Option<AnyElement> {
+        self.inner.render_empty(group, window, cx)
+    }
 }
 
 /// The time after the last change of the dock when the organisation is saved (WNDWI-B12).
@@ -70,9 +161,16 @@ impl PolvoWindow {
         cx: &mut Context<Self>,
     ) -> Self {
         // WNDWI-B09
-        let (dock, skin) = DockSkin::dock_area("polvo", Some(LAYOUT_VERSION), window, cx);
-        skin.set_panel_style(PanelStyle::TabBar, cx);
-        skin.set_close_button_visible(true, cx);
+        let mut skin = None;
+        let dock = cx.new(|cx| {
+            let this = DockSkin::new(cx);
+            skin = Some(this.clone());
+            DockArea::new("polvo", Some(LAYOUT_VERSION), window, cx).with_renderer(Rc::new(BottomTabs::new(this)))
+        });
+        if let Some(skin) = skin {
+            skin.set_panel_style(PanelStyle::TabBar, cx);
+            skin.set_close_button_visible(true, cx);
+        }
         let mut this = PolvoWindow {
             prefs,
             dock: dock.clone(),

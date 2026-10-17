@@ -397,29 +397,29 @@ nodes:
       line_rev: 7651756329dd
     - id: desktop/src/window.feature
       kind: feature
-      rev: 30c635e4d011
+      rev: 66da22259dea
       updated_at: "2026-10-17"
       code: WNDWI
       file_code: WNFTW
       layer: feature
       tags:
         - feature
-      evidence_rev: 3ede7fcff612
-      line_rev: 8baf65b0ee79
+      evidence_rev: 09aa7711a520
+      line_rev: 23c598c6b567
     - id: desktop/src/window.rs
       kind: code
-      rev: fbc06fc0909c
+      rev: fa26a3a472a0
       updated_at: "2026-10-17"
       code: WNDWI
       file_code: WNIMW
       layer: desktop
       tags:
         - desktop
-      evidence_rev: c2c7561bc409
-      line_rev: d0d66638ceb0
+      evidence_rev: e06776c937c4
+      line_rev: 2f6e302d9ba1
     - id: desktop/src/window.spec.md
       kind: spec
-      rev: b7d4718baf34
+      rev: 5412ceb65246
       updated_at: "2026-10-17"
       code: WNDWI
       file_code: WNDWI
@@ -427,12 +427,12 @@ nodes:
       code_declared: true
       tags:
         - spec
-      evidence_rev: e88319ddf5f7
-      rule_revs: {WNDWI-B01: 4c62dcb1d9ea, WNDWI-B02: f7dfd0b60818, WNDWI-B07: e122155a7b62, WNDWI-B09: c97c49daafa5, WNDWI-B10: a5e7ec9b14d6, WNDWI-B11: 0c51029a4147, WNDWI-B12: 8916c6c71860, WNDWI-B13: 28ce5a0ade4b, WNDWI-E01: 126da7c5fce0, WNDWI-E02: 2244d778ff0e, WNDWI-E03: c8077768ad0c, WNDWI-E04: a2872a652add}
-      rest_rev: c3bce99354b9
+      evidence_rev: c219d9f6b98b
+      rule_revs: {WNDWI-B01: 4c62dcb1d9ea, WNDWI-B02: f7dfd0b60818, WNDWI-B07: e122155a7b62, WNDWI-B09: c97c49daafa5, WNDWI-B10: a5e7ec9b14d6, WNDWI-B11: 0c51029a4147, WNDWI-B12: 8916c6c71860, WNDWI-B13: 28ce5a0ade4b, WNDWI-B14: 42e72468cbee, WNDWI-E01: 126da7c5fce0, WNDWI-E02: 2244d778ff0e, WNDWI-E03: c8077768ad0c, WNDWI-E04: a2872a652add}
+      rest_rev: 5e6b3bd7cd6b
     - id: desktop/src/window_test.rs
       kind: test
-      rev: 37e6d5837532
+      rev: 22542921a340
       updated_at: "2026-10-17"
       code: WNDWI
       file_code: WNTSW
@@ -440,8 +440,8 @@ nodes:
       tags:
         - test
         - desktop
-      evidence_rev: 5a0dd80c81e0
-      line_rev: f1af560103e7
+      evidence_rev: d2b87005da5b
+      line_rev: 0792cf9ec1e3
     - id: internal/hub/client.feature
       kind: feature
       rev: 9e853b78b359

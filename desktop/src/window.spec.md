@@ -37,6 +37,10 @@ Os terminais são abas na doca por baixo da barra. A aba de um terminal arrasta-
 
 Os divisores entre os grupos arrastam-se para mudar o tamanho de cada um.
 
+### WNDWI-B14 — As abas ficam em baixo
+Em cada grupo da doca, a barra das abas fica por baixo dos terminais (o dono pediu-a assim a
+2026-10-17). Arrastar e largar as abas funciona como em cima.
+
 ### WNDWI-B10 — O botão de terminal novo
 O botão "+" da barra abre um terminal novo numa aba da doca, com o foco.
 
@@ -82,6 +86,7 @@ abre com um terminal. Cada mudança da doca grava a organização, `SAVE_DELAY` 
 | `WNDWI-B07` | `Prefs` |
 | `WNDWI-B09` | `Prefs` |
 | `WNDWI-B10` | `NewTerminal` |
+| `WNDWI-B14` | `Prefs` |
 | `WNDWI-B11` | `NewTerminal` |
 | `WNDWI-E01` | `Prefs` @no-scenario: a plataforma de teste abre sempre a janela |
 | `WNDWI-B12` | `LayoutFile`, `NewTerminal`, `SAVE_DELAY` |
@@ -103,6 +108,8 @@ abre com um terminal. Cada mudança da doca grava a organização, `SAVE_DELAY` 
 > `WNDWI-E04`, e o `new` passa a receber o ficheiro da organização em vez do primeiro terminal. Entra o
 > `WNDWI-B13`: a aba fechada pelo utilizador deixava a shell a correr, porque a janela guardava o
 > painel.
+
+> **WNDWI-R0003:** entra o `WNDWI-B14` (as abas em baixo), pedido pelo dono depois de experimentar a doca.
 
 ## Open Decisions
 
