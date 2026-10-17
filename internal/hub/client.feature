@@ -61,3 +61,21 @@ Feature: Client
     Given uma ligação a um nó e uma chamada que corre "sleep 5"
     When o nó deixa de servir e a ligação cai
     Then a chamada termina com erro antes do fim do sleep
+
+  @CLNTI-B07 @unit-level
+  Scenario: As sessões do nó
+    Given um cliente ligado como dono a um nó com sessões
+    When cria uma sessão, a lista, trava-a e termina-a
+    Then a lista tem a sessão onde pode escrever, depois travada, e no fim nenhuma
+
+  @CLNTI-B08 @unit-level
+  Scenario: Ligar-se a uma sessão
+    Given uma sessão de uma shell num nó, com "marca-1" escrito por um primeiro terminal
+    When um segundo terminal se liga a ela e escreve "echo $((40+2))"
+    Then o segundo lê "marca-1" e depois "42", e fechá-lo deixa a sessão na lista
+
+  @CLNTI-E04 @unit-level
+  Scenario: Ligar-se a uma sessão que não existe
+    Given um cliente ligado a um nó com sessões
+    When se liga à sessão "nenhuma"
+    Then recebe ErrNoSession

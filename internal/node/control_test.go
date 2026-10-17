@@ -7,6 +7,7 @@ package node
 import (
 	"encoding/base64"
 	"encoding/json"
+	"fmt"
 	"io"
 	"net"
 	"os"
@@ -43,10 +44,11 @@ func controlWith(t *testing.T, serve func(io.ReadWriteCloser, sessions.Perm), pe
 
 type sessionList struct {
 	Sessions []struct {
-		ID     string   `json:"id"`
-		Argv   []string `json:"argv"`
-		Rows   int      `json:"rows"`
-		Locked bool     `json:"locked"`
+		ID       string   `json:"id"`
+		Argv     []string `json:"argv"`
+		Rows     int      `json:"rows"`
+		Locked   bool     `json:"locked"`
+		Writable bool     `json:"writable"`
 	} `json:"sessions"`
 }
 
@@ -260,6 +262,31 @@ func TestControl_sessions(t *testing.T) {
 		result(t, p.call(t, 3, "session.list", struct{}{}), &l)
 		if !l.Sessions[0].Locked {
 			t.Fatalf("want it locked, got %+v", l)
+		}
+	})
+	t.Run("CNTRL-B07#04: A lista diz a cada ligação se pode escrever", func(t *testing.T) {
+		c := Controller{Sessions: sessions.NewManager()}
+		free, err := c.Sessions.Create([]string{"/bin/sh", "-c", "sleep 5"}, "", pty.Size{Rows: 24, Cols: 80})
+		if err != nil {
+			t.Fatal(err)
+		}
+		defer c.Sessions.Close(free.ID)
+		locked, err := c.Sessions.Create([]string{"/bin/sh", "-c", "sleep 5"}, "", pty.Size{Rows: 24, Cols: 80})
+		if err != nil {
+			t.Fatal(err)
+		}
+		defer c.Sessions.Close(locked.ID)
+		c.Sessions.Lock(locked.ID, true)
+		var got []bool
+		for i, perm := range []sessions.Perm{sessions.View, sessions.Control, sessions.Owner} {
+			var l sessionList
+			result(t, controlWith(t, c.Serve, perm).call(t, int64(i+1), "session.list", struct{}{}), &l)
+			for _, s := range l.Sessions {
+				got = append(got, s.Writable)
+			}
+		}
+		if fmt.Sprint(got) != "[false false true false true true]" {
+			t.Fatalf("want view nothing, control the free one, owner both; got %v", got)
 		}
 	})
 	t.Run("CNTRL-B07#03: Sem sessões, os pedidos de sessão dão erro", func(t *testing.T) {

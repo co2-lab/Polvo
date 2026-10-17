@@ -10,6 +10,7 @@ import (
 	"crypto/rand"
 	"errors"
 	"fmt"
+	"io"
 	"net"
 	"os"
 	"path/filepath"
@@ -21,6 +22,7 @@ import (
 	"github.com/co2-lab/polvo/internal/node"
 	"github.com/co2-lab/polvo/internal/proto"
 	"github.com/co2-lab/polvo/internal/pty"
+	"github.com/co2-lab/polvo/internal/sessions"
 	"github.com/co2-lab/polvo/internal/sshx"
 	"golang.org/x/crypto/ssh"
 )
@@ -65,6 +67,126 @@ func connected(t *testing.T) (*Node, world) {
 	}
 	t.Cleanup(func() { n.Close() })
 	return n, w
+}
+
+// withSessions connects as the owner to a node that keeps sessions.
+func withSessions(t *testing.T) *Node {
+	t.Helper()
+	id, host := signer(t), signer(t)
+	ak := filepath.Join(t.TempDir(), "authorized_keys")
+	os.WriteFile(ak, []byte(sshx.AuthorizedLine(id.PublicKey(), "")), 0o600)
+	l, err := net.Listen("tcp", "127.0.0.1:0")
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Cleanup(func() { l.Close() })
+	m := sessions.NewManager()
+	t.Cleanup(func() {
+		for _, s := range m.List() {
+			m.Close(s.ID)
+		}
+	})
+	cfg := node.Config{HostKey: host, Authorized: sshx.NewAuthorizedKeys(ak), Sessions: m, Shell: []string{"/bin/sh"}}
+	cfg.Control = node.Controller{Sessions: m, Shell: cfg.Shell}.Serve
+	go node.Serve(l, cfg)
+	n, err := Dial(l.Addr().String(), Config{Identity: id, KnownHosts: sshx.NewKnownHosts(filepath.Join(t.TempDir(), "known_hosts"))})
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Cleanup(func() { n.Close() })
+	return n
+}
+
+// readFor reads r until it has want, or fails after a while.
+func readFor(t *testing.T, r io.Reader, want string) string {
+	t.Helper()
+	var got bytes.Buffer
+	done := make(chan struct{})
+	go func() {
+		defer close(done)
+		b := make([]byte, 4096)
+		for !strings.Contains(got.String(), want) {
+			k, err := r.Read(b)
+			got.Write(b[:k])
+			if err != nil {
+				return
+			}
+		}
+	}()
+	select {
+	case <-done:
+	case <-time.After(10 * time.Second):
+		t.Fatalf("want %q", want)
+	}
+	if !strings.Contains(got.String(), want) {
+		t.Fatalf("want %q, got %q", want, got.String())
+	}
+	return got.String()
+}
+
+func TestClient_sessions(t *testing.T) {
+	size := pty.Size{Rows: 24, Cols: 80}
+	t.Run("CLNTI-B07: As sessões do nó", func(t *testing.T) {
+		n := withSessions(t)
+		id, err := n.NewSession([]string{"/bin/sh", "-c", "sleep 30"}, "", size)
+		if err != nil {
+			t.Fatal(err)
+		}
+		list, err := n.Sessions()
+		if err != nil || len(list) != 1 || list[0].ID != id || !list[0].Writable || list[0].Locked || list[0].Cols != 80 {
+			t.Fatalf("want the session, writable, got %+v %v", list, err)
+		}
+		if err := n.LockSession(id, true); err != nil {
+			t.Fatal(err)
+		}
+		list, _ = n.Sessions()
+		if !list[0].Locked {
+			t.Fatalf("want it locked, got %+v", list)
+		}
+		if err := n.CloseSession(id); err != nil {
+			t.Fatal(err)
+		}
+		end := time.Now().Add(5 * time.Second)
+		for len(list) != 0 && time.Now().Before(end) {
+			time.Sleep(20 * time.Millisecond)
+			list, _ = n.Sessions()
+		}
+		if len(list) != 0 {
+			t.Fatalf("want no session, got %+v", list)
+		}
+	})
+	t.Run("CLNTI-B08: Ligar-se a uma sessão", func(t *testing.T) {
+		n := withSessions(t)
+		id, err := n.NewSession(nil, "", size)
+		if err != nil {
+			t.Fatal(err)
+		}
+		first, err := n.Attach(id)
+		if err != nil {
+			t.Fatal(err)
+		}
+		first.Write([]byte("echo marca-$((0+1))\n"))
+		readFor(t, first, "marca-1")
+		second, err := n.Attach(id)
+		if err != nil {
+			t.Fatal(err)
+		}
+		readFor(t, second, "marca-1")
+		second.Write([]byte("echo $((40+2))\n"))
+		readFor(t, second, "42")
+		second.Close()
+		first.Close()
+		time.Sleep(100 * time.Millisecond)
+		if list, _ := n.Sessions(); len(list) != 1 {
+			t.Fatalf("want the session alive, got %+v", list)
+		}
+	})
+	t.Run("CLNTI-E04: Ligar-se a uma sessão que não existe", func(t *testing.T) {
+		n := withSessions(t)
+		if _, err := n.Attach("nenhuma"); !errors.Is(err, ErrNoSession) {
+			t.Fatalf("want ErrNoSession, got %v", err)
+		}
+	})
 }
 
 func TestClient_dial(t *testing.T) {

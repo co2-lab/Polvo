@@ -773,44 +773,29 @@ nodes:
       line_rev: 4c08f1ffe77d
     - id: internal/hub/client.feature
       kind: feature
-      rev: 9e853b78b359
+      rev: d73d77b728f3
       updated_at: "2026-10-17"
       code: CLNTI
       file_code: CLFTR
       layer: feature
       tags:
         - feature
-      evidence_rev: 3d306007833f
-      line_rev: e9323edf1c06
+      evidence_rev: 66ffd3f495de
+      line_rev: f37ed145aa99
     - id: internal/hub/client.go
       kind: code
-      rev: 990620a003d7
+      rev: 3851062a7804
       updated_at: "2026-10-17"
       code: CLNTI
       file_code: CLIMP
       layer: hub
       tags:
         - hub
-      signal:
-        covered_lines: 174
-        total_lines: 233
-        line_coverage: 74.67811158798283
-        prev_line_coverage: 74.67811158798283
-        coverage_by_suite:
-            .anchors/lcov.info:
-                instrumented: 48-57,61-69,71-81,85-92,96-105,116-142,146,149,152-154,157-166,168,172,184-197,199-220,225-231,233-234,236-238,240-246,250-259,264-299,301,305-312,316-318,328-335,347-366
-                covered: 48-49,52-57,61-62,66-69,71-81,85-86,89,92,96-105,116-118,121,124-125,129-130,134,138,142,146,149,152-154,157-162,165-166,172,184-194,197,199-200,203-204,208-209,213,217-220,225-230,233-234,236-237,240-246,250-259,264-270,273-275,279-283,287-297,301,305-312,316-318,328-332,335,347-359,362-363,366
-                covered_lines: 174
-                total_lines: 233
-                at_rev: 990620a003d7
-        coverage_rev: 990620a003d7
-        at_rev: 990620a003d7
-        ingested_at: "2026-10-17T07:51:38-03:00"
-      evidence_rev: 5d6c2c31b6e2
-      line_rev: e36a2344aa4e
+      evidence_rev: f6b9f258859c
+      line_rev: 95f05a64aba3
     - id: internal/hub/client.spec.md
       kind: spec
-      rev: af02845957a9
+      rev: d12973eab2e3
       updated_at: "2026-10-17"
       code: CLNTI
       file_code: CLNTI
@@ -818,8 +803,10 @@ nodes:
       code_declared: true
       tags:
         - spec
-      signal:
-        proven_codes:
+      parked_proofs:
+        - suite: .anchors/junit.xml
+          rev: af02845957a9
+          codes:
             - CLNTI-B01
             - CLNTI-B02
             - CLNTI-B03
@@ -829,44 +816,20 @@ nodes:
             - CLNTI-E01
             - CLNTI-E02
             - CLNTI-E03
-        proven_by_suite:
-            .anchors/junit.xml:
-                - CLNTI-B01
-                - CLNTI-B02
-                - CLNTI-B03
-                - CLNTI-B04
-                - CLNTI-B05
-                - CLNTI-B06
-                - CLNTI-E01
-                - CLNTI-E02
-                - CLNTI-E03
-        proven_rev_by_suite:
-            .anchors/junit.xml: af02845957a9
-        at_rev: af02845957a9
-        ingested_at: "2026-10-17T07:51:38-03:00"
-      evidence_rev: 34147d44fdb8
-      rule_revs: {CLNTI-B01: b449eb72adaf, CLNTI-B02: e0918def90e2, CLNTI-B03: 28e3da044c70, CLNTI-B04: 3bf1ed5c333d, CLNTI-B05: cc21dfee411d, CLNTI-B06: d71fa9bfbd40, CLNTI-E01: c00f9a5bb7f2, CLNTI-E02: f0fcdd5b16b0, CLNTI-E03: 96e2e7fa97a0}
-      rest_rev: 477b1a5d9b6b
+      evidence_rev: 64303a45c28c
+      rule_revs: {CLNTI-B01: b449eb72adaf, CLNTI-B02: e0918def90e2, CLNTI-B03: 28e3da044c70, CLNTI-B04: 3bf1ed5c333d, CLNTI-B05: cc21dfee411d, CLNTI-B06: d71fa9bfbd40, CLNTI-B07: 94f503b3a071, CLNTI-B08: 02fa1c37a8b0, CLNTI-E01: c00f9a5bb7f2, CLNTI-E02: f0fcdd5b16b0, CLNTI-E03: 96e2e7fa97a0, CLNTI-E04: 893fa4037791}
+      rest_rev: 70a08e519069
     - id: internal/hub/client_test.go
       kind: test
-      rev: 8166879c796c
+      rev: 50ad9d6025d5
       updated_at: "2026-10-17"
       code: CLNTI
       file_code: CLTST
       layer: test
       tags:
         - test
-      signal:
-        passed: 12
-        by_layer:
-            unit:
-                passed: 12
-        seconds_by_suite:
-            .anchors/junit.xml: 0.9099999999999999
-        at_rev: 8166879c796c
-        ingested_at: "2026-10-17T07:51:38-03:00"
-      evidence_rev: bc9211025e3c
-      line_rev: 02276fd69c1b
+      evidence_rev: c17c91cb2747
+      line_rev: 4c9a69126239
     - id: internal/mcp/server.feature
       kind: feature
       rev: 9b9a7633445b
@@ -1063,29 +1026,29 @@ nodes:
       line_rev: 2de8ceef65e8
     - id: internal/node/control.feature
       kind: feature
-      rev: 4da51f66528e
+      rev: 4021c62724ef
       updated_at: "2026-10-17"
       code: CNTRL
       file_code: CNFTR
       layer: feature
       tags:
         - feature
-      evidence_rev: 616c4d0c5e45
-      line_rev: 6b95d106947b
+      evidence_rev: a2e3c8fc9d0d
+      line_rev: 529071a168f8
     - id: internal/node/control.go
       kind: code
-      rev: cfec9ac2578e
+      rev: 60b004dc2603
       updated_at: "2026-10-17"
       code: CNTRL
       file_code: CNIMP
       layer: node
       tags:
         - node
-      evidence_rev: 53b40123cde8
-      line_rev: 5a69fe0a3722
+      evidence_rev: c18f7ffa9713
+      line_rev: 18cd31f88354
     - id: internal/node/control.spec.md
       kind: spec
-      rev: 169eb9f6cd94
+      rev: 6cd445a56c54
       updated_at: "2026-10-17"
       code: CNTRL
       file_code: CNTRL
@@ -1093,20 +1056,20 @@ nodes:
       code_declared: true
       tags:
         - spec
-      evidence_rev: dd087c6d2701
-      rule_revs: {CNTRL-B01: "316986563459", CNTRL-B02: 802b79876f2f, CNTRL-B03: 884e4c321bc7, CNTRL-B04: 8d1e498da8c5, CNTRL-B05: 342a2b0f5cb6, CNTRL-B06: c5b173133779, CNTRL-B07: 1e17e1789fbc, CNTRL-B08: dfea3168b418, CNTRL-E01: d1a2b67829aa, CNTRL-E02: 4449c1568c95, CNTRL-E03: ae2d67e525fc, CNTRL-E04: b89eadab3a8c, CNTRL-E05: f410ddb5ff2d, CNTRL-E06: 75edab71ac20}
-      rest_rev: c3f3663a01aa
+      evidence_rev: a17e26432dc8
+      rule_revs: {CNTRL-B01: "316986563459", CNTRL-B02: 802b79876f2f, CNTRL-B03: 884e4c321bc7, CNTRL-B04: 8d1e498da8c5, CNTRL-B05: 342a2b0f5cb6, CNTRL-B06: c5b173133779, CNTRL-B07: 455bd10eb2ea, CNTRL-B08: dfea3168b418, CNTRL-E01: d1a2b67829aa, CNTRL-E02: 4449c1568c95, CNTRL-E03: ae2d67e525fc, CNTRL-E04: b89eadab3a8c, CNTRL-E05: f410ddb5ff2d, CNTRL-E06: 75edab71ac20}
+      rest_rev: 13915cc07a53
     - id: internal/node/control_test.go
       kind: test
-      rev: 7c2dce2e437e
+      rev: e2a0e4175752
       updated_at: "2026-10-17"
       code: CNTRL
       file_code: CNTST
       layer: test
       tags:
         - test
-      evidence_rev: 967a19e990b0
-      line_rev: 74f82aeaca14
+      evidence_rev: 265da6ded054
+      line_rev: 8f654163ae1a
     - id: internal/node/server.feature
       kind: feature
       rev: ae89e0a81a6c
@@ -2503,8 +2466,8 @@ edges:
       type: tested-by
       origin: convention
       stamp:
-        validated_from_rev: 9e853b78b359
-        validated_to_rev: 8166879c796c
+        validated_from_rev: d73d77b728f3
+        validated_to_rev: 50ad9d6025d5
         changed_at: "2026-10-17"
         verdict: ok
     - from: internal/hub/client.spec.md
@@ -2519,8 +2482,8 @@ edges:
       type: covered-by
       origin: convention
       stamp:
-        validated_from_rev: af02845957a9
-        validated_to_rev: 9e853b78b359
+        validated_from_rev: d12973eab2e3
+        validated_to_rev: d73d77b728f3
         changed_at: "2026-10-17"
         verdict: ok
     - from: internal/hub/client.spec.md
@@ -2535,8 +2498,8 @@ edges:
       type: specifies
       origin: convention
       stamp:
-        validated_from_rev: af02845957a9
-        validated_to_rev: 990620a003d7
+        validated_from_rev: d12973eab2e3
+        validated_to_rev: 3851062a7804
         changed_at: "2026-10-17"
         verdict: ok
     - from: internal/mcp/server.feature
@@ -2612,8 +2575,8 @@ edges:
       type: tested-by
       origin: convention
       stamp:
-        validated_from_rev: 4da51f66528e
-        validated_to_rev: 7c2dce2e437e
+        validated_from_rev: 4021c62724ef
+        validated_to_rev: e2a0e4175752
         changed_at: "2026-10-17"
         verdict: ok
     - from: internal/node/control.spec.md
@@ -2621,8 +2584,8 @@ edges:
       type: covered-by
       origin: convention
       stamp:
-        validated_from_rev: 169eb9f6cd94
-        validated_to_rev: 4da51f66528e
+        validated_from_rev: 6cd445a56c54
+        validated_to_rev: 4021c62724ef
         changed_at: "2026-10-17"
         verdict: ok
     - from: internal/node/control.spec.md
@@ -2630,8 +2593,8 @@ edges:
       type: specifies
       origin: convention
       stamp:
-        validated_from_rev: 169eb9f6cd94
-        validated_to_rev: cfec9ac2578e
+        validated_from_rev: 6cd445a56c54
+        validated_to_rev: 60b004dc2603
         changed_at: "2026-10-17"
         verdict: ok
     - from: internal/node/server.feature
@@ -3021,7 +2984,7 @@ edges:
       origin: declared
       stamp:
         validated_from_rev: 6dd8970d673d
-        validated_to_rev: 169eb9f6cd94
+        validated_to_rev: 6cd445a56c54
         changed_at: "2026-10-17"
         verdict: ok
     - from: plans/desktop.plan.md
@@ -3105,7 +3068,7 @@ edges:
       origin: declared
       stamp:
         validated_from_rev: 5ee15c41bc89
-        validated_to_rev: af02845957a9
+        validated_to_rev: d12973eab2e3
         changed_at: "2026-10-17"
         verdict: ok
     - from: plans/espelho.plan.md
@@ -3123,7 +3086,7 @@ edges:
       origin: declared
       stamp:
         validated_from_rev: 5ee15c41bc89
-        validated_to_rev: 169eb9f6cd94
+        validated_to_rev: 6cd445a56c54
         changed_at: "2026-10-17"
         verdict: ok
     - from: plans/espelho.plan.md
@@ -3236,7 +3199,7 @@ edges:
       origin: declared
       stamp:
         validated_from_rev: 03470fc704da
-        validated_to_rev: af02845957a9
+        validated_to_rev: d12973eab2e3
         changed_at: "2026-10-17"
         verdict: ok
     - from: plans/terminal-remoto.plan.md
@@ -3245,7 +3208,7 @@ edges:
       origin: declared
       stamp:
         validated_from_rev: 03470fc704da
-        validated_to_rev: 169eb9f6cd94
+        validated_to_rev: 6cd445a56c54
         changed_at: "2026-10-17"
         verdict: ok
     - from: plans/terminal-remoto.plan.md

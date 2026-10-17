@@ -92,6 +92,12 @@ Feature: Control
     When o dono a trava
     Then a lista diz que está travada
 
+  @CNTRL-B07#04 @unit-level
+  Scenario: A lista diz a cada ligação se pode escrever
+    Given um nó com uma sessão livre e uma travada
+    When quem só vê, quem controla e o dono pedem a lista
+    Then quem só vê não escreve em nenhuma, quem controla escreve na livre, e o dono nas duas
+
   @CNTRL-B07#03 @unit-level
   Scenario: Sem sessões, os pedidos de sessão dão erro
     Given o controlo de um nó sem sessões

@@ -9,7 +9,9 @@
 ## Overview
 O desktop (a CLI agora, a UI e a ponte do agente depois) liga-se a um nó pelo `Dial` e recebe um
 `Node`. Por ele abre terminais interativos (`Shell`, que dá um `Terminal`) e faz chamadas de controlo
-(`Call` e os atalhos `ReadFile`, `WriteFile`, `List` e `Run`). A ligação autentica-se com a identidade
+(`Call` e os atalhos `ReadFile`, `WriteFile`, `List` e `Run`), e trabalha com as sessões de terminal do
+nó (`Sessions`, que dá cada `Session`; `NewSession`, `CloseSession`, `LockSession`; e `Attach`, que liga
+um `Terminal` a uma sessão que já existe). A ligação autentica-se com a identidade
 da instalação e confere a chave do nó na lista de nós conhecidos. A configuração é o `Config`.
 
 ## Rules
@@ -41,6 +43,16 @@ entradas de uma pasta (`Entry`), e o `Run` devolve o código, a saída e o erro 
 O `Close` fecha a ligação ao nó. Uma chamada que ainda esperava resposta termina com erro, e uma chamada
 nova também.
 
+### CLNTI-B07 — As sessões do nó
+O `Sessions` dá as sessões vivas do nó, cada uma com o id, o programa, o tamanho, os espectadores, se
+está travada e se esta ligação pode escrever nela. O `NewSession` cria uma sessão (o programa pedido, ou
+a shell do nó) e devolve o id; o `CloseSession` termina-a; o `LockSession` trava-a ou destrava-a.
+
+### CLNTI-B08 — Ligar-se a uma sessão
+O `Attach` dá um `Terminal` ligado a uma sessão que já existe: lê primeiro o ecrã atual dela e depois a
+saída, e o que se escreve chega à sessão quando a ligação a pode controlar. Fechar o `Terminal` deixa a
+sessão viva.
+
 ## Domain
 
 | Input | Accepts | Outside the domain | Who guarantees |
@@ -55,6 +67,7 @@ nova também.
 | `CLNTI-E01` | o nó não responde no endereço | a ligação falha com um erro que nomeia o endereço |
 | `CLNTI-E02` | falta a identidade ou a lista de nós conhecidos, ou o nó recusa a identidade | a ligação falha com erro |
 | `CLNTI-E03` | a ligação cai enquanto uma chamada espera | a chamada termina com erro, sem ficar parada |
+| `CLNTI-E04` | o `Attach` pede uma sessão que não existe | `ErrNoSession`, sem terminal |
 
 ## Rule uses
 
@@ -69,6 +82,14 @@ nova também.
 | `CLNTI-E01` | `addr` |
 | `CLNTI-E02` | `Identity`, `KnownHosts` |
 | `CLNTI-E03` | `addr` |
+| `CLNTI-B07` | `addr` |
+| `CLNTI-B08` | `addr` |
+| `CLNTI-E04` | `addr` |
+
+## Revisions
+
+> **CLNTI-R0001:** entram as sessões do nó (`CLNTI-B07`, `CLNTI-B08`, `CLNTI-E04`), para a janela as
+> mostrar e espelhar (plano ESRMS, W02).
 
 ## Open Decisions
 

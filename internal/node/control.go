@@ -100,7 +100,7 @@ func (c Controller) answer(m *proto.Message, perm sessions.Perm) *proto.Message 
 		// CNTRL-E06
 		err = forbiddenError{fmt.Errorf("permission denied: %s needs more than this connection may do", m.Method)}
 	} else {
-		res, err = c.dispatch(m)
+		res, err = c.dispatch(m, perm)
 	}
 	var pe paramsError
 	var oe opError
@@ -125,7 +125,7 @@ func (c Controller) answer(m *proto.Message, perm sessions.Perm) *proto.Message 
 	return &proto.Message{ID: m.ID, Result: b}
 }
 
-func (c Controller) dispatch(m *proto.Message) (any, error) {
+func (c Controller) dispatch(m *proto.Message, perm sessions.Perm) (any, error) {
 	switch m.Method {
 	case "fs.read":
 		return fsRead(m.Params)
@@ -136,7 +136,7 @@ func (c Controller) dispatch(m *proto.Message) (any, error) {
 	case "proc.run":
 		return procRun(m.Params)
 	case "session.list", "session.new", "session.close", "session.lock":
-		return c.session(m)
+		return c.session(m, perm)
 	}
 	return nil, errUnknownMethod
 }
@@ -158,10 +158,12 @@ type sessionInfo struct {
 	Viewers int      `json:"viewers"`
 	Locked  bool     `json:"locked"`
 	Created string   `json:"created"`
+	// Writable says whether this connection may type in the session (CNTRL-B07).
+	Writable bool `json:"writable"`
 }
 
 // session answers the session requests (CNTRL-B07).
-func (c Controller) session(m *proto.Message) (any, error) {
+func (c Controller) session(m *proto.Message, perm sessions.Perm) (any, error) {
 	if c.Sessions == nil {
 		return nil, opError{errors.New("this node has no sessions")}
 	}
@@ -176,7 +178,8 @@ func (c Controller) session(m *proto.Message) (any, error) {
 		out := []sessionInfo{}
 		for _, i := range c.Sessions.List() {
 			out = append(out, sessionInfo{ID: i.ID, Argv: i.Argv, Rows: i.Size.Rows, Cols: i.Size.Cols,
-				Viewers: i.Viewers, Locked: i.Locked, Created: i.Created.UTC().Format(time.RFC3339)})
+				Viewers: i.Viewers, Locked: i.Locked, Created: i.Created.UTC().Format(time.RFC3339),
+				Writable: perm == sessions.Owner || perm == sessions.Control && !i.Locked})
 		}
 		return map[string]any{"sessions": out}, nil
 	case "session.new":

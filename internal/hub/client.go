@@ -365,3 +365,82 @@ func (n *Node) Run(argv []string, dir string, stdin []byte) (RunResult, error) {
 	}
 	return RunResult{Code: r.Code, Signal: r.Signal, Stdout: out, Stderr: errb}, nil
 }
+
+// Session is a live session of the node (CLNTI-B07).
+type Session struct {
+	ID       string   `json:"id"`
+	Argv     []string `json:"argv"`
+	Rows     uint16   `json:"rows"`
+	Cols     uint16   `json:"cols"`
+	Viewers  int      `json:"viewers"`
+	Locked   bool     `json:"locked"`
+	Writable bool     `json:"writable"`
+	Created  string   `json:"created"`
+}
+
+// ErrNoSession is the error of attaching to a session the node does not have (CLNTI-E04).
+var ErrNoSession = errors.New("hub: no such session")
+
+// Sessions gives the node's live sessions (CLNTI-B07).
+func (n *Node) Sessions() ([]Session, error) {
+	var r struct {
+		Sessions []Session `json:"sessions"`
+	}
+	if err := n.Call("session.list", struct{}{}, &r); err != nil {
+		return nil, err
+	}
+	return r.Sessions, nil
+}
+
+// NewSession makes a session of argv (the node's shell when empty) in dir, of size, and gives its id
+// (CLNTI-B07).
+func (n *Node) NewSession(argv []string, dir string, size pty.Size) (string, error) {
+	var r struct {
+		ID string `json:"id"`
+	}
+	p := map[string]any{"argv": argv, "dir": dir, "rows": size.Rows, "cols": size.Cols}
+	if err := n.Call("session.new", p, &r); err != nil {
+		return "", err
+	}
+	return r.ID, nil
+}
+
+// CloseSession ends a session (CLNTI-B07).
+func (n *Node) CloseSession(id string) error {
+	return n.Call("session.close", map[string]string{"id": id}, &struct{}{})
+}
+
+// LockSession makes a session view-only for all but the node's owner, or lifts that (CLNTI-B07).
+func (n *Node) LockSession(id string, locked bool) error {
+	return n.Call("session.lock", map[string]any{"id": id, "locked": locked}, &struct{}{})
+}
+
+// Attach gives a terminal of a session that exists: its current screen, then its output (CLNTI-B08);
+// ErrNoSession when the node has no such session (CLNTI-E04).
+func (n *Node) Attach(id string) (*Terminal, error) {
+	s, err := n.client.NewSession()
+	if err != nil {
+		return nil, fmt.Errorf("hub: opening a session: %w", err)
+	}
+	in, err := s.StdinPipe()
+	if err != nil {
+		s.Close()
+		return nil, err
+	}
+	out, err := s.StdoutPipe()
+	if err != nil {
+		s.Close()
+		return nil, err
+	}
+	ok, err := s.SendRequest("attach@polvo", true, ssh.Marshal(struct{ ID string }{id}))
+	if err != nil {
+		s.Close()
+		return nil, fmt.Errorf("hub: attaching to %s: %w", id, err)
+	}
+	if !ok {
+		s.Close()
+		// CLNTI-E04
+		return nil, fmt.Errorf("%w: %s", ErrNoSession, id)
+	}
+	return &Terminal{s: s, in: in, out: out}, nil
+}

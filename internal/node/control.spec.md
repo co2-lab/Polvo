@@ -41,7 +41,8 @@ Uma mensagem sem identificador não recebe resposta, mesmo de erro.
 ### CNTRL-B07 — As sessões do nó pelo controlo
 O controlo de um nó com sessões (o `Controller`, com as `Sessions`) atende:
 - `session.list`: as sessões vivas, cada uma com o id, o programa, as linhas e as colunas, os
-  espectadores, se está travada e quando nasceu;
+  espectadores, se está travada, quando nasceu, e se quem pede pode escrever nela (`writable`: a
+  permissão de controlar numa sessão destravada, ou ser o dono);
 - `session.new`: cria uma sessão (o programa pedido, ou a shell do nó; a pasta e o tamanho pedidos) e
   devolve o id dela;
 - `session.close`: termina uma sessão;
@@ -109,6 +110,9 @@ O pedido sem a permissão é recusado com o erro de permissão (`CNTRL-E06`), se
 > **CNTRL-R0002:** entram as sessões do nó (`CNTRL-B07`) e as permissões (`CNTRL-B08`, `CNTRL-E06`), do
 > plano ESRMS (W01): o controlo passa a saber a permissão da ligação, e escrever e correr deixam de ser
 > de qualquer chave autorizada.
+
+> **CNTRL-R0003:** o `session.list` diz a cada ligação se pode escrever em cada sessão, para a janela mostrar
+> as que só se veem (plano ESRMS, W02).
 
 ## Open Decisions
 
