@@ -114,3 +114,27 @@ hoje e sim no que precisamos que ele tenha".
 - **"O Galaxy como alvo" e o `golang.org/x/crypto/ssh`.** Já corre (caixa 1386).
   - Ainda por provar no Galaxy: o PTY, o `net/http` com WebSocket, e o MCP por stdio.
   - Cada lacuna que aparecer vira uma caixa no Bavel (regra "Dois motores" do PROJECT.md).
+
+## Decisão do dono (2026-10-17) — a janela nativa
+
+**Decidido pelo dono**, depois de ver a UI no browser:
+- O escopo de agora é um terminal num desktop cross-platform; o agente é um programa (ex.: `claude`) que
+  se corre dentro do terminal. Mantêm-se o editor, o acesso remoto e o `polvo mcp`.
+- A escolha de cada componente é pelo mérito, não pelo que o Galaxy já corre nem pelo que o Polvo
+  antigo usava (Tauri). O Galaxy permite misturar línguas no mesmo executável.
+- **Arquitetura A (nativa):** a janela em GPUI (Rust, a UI do Zed, desenhada na GPU), o núcleo do
+  terminal em libghostty-vt (Zig, o núcleo do Ghostty), o servidor e o SSH em Go.
+
+**Porquê:** os melhores terminais (Ghostty, WezTerm, Alacritty, Warp) são nativos e desenhados na GPU;
+os de webview (Hyper, Tabby) são mais lentos. O terminal é o coração do Polvo.
+
+**Descartado:**
+- **Tauri/wry com a UI atual (arquitetura B).** Mais simples, mas o terminal fica num webview.
+- **Deno + `@webview/webview`.** Só a janela; o atualizador, os menus e os diálogos fazia-se à mão.
+- **Electron.** O Chromium desenha igual nos três sistemas, mas custa mais de 100 MB e a memória.
+
+**Por resolver:**
+- O editor em GPUI (o do Zed é GPL; o gpui-component tem um editor por avaliar).
+- O pty: o do Polvo em Go, ou o `portable-pty` (Rust, do WezTerm).
+- A libghostty-vt ainda não tem versão etiquetada e a API muda (fixar um commit); o GPUI está antes da 1.0.
+

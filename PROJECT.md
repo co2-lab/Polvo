@@ -14,8 +14,9 @@ para comunicar com os agentes e os processos das outras máquinas e para os cont
 | transporte remoto | SSH (`golang.org/x/crypto/ssh`) |
 | protocolo de controlo | JSON-RPC 2.0 no subsistema SSH `polvo` |
 | terminal | PTY no nó (Unix: `openpty`; Windows: ConPTY) |
-| UI | HTML/CSS/TS servida pelo próprio binário, xterm.js (terminal) e CodeMirror 6 (editor) |
-| bundler da UI | esbuild |
+| UI (alvo) | janela nativa desenhada na GPU: GPUI (Rust) para a janela, libghostty-vt (Zig) para o núcleo do terminal; o editor num componente GPUI (por escolher) |
+| UI (atual, até a nativa existir) | HTML/CSS/TS servida pelo próprio binário, xterm.js (terminal) e CodeMirror 6 (editor), aberta no browser |
+| bundler da UI atual | esbuild |
 | integração com o agente local | servidor MCP por stdio (`polvo mcp`) |
 
 ## Artefactos
@@ -36,6 +37,9 @@ Um único executável, `polvo`, com estes subcomandos:
   - `internal/node` e `internal/hub` falam só por `internal/proto` sobre um `io.ReadWriteCloser`.
   - O SSH vive só em `internal/sshx`.
   - Os testes ligam o hub e o nó por `net.Pipe`, sem rede.
+- **Várias línguas num executável:** cada parte usa o melhor componente do mercado na língua dele (o
+  servidor e o SSH em Go, a janela em Rust, o núcleo do terminal em Zig); o Galaxy junta-as num só
+  executável. Cada componente corre como o oficial, sem alterações.
 - **Dois motores:** todo o código Go e todos os testes têm de dar o mesmo resultado em `go` e em
   `galaxy`. Uma divergência é um defeito do Galaxy: corrige-se como caixa no Bavel, nunca com um
   contorno no Polvo.
