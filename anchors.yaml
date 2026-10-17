@@ -130,6 +130,9 @@ dialect:
         - re: '(?m)^\s*(?:pub\s+)?mod\s+(?P<path>\w+)\s*;'
           files: 'desktop/**/*.rs'
           relative: true
+        - re: '(?m)^\s*use\s+crate::(?P<path>\w+)'
+          files: 'desktop/**/*.rs'
+          relative: true
     import_names:
         - within: '^[ \t]*(?:import|export)\b[^{''"]*\{(?P<within>[^}]*)\}'
           each: '(?:^|,)\s*(?:type\s+)?(?P<name>[\p{L}_$][\p{L}\p{N}_$]*)'

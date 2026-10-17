@@ -15,5 +15,6 @@ macro_rules! scenario {
 
 mod keys; // @dep: KYIMK
 mod prefs; // @dep: PRIMP
+mod screen; // @dep: SCIMS
 
 fn main() {}

@@ -2,7 +2,7 @@
 # Material e versionado. Fonte de verdade do grafo; índices em memória são cache.
 version: 8
 generated_by: 0.1.353
-config_rev: 74b0bccb7671
+config_rev: ce544cf6a063
 nodes:
     - id: AGENTS.md
       kind: doc
@@ -198,15 +198,15 @@ nodes:
       line_rev: da442fc882b2
     - id: desktop/src/main.rs
       kind: code
-      rev: e010abac79e8
+      rev: 55a20b81f23b
       updated_at: "2026-10-17"
       code: JNNTJ
       file_code: DSMND
       layer: desktop
       tags:
         - desktop
-      evidence_rev: 873417f2b910
-      line_rev: 53ceef0ed696
+      evidence_rev: 2c98de76c3ee
+      line_rev: 62f6c8be9c14
     - id: desktop/src/prefs.feature
       kind: feature
       rev: aeeeb64aadef
@@ -254,6 +254,53 @@ nodes:
         - desktop
       evidence_rev: ffe2d9432827
       line_rev: c1c6cf951c28
+    - id: desktop/src/screen.feature
+      kind: feature
+      rev: a0618d95bd68
+      updated_at: "2026-10-17"
+      code: SCRNE
+      file_code: SCFTS
+      layer: feature
+      tags:
+        - feature
+      evidence_rev: 8b9681504e80
+      line_rev: 1109df9ad4db
+    - id: desktop/src/screen.rs
+      kind: code
+      rev: 1bd2280c3c50
+      updated_at: "2026-10-17"
+      code: SCRNE
+      file_code: SCIMS
+      layer: desktop
+      tags:
+        - desktop
+      evidence_rev: 1417d3f00202
+      line_rev: 2eb6375a7dff
+    - id: desktop/src/screen.spec.md
+      kind: spec
+      rev: e341268f5a68
+      updated_at: "2026-10-17"
+      code: SCRNE
+      file_code: SCRNE
+      layer: spec
+      code_declared: true
+      tags:
+        - spec
+      evidence_rev: 140c8fa2e44a
+      rule_revs: {SCRNE-B01: fc4deb31de42, SCRNE-B02: b86c1d60edab, SCRNE-B03: 2462d13d74fb, SCRNE-B04: "907994850453", SCRNE-B05: be5269f262cb, SCRNE-B06: d80b11c62133, SCRNE-B07: a6683036f6c9, SCRNE-B08: a6324e49a2b6, SCRNE-B09: 69cb9a652b0b, SCRNE-E01: 2bcf00df7c4d}
+      rest_rev: 8d3db365bd43
+    - id: desktop/src/screen_test.rs
+      kind: test
+      rev: 8ead678c4304
+      updated_at: "2026-10-17"
+      code: SCRNE
+      file_code: SCTSS
+      layer: desktoptest
+      tags:
+        - test
+        - desktop
+      evidence_rev: 2458764976dd
+      line_rev: e0385c7bad89
     - id: internal/hub/client.feature
       kind: feature
       rev: 9e853b78b359
@@ -1243,6 +1290,10 @@ edges:
       to: desktop/src/prefs.rs
       type: depends-on
       origin: declared
+    - from: desktop/src/main.rs
+      to: desktop/src/screen.rs
+      type: depends-on
+      origin: declared
     - from: desktop/src/prefs.feature
       to: desktop/src/prefs_test.rs
       type: tested-by
@@ -1270,6 +1321,26 @@ edges:
         validated_to_rev: cd5b1ba68a40
         changed_at: "2026-10-17"
         verdict: ok
+    - from: desktop/src/screen.feature
+      to: desktop/src/screen_test.rs
+      type: tested-by
+      origin: convention
+    - from: desktop/src/screen.rs
+      to: desktop/src/keys.rs
+      type: depends-on
+      origin: declared
+    - from: desktop/src/screen.spec.md
+      to: desktop/src/screen.feature
+      type: covered-by
+      origin: convention
+    - from: desktop/src/screen.spec.md
+      to: desktop/src/screen.rs
+      type: specifies
+      origin: convention
+    - from: desktop/src/screen_test.rs
+      to: desktop/src/keys.rs
+      type: depends-on
+      origin: declared
     - from: internal/hub/client.feature
       to: internal/hub/client_test.go
       type: tested-by
@@ -1718,6 +1789,10 @@ edges:
         validated_to_rev: 0443d3f16e2c
         changed_at: "2026-10-17"
         verdict: ok
+    - from: plans/janela.plan.md
+      to: desktop/src/screen.spec.md
+      type: seeds
+      origin: declared
     - from: plans/terminal-remoto.plan.md
       to: cmd/polvo/cli.spec.md
       judgments:
