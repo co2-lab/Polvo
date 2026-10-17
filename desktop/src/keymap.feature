@@ -12,7 +12,7 @@ Feature: Keymap
   Scenario: Os atalhos por omissão
     Given um mapa sem nada mudado
     When se pede o atalho de cada ação
-    Then aba nova é "ctrl-shift-t", fechar aba "ctrl-shift-w", copiar "ctrl-shift-c", colar "ctrl-shift-v" e configuração "ctrl-,"
+    Then aba nova é "ctrl-shift-t", fechar aba "ctrl-shift-w", copiar "ctrl-shift-c", colar "ctrl-shift-v", configuração "ctrl-," e gravar "ctrl-s"
 
   @KYMPE-B02 @unit-level
   Scenario: A forma única de um atalho

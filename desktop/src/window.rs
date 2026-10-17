@@ -412,7 +412,7 @@ impl PolvoWindow {
             Some(Action::NewTab) => self.new_tab(window, cx),
             Some(Action::CloseTab) => self.close_focused(window, cx),
             Some(Action::Settings) => self.open_settings(window, cx),
-            Some(Action::Copy | Action::Paste) | None => return,
+            Some(Action::Copy | Action::Paste | Action::Save) | None => return,
         }
         cx.stop_propagation();
     }

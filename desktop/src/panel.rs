@@ -199,8 +199,9 @@ impl TerminalPanel {
                 }
             }
             // TRPNT-B01: the window's actions go on to the window
-            Some(_) => return,
-            None => {
+            Some(Action::NewTab | Action::CloseTab | Action::Settings) => return,
+            // TRPNT-B01: saving is the editor's; here the keys are the shell's
+            Some(Action::Save) | None => {
                 let mods = Modifiers { control: m.control, alt: m.alt, shift: m.shift };
                 self.screen.key(&translate(&ks.key, ks.key_char.as_deref(), mods));
             }

@@ -11,8 +11,8 @@ Feature: Panel
   @TRPNT-B01 @unit-level
   Scenario: O teclado vai para a shell
     Given um painel com um terminal
-    When o utilizador escreve "a", carrega em Enter e em Ctrl+C
-    Then a shell recebe "a", "\r" e 0x03
+    When o utilizador escreve "a", carrega em Enter, em Ctrl+C e em Ctrl+S
+    Then a shell recebe "a", "\r", 0x03 e 0x13
 
   @TRPNT-B02#01 @unit-level
   Scenario: Ctrl+Shift+C copia a seleção e Ctrl+Shift+V cola

@@ -21,6 +21,7 @@ da shell e as preferências (`Prefs`); o `spawn` arranca a shell do utilizador e
 Uma tecla no painel com o foco vai para a shell como o `Keys` a traduz e a libghostty-vt a codifica.
 Os atalhos do mapa de atalhos (o `Keymap` da aplicação) não vão: os de copiar e colar são do painel
 (`TRPNT-B02`), e os das ações da janela (aba nova, fechar a aba, configuração) seguem para a janela.
+O de gravar é do editor: no terminal vai para a shell como as outras teclas.
 
 ### TRPNT-B02 — Copiar e colar
 - O atalho de copiar (por omissão Ctrl+Shift+C) copia a seleção para a área de transferência.
@@ -98,6 +99,8 @@ fechar.
 
 > **TRPNT-R0002:** copiar e colar passam a ser os atalhos do mapa de atalhos (plano CEACN, W01), que o
 > utilizador muda; os atalhos das ações da janela deixam de ir para a shell.
+
+> **TRPNT-R0003:** o atalho de gravar do mapa (o Ctrl+S, do editor) vai para a shell (plano CEACN, W03).
 
 ## Open Decisions
 

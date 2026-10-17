@@ -8,7 +8,7 @@ use std::collections::BTreeMap;
 scenario!(kympe_b01_os_atalhos_por_omissao, "KYMPE-B01: Os atalhos por omissão", {
     let k = Keymap::default();
     let got: Vec<&str> = Action::ALL.iter().map(|a| k.shortcut(*a)).collect();
-    assert_eq!(got, vec!["ctrl-shift-t", "ctrl-shift-w", "ctrl-shift-c", "ctrl-shift-v", "ctrl-,"]);
+    assert_eq!(got, vec!["ctrl-shift-t", "ctrl-shift-w", "ctrl-shift-c", "ctrl-shift-v", "ctrl-,", "ctrl-s"]);
 });
 
 scenario!(kympe_b02_a_forma_unica_de_um_atalho, "KYMPE-B02: A forma única de um atalho", {

@@ -8,7 +8,7 @@
 
 ## Overview
 A janela tem ações que se fazem pelo teclado (`Action`): abrir uma aba nova, fechar a aba, copiar,
-colar, abrir a configuração. O `Keymap` diz o atalho de cada uma e que ação um atalho faz. O utilizador
+colar, abrir a configuração, gravar o editor. O `Keymap` diz o atalho de cada uma e que ação um atalho faz. O utilizador
 muda os atalhos na configuração; o que difere dos de omissão grava-se, e volta a aplicar-se ao abrir.
 Um atalho recusado vem com o motivo (`KeymapError`).
 
@@ -53,7 +53,7 @@ sobre os de omissão.
 ## Business Constants
 | Constant | Value | Why |
 | --- | --- | --- |
-| `DEFAULTS` | aba nova `ctrl-shift-t`, fechar aba `ctrl-shift-w`, copiar `ctrl-shift-c`, colar `ctrl-shift-v`, configuração `ctrl-,` | os dos terminais do Linux (GNOME Terminal, Ghostty): o Ctrl sem Shift é da shell |
+| `DEFAULTS` | aba nova `ctrl-shift-t`, fechar aba `ctrl-shift-w`, copiar `ctrl-shift-c`, colar `ctrl-shift-v`, configuração `ctrl-,`, gravar `ctrl-s` | os dos terminais do Linux (GNOME Terminal, Ghostty): o Ctrl sem Shift é da shell; gravar é o de todos os editores, e no terminal vai para a shell |
 
 ## Rule uses
 
@@ -67,6 +67,10 @@ sobre os de omissão.
 | `KYMPE-E01` | `keystroke` |
 | `KYMPE-E02` | `keystroke` |
 | `KYMPE-E03` | `overrides` |
+
+## Revisions
+
+> **KYMPE-R0001:** entra a ação de gravar (`ctrl-s`), para o editor (plano CEACN, W03).
 
 ## Open Decisions
 

@@ -87,10 +87,10 @@ fn drag_over(cx: &mut TestAppContext, o: &Opened, from: u16, to: u16, row: u16) 
 
 scenario!(trpnt_b01_o_teclado_vai_para_a_shell, "TRPNT-B01: O teclado vai para a shell", |cx| {
     let o = open_panel(cx);
-    for key in ["a", "enter", "ctrl-c"] {
+    for key in ["a", "enter", "ctrl-c", "ctrl-s"] {
         cx.update_window(o.handle, |_, window, cx| window.press(key, cx)).unwrap();
     }
-    assert_eq!(o.sink.take(), b"a\r\x03".to_vec());
+    assert_eq!(o.sink.take(), b"a\r\x03\x13".to_vec());
 });
 
 scenario!(trpnt_b02_01_copiar_e_colar, "TRPNT-B02#01: Ctrl+Shift+C copia a seleção e Ctrl+Shift+V cola", |cx| {

@@ -14,10 +14,11 @@ pub enum Action {
     Copy,
     Paste,
     Settings,
+    Save,
 }
 
 impl Action {
-    pub const ALL: [Action; 5] = [Action::NewTab, Action::CloseTab, Action::Copy, Action::Paste, Action::Settings];
+    pub const ALL: [Action; 6] = [Action::NewTab, Action::CloseTab, Action::Copy, Action::Paste, Action::Settings, Action::Save];
 
     /// The id the action is saved under.
     pub fn id(self) -> &'static str {
@@ -27,6 +28,7 @@ impl Action {
             Action::Copy => "copy",
             Action::Paste => "paste",
             Action::Settings => "settings",
+            Action::Save => "save",
         }
     }
 
@@ -38,6 +40,7 @@ impl Action {
             Action::Copy => "Copiar",
             Action::Paste => "Colar",
             Action::Settings => "Configuração",
+            Action::Save => "Gravar",
         }
     }
 
@@ -69,12 +72,13 @@ pub struct Keymap {
 }
 
 /// The default shortcuts (KYMPE-B01): those of the Linux terminals; Ctrl with no Shift is the shell's.
-pub const DEFAULTS: [(Action, &str); 5] = [
+pub const DEFAULTS: [(Action, &str); 6] = [
     (Action::NewTab, "ctrl-shift-t"),
     (Action::CloseTab, "ctrl-shift-w"),
     (Action::Copy, "ctrl-shift-c"),
     (Action::Paste, "ctrl-shift-v"),
     (Action::Settings, "ctrl-,"),
+    (Action::Save, "ctrl-s"),
 ];
 
 const MODIFIERS: [&str; 4] = ["ctrl", "alt", "shift", "cmd"];

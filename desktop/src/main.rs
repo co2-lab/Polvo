@@ -27,6 +27,7 @@ macro_rules! scenario {
     };
 }
 
+mod editor; // @dep: EDIMP
 mod keymap; // @dep: KYIMA
 mod keys; // @dep: KYIMK
 mod layout; // @dep: DLIDC
