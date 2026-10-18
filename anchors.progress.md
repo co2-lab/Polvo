@@ -1,5 +1,5 @@
 <!-- anchors:progress v1 — written by `anchors progress`; never edit by hand -->
-# Progress — 100% (55/55 points)
+# Progress — 100% (57/57 points)
 
 ## D01 — AgenteLocal (plan: plans/agente-local.plan.md) — 100% (6/6)
 ### D01.S1 — AGLCG-W01 — A ponte MCP — 100% (2/2)
@@ -70,12 +70,14 @@
 ### D05.S4 — ESRMS-W04 — P2P através de NAT (depends on ESRMS-W03) — — (0/0)
 ### D05.S5 — ESRMS-W05 — Os ficheiros de qualquer máquina (depends on ESRMS-W02) — — (0/0)
 
-## D06 — Agentes (plan: plans/agentes.plan.md) — 100% (3/3)
+## D06 — Agentes (plan: plans/agentes.plan.md) — 100% (5/5)
 ### D06.S1 — AGPRG-W01 — O progresso no nó — 100% (3/3)
 - [x] D06.T1 — `internal/progress/progress.spec.md` · 1 · done 2026-10-18 by OK-BR-PE0EF71F/polvo-main
 - [x] D06.T2 — `internal/node/control.spec.md` (muda: os pedidos do progresso, com a espera longa em vez das notificações) · 1 · done 2026-10-18 by OK-BR-PE0EF71F/polvo-main
 - [x] D06.T3 — `internal/station/station.spec.md` (muda: o quadro no nó da janela) · 1 · done 2026-10-18 by OK-BR-PE0EF71F/polvo-main
-### D06.S2 — AGPRG-W02 — As ferramentas do agente (depends on AGPRG-W01) — — (0/0)
+### D06.S2 — AGPRG-W02 — As ferramentas do agente (depends on AGPRG-W01) — 100% (2/2)
+- [x] D06.T4 — `internal/mcp/tools.spec.md` (muda: as ferramentas do progresso; a de responder passa à W03) · 1 · done 2026-10-18 by OK-BR-PE0EF71F/polvo-main
+- [x] D06.T5 — `internal/sessions/sessions.spec.md` e `station.spec.md` (mudam: o ambiente das sessões) · 1 · done 2026-10-18 by OK-BR-PE0EF71F/polvo-main
 ### D06.S3 — AGPRG-W03 — O painel dos agentes (depends on AGPRG-W02) — — (0/0)
 
 ## D07 — Configuracao e tipos de aba (plan: plans/abas.plan.md) — 100% (11/11)
@@ -95,4 +97,4 @@
 - [x] D07.T10 — `desktop/src/git.spec.md` · 1 · done 2026-10-17 by OK-BR-PE0EF71F/polvo-main
 - [x] D07.T11 — `desktop/src/window.spec.md` (muda: o tipo de aba do git) · 1 · done 2026-10-17 by OK-BR-PE0EF71F/polvo-main
 
-<!-- anchors:progress sum=ad94dd12b623 -->
+<!-- anchors:progress sum=7db572271327 -->
