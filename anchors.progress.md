@@ -128,4 +128,13 @@
 - [x] D07.T10 — `desktop/src/git.spec.md` · 1 · done 2026-10-17 by OK-BR-PE0EF71F/polvo-main
 - [x] D07.T11 — `desktop/src/window.spec.md` (muda: o tipo de aba do git) · 1 · done 2026-10-17 by OK-BR-PE0EF71F/polvo-main
 
-<!-- anchors:progress sum=69915442c95f -->
+## D08 — Polvo sobre o Galaxy (plan: plans/sobre-o-galaxy.plan.md) — — (0/0)
+### D08.S1 — GLXPV-W01 — A medição de cada língua contra o Polvo — — (0/0)
+### D08.S2 — GLXPV-W02 — A fronteira Go↔Rust, sem ABI C (depends on GLXPV-W01) — — (0/0)
+### D08.S3 — GLXPV-W03 — As primitivas nativas das línguas (depends on GLXPV-W01) — — (0/0)
+### D08.S4 — GLXPV-W04 — O transporte entre redes no Galaxy (depends on GLXPV-W02, GLXPV-W03) — — (0/0)
+### D08.S5 — GLXPV-W05 — O núcleo do terminal em Zig (depends on GLXPV-W03) — — (0/0)
+### D08.S6 — GLXPV-W06 — A janela (depends on GLXPV-W02, GLXPV-W03, GLXPV-W05) — — (0/0)
+### D08.S7 — GLXPV-W07 — O executável do Polvo (depends on GLXPV-W04, GLXPV-W06) — — (0/0)
+
+<!-- anchors:progress sum=ae6084d94b8c -->
