@@ -15,8 +15,9 @@
 
 Uma pessoa entra no Polvo com a conta que já tem (GitHub, Google, Apple, Microsoft, ou o fornecedor OIDC da
 empresa) e vê, em qualquer dispositivo, as máquinas dela e as que lhe partilharam, com as sessões de cada
-uma. Partilha uma máquina com outra pessoa pela conta dela (ver, controlar, encaminhar sockets) em vez de
-trocar chaves. Sem conta, o Polvo continua a funcionar como hoje (emparelhar por código).
+uma. Cada pessoa tem um código Polvo (o nome dela no Polvo, como `adriel.silva`), e partilhar uma
+máquina é convidar outra pessoa pelo código dela (ver, controlar, encaminhar sockets), em vez de trocar
+chaves. Sem conta, o Polvo continua a funcionar como hoje (emparelhar por código).
 
 ## Rationale
 
@@ -36,6 +37,14 @@ máquinas é pedir a lista à conta.
   - emite certificados SSH de curta duração (`ssh.Certificate`, um dia) que ligam a chave de um
     dispositivo à conta: o nó confia na autoridade do serviço e lê a conta no certificado, como o
     Teleport e o smallstep fazem.
+- **O código Polvo**: cada conta ganha, ao entrar a primeira vez, um código único que a identifica para os
+  outros: o nome de utilizador do fornecedor (`adrielcodeco`) ou o nome e o apelido (`adriel.silva`), com
+  um número no fim quando já está tomado; a pessoa pode mudá-lo depois. Por dentro, as partilhas guardam o
+  id da conta, por isso mudar o código não as estraga. O email e a conta do fornecedor não se mostram a
+  ninguém.
+- **Convidar**: partilhar é convidar pelo código, com a permissão (ver, controlar, encaminhar). A outra
+  pessoa vê o convite e aceita-o (ou recusa); só depois de aceitar a máquina aparece na lista dela e o nó a
+  deixa entrar. Quem convidou pode retirar o acesso a qualquer momento.
 - **O nó** aceita, além das chaves autorizadas, os certificados do serviço; o `node.json` ganha permissões
   por pessoa (`"people": {"github:joao": "control"}`), e as partilhas feitas na conta chegam ao nó
   assinadas pelo serviço. Os dispositivos da mesma conta são o dono.
@@ -52,8 +61,8 @@ máquinas é pedir a lista à conta.
 
 ### IDNTD-W01 — O serviço de contas
 
-- `conta/` (Go) — nasce: o servidor; o login pelos fornecedores, as contas, os dispositivos, a aprovação de
-  um dispositivo novo, e os certificados SSH
+- `conta/` (Go) — nasce: o servidor; o login pelos fornecedores, as contas e o código Polvo de cada uma,
+  os dispositivos, a aprovação de um dispositivo novo, e os certificados SSH
 - `conta/providers.spec.md` — nasce: GitHub, Google, Apple, Microsoft e o OIDC genérico
 
 ### IDNTD-W02 — O nó aceita pessoas (depends on IDNTD-W01)
@@ -71,16 +80,21 @@ máquinas é pedir a lista à conta.
 
 ### IDNTD-W04 — Partilhar (depends on IDNTD-W03)
 
-- `conta/shares.spec.md` — nasce: partilhar uma máquina com uma pessoa (ver, controlar, encaminhar), e
-  deixar de partilhar
-- `desktop/src/nodes.spec.md` — muda: partilhar a partir da aba das máquinas, e os dispositivos com acesso
-  (revogar)
+- `conta/shares.spec.md` — nasce: convidar uma pessoa pelo código Polvo para uma máquina (ver,
+  controlar, encaminhar), aceitar ou recusar o convite, e retirar o acesso
+- `desktop/src/nodes.spec.md` — muda: convidar a partir da aba das máquinas, os convites recebidos, e os
+  dispositivos e as pessoas com acesso (retirar)
 
 ## Out of Scope
 
 - Contas com palavra-passe próprias do Polvo.
 - Partilhar uma sessão sozinha (a partilha é da máquina, e as sessões travadas continuam só para ver).
 - A app mobile: tem um plano próprio, que usa esta identidade.
+
+## Revisions
+
+> **IDNTD-R0001:** o dono pediu a 2026-10-18 que cada pessoa tenha um código (nome e apelido, nome de
+> utilizador, etc.) e que dar acesso a outra seja convidá-la por esse código.
 
 ## Open Decisions
 
@@ -90,12 +104,13 @@ máquinas é pedir a lista à conta.
 | `IDNTD-D02` | A co2lab aloja o serviço (e o relay do iroh) por omissão, e quem quiser aloja o seu? Proposta do agente: sim. @no-code: decisão por tomar pelo dono | dono | a fase IDNTD-W01 |
 | `IDNTD-D03` | A conta é opcional (sem ela, o emparelhamento por código continua)? Proposta do agente: sim. @no-code: decisão por tomar pelo dono | dono | as fases IDNTD-W02 e IDNTD-W03 |
 | `IDNTD-D04` | Os dispositivos da mesma conta são o dono das máquinas uns dos outros, depois de aprovados por um que já lá está? Proposta do agente: sim. @no-code: decisão por tomar pelo dono | dono | a fase IDNTD-W02 |
+| `IDNTD-D06` | O código Polvo: letras minúsculas, algarismos, ponto e hífen, de 3 a 30; sugerido do nome de utilizador do fornecedor ou do nome e apelido, com um número quando está tomado; a pessoa pode mudá-lo (o código antigo fica livre). Proposta do agente, a partir do pedido do dono. @no-code: decisão por tomar pelo dono | dono | a fase IDNTD-W01 |
 | `IDNTD-D05` | Os fornecedores da primeira versão: GitHub, Google, Apple, Microsoft e o OIDC genérico (o Apple é obrigatório na App Store quando há login social). Mais algum (GitLab, Discord)? @no-code: decisão por tomar pelo dono | dono | a fase IDNTD-W01 |
 
 ## Definition of Done
 
 - Uma pessoa entra com a conta do GitHub no desktop e no telemóvel, aprova o telemóvel no desktop, e vê no
   telemóvel as máquinas dela e as sessões de cada uma, de outra rede.
-- Partilha uma máquina com outra pessoa pela conta dela, com a permissão de só ver; essa pessoa vê a máquina
-  na lista dela e não consegue escrever nas sessões; deixar de partilhar corta-a.
+- Convida outra pessoa pelo código Polvo dela para uma máquina, com a permissão de só ver; depois de ela
+  aceitar, vê a máquina na lista dela e não consegue escrever nas sessões; retirar o acesso corta-a.
 - Sem conta, tudo o que existe hoje continua a funcionar.
