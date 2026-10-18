@@ -11,7 +11,7 @@
 > (a janela em Rust com o gpui, o núcleo do terminal em Zig com a `libghostty-vt`, o servidor em Go), as
 > camadas a falar pela fronteira do Galaxy, e o Galaxy a dar só as primitivas das línguas para o nativo.
 > As fases do produto que faltam (`IDNTD`, `MOBIL`, `BRWSR`) esperam por este plano. O desenho e as
-> fases são do agente, por aprovar pelo dono.
+> fases são do agente, aprovados pelo dono a 2026-10-18 (`GLXPV-R0001`).
 
 ## Objective
 
@@ -117,14 +117,17 @@ Windows; os testes de todo o Polvo passam no Galaxy como passam nos compiladores
 
 ## Revisions
 
-none
+> **GLXPV-R0001:** o dono aprovou o plano a 2026-10-18, com as duas propostas do agente: o C das crates
+> corre pelo frontend de C do Galaxy e o assembly dá lugar à variante em Rust ou C de cada crate, e as
+> bibliotecas do sistema entram pela primitiva da língua (era a `GLXPV-D01`); a cola em C de hoje continua
+> a fazer o produto funcionar até a fase que a substitui passar (era a `GLXPV-D02`).
 
 ## Open Decisions
 
 | Code | Question | Who decides | Becomes |
 | --- | --- | --- | --- |
-| `GLXPV-D01` | O C e o assembly que vêm dentro das crates (as gramáticas do tree-sitter, o `ring`, o `blake3`): correm pelo frontend de C do Galaxy (tudo no Galaxy; o assembly obriga a usar a variante sem assembly, ou a trocar a criptografia por uma em Rust puro), ou entram compilados, pela mesma primitiva das bibliotecas do sistema? Proposta do agente: o C pelo frontend de C do Galaxy, que já existe, e o assembly pela variante em Rust ou C de cada crate; as bibliotecas do sistema pela primitiva. @no-code: decisão por tomar pelo dono | dono | as fases GLXPV-W04 e GLXPV-W06 |
-| `GLXPV-D02` | A cola em C de hoje (a `libpolvo` c-archive, o `ffi.rs`, o cgo do `internal/transport`) continua a fazer o produto funcionar até a fase que a substitui passar, e só então sai? Proposta do agente: sim, para o Polvo nunca deixar de funcionar entre fases. @no-code: decisão por tomar pelo dono | dono | as fases GLXPV-W02 e GLXPV-W04 |
+
+none
 
 ## Definition of Done
 
