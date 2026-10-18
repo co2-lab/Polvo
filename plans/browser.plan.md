@@ -33,6 +33,10 @@ Por desenhar. As perguntas que o desenho tem de responder, com pesquisa:
 
 Por desenhar.
 
+## Out of Scope
+
+- O mobile: o browser é só do desktop (o dono, a 2026-10-18).
+
 ## Open Decisions
 
 | Code | Question | Who decides | Becomes |

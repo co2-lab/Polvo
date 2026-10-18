@@ -2004,7 +2004,7 @@ nodes:
       line_rev: 18e685417e96
     - id: plans/browser.plan.md
       kind: plan
-      rev: 33b8aebb8baa
+      rev: 6d21b8e7d9c0
       updated_at: "2026-10-18"
       code: BRWSR
       file_code: BRWSR
@@ -2012,8 +2012,8 @@ nodes:
       code_declared: true
       tags:
         - plan
-      evidence_rev: 038ef6a5b17e
-      line_rev: 4a53ec68b324
+      evidence_rev: 2df60e5ba968
+      line_rev: ef9e0012f04e
     - id: plans/desktop.plan.md
       kind: plan
       rev: 8ceec0ebc810
