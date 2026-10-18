@@ -137,12 +137,5 @@
 ### D08.S5 — GLXPV-W05 — O núcleo do terminal em Zig (depends on GLXPV-W03) — — (0/0)
 ### D08.S6 — GLXPV-W06 — A janela (depends on GLXPV-W02, GLXPV-W03, GLXPV-W05) — — (0/0)
 ### D08.S7 — GLXPV-W07 — O executável do Polvo (depends on GLXPV-W04, GLXPV-W06) — — (0/0)
-### D08.S8 — GLXPV-W01 — A medição de cada língua contra o Polvo — — (0/0)
-### D08.S9 — GLXPV-W02 — A fronteira Go↔Rust, sem ABI C — — (0/0)
-### D08.S10 — GLXPV-W03 — As primitivas nativas das línguas — — (0/0)
-### D08.S11 — GLXPV-W04 — O transporte entre redes no Galaxy — — (0/0)
-### D08.S12 — GLXPV-W05 — O núcleo do terminal em Zig — — (0/0)
-### D08.S13 — GLXPV-W06 — A janela — — (0/0)
-### D08.S14 — GLXPV-W07 — O executável do Polvo — — (0/0)
 
-<!-- anchors:progress sum=389dc2652f55 -->
+<!-- anchors:progress sum=4174a177623c -->
