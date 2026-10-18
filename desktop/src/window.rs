@@ -26,7 +26,7 @@ use gpui_kit::{
 
 use crate::agents::{AgentsFeed, AgentsPanel, FeedEvent}; // @dep: AGIMP
 use crate::editor::EditorPanel; // @dep: EDIMP
-use crate::files::{FileTree, FileTreeEvent}; // @dep: FLIMP
+use crate::files::{FileSource, FileTree, FileTreeEvent}; // @dep: FLIMP
 use crate::git::{GitEvent, GitPanel}; // @dep: GTIMP
 use crate::keymap::{Action, Keymap}; // @dep: KYIMA
 use crate::layout::{LAYOUT_VERSION, LayoutFile}; // @dep: DLIDC
@@ -297,10 +297,17 @@ impl PolvoWindow {
         // WNDWI-B12: the trees with their folder, the editors with their file.
         let restored_trees: Rc<RefCell<Vec<Entity<FileTree>>>> = Rc::default();
         {
-            let (restored, fallback) = (restored_trees.clone(), this.root.clone());
+            let (restored, fallback, station) = (restored_trees.clone(), this.root.clone(), this.station.clone());
             register_panel(cx, "files", move |ctx, window, cx| {
                 let root = kept(ctx.info(), "root").map_or_else(|| fallback.clone(), PathBuf::from);
-                let tree = cx.new(|cx| FileTree::new(root, window, cx));
+                // WNDWI-B25: the tree of another machine comes back with it, while the installation is open
+                let (source, root) = match (kept(ctx.info(), "machine"), &station) {
+                    (Some(machine), Some(station)) => (FileSource::Node { station: station.clone(), machine }, root),
+                    // without it, the window's folder
+                    (Some(_), None) => (FileSource::Local, fallback.clone()),
+                    (None, _) => (FileSource::Local, root),
+                };
+                let tree = cx.new(|cx| FileTree::on(source, root, window, cx));
                 restored.borrow_mut().push(tree.clone());
                 panel_handle(tree)
             });
@@ -352,11 +359,18 @@ impl PolvoWindow {
         }
         let restored_editors: Rc<RefCell<Vec<Entity<EditorPanel>>>> = Rc::default();
         {
-            let restored = restored_editors.clone();
+            let (restored, station) = (restored_editors.clone(), this.station.clone());
             register_panel(cx, "editor", move |ctx, window, cx| {
-                let editor = match kept(ctx.info(), "path") {
-                    Some(path) => cx.new(|cx| EditorPanel::open(PathBuf::from(path), window, cx)),
-                    None => cx.new(|cx| EditorPanel::empty(window, cx)),
+                // WNDWI-B25: the file of another machine comes back with it, while the installation is open
+                let editor = match (kept(ctx.info(), "path"), kept(ctx.info(), "machine"), &station) {
+                    (Some(path), Some(machine), Some(station)) => {
+                        let source = FileSource::Node { station: station.clone(), machine };
+                        cx.new(|cx| EditorPanel::open_on(source, PathBuf::from(path), window, cx))
+                    }
+                    // without it, the editor comes back empty
+                    (Some(_), Some(_), None) => cx.new(|cx| EditorPanel::empty(window, cx)),
+                    (Some(path), None, _) => cx.new(|cx| EditorPanel::open(PathBuf::from(path), window, cx)),
+                    (None, _, _) => cx.new(|cx| EditorPanel::empty(window, cx)),
                 };
                 restored.borrow_mut().push(editor.clone());
                 panel_handle(editor)
@@ -603,6 +617,12 @@ impl PolvoWindow {
     fn watch_machines(&mut self, panel: Entity<NodesPanel>, window: &mut Window, cx: &mut Context<Self>) {
         let sub = cx.subscribe_in(&panel, window, |this, _, ev: &NodesEvent, window, cx| match ev {
             NodesEvent::Open(tab) => this.open_session_tab(tab.clone(), window, cx),
+            NodesEvent::Files(machine) => {
+                // WNDWI-B25: from the machine's home folder
+                let Some(station) = this.station.clone() else { return };
+                let source = FileSource::Node { station, machine: machine.clone() };
+                this.open_tree_on(source, PathBuf::from("~"), window, cx);
+            }
         });
         self.heard.insert(panel.entity_id(), sub);
         self.machines = Some(panel);
@@ -624,8 +644,12 @@ impl PolvoWindow {
 
     /// Opens the file tree of the window's folder, with the focus (WNDWI-B18).
     fn open_tree(&mut self, window: &mut Window, cx: &mut Context<Self>) {
-        let root = self.root.clone();
-        let tree = cx.new(|cx| FileTree::new(root, window, cx));
+        self.open_tree_on(FileSource::Local, self.root.clone(), window, cx);
+    }
+
+    /// Opens the file tree of `root` of the machine of `source`, with the focus (WNDWI-B18, WNDWI-B25).
+    fn open_tree_on(&mut self, source: FileSource, root: PathBuf, window: &mut Window, cx: &mut Context<Self>) {
+        let tree = cx.new(|cx| FileTree::on(source, root, window, cx));
         self.dock.update(cx, |dock, cx| dock.add_panel(tree.clone(), DockPlacement::Center, None, window, cx));
         let focus = tree.read(cx).focus_handle(cx);
         window.focus(&focus, cx);
@@ -635,8 +659,12 @@ impl PolvoWindow {
 
     /// Hears the files the tree opens (WNDWI-B18).
     fn watch_tree(&mut self, tree: Entity<FileTree>, window: &mut Window, cx: &mut Context<Self>) {
-        let sub = cx.subscribe_in(&tree, window, |this, _, ev: &FileTreeEvent, window, cx| match ev {
-            FileTreeEvent::Open(path) => this.open_file(path.clone(), window, cx),
+        let sub = cx.subscribe_in(&tree, window, |this, tree, ev: &FileTreeEvent, window, cx| match ev {
+            // WNDWI-B25: on the tree's machine
+            FileTreeEvent::Open(path) => {
+                let source = tree.read(cx).source().clone();
+                this.open_file(source, path.clone(), window, cx)
+            }
         });
         self.heard.insert(tree.entity_id(), sub);
         self.trees.push(tree);
@@ -656,7 +684,7 @@ impl PolvoWindow {
     /// Hears the changed files the git tab opens (WNDWI-B20).
     fn watch_git(&mut self, tab: Entity<GitPanel>, window: &mut Window, cx: &mut Context<Self>) {
         let sub = cx.subscribe_in(&tab, window, |this, _, ev: &GitEvent, window, cx| match ev {
-            GitEvent::Open(path) => this.open_file(path.clone(), window, cx),
+            GitEvent::Open(path) => this.open_file(FileSource::Local, path.clone(), window, cx),
         });
         self.heard.insert(tab.entity_id(), sub);
         self.gits.push(tab);
@@ -668,21 +696,23 @@ impl PolvoWindow {
         cx.spawn_in(window, async move |this, cx| {
             let Ok(Ok(Some(paths))) = asked.await else { return };
             let Some(path) = paths.into_iter().next() else { return };
-            let _ = this.update_in(cx, |this, window, cx| this.open_file(path, window, cx));
+            let _ = this.update_in(cx, |this, window, cx| this.open_file(FileSource::Local, path, window, cx));
         })
         .detach();
     }
 
-    /// Opens the file in an editor, or shows the editor that has it (WNDWI-B18, WNDWI-B19).
-    fn open_file(&mut self, path: PathBuf, window: &mut Window, cx: &mut Context<Self>) {
-        if let Some(editor) = self.editors.iter().find(|e| e.read(cx).path() == Some(path.as_path())).cloned() {
+    /// Opens the file of the machine of `source` in an editor, or shows the editor that has it (WNDWI-B18,
+    /// WNDWI-B19, WNDWI-B25).
+    fn open_file(&mut self, source: FileSource, path: PathBuf, window: &mut Window, cx: &mut Context<Self>) {
+        let has = |e: &EditorPanel| e.path() == Some(path.as_path()) && e.machine() == source.machine();
+        if let Some(editor) = self.editors.iter().find(|e| has(e.read(cx))).cloned() {
             let id = PanelId::from(editor.entity_id());
             self.dock.update(cx, |dock, cx| dock.select_panel(id, window, cx));
             let focus = editor.read(cx).focus_handle(cx);
             window.focus(&focus, cx);
             return;
         }
-        let editor = cx.new(|cx| EditorPanel::open(path, window, cx));
+        let editor = cx.new(|cx| EditorPanel::open_on(source, path, window, cx));
         self.show_editor(editor, window, cx);
     }
 

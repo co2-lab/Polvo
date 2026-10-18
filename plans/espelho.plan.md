@@ -1,6 +1,6 @@
 <!-- @anchors
   code: ESRMS
-  updated_at: 2026-10-17
+  updated_at: 2026-10-18
 -->
 # Espelho remoto
 
@@ -102,7 +102,7 @@ valem para os dois.
 
 | Code | Question | Who decides | Becomes |
 | --- | --- | --- | --- |
-| `ESRMS-D01` | A biblioteca do transporte P2P: iroh (Rust, QUIC, relays), libp2p (Go/Rust) ou tsnet (Tailscale em Go) | o agente, com pesquisa, e o dono aprova | a fase ESRMS-W04 |
+| `ESRMS-D01` | A biblioteca do transporte P2P: iroh (Rust, QUIC, relays), libp2p (Go/Rust) ou tsnet (Tailscale em Go). **A proposta do agente, por aprovar:** o pion/ice (o ICE do WebRTC, em Go puro) com o pion/sctp por cima, para o SSH ter uma ligação fiável; uma sinalização própria indexada pela chave ed25519; e o pion/turn, alojado por nós, como relay. É a única via em Go puro, sem cgo nem assembly (o nó tem de correr também no Galaxy), e a identidade é a chave que o SSH já verifica. O iroh exige cgo para Go; o tsnet e o Nebula não endereçam pela chave e trazem o gVisor, com assembly; o go-libp2p fica como segunda escolha (o quic-go usa `go:linkname` para o `crypto/tls`, e o relay dele limita a 2 min e 128 KB). O risco: temos de alojar a sinalização e o TURN | o agente, com pesquisa, e o dono aprova | a fase ESRMS-W04 |
 
 ## Revisions
 

@@ -56,6 +56,10 @@ dá os pedidos de emparelhamento que esta máquina mostra (`PairingRequest`, com
 começa a emparelhar com a máquina de um endereço, o `pair_code` dá-lhe o código lido nela e espera pelo
 fim, e o `pair_cancel` desiste.
 
+### RMTEC-B07 — Os ficheiros de uma máquina
+O `list_dir` dá as entradas de uma pasta de uma máquina (`RemoteEntry`), o `read_text` o texto de um
+ficheiro dela, e o `write_text` grava-o.
+
 ## Domain
 
 | Input | Accepts | Outside the domain | Who guarantees |
@@ -84,8 +88,11 @@ fim, e o `pair_cancel` desiste.
 | `RMTEC-B04` | `machine` |
 | `RMTEC-B05` | `machine` |
 | `RMTEC-B06` | `machine` |
+| `RMTEC-B07` | `machine` |
 
 ## Revisions
+
+> **RMTEC-R0004:** entra o `RMTEC-B07` (os ficheiros de uma máquina), do plano ESRMS, W05.
 
 > **RMTEC-R0003:** entra o `RMTEC-B06` (a rede e o emparelhamento), do plano ESRMS, W03.
 

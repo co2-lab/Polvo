@@ -107,6 +107,13 @@ tem uma. Sem ele, o escolhedor não tem esse tipo.
 Cada vez que o progresso muda, a aba de cada sessão onde corre um agente mostra a marca dele, e a de uma
 sessão sem agente não mostra nenhuma.
 
+### WNDWI-B25 — Os ficheiros de outra máquina
+Com a instalação aberta, o "Ficheiros" de uma máquina na aba das máquinas (`MQNAS`) abre a árvore dela
+(`FLTRE`) na pasta pessoal, com o foco. Um ficheiro aberto nessa árvore abre-se num editor da mesma
+máquina (`EDTRS`); se essa máquina já o tem aberto num editor, a doca mostra esse. A árvore e o editor
+voltam com a organização ligados à máquina deles; sem a instalação, a árvore volta na pasta da janela e
+o editor vazio.
+
 ## Domain
 
 | Input | Accepts | Outside the domain | Who guarantees |
@@ -162,6 +169,7 @@ sessão sem agente não mostra nenhuma.
 | `WNDWI-B22` | `Station`, `OpenSession` |
 | `WNDWI-B23` | `AgentsFeed`, `KINDS` |
 | `WNDWI-B24` | `AgentsFeed` |
+| `WNDWI-B25` | `Station` |
 
 ## Revisions
 
@@ -201,6 +209,8 @@ sessão sem agente não mostra nenhuma.
 
 > **WNDWI-R0009:** entram o `WNDWI-B23` (a aba dos agentes) e o `WNDWI-B24` (a marca do agente na aba da
 > sessão dele), do plano AGPRG, W04; o `new` passa a receber o progresso dos agentes.
+
+> **WNDWI-R0010:** entra o `WNDWI-B25` (os ficheiros de outra máquina), do plano ESRMS, W05.
 
 ## Open Decisions
 

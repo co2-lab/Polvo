@@ -665,3 +665,64 @@ scenario!(wndwi_b24_a_marca_do_agente_na_aba_da_sessao, "WNDWI-B24: A marca do a
     assert!(titles[0].starts_with("? "), "{titles:?}");
     assert!(!titles[1].starts_with("? ") && !titles[1].starts_with("◐ "), "{titles:?}");
 });
+
+/// The editors of the window, with the machine of each file.
+fn editors_on(cx: &mut TestAppContext, o: &Opened) -> Vec<(Option<String>, Option<std::path::PathBuf>)> {
+    o.view.read_with(cx, |v, cx| {
+        v.editors.iter().map(|e| (e.read(cx).machine().map(str::to_string), e.read(cx).path().map(std::path::PathBuf::from))).collect()
+    })
+}
+
+/// The trees of the window, with the machine and the folder of each.
+fn trees_on(cx: &mut TestAppContext, o: &Opened) -> Vec<(Option<String>, std::path::PathBuf)> {
+    o.view.read_with(cx, |v, cx| v.trees.iter().map(|t| (t.read(cx).source().machine().map(str::to_string), t.read(cx).root().to_path_buf())).collect())
+}
+
+/// Opens the tree of `root` of this machine, through its node.
+fn open_node_tree(cx: &mut TestAppContext, o: &Opened, st: &Station, root: &std::path::Path) {
+    let source = FileSource::Node { station: st.clone(), machine: LOCAL.into() };
+    let (view, root) = (o.view.clone(), root.to_path_buf());
+    cx.update_window(o.handle, |_, window, cx| view.update(cx, |v, cx| v.open_tree_on(source, root, window, cx))).unwrap();
+    cx.run_until_parked();
+    frame(cx, o.handle);
+}
+
+scenario!(wndwi_b25_01_os_ficheiros_de_uma_maquina, "WNDWI-B25#01: O \"Ficheiros\" de uma máquina abre a árvore dela", |cx| {
+    let (_dir, _st, o) = with_station(cx, None);
+    choose_kind(cx, &o, 6);
+    click_id(cx, &o, format!("files-{LOCAL}"));
+    let tree = o.view.read_with(cx, |v, _| v.trees.first().cloned()).expect("the tree");
+    assert_eq!((trees_on(cx, &o), has_focus(cx, &o, &tree)), (vec![(Some(LOCAL.to_string()), "~".into())], true));
+});
+
+scenario!(wndwi_b25_02_o_ficheiro_abre_na_maquina_da_arvore, "WNDWI-B25#02: Um ficheiro da árvore abre num editor da mesma máquina, uma vez", |cx| {
+    let notes = with_notes();
+    let (_dir, st, o) = with_station(cx, None);
+    open_node_tree(cx, &o, &st, notes.path());
+    click(cx, &o, "entry-notas.txt");
+    let tree = o.view.read_with(cx, |v, _| v.trees[0].clone());
+    let (id, dock) = (PanelId::from(tree.entity_id()), o.view.read_with(cx, |v, _| v.dock.clone()));
+    cx.update_window(o.handle, |_, window, cx| dock.update(cx, |d, cx| d.select_panel(id, window, cx))).unwrap();
+    frame(cx, o.handle);
+    click(cx, &o, "entry-notas.txt");
+    let path = notes.path().join("notas.txt");
+    assert_eq!(editors_on(cx, &o), vec![(Some(LOCAL.to_string()), Some(path))]);
+});
+
+scenario!(wndwi_b25_03_voltam_com_a_maquina, "WNDWI-B25#03: A árvore e o editor de outra máquina voltam com ela", |cx| {
+    let notes = with_notes();
+    let file = LayoutFile::at(notes.path().join("layout.json"));
+    let (_dir, st, first) = with_station(cx, Some(file.clone()));
+    open_node_tree(cx, &first, &st, notes.path());
+    click(cx, &first, "entry-notas.txt");
+    settle(cx);
+    cx.update_window(first.handle, |_, window, _| window.remove_window()).unwrap();
+    cx.run_until_parked();
+
+    let again = open_all(cx, gnome_left(), usize::MAX, Some(file), std::env::temp_dir(), Some(st.clone()));
+    cx.run_until_parked();
+    let path = notes.path().join("notas.txt");
+    let text = again.view.read_with(cx, |v, cx| v.editors.first().and_then(|e| e.read(cx).text(cx)));
+    assert_eq!(trees_on(cx, &again), vec![(Some(LOCAL.to_string()), notes.path().to_path_buf())]);
+    assert_eq!((editors_on(cx, &again), text), (vec![(Some(LOCAL.to_string()), Some(path))], Some(std::fs::read_to_string(notes.path().join("notas.txt")).unwrap())));
+});

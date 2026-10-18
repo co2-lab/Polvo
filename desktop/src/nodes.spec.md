@@ -51,6 +51,9 @@ quando acaba bem a máquina passa a estar nas máquinas; cancelar desiste.
 A aba mostra os pedidos de emparelhamento que esta máquina recebe, com o nome de quem pede, a impressão
 digital e o código, e lê-os outra vez a cada `PAIRINGS_EVERY` enquanto vive.
 
+### MQNAS-B10 — Os ficheiros de uma máquina
+O botão "Ficheiros" de uma máquina pede à janela a árvore dos ficheiros dela, a começar na pasta pessoal.
+
 ## Domain
 
 | Input | Accepts | Outside the domain | Who guarantees |
@@ -85,12 +88,15 @@ digital e o código, e lê-os outra vez a cada `PAIRINGS_EVERY` enquanto vive.
 | `MQNAS-B07` | `Station`, `addr` |
 | `MQNAS-B08` | `Station`, `addr` |
 | `MQNAS-B09` | `Station`, `PAIRINGS_EVERY` |
+| `MQNAS-B10` | `Station` |
 | `MQNAS-E03` | `addr` |
 
 ## Revisions
 
 > **MQNAS-R0001:** entram as máquinas da rede e o emparelhamento (`MQNAS-B07` a `MQNAS-B09`, `MQNAS-E03`),
 > do plano ESRMS, W03.
+
+> **MQNAS-R0002:** entra o `MQNAS-B10` (os ficheiros de uma máquina), do plano ESRMS, W05.
 
 ## Open Decisions
 

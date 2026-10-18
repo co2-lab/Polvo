@@ -2,7 +2,8 @@
 //   code: EDIMP
 //   ref: EDTRS
 
-//! The code editor, as a tab of the dock (EDTRS): gpui-component's editor, empty or with a file.
+//! The code editor, as a tab of the dock (EDTRS): gpui-component's editor, empty or with a file of this machine
+//! or of another's (EDTRS-B05).
 
 use std::path::{Path, PathBuf};
 
@@ -15,6 +16,7 @@ use gpui_kit::{
     Role, Styled as _, Subscription, Window, div, prelude::*, px,
 };
 
+use crate::files::FileSource; // @dep: FLIMP
 use crate::keymap::{Action, Keymap}; // @dep: KYIMA
 
 /// The largest file the editor opens (EDTRS-E01).
@@ -81,12 +83,36 @@ fn read_text(path: &Path) -> Result<String, String> {
     String::from_utf8(bytes).map_err(|_| format!("{shown} não é texto em UTF-8."))
 }
 
+/// The text of a file of the machine of `source`, or why it cannot be opened (EDTRS-E01).
+fn read_from(source: &FileSource, path: &Path) -> Result<String, String> {
+    let FileSource::Node { station, machine } = source else { return read_text(path) };
+    let shown = path.display();
+    let text = station.read_text(machine, &path.to_string_lossy()).map_err(|e| format!("Não foi possível abrir {shown}: {e}"))?;
+    // the node reads it whole; the limit is still the editor's
+    if text.len() as u64 > MAX_OPEN {
+        return Err(format!("{shown} tem {} MiB; o editor abre até {} MiB.", text.len() >> 20, MAX_OPEN >> 20));
+    }
+    Ok(text)
+}
+
+/// Writes `text` in the file of the machine of `source`.
+fn write_to(source: &FileSource, path: &Path, text: &str) -> Result<(), String> {
+    match source {
+        FileSource::Local => std::fs::write(path, text).map_err(|e| e.to_string()),
+        FileSource::Node { station, machine } => station.write_text(machine, &path.to_string_lossy(), text).map_err(|e| e.0),
+    }
+}
+
 /// The code editor, as a tab of the dock.
 pub struct EditorPanel {
     focus: FocusHandle,
     /// The editor, unless the file could not be opened.
     state: Option<Entity<EditorState>>,
     path: Option<PathBuf>,
+    /// The machine of the file.
+    source: FileSource,
+    /// The node is still reading the file (EDTRS-B05).
+    loading: bool,
     modified: bool,
     /// Why the file could not be opened (EDTRS-E01).
     error: Option<String>,
@@ -106,8 +132,7 @@ impl EditorPanel {
     pub fn open(path: PathBuf, window: &mut Window, cx: &mut Context<Self>) -> Self {
         match read_text(&path) {
             Ok(text) => {
-                let language = language_for(&path);
-                let state = cx.new(|cx| EditorState::new(window, cx).language(language).line_number(true).default_value(text));
+                let state = Self::editor_of(&path, text, window, cx);
                 Self::with(Some(state), Some(path), None, cx)
             }
             // EDTRS-E01
@@ -115,17 +140,72 @@ impl EditorPanel {
         }
     }
 
-    fn with(state: Option<Entity<EditorState>>, path: Option<PathBuf>, error: Option<String>, cx: &mut Context<Self>) -> Self {
-        // EDTRS-B03
-        let heard = state.as_ref().map(|s| {
-            cx.subscribe(s, |this, _, ev: &InputEvent, cx| {
-                if let InputEvent::Change = ev {
-                    this.modified = true;
-                    cx.notify();
-                }
-            })
+    /// An editor with the file at `path` of the machine of `source` (EDTRS-B05): the one of another machine
+    /// says "a abrir…" until its node gives the text.
+    pub fn open_on(source: FileSource, path: PathBuf, window: &mut Window, cx: &mut Context<Self>) -> Self {
+        if source.machine().is_none() {
+            return Self::open(path, window, cx);
+        }
+        let mut editor = Self::with(None, Some(path.clone()), None, cx);
+        editor.source = source.clone();
+        editor.loading = true;
+        let task = cx.background_executor().spawn({
+            let path = path.clone();
+            async move { read_from(&source, &path) }
         });
-        EditorPanel { focus: cx.focus_handle(), state, path, modified: false, error, message: None, _heard: heard }
+        cx.spawn_in(window, async move |this, cx| {
+            let read = task.await;
+            let _ = this.update_in(cx, |this, window, cx| {
+                this.loading = false;
+                match read {
+                    Ok(text) => {
+                        let state = Self::editor_of(&path, text, window, cx);
+                        this._heard = Some(Self::hear(&state, cx));
+                        this.state = Some(state);
+                    }
+                    // EDTRS-E01
+                    Err(reason) => this.error = Some(reason),
+                }
+                cx.notify();
+            });
+        })
+        .detach();
+        editor
+    }
+
+    fn editor_of(path: &Path, text: String, window: &mut Window, cx: &mut Context<Self>) -> Entity<EditorState> {
+        let language = language_for(path);
+        cx.new(|cx| EditorState::new(window, cx).language(language).line_number(true).default_value(text))
+    }
+
+    /// EDTRS-B03
+    fn hear(state: &Entity<EditorState>, cx: &mut Context<Self>) -> Subscription {
+        cx.subscribe(state, |this, _, ev: &InputEvent, cx| {
+            if let InputEvent::Change = ev {
+                this.modified = true;
+                cx.notify();
+            }
+        })
+    }
+
+    fn with(state: Option<Entity<EditorState>>, path: Option<PathBuf>, error: Option<String>, cx: &mut Context<Self>) -> Self {
+        let heard = state.as_ref().map(|s| Self::hear(s, cx));
+        EditorPanel {
+            focus: cx.focus_handle(),
+            state,
+            path,
+            source: FileSource::Local,
+            loading: false,
+            modified: false,
+            error,
+            message: None,
+            _heard: heard,
+        }
+    }
+
+    /// The machine of the editor's file, or none for this machine's.
+    pub fn machine(&self) -> Option<&str> {
+        self.source.machine()
     }
 
     /// The file of the editor, if it has one.
@@ -135,7 +215,11 @@ impl EditorPanel {
 
     /// The title of the tab: the file's name, with the mark while there are changes to save (EDTRS-B03).
     pub fn title_text(&self) -> String {
-        let name = self.path.as_ref().and_then(|p| p.file_name()).map_or(UNTITLED.to_string(), |n| n.to_string_lossy().into_owned());
+        let mut name = self.path.as_ref().and_then(|p| p.file_name()).map_or(UNTITLED.to_string(), |n| n.to_string_lossy().into_owned());
+        if let Some(machine) = self.machine() {
+            // EDTRS-B05: the title says the machine
+            name = format!("{machine}: {name}");
+        }
         if self.modified { format!("● {name}") } else { name }
     }
 
@@ -178,13 +262,39 @@ impl EditorPanel {
 
     fn write(&mut self, path: PathBuf, cx: &mut Context<Self>) {
         let Some(text) = self.text(cx) else { return };
-        if let Err(e) = std::fs::write(&path, text) {
-            // EDTRS-E02: the mark stays
-            eprintln!("polvo: {} was not saved: {e}", path.display());
-            self.tell(format!("{} não foi gravado: {e}", path.display()));
-        } else {
-            self.modified = false;
-            self.message = None;
+        if self.source.machine().is_none() {
+            let written = write_to(&self.source, &path, &text);
+            self.written(&path, written, &text, cx);
+            return;
+        }
+        // EDTRS-B05: the node of the machine writes it, away from the window's thread
+        let source = self.source.clone();
+        let task = cx.background_executor().spawn({
+            let (path, text) = (path.clone(), text.clone());
+            async move { write_to(&source, &path, &text) }
+        });
+        cx.spawn(async move |this, cx| {
+            let written = task.await;
+            let _ = this.update(cx, |this, cx| this.written(&path, written, &text, cx));
+        })
+        .detach();
+    }
+
+    /// What saving `text` in `path` gave.
+    fn written(&mut self, path: &Path, written: Result<(), String>, text: &str, cx: &mut Context<Self>) {
+        match written {
+            Err(e) => {
+                // EDTRS-E02: the mark stays
+                eprintln!("polvo: {} was not saved: {e}", path.display());
+                self.tell(format!("{} não foi gravado: {e}", path.display()));
+            }
+            Ok(()) => {
+                // what was typed while the node wrote still has to be saved
+                if self.text(cx).as_deref() == Some(text) {
+                    self.modified = false;
+                }
+                self.message = None;
+            }
         }
         cx.notify();
     }
@@ -223,7 +333,12 @@ impl BasePanel for EditorPanel {
     fn dump(&self, _: &App) -> PanelState {
         let mut state = PanelState::new(self.panel_name());
         let path = self.path.as_ref().map(|p| p.to_string_lossy().into_owned());
-        state.info = PanelInfo::panel(serde_json::json!({ "path": path }));
+        let mut info = serde_json::json!({ "path": path });
+        // EDTRS-B05: the machine goes with the file
+        if let Some(machine) = self.machine() {
+            info["machine"] = machine.into();
+        }
+        state.info = PanelInfo::panel(info);
         state
     }
 }
@@ -240,7 +355,12 @@ impl Render for EditorPanel {
         let (bg, fg, danger) = (theme.background, theme.foreground, theme.danger);
         let root = div().id("editor").test_support().size_full().flex().flex_col().bg(bg).text_color(fg);
         let Some(state) = &self.state else {
-            let reason = self.error.clone().unwrap_or_default();
+            let reason = match &self.error {
+                Some(reason) => reason.clone(),
+                // EDTRS-B05
+                None if self.loading => "a abrir…".to_string(),
+                None => String::new(),
+            };
             return root.track_focus(&self.focus).child(
                 div()
                     .id("editor-error")

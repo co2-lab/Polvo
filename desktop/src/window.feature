@@ -223,3 +223,21 @@ Feature: Window
     Given uma janela com a aba de uma sessão onde corre um agente à espera de uma resposta, e a de outra sem agente
     When o progresso dos agentes muda
     Then a aba da primeira começa por "?", e a da outra não tem marca
+
+  @WNDWI-B25#01 @unit-level
+  Scenario: O "Ficheiros" de uma máquina abre a árvore dela
+    Given a janela com a instalação aberta e a aba das máquinas
+    When o utilizador carrega em "Ficheiros" desta máquina
+    Then a doca mostra a árvore dela na pasta pessoal, com o foco
+
+  @WNDWI-B25#02 @unit-level
+  Scenario: Um ficheiro da árvore abre num editor da mesma máquina, uma vez
+    Given a árvore de uma pasta com "notas.txt", pelo nó de uma máquina
+    When o utilizador abre "notas.txt" duas vezes
+    Then há um só editor, de "notas.txt" dessa máquina
+
+  @WNDWI-B25#03 @unit-level
+  Scenario: A árvore e o editor de outra máquina voltam com ela
+    Given a árvore e o editor de "notas.txt" de uma máquina, com a organização gravada
+    When a janela abre outra vez com a mesma instalação
+    Then a árvore e o editor voltam ligados a essa máquina, com o texto do ficheiro

@@ -1,6 +1,6 @@
 <!-- @anchors
   code: EDTRS
-  updated_at: 2026-10-17
+  updated_at: 2026-10-18
 -->
 # Editor — o editor de código numa aba da doca
 
@@ -30,6 +30,12 @@ O atalho de gravar do mapa (`Keymap`, por omissão Ctrl+S) grava o texto no fich
 vazio pergunta primeiro onde gravar, pelo diálogo do sistema; o ficheiro escolhido passa a ser o dele
 (o título e a linguagem seguem-no). Cancelar o diálogo não grava nada.
 
+### EDTRS-B05 — O ficheiro de outra máquina
+O editor pode abrir um ficheiro de outra máquina (`EditorPanel::open_on` com o `FileSource` do nó dela):
+diz "a abrir…" até o nó dar o texto, e grava pelo nó, sem parar a janela; o que se escreve enquanto o
+nó grava continua com a marca. O título diz a máquina, e a organização da doca guarda-a com o ficheiro.
+O limite `MAX_OPEN` vale também aqui, contado depois de o nó o ler.
+
 ## Domain
 
 | Input | Accepts | Outside the domain | Who guarantees |
@@ -58,6 +64,11 @@ vazio pergunta primeiro onde gravar, pelo diálogo do sistema; o ficheiro escolh
 | `EDTRS-B04` | `path`, `keystroke` |
 | `EDTRS-E01` | `path`, `MAX_OPEN` |
 | `EDTRS-E02` | `path` |
+| `EDTRS-B05` | `path`, `keystroke`, `MAX_OPEN` |
+
+## Revisions
+
+> **EDTRS-R0001:** entra o `EDTRS-B05` (o ficheiro de outra máquina), do plano ESRMS, W05.
 
 ## Open Decisions
 

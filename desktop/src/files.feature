@@ -2,7 +2,7 @@
 # @anchors
 #   code: FLFST
 #   ref: FLTRE
-#   updated_at: 2026-10-17
+#   updated_at: 2026-10-18
 #   layer: feature
 
 @FLTRE
@@ -55,3 +55,9 @@ Feature: Files
     Given a árvore de uma pasta com a pasta "fechada", que foi apagada depois de a árvore abrir
     When o utilizador a expande
     Then por baixo dela aparece o motivo, e o resto da árvore continua
+
+  @FLTRE-B05 @unit-level
+  Scenario: A árvore de outra máquina
+    Given a árvore de uma pasta pelo nó de uma máquina, com a pasta "src", que tem "main.rs"
+    When se mostra, e o utilizador expande "src"
+    Then primeiro diz "a ler…", depois mostra "src", e "main.rs" por baixo depois de expandir

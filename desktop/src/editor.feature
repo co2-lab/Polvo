@@ -2,7 +2,7 @@
 # @anchors
 #   code: EDFST
 #   ref: EDTRS
-#   updated_at: 2026-10-17
+#   updated_at: 2026-10-18
 #   layer: feature
 
 @EDTRS
@@ -55,3 +55,9 @@ Feature: Editor
     Given um editor com um ficheiro cuja pasta deixou de existir, alterado
     When o utilizador prime Ctrl+S
     Then a mensagem diz porquê, e a marca fica
+
+  @EDTRS-B05 @unit-level
+  Scenario: O ficheiro de outra máquina
+    Given o editor de um ficheiro "notas.md" com "olá", aberto pelo nó de uma máquina
+    When se mostra, o utilizador escreve "x" e grava
+    Then primeiro diz "a abrir…", depois mostra "olá", e o ficheiro fica com "xolá" e o título sem a marca

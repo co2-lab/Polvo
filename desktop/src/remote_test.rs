@@ -115,3 +115,13 @@ scenario!(rmtec_b06_a_rede_e_o_emparelhamento, "RMTEC-B06: A rede e o emparelham
     assert_eq!(shown[0].fingerprint.starts_with("SHA256:"), true);
     assert_eq!(names, vec![LOCAL.to_string(), addr]);
 });
+
+scenario!(rmtec_b07_os_ficheiros_de_uma_maquina, "RMTEC-B07: Os ficheiros de uma máquina", {
+    let (_dir, st) = open();
+    let folder = tempfile::tempdir().unwrap();
+    let file = folder.path().join("notas.txt").to_string_lossy().into_owned();
+    st.write_text(LOCAL, &file, "ola").unwrap();
+    let entries = st.list_dir(LOCAL, &folder.path().to_string_lossy()).unwrap();
+    let text = st.read_text(LOCAL, &file).unwrap();
+    assert_eq!((entries.len(), entries[0].name.as_str(), entries[0].dir, text.as_str()), (1, "notas.txt", false, "ola"));
+});

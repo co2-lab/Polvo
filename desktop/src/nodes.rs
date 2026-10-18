@@ -28,6 +28,8 @@ const DISCOVER_MS: u64 = 1500;
 pub enum NodesEvent {
     /// Open this session in a terminal tab (MQNAS-B03, MQNAS-B04).
     Open(SessionTab),
+    /// Open the files of this machine in a tree (MQNAS-B10).
+    Files(String),
 }
 
 /// A machine as the tab shows it: its sessions, or why it did not answer (MQNAS-E01).
@@ -326,6 +328,11 @@ impl NodesPanel {
             .child(Self::button(format!("new-{}", m.name), "Sessão nova", hover, cx.listener({
                 let name = name.clone();
                 move |this, _, _, cx| this.new_session(name.clone(), cx)
+            })))
+            // MQNAS-B10
+            .child(Self::button(format!("files-{}", m.name), "Ficheiros", hover, cx.listener({
+                let name = name.clone();
+                move |_, _, _, cx| cx.emit(NodesEvent::Files(name.clone()))
             })));
         if !m.local {
             head = head.child(Self::button(format!("remove-{}", m.name), "Esquecer", hover, cx.listener({

@@ -79,3 +79,9 @@ Feature: Nodes
     Given a aba a emparelhar com outra instalação
     When o utilizador confirma um código errado
     Then a mensagem diz porquê, e as máquinas ficam como estavam
+
+  @MQNAS-B10 @unit-level
+  Scenario: Os ficheiros de uma máquina
+    Given a aba das máquinas
+    When o utilizador carrega em "Ficheiros" desta máquina
+    Then a aba pede a árvore dos ficheiros dela

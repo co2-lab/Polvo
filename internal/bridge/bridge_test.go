@@ -6,6 +6,8 @@ package bridge
 
 import (
 	"github.com/co2-lab/polvo/internal/discovery"
+	"os"
+	"path/filepath"
 
 	"encoding/json"
 	"fmt"
@@ -310,6 +312,33 @@ func TestBridge_pairing(t *testing.T) {
 		_, gone := Call(second, []byte(fmt.Sprintf(`{"op":"pair_code","id":"%s","code":"1"}`, again.ID)))
 		if wrong == nil || gone == nil {
 			t.Fatalf("want the wrong code refused and the cancelled pairing gone, got %v and %v", wrong, gone)
+		}
+	})
+}
+
+func TestBridge_files(t *testing.T) {
+	t.Run("BRDGE-B06: Os ficheiros de uma máquina", func(t *testing.T) {
+		h := open(t)
+		dir := t.TempDir()
+		os.WriteFile(filepath.Join(dir, "a.txt"), []byte("ola"), 0o644)
+		os.WriteFile(filepath.Join(dir, "bin"), []byte{0xff, 0xfe}, 0o644)
+		js := func(s string) string { b, _ := json.Marshal(s); return string(b) }
+		call(t, h, `{"op":"fs_write","machine":"local","path":`+js(filepath.Join(dir, "b.txt"))+`,"text":"escrito"}`, nil)
+		var l struct {
+			Entries []struct {
+				Name string `json:"name"`
+				Dir  bool   `json:"dir"`
+			} `json:"entries"`
+		}
+		call(t, h, `{"op":"fs_list","machine":"local","path":`+js(dir)+`}`, &l)
+		var r struct {
+			Text string `json:"text"`
+		}
+		call(t, h, `{"op":"fs_read","machine":"local","path":`+js(filepath.Join(dir, "a.txt"))+`}`, &r)
+		_, binErr := Call(h, []byte(`{"op":"fs_read","machine":"local","path":`+js(filepath.Join(dir, "bin"))+`}`))
+		written, _ := os.ReadFile(filepath.Join(dir, "b.txt"))
+		if len(l.Entries) != 3 || r.Text != "ola" || binErr == nil || string(written) != "escrito" {
+			t.Fatalf("got %+v, %q, %v, %q", l, r.Text, binErr, written)
 		}
 	})
 }

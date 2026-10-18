@@ -179,6 +179,14 @@ pub struct PairingRequest {
     pub code: String,
 }
 
+/// An entry of a folder of a machine (RMTEC-B07).
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct RemoteEntry {
+    pub name: String,
+    pub dir: bool,
+    pub size: u64,
+}
+
 /// The installation, with this machine's node (RMTEC-B01); the clones share it, and the last one closes it.
 #[derive(Clone)]
 pub struct Station {
@@ -341,6 +349,25 @@ impl Station {
     /// Gives a pairing up (RMTEC-B06).
     pub fn pair_cancel(&self, id: &str) -> Result<(), RemoteError> {
         self.call(json!({ "op": "pair_cancel", "id": id })).map(|_| ())
+    }
+
+    /// The entries of a folder of a machine (RMTEC-B07).
+    pub fn list_dir(&self, machine: &str, path: &str) -> Result<Vec<RemoteEntry>, RemoteError> {
+        let v = self.call(json!({ "op": "fs_list", "machine": machine, "path": path }))?;
+        Ok(items(&v["entries"])
+            .map(|e| RemoteEntry { name: text(e, "name"), dir: e["dir"].as_bool().unwrap_or(false), size: e["size"].as_u64().unwrap_or(0) })
+            .collect())
+    }
+
+    /// The text of a file of a machine (RMTEC-B07).
+    pub fn read_text(&self, machine: &str, path: &str) -> Result<String, RemoteError> {
+        let v = self.call(json!({ "op": "fs_read", "machine": machine, "path": path }))?;
+        Ok(text(&v, "text"))
+    }
+
+    /// Writes the text in a file of a machine (RMTEC-B07).
+    pub fn write_text(&self, machine: &str, path: &str, content: &str) -> Result<(), RemoteError> {
+        self.call(json!({ "op": "fs_write", "machine": machine, "path": path, "text": content })).map(|_| ())
     }
 
     /// A terminal of a session (RMTEC-B03).

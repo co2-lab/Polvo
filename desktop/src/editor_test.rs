@@ -145,3 +145,28 @@ scenario!(edtrs_e02_um_ficheiro_que_nao_se_grava, "EDTRS-E02: Um ficheiro que n�
     assert!(message.is_some_and(|m| m.contains("não foi gravado")));
     assert_eq!(title(cx, &o), "● notas.txt");
 });
+
+scenario!(edtrs_b05_o_ficheiro_de_outra_maquina, "EDTRS-B05: O ficheiro de outra máquina", |cx| {
+    let (_dir, path) = file("notas.md", "olá");
+    let home = tempfile::tempdir().unwrap();
+    let st = crate::remote::Station::open(home.path(), "", "/bin/sh").unwrap();
+    let source = FileSource::Node { station: st, machine: crate::remote::LOCAL.into() };
+    cx.update(gpui_kit::init);
+    let (handle, editor) = cx
+        .update(|cx| {
+            let p = path.clone();
+            gpui_kit::open_window(WindowOptions::default(), cx, |window, cx| cx.new(|cx| EditorPanel::open_on(source, p, window, cx)))
+        })
+        .unwrap();
+    let o = Opened { handle, editor };
+    frame(cx, o.handle);
+    let waiting = cx.update_window(o.handle, |_, window, _| window.find("editor-error").label().map(str::to_string)).unwrap();
+    cx.run_until_parked();
+    let shown = text(cx, &o);
+    type_in(cx, &o, "x");
+    press(cx, &o, "ctrl-s");
+    assert_eq!(
+        (waiting, shown, std::fs::read_to_string(&path).unwrap(), title(cx, &o)),
+        (Some("a abrir…".to_string()), Some("olá".to_string()), "xolá".to_string(), "local: notas.md".to_string())
+    );
+});

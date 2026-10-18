@@ -28,7 +28,10 @@ O `Call` recebe `{"op": …}` e devolve o resultado em JSON:
   todas as máquinas, quando alguma mudou desde a versão dada, ou quando passa o prazo;
 - `discover` (`timeout_ms`): as máquinas que se anunciam na rede, cada uma com se já é conhecida;
 - `pairings`: os pedidos de emparelhamento que esta máquina mostra, com o código;
-- `pair_start` (`addr`), `pair_code` (`id`, `code`) e `pair_cancel` (`id`): emparelhar com uma máquina.
+- `pair_start` (`addr`), `pair_code` (`id`, `code`) e `pair_cancel` (`id`): emparelhar com uma máquina;
+- `fs_list` (`machine`, `path`): as entradas de uma pasta dela (`name`, `dir`, `size`);
+- `fs_read` (`machine`, `path`): o texto de um ficheiro dela;
+- `fs_write` (`machine`, `path`, `text`): grava o texto num ficheiro dela.
 
 A estação abre-se a anunciar-se e a procurar no mDNS da rede (o `Open`).
 
@@ -57,6 +60,10 @@ O `pair_start` começa a emparelhar com a máquina do endereço e dá o id do em
 `pair_code` dá-lhe o código que o utilizador leu na outra máquina e espera pelo fim: nada, quando emparelhou
 e a máquina se juntou, ou o erro. O `pair_cancel` desiste.
 
+### BRDGE-B06 — Os ficheiros de uma máquina
+O `fs_list`, o `fs_read` e o `fs_write` são os pedidos de ficheiros do nó da máquina; o `fs_read` de um
+ficheiro que não é texto em UTF-8 dá o erro.
+
 ## Domain
 
 | Input | Accepts | Outside the domain | Who guarantees |
@@ -83,8 +90,12 @@ e a máquina se juntou, ou o erro. O `pair_cancel` desiste.
 | `BRDGE-E03` | `request` |
 | `BRDGE-B04` | `Handle`, `request` |
 | `BRDGE-B05` | `Handle`, `request` |
+| `BRDGE-B06` | `Handle`, `request` |
 
 ## Revisions
+
+> **BRDGE-R0003:** entram os ficheiros de uma máquina (`fs_list`, `fs_read`, `fs_write`, e o `BRDGE-B06`),
+> do plano ESRMS, W05.
 
 > **BRDGE-R0002:** entram a descoberta e o emparelhamento (`discover`, `pairings`, `pair_*`, e o
 > `BRDGE-B05`), do plano ESRMS, W03.

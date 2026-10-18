@@ -12,6 +12,7 @@ use std::rc::Rc;
 struct Opened {
     handle: AnyWindowHandle,
     asked: Rc<RefCell<Vec<SessionTab>>>,
+    files: Rc<RefCell<Vec<String>>>,
     _panel: Entity<NodesPanel>,
 }
 
@@ -41,16 +42,18 @@ fn open(cx: &mut TestAppContext, st: &Station) -> Opened {
         .update(|cx| gpui_kit::open_window(options, cx, |window, cx| cx.new(|cx| NodesPanel::new(st, window, cx))))
         .unwrap();
     let asked: Rc<RefCell<Vec<SessionTab>>> = Rc::default();
+    let files: Rc<RefCell<Vec<String>>> = Rc::default();
     {
-        let asked = asked.clone();
+        let (asked, files) = (asked.clone(), files.clone());
         cx.update(|cx| {
             cx.subscribe(&panel, move |_, ev: &NodesEvent, _| match ev {
                 NodesEvent::Open(tab) => asked.borrow_mut().push(tab.clone()),
+                NodesEvent::Files(machine) => files.borrow_mut().push(machine.clone()),
             })
             .detach()
         });
     }
-    let o = Opened { handle, asked, _panel: panel };
+    let o = Opened { handle, asked, files, _panel: panel };
     settle(cx, &o);
     o
 }
@@ -249,4 +252,11 @@ scenario!(mqnas_e03_um_codigo_errado, "MQNAS-E03: Um código errado", |cx| {
     let message = shown(cx, &o, "pair-message".into()).unwrap_or_default();
     assert!(!message.is_empty());
     assert_eq!(me.machines().unwrap().len(), 1);
+});
+
+scenario!(mqnas_b10_os_ficheiros_de_uma_maquina, "MQNAS-B10: Os ficheiros de uma máquina", |cx| {
+    let (_d, me) = installation("");
+    let o = open(cx, &me);
+    click(cx, &o, format!("files-{LOCAL}"));
+    assert_eq!(*o.files.borrow(), vec![LOCAL.to_string()]);
 });

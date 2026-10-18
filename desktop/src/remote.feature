@@ -49,3 +49,9 @@ Feature: Remote
     Given duas instalações, a primeira a escutar, que não se conhecem
     When a segunda procura na rede, começa a emparelhar com a primeira, e dá o código que a primeira mostra
     Then a procura responde, a primeira mostra o pedido, e a segunda passa a ter a primeira nas máquinas
+
+  @RMTEC-B07 @unit-level
+  Scenario: Os ficheiros de uma máquina
+    Given uma instalação e uma pasta vazia
+    When grava "notas.txt" com "ola", lista a pasta e lê o ficheiro
+    Then a lista tem "notas.txt", e a leitura dá "ola"

@@ -73,3 +73,9 @@ Feature: Bridge
     Given duas estações que não se conhecem
     When a segunda dá um código errado, e noutro emparelhamento desiste
     Then o código errado dá o erro, e o que desistiu acaba
+
+  @BRDGE-B06 @unit-level
+  Scenario: Os ficheiros de uma máquina
+    Given uma estação, e uma pasta com "a.txt" e um ficheiro binário
+    When grava "b.txt", lista a pasta, lê "a.txt" e lê o binário
+    Then a lista tem os três ficheiros, a leitura dá o texto, e a do binário dá o erro

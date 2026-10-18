@@ -157,3 +157,25 @@ scenario!(fltre_e01_uma_pasta_que_nao_se_le, "FLTRE-E01: Uma pasta que não se l
     click(cx, &o, "notas.txt");
     assert_eq!(o.opened.borrow().clone(), vec![dir.path().join("notas.txt")]);
 });
+
+scenario!(fltre_b05_a_arvore_de_outra_maquina, "FLTRE-B05: A árvore de outra máquina", |cx| {
+    let dir = folder(&["src/main.rs"]);
+    let home = tempfile::tempdir().unwrap();
+    let st = crate::remote::Station::open(home.path(), "", "/bin/sh").unwrap();
+    let source = FileSource::Node { station: st, machine: crate::remote::LOCAL.into() };
+    cx.update(gpui_kit::init);
+    let root = dir.path().to_path_buf();
+    let (handle, tree) = cx
+        .update(|cx| gpui_kit::open_window(WindowOptions::default(), cx, |window, cx| cx.new(|cx| FileTree::on(source, root, window, cx))))
+        .unwrap();
+    let before = tree.read_with(cx, |t, _| t.listing());
+    cx.run_until_parked();
+    let read = tree.read_with(cx, |t, _| t.listing());
+    let o = Opened { handle, tree: tree.clone(), opened: Default::default() };
+    frame(cx, &o);
+    click(cx, &o, "src");
+    cx.run_until_parked();
+    assert_eq!(before, vec!["… a ler".to_string()]);
+    assert_eq!(read, vec!["src/".to_string()]);
+    assert_eq!(tree.read_with(cx, |t, _| t.listing()), vec!["src/".to_string(), "  main.rs".into()]);
+});

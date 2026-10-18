@@ -13,6 +13,7 @@ import (
 	"strings"
 	"sync"
 	"time"
+	"unicode/utf8"
 
 	"github.com/co2-lab/polvo/internal/discovery"
 	"github.com/co2-lab/polvo/internal/hub"
@@ -122,6 +123,7 @@ type request struct {
 	Locked  bool     `json:"locked"`
 	Agent   string   `json:"agent"`
 	Code    string   `json:"code"`
+	Path    string   `json:"path"`
 	Text    string   `json:"text"`
 	// Since is the version the window has of each machine's progress (BRDGE-B04).
 	Since     map[string]uint64 `json:"since"`
@@ -193,7 +195,7 @@ func answer(s *station.Station, r request) (any, error) {
 		return struct{}{}, nil
 	}
 	switch r.Op {
-	case "sessions", "new", "close", "lock", "progress", "ask":
+	case "sessions", "new", "close", "lock", "progress", "ask", "fs_list", "fs_read", "fs_write":
 	default:
 		// BRDGE-E02
 		return nil, fmt.Errorf("bridge: unknown op %q", r.Op)
@@ -217,6 +219,24 @@ func answer(s *station.Station, r request) (any, error) {
 		return map[string]string{"id": id}, err
 	case "close":
 		return struct{}{}, n.CloseSession(r.ID)
+	// BRDGE-B06: the files of the machine, by its node
+	case "fs_list":
+		entries, err := n.List(r.Path)
+		if entries == nil {
+			entries = []hub.Entry{}
+		}
+		return map[string]any{"entries": entries}, err
+	case "fs_read":
+		b, err := n.ReadFile(r.Path)
+		if err != nil {
+			return nil, err
+		}
+		if !utf8.Valid(b) {
+			return nil, fmt.Errorf("bridge: %s is not UTF-8 text", r.Path)
+		}
+		return map[string]string{"text": string(b)}, nil
+	case "fs_write":
+		return struct{}{}, n.WriteFile(r.Path, []byte(r.Text))
 	case "progress":
 		var out json.RawMessage
 		err := n.Call("progress.list", struct{}{}, &out)
