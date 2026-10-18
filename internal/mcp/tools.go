@@ -13,6 +13,7 @@ import (
 	"sync"
 	"unicode/utf8"
 
+	"github.com/co2-lab/polvo/internal/agents"
 	"github.com/co2-lab/polvo/internal/hub"
 )
 
@@ -37,6 +38,16 @@ const DEFAULT_NODE = "127.0.0.1:2222"
 type Here struct {
 	Node    string
 	Session string
+	// Claude is set when the agent is Claude Code (MCPTL-B13).
+	Claude *Claude
+}
+
+// Claude is where to find the conversation of a Claude Code agent: its home, the folder it runs in, and
+// the conversation's id it gave (empty when it gave none).
+type Claude struct {
+	Home string
+	Dir  string
+	ID   string
 }
 
 // SetHere tells the pool where the agent runs (MCPTL-B11).
@@ -194,6 +205,12 @@ func (p *Pool) Tools() []Tool {
 			Call:        p.progressNote,
 		},
 		{
+			Name:        "polvo_progress_answer",
+			Description: "Answer a question Polvo asked you (it comes with its id, like q-1).",
+			InputSchema: objectSchema(progressProps+`,"question":{"type":"string"},"text":{"type":"string"}`, "question", "text"),
+			Call:        p.progressAnswer,
+		},
+		{
 			Name:        "polvo_progress_finish",
 			Description: "Finish your job, with a summary.",
 			InputSchema: objectSchema(progressProps+`,"summary":{"type":"string"}`, "summary"),
@@ -214,7 +231,17 @@ func (p *Pool) progressStart(raw json.RawMessage) (Result, error) {
 	if err := args(raw, &a, map[string]*string{"goal": &a.Goal}); err != nil {
 		return Result{}, err
 	}
-	if err := p.report(a.Node, a.Agent, map[string]any{"op": "start", "goal": a.Goal, "steps": a.Steps}); err != nil {
+	params := map[string]any{"op": "start", "goal": a.Goal, "steps": a.Steps}
+	p.mu.Lock()
+	claude := p.here.Claude
+	p.mu.Unlock()
+	if claude != nil {
+		// MCPTL-B13: without a conversation found, the job starts without it
+		if conv, err := agents.Find(claude.Home, claude.Dir, claude.ID); err == nil {
+			params["conversation"] = conv
+		}
+	}
+	if err := p.report(a.Node, a.Agent, params); err != nil {
 		return Result{}, err
 	}
 	var b strings.Builder
@@ -343,4 +370,16 @@ func (p *Pool) list(raw json.RawMessage) (Result, error) {
 		}
 	}
 	return Result{Text: strings.Join(lines, "\n")}, nil
+}
+
+// progressAnswer is MCPTL-B12.
+func (p *Pool) progressAnswer(raw json.RawMessage) (Result, error) {
+	var a struct{ Node, Agent, Question, Text string }
+	if err := args(raw, &a, map[string]*string{"question": &a.Question, "text": &a.Text}); err != nil {
+		return Result{}, err
+	}
+	if err := p.report(a.Node, a.Agent, map[string]any{"op": "answer", "question": a.Question, "text": a.Text}); err != nil {
+		return Result{}, err
+	}
+	return Result{Text: "answered " + a.Question}, nil
 }

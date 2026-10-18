@@ -64,6 +64,8 @@ recusado (o erro e o código 1): a UI dá shells nos nós, e só a própria máq
 | SHELL | string | no | /bin/sh | o caminho de uma shell | no | a shell que o `polvo node` dá às sessões, e a do terminal local da UI |
 | POLVO_NODE | string | no | 127.0.0.1:2222 | máquina:porta | no | onde o `polvo mcp` reporta o progresso do agente: o nó da sessão onde ele corre, que a sessão lhe dá |
 | POLVO_SESSION | string | no | — | o id de uma sessão do nó | no | a sessão onde o agente corre: o `polvo mcp` reporta com o nome dela quando o agente não dá outro |
+| CLAUDECODE | string | no | — | `1` | no | o agente que corre o `polvo mcp` é o Claude Code: o trabalho leva a conversa dele, para o Polvo lhe perguntar |
+| CLAUDE_CODE_SESSION_ID | string | no | — | o id de uma conversa do Claude Code | no | a conversa do Claude Code que corre o `polvo mcp` |
 
 ## Domain
 

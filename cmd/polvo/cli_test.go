@@ -188,7 +188,7 @@ func TestCli_connect(t *testing.T) {
 }
 
 func TestCli_mcp(t *testing.T) {
-	t.Run("CLIXX-B06: mcp inicializa, lista as oito ferramentas e corre um comando num nó", func(t *testing.T) {
+	t.Run("CLIXX-B06: mcp inicializa, lista as nove ferramentas e corre um comando num nó", func(t *testing.T) {
 		d := t.TempDir()
 		addr := startNode(t, d)
 		in := strings.Join([]string{
@@ -219,9 +219,9 @@ func TestCli_mcp(t *testing.T) {
 			names = append(names, tl.(map[string]any)["name"].(string))
 		}
 		want := "polvo_run,polvo_read_file,polvo_write_file,polvo_list," +
-			"polvo_progress_start,polvo_progress_step,polvo_progress_note,polvo_progress_finish"
+			"polvo_progress_start,polvo_progress_step,polvo_progress_note,polvo_progress_answer,polvo_progress_finish"
 		if strings.Join(names, ",") != want {
-			t.Fatalf("want the eight tools, got %v", names)
+			t.Fatalf("want the nine tools, got %v", names)
 		}
 		text := answers[3]["content"].([]any)[0].(map[string]any)["text"].(string)
 		if !strings.Contains(text, "do-agente") || answers[3]["isError"] != false {

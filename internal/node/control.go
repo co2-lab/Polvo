@@ -15,9 +15,11 @@ import (
 	"os"
 	"os/exec"
 	"sort"
+	"strings"
 	"syscall"
 	"time"
 
+	"github.com/co2-lab/polvo/internal/agents"
 	"github.com/co2-lab/polvo/internal/progress"
 	"github.com/co2-lab/polvo/internal/proto"
 	"github.com/co2-lab/polvo/internal/pty"
@@ -43,6 +45,8 @@ type Controller struct {
 	Shell []string
 	// Progress is the board of the node's agents; nil answers the progress requests with an error.
 	Progress *progress.Board
+	// AskClaude asks the claude of a conversation, by its CLI (CNTRL-B10); nil is agents.Ask.
+	AskClaude func(progress.Conversation, string) (string, error)
 }
 
 type opError struct{ error }
@@ -94,7 +98,7 @@ var need = map[string]sessions.Perm{
 	"fs.write": sessions.Control, "proc.run": sessions.Control, "session.new": sessions.Control,
 	"session.close": sessions.Control, "session.lock": sessions.Owner,
 	"progress.report": sessions.Control, "progress.list": sessions.View, "progress.get": sessions.View,
-	"progress.wait": sessions.View,
+	"progress.wait": sessions.View, "progress.ask": sessions.Control,
 }
 
 // WAIT_MAX is the longest a progress.wait waits (CNTRL-B09).
@@ -146,7 +150,7 @@ func (c Controller) dispatch(m *proto.Message, perm sessions.Perm) (any, error) 
 		return procRun(m.Params)
 	case "session.list", "session.new", "session.close", "session.lock":
 		return c.session(m, perm)
-	case "progress.report", "progress.list", "progress.get", "progress.wait":
+	case "progress.report", "progress.list", "progress.get", "progress.wait", "progress.ask":
 		return c.progress(m)
 	}
 	return nil, errUnknownMethod
@@ -364,6 +368,7 @@ type progressParams struct {
 	Goal         string                 `json:"goal"`
 	Steps        []string               `json:"steps"`
 	Step         string                 `json:"step"`
+	Question     string                 `json:"question"`
 	State        string                 `json:"state"`
 	Text         string                 `json:"text"`
 	Conversation *progress.Conversation `json:"conversation"`
@@ -393,6 +398,13 @@ func (c Controller) progress(m *proto.Message) (any, error) {
 			return nil, opError{err}
 		}
 		return got, nil
+	case "progress.ask":
+		q, err := board.Ask(p.Agent, p.Text)
+		if err != nil {
+			return nil, opError{err}
+		}
+		go c.deliver(p.Agent, q)
+		return map[string]string{"id": q.ID}, nil
 	case "progress.wait":
 		d := time.Duration(p.TimeoutMS) * time.Millisecond
 		if d <= 0 || d > WAIT_MAX {
@@ -411,12 +423,53 @@ func (c Controller) progress(m *proto.Message) (any, error) {
 		err = board.Note(p.Agent, p.Text)
 	case "finish":
 		err = board.Finish(p.Agent, p.Text)
+	case "answer":
+		err = board.Answer(p.Agent, p.Question, p.Text)
 	default:
 		// CNTRL-E02
-		return nil, paramsError{fmt.Errorf("op %q is not start, step, note nor finish", p.Op)}
+		return nil, paramsError{fmt.Errorf("op %q is not start, step, note, finish nor answer", p.Op)}
 	}
 	if err != nil {
 		return nil, opError{err}
 	}
 	return struct{}{}, nil
+}
+
+// deliver takes the question to the agent (CNTRL-B10): to the claude of its conversation by its CLI,
+// else written in its session for it to answer by the tool, else it fails with the reason.
+func (c Controller) deliver(agent string, q progress.Question) {
+	board := c.Progress
+	job, err := board.Get(agent)
+	if err != nil {
+		return
+	}
+	if conv := job.Conversation; conv != nil && conv.Kind == "claude" {
+		ask := c.AskClaude
+		if ask == nil {
+			ask = func(conv progress.Conversation, text string) (string, error) {
+				return agents.Ask(agents.CLAUDE_BIN, conv, text)
+			}
+		}
+		answer, err := ask(*conv, q.Text)
+		if err != nil {
+			board.Fail(agent, q.ID, err.Error())
+			return
+		}
+		board.Answer(agent, q.ID, answer)
+		return
+	}
+	if id, ok := strings.CutPrefix(agent, "session-"); ok && c.Sessions != nil {
+		v, err := c.Sessions.Attach(id, sessions.Owner)
+		if err != nil {
+			board.Fail(agent, q.ID, fmt.Sprintf("the session %s is gone: %v", id, err))
+			return
+		}
+		defer v.Close()
+		line := fmt.Sprintf("Polvo asks you (question %s; answer it with the polvo_progress_answer tool): %s\r", q.ID, q.Text)
+		if _, err := v.Write([]byte(line)); err != nil {
+			board.Fail(agent, q.ID, fmt.Sprintf("the question could not be written in the session %s: %v", id, err))
+		}
+		return
+	}
+	board.Fail(agent, q.ID, "this agent has no conversation Polvo can ask, and runs in no session of this node")
 }

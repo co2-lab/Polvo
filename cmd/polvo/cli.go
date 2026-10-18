@@ -247,7 +247,14 @@ func serveMCP(args []string, std Stdio) error {
 	pool := mcp.NewPool(hub.Config{Identity: id, KnownHosts: sshx.NewKnownHosts(filepath.Join(dir, "known_hosts"))})
 	defer pool.Close()
 	// the session of Polvo the agent runs in tells it where its node is
-	pool.SetHere(mcp.Here{Node: os.Getenv("POLVO_NODE"), Session: os.Getenv("POLVO_SESSION")})
+	here := mcp.Here{Node: os.Getenv("POLVO_NODE"), Session: os.Getenv("POLVO_SESSION")}
+	if os.Getenv("CLAUDECODE") == "1" {
+		// the agent is Claude Code: its conversation, for Polvo to ask it
+		home, _ := os.UserHomeDir()
+		cwd, _ := os.Getwd()
+		here.Claude = &mcp.Claude{Home: home, Dir: cwd, ID: os.Getenv("CLAUDE_CODE_SESSION_ID")}
+	}
+	pool.SetHere(here)
 	s := &mcp.Server{Name: "polvo", Version: version, Tools: pool.Tools()}
 	return s.Serve(std.Stdin, std.Stdout)
 }

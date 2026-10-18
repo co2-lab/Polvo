@@ -59,13 +59,23 @@ O controlo de um nó com o quadro do progresso (o `Controller`, com o `Progress`
 - `progress.wait`: os trabalhos, quando o quadro mudou desde a versão dada (`since`), ou quando passa o
   prazo (`timeout_ms`, até `WAIT_MAX`).
 
-Sem quadro, os pedidos do progresso dão erro de operação, e os erros do quadro também.
+Sem quadro, os pedidos do progresso dão erro de operação, e os erros do quadro também. O `op` `answer`
+(a `question` e a `text`) é o agente a responder a uma pergunta.
+
+### CNTRL-B10 — Perguntar a um agente
+O `progress.ask` (o `agent` e a `text`) regista a pergunta no trabalho do agente e responde logo com o id
+dela; a resposta chega ao quadro depois, e quem acompanha vê-a pelo `progress.wait`:
+- quando o trabalho tem a conversa do `claude`, o nó pergunta-lhe pelo CLI dele, numa cópia da conversa
+  (`AskClaude`), e a resposta, ou o motivo de não a haver, fica na pergunta;
+- senão, quando o agente é o de uma sessão do nó (`session-` e o id), o nó escreve a pergunta na sessão,
+  com o id dela, e o agente responde pela ferramenta (o `op` `answer`);
+- senão, a pergunta falha com o motivo.
 
 ### CNTRL-B08 — O que cada permissão pode fazer
 O controlo atende com a permissão da ligação:
 - quem só vê lê e lista ficheiros, sessões e o progresso, e espera por ele;
-- reportar o progresso, escrever ficheiros, correr processos, e criar e terminar sessões pede
-  controlar;
+- reportar o progresso, perguntar a um agente, escrever ficheiros, correr processos, e criar e
+  terminar sessões pede controlar;
 - travar e destravar uma sessão pede ser o dono.
 
 O pedido sem a permissão é recusado com o erro de permissão (`CNTRL-E06`), sem fazer nada.
@@ -77,7 +87,7 @@ O pedido sem a permissão é recusado com o erro de permissão (`CNTRL-E06`), se
 | `path` | um caminho do sistema de ficheiros do nó | um caminho vazio | este módulo: responde com parâmetros inválidos (`CNTRL-E02`) |
 | `argv` | o programa e os argumentos | uma lista vazia | este módulo: responde com parâmetros inválidos (`CNTRL-E02`) |
 | `data` | texto em base64 | texto que não é base64 | este módulo: responde com parâmetros inválidos (`CNTRL-E02`) |
-| `op` | `start`, `step`, `note`, `finish` | outro | este módulo: responde com parâmetros inválidos (`CNTRL-E02`) |
+| `op` | `start`, `step`, `note`, `finish`, `answer` | outro | este módulo: responde com parâmetros inválidos (`CNTRL-E02`) |
 
 ## Errors / Failures
 | Rule | Condition | Failure |
@@ -112,6 +122,7 @@ O pedido sem a permissão é recusado com o erro de permissão (`CNTRL-E06`), se
 | `CNTRL-B07` | `argv`, `path` |
 | `CNTRL-B08` | `argv`, `path`, `CodeForbidden` |
 | `CNTRL-B09` | `op`, `WAIT_MAX` |
+| `CNTRL-B10` | `op` |
 | `CNTRL-E06` | `CodeForbidden` |
 | `CNTRL-E03` | `path`, `argv`, `CodeOperation` |
 | `CNTRL-E04` | `path`, `MaxFile` |
@@ -129,7 +140,8 @@ O pedido sem a permissão é recusado com o erro de permissão (`CNTRL-E06`), se
 > **CNTRL-R0003:** o `session.list` diz a cada ligação se pode escrever em cada sessão, para a janela mostrar
 > as que só se veem (plano ESRMS, W02).
 
-> **CNTRL-R0004:** entra o `CNTRL-B09` (o progresso dos agentes pelo controlo), do plano AGPRG, W01.
+> **CNTRL-R0004:** entra o `CNTRL-B09` (o progresso dos agentes pelo controlo), do plano AGPRG, W01, e o
+> `CNTRL-B10` (perguntar a um agente) com o `op` `answer`, da W03.
 
 ## Open Decisions
 

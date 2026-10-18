@@ -103,3 +103,15 @@ Feature: Tools
     Given um conjunto sem sessão
     When começa um trabalho sem o agente
     Then a ferramenta falha a pedir o nome do agente
+
+  @MCPTL-B12 @unit-level
+  Scenario: polvo_progress_answer responde a uma pergunta do Polvo
+    Given o trabalho do agente com a pergunta "q-1" por responder
+    When responde "a meio" à "q-1"
+    Then a pergunta está respondida no nó
+
+  @MCPTL-B13 @unit-level
+  Scenario: A conversa do Claude Code vai com o trabalho
+    Given o agente é o Claude Code com a conversa "a" na pasta "/p"
+    When começa um trabalho
+    Then o trabalho no nó tem a conversa "a" do claude, na pasta "/p"

@@ -51,7 +51,7 @@ Feature: Cli
     Then a saída contém "33 99" e depois "44 111"
 
   @CLIXX-B06 @unit-level
-  Scenario: mcp inicializa, lista as oito ferramentas e corre um comando num nó
+  Scenario: mcp inicializa, lista as nove ferramentas e corre um comando num nó
     Given um nó a correr que autoriza a identidade da pasta de configuração
     When o polvo mcp recebe a inicialização, a lista das ferramentas e a chamada polvo_run de "echo do-agente" no nó, e o stdin acaba
     Then o servidor é "polvo", a lista tem polvo_run, polvo_read_file, polvo_write_file e polvo_list, o resultado tem "do-agente", e o código de saída é 0

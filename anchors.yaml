@@ -47,6 +47,12 @@ layers:
         tags: [hub]
         exclude: ['**/*_test.go']
     # A instalacao vista pela janela: o no' desta maquina no processo e as outras (plano ESRMS, W02).
+    # Perguntar aos agentes das sessoes (plano AGPRG, W03).
+    agents:
+        pattern: 'internal/agents/*.go'
+        kind: code
+        tags: [agents]
+        exclude: ['**/*_test.go']
     # O progresso dos agentes de uma maquina (plano AGPRG).
     progress:
         pattern: 'internal/progress/*.go'

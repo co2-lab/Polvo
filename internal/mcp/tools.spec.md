@@ -14,7 +14,9 @@ chamadas e fechadas no fim (`Close`). O conjunto dá as ferramentas pelo `Tools`
 
 As ferramentas do progresso (`polvo_progress_*`) reportam o trabalho do agente ao nó da máquina onde ele
 corre. O conjunto sabe onde isso é (`SetHere`, com o `Here`): o nó e a sessão onde o agente corre, que o
-`polvo mcp` lê do ambiente (`POLVO_NODE` e `POLVO_SESSION`, que a sessão do Polvo lhe dá).
+`polvo mcp` lê do ambiente (`POLVO_NODE` e `POLVO_SESSION`, que a sessão do Polvo lhe dá), e se o agente
+é o Claude Code, com a conversa dele (o `CLAUDE_CODE_SESSION_ID`, a pasta e a pasta pessoal), para o Polvo
+lhe poder perguntar.
 
 ## Rules
 
@@ -59,6 +61,13 @@ A ferramenta `polvo_progress_finish` termina o trabalho, com o resumo.
 Sem o argumento `agent`, o agente é o da sessão onde corre (`session-` e o id da sessão); sem o `node`, o
 nó é o da máquina onde corre (o do `Here`, ou `DEFAULT_NODE`).
 
+### MCPTL-B12 — `polvo_progress_answer` responde a uma pergunta do Polvo
+A ferramenta `polvo_progress_answer` dá a resposta do agente à pergunta do Polvo com o id dado.
+
+### MCPTL-B13 — A conversa do Claude Code vai com o trabalho
+Quando o agente é o Claude Code, o `polvo_progress_start` dá ao nó a conversa dele (`agents.Find`), para o
+Polvo lhe perguntar pelo CLI; sem conversa encontrada, o trabalho começa sem ela.
+
 ## Domain
 
 | Input | Accepts | Outside the domain | Who guarantees |
@@ -101,6 +110,8 @@ nó é o da máquina onde corre (o do `Here`, ou `DEFAULT_NODE`).
 | `MCPTL-B10` | `node`, `agent` |
 | `MCPTL-B11` | `node`, `agent`, `DEFAULT_NODE` |
 | `MCPTL-E04` | `agent` |
+| `MCPTL-B12` | `node`, `agent` |
+| `MCPTL-B13` | `node`, `agent` |
 
 ## Implementation Notes
 
@@ -113,7 +124,8 @@ nó é o da máquina onde corre (o do `Here`, ou `DEFAULT_NODE`).
 > conjunto das ligações em vez de o repetir. As regras não mudam.
 
 > **MCPTL-R0002:** entram as ferramentas do progresso (`MCPTL-B07` a `MCPTL-B11`, `MCPTL-E04`), do plano
-> AGPRG, W02.
+> AGPRG, W02, e as da W03: responder a uma pergunta (`MCPTL-B12`) e a conversa do Claude Code
+> (`MCPTL-B13`).
 
 ## Open Decisions
 

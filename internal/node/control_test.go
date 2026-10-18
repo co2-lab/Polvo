@@ -13,6 +13,7 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"sync"
 	"testing"
 	"time"
 
@@ -377,4 +378,101 @@ func TestControl_progress(t *testing.T) {
 		wantError(t, v.call(t, 1, "progress.report", map[string]any{"agent": "a", "op": "start"}), CodeForbidden, "permission")
 		wantError(t, control(t).call(t, 2, "progress.list", struct{}{}), CodeOperation, "progress")
 	})
+}
+
+func TestControl_ask(t *testing.T) {
+	type question struct {
+		ID     string `json:"id"`
+		State  string `json:"state"`
+		Answer string `json:"answer"`
+	}
+	// settled waits for the agent's first question to leave pending.
+	settled := func(t *testing.T, b *progress.Board, agent string) progress.Question {
+		t.Helper()
+		end := time.Now().Add(10 * time.Second)
+		for time.Now().Before(end) {
+			if p, err := b.Get(agent); err == nil && len(p.Questions) > 0 && p.Questions[0].State != progress.Pending {
+				return p.Questions[0]
+			}
+			time.Sleep(10 * time.Millisecond)
+		}
+		t.Fatal("the question did not leave pending")
+		return progress.Question{}
+	}
+	t.Run("CNTRL-B10#01: Perguntar ao claude pela conversa dele", func(t *testing.T) {
+		b, _ := progress.NewBoard(t.TempDir())
+		b.Start("a", "g", nil, &progress.Conversation{Kind: "claude", ID: "abc", Dir: t.TempDir()})
+		var asked string
+		c := Controller{Progress: b, AskClaude: func(conv progress.Conversation, q string) (string, error) {
+			asked = conv.ID + ":" + q
+			return "a meio", nil
+		}}
+		var got struct {
+			ID string `json:"id"`
+		}
+		result(t, controlWith(t, c.Serve, sessions.Control).call(t, 1, "progress.ask", map[string]string{"agent": "a", "text": "onde vais?"}), &got)
+		q := settled(t, b, "a")
+		if got.ID != q.ID || q.State != progress.Answered || q.Answer != "a meio" || asked != "abc:onde vais?" {
+			t.Fatalf("got %+v, %+v, %q", got, q, asked)
+		}
+	})
+	t.Run("CNTRL-B10#02: Perguntar ao agente de uma sessão, que responde pela ferramenta", func(t *testing.T) {
+		b, _ := progress.NewBoard(t.TempDir())
+		m := sessions.NewManager()
+		info, err := m.Create([]string{"/bin/sh", "-c", "stty -echo; read linha; echo recebi:$linha; sleep 5"}, "", pty.Size{Rows: 24, Cols: 80})
+		if err != nil {
+			t.Fatal(err)
+		}
+		defer m.Close(info.ID)
+		watcher, _ := m.Attach(info.ID, sessions.Owner)
+		defer watcher.Close()
+		seen := collectViewer(watcher)
+		agent := "session-" + info.ID
+		b.Start(agent, "g", nil, nil)
+		p := controlWith(t, Controller{Progress: b, Sessions: m}.Serve, sessions.Control)
+		var got struct {
+			ID string `json:"id"`
+		}
+		result(t, p.call(t, 1, "progress.ask", map[string]string{"agent": agent, "text": "onde vais?"}), &got)
+		end := time.Now().Add(10 * time.Second)
+		for !strings.Contains(seen(), "recebi:") && time.Now().Before(end) {
+			time.Sleep(10 * time.Millisecond)
+		}
+		result(t, p.call(t, 2, "progress.report", map[string]any{"agent": agent, "op": "answer", "question": got.ID, "text": "a meio"}), &struct{}{})
+		q, _ := b.Get(agent)
+		if !strings.Contains(seen(), got.ID) || !strings.Contains(seen(), "onde vais?") || q.Questions[0].State != progress.Answered || q.Questions[0].Answer != "a meio" {
+			t.Fatalf("got %q and %+v", seen(), q.Questions)
+		}
+	})
+	t.Run("CNTRL-B10#03: Sem conversa nem sessão, a pergunta falha", func(t *testing.T) {
+		b, _ := progress.NewBoard(t.TempDir())
+		b.Start("a", "g", nil, nil)
+		result(t, controlWith(t, Controller{Progress: b}.Serve, sessions.Control).call(t, 1, "progress.ask", map[string]string{"agent": "a", "text": "?"}), &struct{}{})
+		if q := settled(t, b, "a"); q.State != progress.Failed || q.Answer == "" {
+			t.Fatalf("want it failed with a reason, got %+v", q)
+		}
+	})
+}
+
+// collectViewer reads a viewer in the background and gives what it read so far.
+func collectViewer(v *sessions.Viewer) func() string {
+	var mu sync.Mutex
+	var b strings.Builder
+	go func() {
+		buf := make([]byte, 4096)
+		for {
+			n, err := v.Read(buf)
+			mu.Lock()
+			b.Write(buf[:n])
+			mu.Unlock()
+			if err != nil {
+				return
+			}
+		}
+	}()
+	return func() string {
+		mu.Lock()
+		defer mu.Unlock()
+		return b.String()
+	}
 }

@@ -89,6 +89,13 @@ Depende da janela como cliente dos nós (ESRMS-W02).
 > corre, sem argumentos; e o `progress.wait` do nó é uma espera longa em vez de notificações, para não
 > mudar o protocolo do controlo.
 
+> **AGPRG-R0004:** a `AGPRG-D01` resolveu-se assim, por o agente a ter testado: o `polvo mcp` corre como
+> filho do `claude` e herda o `CLAUDE_CODE_SESSION_ID` (o `claude` põe-no no ambiente dos programas que
+> corre); quando não o tem, ou a conversa não está em disco, a conversa é a mudada mais recentemente da
+> pasta do projeto (`~/.claude/projects/<pasta>`). O trabalho leva a conversa ao começar, e o nó pergunta
+> por ela. A cópia da conversa corre no modo de planeamento e com as mesmas ferramentas, para ler a cache
+> de prompts (mudar as ferramentas muda o começo do prompt). Fica por rever pelo dono.
+
 ## Open Decisions
 
 | Code | Question | Who decides | Becomes |

@@ -128,3 +128,21 @@ Feature: Control
     Given o controlo de um nó com o quadro, para quem só vê, e o de um nó sem quadro
     When quem só vê reporta, e se pede a lista ao nó sem quadro
     Then o primeiro é recusado pela permissão, e o segundo dá erro de operação
+
+  @CNTRL-B10#01 @unit-level
+  Scenario: Perguntar ao claude pela conversa dele
+    Given o trabalho de um agente com a conversa "abc" do claude, e um claude que responde "a meio"
+    When se pergunta "onde vais?"
+    Then o pedido dá o id da pergunta, e a pergunta fica respondida com "a meio"
+
+  @CNTRL-B10#02 @unit-level
+  Scenario: Perguntar ao agente de uma sessão, que responde pela ferramenta
+    Given o trabalho do agente da sessão de uma shell do nó, sem conversa
+    When se pergunta "onde vais?", e o agente responde "a meio" pelo op answer
+    Then a sessão recebe a pergunta com o id, e a pergunta fica respondida com "a meio"
+
+  @CNTRL-B10#03 @unit-level
+  Scenario: Sem conversa nem sessão, a pergunta falha
+    Given o trabalho de um agente sem conversa e que não é de uma sessão
+    When se pergunta "onde vais?"
+    Then a pergunta fica falhada com o motivo

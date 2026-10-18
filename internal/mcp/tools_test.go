@@ -239,3 +239,32 @@ func TestTools_progress(t *testing.T) {
 		}
 	})
 }
+
+func TestTools_questions(t *testing.T) {
+	t.Run("MCPTL-B12: polvo_progress_answer responde a uma pergunta do Polvo", func(t *testing.T) {
+		_, b, p := progressNode(t)
+		callTool(t, p, "polvo_progress_start", map[string]any{"goal": "g"})
+		q, err := b.Ask("session-abc", "onde vais?")
+		if err != nil {
+			t.Fatal(err)
+		}
+		r := callTool(t, p, "polvo_progress_answer", map[string]any{"question": q.ID, "text": "a meio"})
+		got := job(t, b, "session-abc").Questions[0]
+		if r.IsError || got.State != progress.Answered || got.Answer != "a meio" {
+			t.Fatalf("got %+v and %+v", r, got)
+		}
+	})
+	t.Run("MCPTL-B13: A conversa do Claude Code vai com o trabalho", func(t *testing.T) {
+		addr, b, p := progressNode(t)
+		home := t.TempDir()
+		folder := filepath.Join(home, ".claude", "projects", "-p")
+		os.MkdirAll(folder, 0o700)
+		os.WriteFile(filepath.Join(folder, "a.jsonl"), []byte(`{"type":"assistant","message":{"model":"m"}}`+"\n"), 0o600)
+		p.SetHere(Here{Node: addr, Session: "abc", Claude: &Claude{Home: home, Dir: "/p", ID: "a"}})
+		callTool(t, p, "polvo_progress_start", map[string]any{"goal": "g"})
+		conv := job(t, b, "session-abc").Conversation
+		if conv == nil || conv.ID != "a" || conv.Dir != "/p" || conv.Kind != "claude" || conv.Model != "m" {
+			t.Fatalf("got %+v", conv)
+		}
+	})
+}
