@@ -114,6 +114,16 @@ valem para os dois.
 > **ESRMS-R0002:** a árvore de ficheiros e o editor nascem no plano `abas.plan.md` (CEACN-W03), para a
 > máquina local, quando o dono pediu os tipos de aba; a W05 passa a estendê-los às outras máquinas.
 
+> **ESRMS-R0003:** a W02 fez-se assim, por razões que só a implementação mostrou: a instalação vista pela
+> janela é uma unidade sua (`internal/station`), que corre o nó desta máquina no processo e chega a todas as
+> máquinas pelo mesmo cliente; a API C é a ponte em Go puro (`internal/bridge`, testada no `go test` e no
+> Galaxy), e a `cmd/libpolvo` só a exporta, porque o cgo não corre nos testes de Go nem no Galaxy: a forma
+> de atravessar para C ficou na spec do lado que a testa, o `desktop/src/remote.spec.md`. Os terminais
+> desta máquina passam pelo nó dela no Linux e no macOS; no Windows, até o pty do Go servir o ConPTY (o
+> `creack/pty` só serve o Unix; o candidato é o `aymanbagabas/go-pty`) e o cgo ter o compilador de C do
+> Windows, a janela corre os terminais nos ptys dela, sem espelho. Isso fica por fazer, numa fase do
+> Windows.
+
 ## Definition of Done
 
 - Duas instâncias do Polvo (duas máquinas, ou duas instalações na mesma máquina) espelham a mesma

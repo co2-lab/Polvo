@@ -210,6 +210,7 @@ dialect:
         - '\beprintln!\('
         - '\breturn\s+Err\('
         - '\bself\.tell\('
+        - '\bthis\.tell\('
     exported_func: (?m)^func\s+(?:\([^)]*\)\s+)?([A-Z]\w*)\s*\(
     param_name: (\w+)\s+\*?\w
     loop: \bfor\b

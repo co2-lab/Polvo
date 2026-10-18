@@ -7,6 +7,8 @@ use crate::layout::{DockAreaState, LayoutFile}; // @dep: DLIDC
 use crate::prefs::{Button, Prefs}; // @dep: PRIMP
 use crate::screen::tests::Sink; // @dep: SCIMS
 use crate::keymap::{Action, Keymap}; // @dep: KYIMA
+use crate::panel::SessionTab; // @dep: TPITR
+use crate::remote::{LOCAL, RemoteError, Station}; // @dep: RMIMP
 use crate::screen::{Event, Screen, Size}; // @dep: SCIMS
 use futures::channel::mpsc::{self, UnboundedSender};
 use gpui_kit::test::{TestAppContextExt as _, TestWindowExt as _};
@@ -61,6 +63,27 @@ fn open_full(cx: &mut TestAppContext, prefs: Prefs, ok: usize, layout: Option<La
 }
 
 fn open_in(cx: &mut TestAppContext, prefs: Prefs, ok: usize, layout: Option<LayoutFile>, root: std::path::PathBuf) -> Opened {
+    open_all(cx, prefs, ok, layout, root, None)
+}
+
+/// The panels of the sessions with no channel: their output comes from a thread the test scheduler
+/// does not run.
+fn offline_sessions() -> OpenSession {
+    Rc::new(|tab: SessionTab, prefs: &Prefs, window: &mut gpui_kit::Window, cx: &mut gpui_kit::App| {
+        let term = tab.station.attach(&tab.machine, &tab.id)?;
+        let (screen, _events) = Screen::attach(term, Size { rows: 24, cols: 80, cell_w: 9, cell_h: 20 }).map_err(RemoteError)?;
+        Ok(cx.new(|cx| TerminalPanel::with_session(screen, None, tab, prefs, window, cx)))
+    })
+}
+
+fn open_all(
+    cx: &mut TestAppContext,
+    prefs: Prefs,
+    ok: usize,
+    layout: Option<LayoutFile>,
+    root: std::path::PathBuf,
+    station: Option<Station>,
+) -> Opened {
     cx.update(gpui_kit::init);
     let made = Rc::new(RefCell::new(Made::default()));
     let new_terminal = offline_terminals(made.clone(), ok);
@@ -71,7 +94,7 @@ fn open_in(cx: &mut TestAppContext, prefs: Prefs, ok: usize, layout: Option<Layo
     let (handle, view) = cx
         .update(|cx| {
             gpui_kit::open_window(options, cx, |window, cx| {
-                cx.new(|cx| PolvoWindow::new(prefs, new_terminal, layout, root, window, cx))
+                cx.new(|cx| PolvoWindow::new(prefs, new_terminal, layout, root, station, offline_sessions(), window, cx))
             })
         })
         .unwrap();
@@ -308,6 +331,13 @@ fn press(cx: &mut TestAppContext, o: &Opened, key: &str) {
     frame(cx, o.handle);
 }
 
+fn click_id(cx: &mut TestAppContext, o: &Opened, id: String) {
+    let id = gpui_kit::SharedString::from(id);
+    cx.update_window(o.handle, |_, window, cx| window.click(id, cx)).unwrap();
+    cx.run_until_parked();
+    frame(cx, o.handle);
+}
+
 fn click(cx: &mut TestAppContext, o: &Opened, id: &'static str) {
     cx.update_window(o.handle, |_, window, cx| window.click(id, cx)).unwrap();
     cx.run_until_parked();
@@ -511,4 +541,87 @@ scenario!(wndwi_b20_02_um_ficheiro_alterado_abre_num_editor, "WNDWI-B20#02: Um f
     frame(cx, o.handle);
     click(cx, &o, "change-changed-notas.txt");
     assert_eq!(editors(cx, &o), vec![Some(dir.path().join("notas.txt"))]);
+});
+
+/// A window with the installation of a new folder.
+fn with_station(cx: &mut TestAppContext, layout: Option<LayoutFile>) -> (tempfile::TempDir, Station, Opened) {
+    let dir = tempfile::tempdir().unwrap();
+    let st = Station::open(dir.path(), "", "/bin/sh").unwrap();
+    let o = open_all(cx, gnome_left(), usize::MAX, layout, std::env::temp_dir(), Some(st.clone()));
+    (dir, st, o)
+}
+
+scenario!(wndwi_b21_01_as_maquinas, "WNDWI-B21#01: As máquinas", |cx| {
+    let (_dir, _st, o) = with_station(cx, None);
+    choose_kind(cx, &o, 6);
+    let first = o.view.read_with(cx, |v, _| v.machines.clone()).expect("the machines tab");
+    choose_kind(cx, &o, 6);
+    let again = o.view.read_with(cx, |v, _| v.machines.clone()).expect("the machines tab");
+    let in_dock = {
+        let state = o.view.read_with(cx, |v, cx| v.dock.read(cx).dump(cx));
+        fn count(p: &gpui_kit::component::dock::PanelState) -> usize {
+            usize::from(p.panel_name == "machines") + p.children.iter().map(count).sum::<usize>()
+        }
+        count(&state.center)
+    };
+    assert_eq!((in_dock, first == again, has_focus(cx, &o, &again)), (1, true, true));
+});
+
+scenario!(wndwi_b21_02_sem_a_instalacao_nao_ha_maquinas, "WNDWI-B21#02: Sem a instalação, não há máquinas", |cx| {
+    let o = open_gnome(cx);
+    click(cx, &o, "new-tab");
+    let machines = cx.update_window(o.handle, |_, window, _| window.try_find("kind-machines").is_some()).unwrap();
+    let terminal = cx.update_window(o.handle, |_, window, _| window.try_find("kind-terminal").is_some()).unwrap();
+    assert_eq!((machines, terminal), (false, true));
+});
+
+/// The terminal tabs that show a session, with its id.
+fn session_tabs(cx: &mut TestAppContext, o: &Opened) -> Vec<String> {
+    let state = o.view.read_with(cx, |v, cx| v.dock.read(cx).dump(cx));
+    fn ids(p: &gpui_kit::component::dock::PanelState, out: &mut Vec<String>) {
+        if let gpui_kit::component::dock::PanelInfo::Panel(v) = &p.info
+            && p.panel_name == "session"
+        {
+            out.push(v["id"].as_str().unwrap_or_default().to_string());
+        }
+        for c in &p.children {
+            ids(c, out);
+        }
+    }
+    let mut out = Vec::new();
+    ids(&state.center, &mut out);
+    out
+}
+
+scenario!(wndwi_b22_01_uma_sessao_abre_numa_aba, "WNDWI-B22#01: Uma sessão abre numa aba", |cx| {
+    let (_dir, st, o) = with_station(cx, None);
+    let id = st.new_session(LOCAL, 24, 80).unwrap();
+    choose_kind(cx, &o, 6);
+    for _ in 0..3 {
+        cx.run_until_parked();
+        frame(cx, o.handle);
+    }
+    click_id(cx, &o, format!("session-{LOCAL}-{id}"));
+    assert_eq!(session_tabs(cx, &o), vec![id]);
+});
+
+scenario!(wndwi_b22_02_a_aba_de_uma_sessao_volta_ou_diz_porque, "WNDWI-B22#02: A aba de uma sessão volta, ou diz porquê", |cx| {
+    let layout_dir = tempfile::tempdir().unwrap();
+    let file = LayoutFile::at(layout_dir.path().join("layout.json"));
+    let (_dir, st, first) = with_station(cx, Some(file.clone()));
+    let id = st.new_session(LOCAL, 24, 80).unwrap();
+    choose_kind(cx, &first, 6);
+    for _ in 0..3 {
+        cx.run_until_parked();
+        frame(cx, first.handle);
+    }
+    click_id(cx, &first, format!("session-{LOCAL}-{id}"));
+    settle(cx);
+    cx.update_window(first.handle, |_, window, _| window.remove_window()).unwrap();
+    cx.run_until_parked();
+    st.close_session(LOCAL, &id).unwrap();
+    std::thread::sleep(std::time::Duration::from_millis(300));
+    let again = open_all(cx, gnome_left(), usize::MAX, Some(file), std::env::temp_dir(), Some(st.clone()));
+    let texts: Vec<String> = again.view.update(cx, |v, cx| v.terminals.iter().map(|t| t.update(cx, |p, _| p.screen_text())).collect());
+    assert!(texts.iter().any(|t| t.contains(&id)), "{texts:?}");
 });

@@ -16,7 +16,8 @@ No GNOME com Wayland o sistema não desenha a moldura das janelas: a janela dese
 nem margem à volta (o dono aprovou-a assim a 2026-10-17).
 
 O `PolvoWindow::new` recebe as preferências, a forma de fazer os terminais (`NewTerminal`), o ficheiro
-da organização (`LayoutFile`), quando a há, e a pasta da janela (`root`, a pasta onde o Polvo abriu); o `open` abre a janela com a shell do utilizador.
+da organização (`LayoutFile`), quando a há, a pasta da janela (`root`, a pasta onde o Polvo abriu), a
+instalação (`Station`), quando abriu, e a forma de abrir o painel de uma sessão (`OpenSession`); o `open` abre a janela com a shell do utilizador.
 
 ## Rules
 
@@ -44,7 +45,8 @@ Em cada grupo da doca, a barra das abas fica por baixo dos terminais (o dono ped
 ### WNDWI-B10 — O botão de aba nova
 O botão "+" da barra abre o escolhedor do tipo da aba nova (`NWTBS`), com os tipos que a janela sabe
 abrir (`KINDS`): o terminal, a árvore de ficheiros (`WNDWI-B18`), a informação de git (`WNDWI-B20`), o
-editor vazio e um ficheiro do computador (`WNDWI-B19`). Escolher o terminal abre um terminal novo numa aba da doca, com o foco.
+editor vazio, um ficheiro do computador (`WNDWI-B19`) e, com a instalação aberta, as máquinas
+(`WNDWI-B21`). Escolher o terminal abre um terminal novo numa aba da doca, com o foco.
 
 ### WNDWI-B11 — O fim de uma shell tira a aba dela
 Quando a shell de um terminal termina, a aba dele sai da doca. Quando sai a última, a janela fecha.
@@ -55,7 +57,8 @@ Fechar a aba de um terminal na doca termina a shell dele. Fechar a última aba f
 ### WNDWI-B12 — A organização volta
 Ao abrir, quando o ficheiro da organização tem uma, a doca fica igual a como ficou (as abas, os
 grupos, as divisões e os tamanhos), cada terminal arranca uma shell nova, cada árvore e cada aba do git voltam com
-a pasta delas e cada editor com o ficheiro dele (um editor sem ficheiro volta vazio). Sem organização, a doca
+a pasta delas, cada editor com o ficheiro dele, a aba das máquinas, e cada aba ligada a uma sessão
+alheia com a sessão dela (um editor sem ficheiro volta vazio). Sem organização, a doca
 abre com um terminal. Cada mudança da doca grava a organização, `SAVE_DELAY` depois da última mudança.
 
 ### WNDWI-B15 — O botão de configuração
@@ -87,12 +90,22 @@ deixa a doca como estava.
 O tipo "Informação de git" abre a aba do git (`GITRS`) da pasta da janela, com o foco. Um ficheiro
 alterado aberto nela abre-se num editor, como no `WNDWI-B18`.
 
+### WNDWI-B21 — As máquinas
+Com a instalação aberta, o tipo "Máquinas" abre a aba das máquinas (`MQNAS`), com o foco; a janela só tem
+uma, como a da configuração. Sem a instalação, o escolhedor não tem esse tipo.
+
+### WNDWI-B22 — As sessões abrem em abas
+Uma sessão aberta na aba das máquinas abre numa aba do terminal (`OpenSession`), com o foco. Uma aba ligada
+a uma sessão que já não existe, ao voltar com a organização, diz porquê.
+
 ## Domain
 
 | Input | Accepts | Outside the domain | Who guarantees |
 | --- | --- | --- | --- |
 | `Prefs` | as preferências do `prefs::read` | — | o `Prefs`: nunca falta nenhum valor (os de omissão) |
 | `NewTerminal` | a forma de fazer um terminal novo | um terminal que não arranca | esta unidade: o aviso (`WNDWI-E02`, `WNDWI-E04`) |
+| `Station` | a instalação, ou nenhuma (não abriu) | — | esta unidade: sem ela, não há a aba das máquinas |
+| `OpenSession` | a forma de abrir o painel de uma sessão | uma sessão que não se liga | esta unidade: o painel diz porquê |
 | `root` | a pasta onde o Polvo abriu | uma pasta que não se lê | a árvore (`FLTRE`): o motivo no lugar do conteúdo |
 | `LayoutFile` | o ficheiro da organização, ou nenhum | um ficheiro que não se grava | esta unidade: o aviso (`WNDWI-E03`) |
 | `Keymap` | o mapa de atalhos da aplicação, ou nenhum (os de omissão) | — | o `Keymap`: cada ação tem um atalho |
@@ -109,7 +122,7 @@ alterado aberto nela abre-se num editor, como no `WNDWI-B18`.
 | Constant | Value | Why |
 | --- | --- | --- |
 | `TITLE_H` | 38 px | a altura da barra do GNOME (libadwaita) |
-| `KINDS` | `[TERMINAL, FILES, GIT_INFO, EDITOR, OPEN_FILE]` | os tipos de aba que o escolhedor mostra (`WNDWI-B10`), pela ordem do mais usado |
+| `KINDS` | `[TERMINAL, FILES, GIT_INFO, EDITOR, OPEN_FILE, MACHINES]` | os tipos de aba que o escolhedor mostra (`WNDWI-B10`), pela ordem do mais usado |
 | `SAVE_DELAY` | 500 ms | um arrasto muda a doca muitas vezes seguidas; grava-se uma vez, no fim |
 
 ## Rule uses
@@ -135,6 +148,8 @@ alterado aberto nela abre-se num editor, como no `WNDWI-B18`.
 | `WNDWI-B18` | `root` |
 | `WNDWI-B19` | `KINDS` |
 | `WNDWI-B20` | `root` |
+| `WNDWI-B21` | `Station`, `KINDS` |
+| `WNDWI-B22` | `Station`, `OpenSession` |
 
 ## Revisions
 
@@ -165,6 +180,12 @@ alterado aberto nela abre-se num editor, como no `WNDWI-B18`.
 
 > **WNDWI-R0007:** o escolhedor ganha a informação de git (plano CEACN, fase W04): entra o `WNDWI-B20`, e
 > o `WNDWI-B12` passa a guardar a pasta das abas do git.
+
+> **WNDWI-R0008:** entram o `WNDWI-B21` (a aba das máquinas) e o `WNDWI-B22` (as sessões em abas), do
+> plano ESRMS, W02; o `new` passa a receber a instalação e a forma de abrir o painel de uma sessão, e a
+> organização guarda a aba das máquinas e as sessões alheias. O terminal novo da aplicação é uma sessão
+> desta máquina quando a instalação abriu, para as outras o poderem espelhar, e um pty da janela quando
+> não abriu (o Windows, até o pty do Go o servir).
 
 ## Open Decisions
 

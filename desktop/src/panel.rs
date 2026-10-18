@@ -183,6 +183,12 @@ impl TerminalPanel {
         panel
     }
 
+    /// The text on the screen, for the tests of whoever holds panels.
+    #[cfg(test)]
+    pub fn screen_text(&mut self) -> String {
+        self.screen.text()
+    }
+
     /// Whether the window may not type in the session the panel shows (TRPNT-B11).
     fn read_only(&self) -> bool {
         self.session.as_ref().is_some_and(|t| !t.writable)

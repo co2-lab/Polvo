@@ -34,6 +34,7 @@ mod keymap; // @dep: KYIMA
 mod keys; // @dep: KYIMK
 mod layout; // @dep: DLIDC
 mod new_tab; // @dep: NTIMP
+mod nodes; // @dep: MQIMP
 mod panel; // @dep: TPITR
 mod prefs; // @dep: PRIMP
 mod remote; // @dep: RMIMP
@@ -41,6 +42,29 @@ mod screen; // @dep: SCIMS
 mod settings; // @dep: STIMS
 mod settings_panel; // @dep: SPIST
 mod window; // @dep: WNIMW
+
+/// Where this machine's node listens for the others, as the `polvo node`'s (STATN-D01).
+const NODE_LISTEN: &str = ":2222";
+
+/// The installation, with this machine's node, in the folder the command line uses; none when it does
+/// not open (the window then runs its terminals in its own ptys, and has no machines tab).
+fn open_station(shell: &str) -> Option<remote::Station> {
+    let dir = dirs::config_dir()?.join("polvo");
+    match remote::Station::open(&dir, NODE_LISTEN, shell) {
+        Ok(st) => {
+            if let Ok(status) = st.status()
+                && let Some(e) = status.listen_error
+            {
+                eprintln!("polvo: the other machines cannot mirror this one: {e}");
+            }
+            Some(st)
+        }
+        Err(e) => {
+            eprintln!("polvo: the installation in {} did not open ({e}); the terminals run without it", dir.display());
+            None
+        }
+    }
+}
 
 fn main() {
     let shell = std::env::var("SHELL").unwrap_or_else(|_| panel::SHELL_FALLBACK.into());
@@ -56,7 +80,7 @@ fn main() {
         if prefs.dark {
             gpui_kit::component::Theme::change(gpui_kit::component::ThemeMode::Dark, None, cx);
         }
-        window::open(shell, home, prefs, cx);
+        window::open(shell.clone(), home, prefs, open_station(&shell), cx);
         cx.activate(true);
     });
 }

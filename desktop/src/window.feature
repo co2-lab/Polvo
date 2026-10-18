@@ -187,3 +187,27 @@ Feature: Window
     Given uma janela com a aba do git de um repositório com "notas.txt" alterado
     When o utilizador carrega em "notas.txt"
     Then a doca tem um editor com "notas.txt"
+
+  @WNDWI-B21#01 @unit-level
+  Scenario: As máquinas
+    Given uma janela com a instalação aberta
+    When o utilizador escolhe as máquinas no escolhedor, e depois outra vez
+    Then a doca tem uma aba das máquinas, com o foco
+
+  @WNDWI-B21#02 @unit-level
+  Scenario: Sem a instalação, não há máquinas
+    Given uma janela sem a instalação
+    When o utilizador abre o escolhedor
+    Then o escolhedor não tem as máquinas
+
+  @WNDWI-B22#01 @unit-level
+  Scenario: Uma sessão abre numa aba
+    Given uma janela com a aba das máquinas, e uma sessão local
+    When o utilizador carrega na sessão
+    Then a doca tem uma aba do terminal ligada a ela
+
+  @WNDWI-B22#02 @unit-level
+  Scenario: A aba de uma sessão volta, ou diz porquê
+    Given a organização gravada com a aba de uma sessão alheia, e a sessão terminada depois
+    When a janela abre outra vez com o mesmo ficheiro da organização
+    Then a aba diz que a sessão não se ligou
