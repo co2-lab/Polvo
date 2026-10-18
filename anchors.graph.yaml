@@ -2016,7 +2016,7 @@ nodes:
       line_rev: 4443f8d9c69a
     - id: plans/espelho.plan.md
       kind: plan
-      rev: f0ba2cddda6b
+      rev: c8241c540003
       updated_at: "2026-10-18"
       code: ESRMS
       file_code: ESRMS
@@ -2024,8 +2024,8 @@ nodes:
       code_declared: true
       tags:
         - plan
-      evidence_rev: f015e2173ba7
-      line_rev: 8692fc34d47d
+      evidence_rev: bd768394437d
+      line_rev: 8b946e964501
     - id: plans/identidade.plan.md
       kind: plan
       rev: 669817065cee

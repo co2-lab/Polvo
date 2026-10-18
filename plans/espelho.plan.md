@@ -76,6 +76,19 @@ SSH do Polvo corre por cima, como corre sobre TCP.
   `net.Conn` por cima da qual o SSH corre como corre sobre TCP
 - `internal/pairing/pairing.spec.md` — muda: emparelhar pelo P2P, e o pedido num QR code (a chave do nó e
   o endereço P2P), para um telemóvel que não está na mesma rede
+- `internal/transport/addresses.spec.md` — nasce: quando os IPs mudam, as duas máquinas não se perdem.
+  Cada uma guarda os últimos endereços de cada máquina com que falou, e dá-lhe os seus sempre que mudam.
+  Por ordem:
+  1. com a ligação viva, o iroh passa-a para o endereço novo sem a cortar;
+  2. a máquina cujo IP mudou ainda tem o endereço da outra: liga-se a ela e manda-lhe os seus novos,
+     assinados pela chave dela (o automático, pedido pelo dono; funciona sem servidor nenhum);
+  3. com um relay ou o DNS do iroh, cada uma acha a outra pela chave, mesmo que as duas tenham mudado;
+  4. quando nada disto chega (as duas mudaram, e não há servidor), o manual: a janela avisa que perdeu
+     a ligação com a máquina e mostra, nesse aviso, os endereços desta máquina agora (de cada rede) e o
+     último que conhecia da outra, com onde escrever o novo; como a chave da outra já é conhecida, não é
+     preciso outro convite
+- `desktop/src/nodes.spec.md` — muda: o aviso da ligação perdida, os endereços desta máquina, e mudar o
+  endereço de uma máquina à mão
 
 ### ESRMS-W05 — Os ficheiros de qualquer máquina (depends on ESRMS-W02)
 
@@ -146,6 +159,11 @@ none
 > TURN nossos; o go-libp2p fura menos (70% medido, condicional); o tsnet pede um servidor de coordenação.
 > O nó em Go liga-o por cgo, por uma API C nossa (as bindings Go da comunidade só servem o Linux); o
 > Galaxy ganha o cgo numa caixa do Bavel.
+
+> **ESRMS-R0006:** o dono pediu a 2026-10-18 que as máquinas não se percam quando os IPs mudam: a que
+> mudou e ainda conhece a outra manda-lhe os endereços novos sozinha; e, quando isso não chega, os
+> utilizadores mudam-nos à mão, com a janela a mostrar os endereços novos, sobretudo no aviso de que a
+> ligação se perdeu. Entra na W04 (`internal/transport/addresses.spec.md`).
 
 ## Definition of Done
 
