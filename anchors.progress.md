@@ -1,5 +1,5 @@
 <!-- anchors:progress v1 — written by `anchors progress`; never edit by hand -->
-# Progress — 100% (64/64 points)
+# Progress — 100% (79/79 points)
 
 ## D01 — AgenteLocal (plan: plans/agente-local.plan.md) — 100% (6/6)
 ### D01.S1 — AGLCG-W01 — A ponte MCP — 100% (2/2)
@@ -51,7 +51,7 @@
 - [x] D04.T9 — O `polvo node` a correr no Galaxy (`GALAXY_ENGINE=go galaxy run ./cmd/polvo node`) aceita o · 1 (estimate) · done 2026-10-17 by migrated
 - [x] D04.T10 — `anchors check` sem gates bloqueantes a falhar. · 1 (estimate) · done 2026-10-17 by migrated
 
-## D05 — Espelho remoto (plan: plans/espelho.plan.md) — 100% (12/12)
+## D05 — Espelho remoto (plan: plans/espelho.plan.md) — 100% (27/27)
 ### D05.S1 — ESRMS-W01 — As sessões no nó — 100% (4/4)
 - [x] D05.T1 — `internal/sessions/sessions.spec.md` · 1 · done 2026-10-17 by OK-BR-PE0EF71F/polvo-main
 - [x] D05.T2 — `internal/nodeconf/nodeconf.spec.md` · 1 · done 2026-10-17 by OK-BR-PE0EF71F/polvo-main
@@ -66,9 +66,25 @@
 - [x] D05.T10 — `desktop/src/screen.spec.md` e `panel.spec.md` (mudam: o terminal de uma sessão, dona ou alheia, e o só ver) · 1 · done 2026-10-17 by OK-BR-PE0EF71F/polvo-main
 - [x] D05.T11 — `desktop/src/nodes.spec.md` (nasce: as máquinas e as sessões) · 1 · done 2026-10-17 by OK-BR-PE0EF71F/polvo-main
 - [x] D05.T12 — `desktop/src/window.spec.md` (muda: a aba das máquinas, e os terminais como sessões desta máquina) · 1 · done 2026-10-17 by OK-BR-PE0EF71F/polvo-main
-### D05.S3 — ESRMS-W03 — Descoberta e emparelhamento (depends on ESRMS-W02) — — (0/0)
+### D05.S3 — ESRMS-W03 — Descoberta e emparelhamento (depends on ESRMS-W02) — 100% (5/5)
+- [x] D05.T13 — `internal/discovery/discovery.spec.md` (nasce: o mDNS próprio, anunciar e procurar) · 1 · done 2026-10-18 by OK-BR-PE0EF71F/polvo-main
+- [x] D05.T14 — `internal/pairing/pairing.spec.md` (nasce: o código de 6 dígitos e o limite de falhas) · 1 · done 2026-10-18 by OK-BR-PE0EF71F/polvo-main
+- [x] D05.T15 — `internal/node/server.spec.md`, `internal/hub/client.spec.md` e `internal/sessions` (mudam: a chave desconhecida só emparelha) · 1 · done 2026-10-18 by OK-BR-PE0EF71F/polvo-main
+- [x] D05.T16 — `internal/station/station.spec.md` e `internal/bridge/bridge.spec.md` (mudam: anunciar, procurar e emparelhar) · 1 · done 2026-10-18 by OK-BR-PE0EF71F/polvo-main
+- [x] D05.T17 — `desktop/src/remote.spec.md` e `nodes.spec.md` (mudam: as máquinas da rede e o emparelhamento) · 1 · done 2026-10-18 by OK-BR-PE0EF71F/polvo-main
 ### D05.S4 — ESRMS-W04 — P2P através de NAT (depends on ESRMS-W03) — — (0/0)
-### D05.S5 — ESRMS-W05 — Os ficheiros de qualquer máquina (depends on ESRMS-W02) — — (0/0)
+### D05.S5 — ESRMS-W05 — Os ficheiros de qualquer máquina (depends on ESRMS-W02) — 100% (4/4)
+- [x] D05.T18 — `internal/node/control.spec.md` (muda: o ~ é a pasta pessoal) · 1 · done 2026-10-18 by OK-BR-PE0EF71F/polvo-main
+- [x] D05.T19 — `internal/bridge/bridge.spec.md` e `desktop/src/remote.spec.md` (mudam: os ficheiros de uma máquina) · 1 · done 2026-10-18 by OK-BR-PE0EF71F/polvo-main
+- [x] D05.T20 — `desktop/src/files.spec.md` e `editor.spec.md` (mudam: a árvore e o editor de outra máquina) · 1 · done 2026-10-18 by OK-BR-PE0EF71F/polvo-main
+- [x] D05.T21 — `desktop/src/nodes.spec.md` e `window.spec.md` (mudam: o Ficheiros de uma máquina) · 1 · done 2026-10-18 by OK-BR-PE0EF71F/polvo-main
+### D05.S6 — ESRMS-W06 — O agente e os sockets entre máquinas (depends on ESRMS-W02) — 100% (6/6)
+- [x] D05.T22 — `internal/mcp/tools.spec.md` (muda: as ferramentas das sessões de qualquer nó) · 1 · done 2026-10-18 by OK-BR-PE0EF71F/polvo-main
+- [x] D05.T23 — `internal/sessions/sessions.spec.md`, `internal/node/control.spec.md` e `internal/hub/client.spec.md` (mudam: o ecrã em texto e escrever numa sessão) · 1 · done 2026-10-18 by OK-BR-PE0EF71F/polvo-main
+- [x] D05.T24 — `internal/forward/forward.spec.md` (nasce: encaminhar um socket TCP ou Unix nos dois sentidos) · 1 · done 2026-10-18 by OK-BR-PE0EF71F/polvo-main
+- [x] D05.T25 — `internal/node/server.spec.md` e `internal/hub/client.spec.md` (mudam: o nó encaminha sockets) · 1 · done 2026-10-18 by OK-BR-PE0EF71F/polvo-main
+- [x] D05.T26 — `internal/nodeconf/nodeconf.spec.md` (muda: a permissão de encaminhar sockets) · 1 · done 2026-10-18 by OK-BR-PE0EF71F/polvo-main
+- [x] D05.T27 — `cmd/polvo/cli.spec.md` (muda: o polvo forward) · 1 · done 2026-10-18 by OK-BR-PE0EF71F/polvo-main
 
 ## D06 — Agentes (plan: plans/agentes.plan.md) — 100% (12/12)
 ### D06.S1 — AGPRG-W01 — O progresso no nó — 100% (3/3)
@@ -105,4 +121,4 @@
 - [x] D07.T10 — `desktop/src/git.spec.md` · 1 · done 2026-10-17 by OK-BR-PE0EF71F/polvo-main
 - [x] D07.T11 — `desktop/src/window.spec.md` (muda: o tipo de aba do git) · 1 · done 2026-10-17 by OK-BR-PE0EF71F/polvo-main
 
-<!-- anchors:progress sum=78b13b9e4fc0 -->
+<!-- anchors:progress sum=c43143e72013 -->

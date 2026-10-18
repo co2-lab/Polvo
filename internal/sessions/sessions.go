@@ -186,6 +186,35 @@ func (m *Manager) Attach(id string, perm Perm) (*Viewer, error) {
 	return v, nil
 }
 
+// Screen is the current screen of the session as plain text (SSSNS-B12).
+func (m *Manager) Screen(id string) (string, error) {
+	s, err := m.get(id)
+	if err != nil {
+		return "", err
+	}
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	lines := strings.Split(s.scr.emu.String(), "\n")
+	for i, l := range lines {
+		lines[i] = strings.TrimRight(l, " ")
+	}
+	return strings.Join(lines, "\n"), nil
+}
+
+// Type types data in the session as a viewer with perm would, without one (SSSNS-B13); ErrViewOnly when
+// perm may only watch (SSSNS-E03).
+func (m *Manager) Type(id string, perm Perm, data []byte) error {
+	s, err := m.get(id)
+	if err != nil {
+		return err
+	}
+	if !s.may(perm) {
+		return ErrViewOnly
+	}
+	_, err = s.t.Write(data)
+	return err
+}
+
 // Lock makes the session view-only for all but its owner, or lifts that (SSSNS-B07).
 func (m *Manager) Lock(id string, locked bool) error {
 	s, err := m.get(id)

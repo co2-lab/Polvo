@@ -2,7 +2,7 @@
 # @anchors
 #   code: NCFND
 #   ref: NDCNN
-#   updated_at: 2026-10-17
+#   updated_at: 2026-10-18
 #   layer: feature
 
 @NDCNN
@@ -37,3 +37,9 @@ Feature: Nodeconf
     Given um node.json com o guest "admin"
     When o nó lê a configuração
     Then dá o erro com "admin"
+
+  @NDCNN-B04 @unit-level
+  Scenario: Quem pode encaminhar sockets
+    Given um node.json com a chave "A" na lista forward, a chave "B" que controla fora dela, e a "C" só a ver
+    When se pergunta quem pode encaminhar, também sem a lista e com "*"
+    Then o dono e a "A" podem, a "B" e a "C" não; sem a lista só o dono; com "*" a "B" também, e a "C" não

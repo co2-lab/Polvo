@@ -26,6 +26,10 @@ ou substituindo o que lá estava. A pasta tem de existir. A resposta é vazia.
 O pedido `fs.list` com o caminho de uma pasta devolve as entradas dela por ordem de nome, cada uma com
 o nome, se é pasta e o tamanho.
 
+### CNTRL-B11 — O `~` é a pasta pessoal
+Nos pedidos de ficheiros (`fs.read`, `fs.write`, `fs.list`), um caminho que é `~`, ou que começa por `~/`,
+é o da pasta pessoal do utilizador do nó: quem pede de outra máquina não sabe qual é.
+
 ### CNTRL-B04 — `proc.run` corre um processo até ao fim e devolve o que ele produziu
 O pedido `proc.run` com o programa e os argumentos, e opcionalmente a pasta e a entrada, corre o
 processo sem terminal até ao fim e devolve o código de saída (ou -1 e o nome do sinal), a saída e o
@@ -46,7 +50,9 @@ O controlo de um nó com sessões (o `Controller`, com as `Sessions`) atende:
 - `session.new`: cria uma sessão (o programa pedido, ou a shell do nó; a pasta e o tamanho pedidos) e
   devolve o id dela;
 - `session.close`: termina uma sessão;
-- `session.lock`: trava uma sessão para só ver, ou destrava-a.
+- `session.lock`: trava uma sessão para só ver, ou destrava-a;
+- `session.screen`: o ecrã atual de uma sessão em texto simples (`text`);
+- `session.type`: escreve numa sessão o que vem em `data` (base64), como quem tecla.
 
 O `ServeControl` é o controlo sem sessões: os pedidos de sessão dão erro de operação.
 
@@ -73,9 +79,9 @@ dela; a resposta chega ao quadro depois, e quem acompanha vê-a pelo `progress.w
 
 ### CNTRL-B08 — O que cada permissão pode fazer
 O controlo atende com a permissão da ligação:
-- quem só vê lê e lista ficheiros, sessões e o progresso, e espera por ele;
-- reportar o progresso, perguntar a um agente, escrever ficheiros, correr processos, e criar e
-  terminar sessões pede controlar;
+- quem só vê lê e lista ficheiros, sessões, o ecrã delas e o progresso, e espera por ele;
+- reportar o progresso, perguntar a um agente, escrever ficheiros, correr processos, criar e
+  terminar sessões e escrever nelas pede controlar (escrever numa sessão travada pede ser o dono);
 - travar e destravar uma sessão pede ser o dono.
 
 O pedido sem a permissão é recusado com o erro de permissão (`CNTRL-E06`), sem fazer nada.
@@ -123,6 +129,7 @@ O pedido sem a permissão é recusado com o erro de permissão (`CNTRL-E06`), se
 | `CNTRL-B08` | `argv`, `path`, `CodeForbidden` |
 | `CNTRL-B09` | `op`, `WAIT_MAX` |
 | `CNTRL-B10` | `op` |
+| `CNTRL-B11` | `path` |
 | `CNTRL-E06` | `CodeForbidden` |
 | `CNTRL-E03` | `path`, `argv`, `CodeOperation` |
 | `CNTRL-E04` | `path`, `MaxFile` |
@@ -139,6 +146,12 @@ O pedido sem a permissão é recusado com o erro de permissão (`CNTRL-E06`), se
 
 > **CNTRL-R0003:** o `session.list` diz a cada ligação se pode escrever em cada sessão, para a janela mostrar
 > as que só se veem (plano ESRMS, W02).
+
+> **CNTRL-R0006:** o `CNTRL-B07` ganha o `session.screen` e o `session.type`, para o agente trabalhar nas
+> sessões de qualquer máquina pelo `polvo mcp` (plano ESRMS, W06); o `CNTRL-B08` diz quem os pode pedir.
+
+> **CNTRL-R0005:** entra o `CNTRL-B11` (o `~` é a pasta pessoal), para a árvore de ficheiros de outra
+> máquina começar na pasta pessoal dela (plano ESRMS, W05).
 
 > **CNTRL-R0004:** entra o `CNTRL-B09` (o progresso dos agentes pelo controlo), do plano AGPRG, W01, e o
 > `CNTRL-B10` (perguntar a um agente) com o `op` `answer`, da W03.

@@ -91,3 +91,15 @@ Feature: Sessions
     Given um Manager com o ambiente comum POLVO_NODE=127.0.0.1:2222
     When cria uma sessão que escreve o POLVO_SESSION e o POLVO_NODE
     Then a sessão escreve o id dela e 127.0.0.1:2222
+
+  @SSSNS-B12 @unit-level
+  Scenario: O ecrã em texto
+    Given uma sessão que escreve "ola" a vermelho e depois "mundo"
+    When se pede o ecrã dela
+    Then o texto tem "ola" e "mundo" em linhas, sem as sequências das cores
+
+  @SSSNS-B13 @unit-level
+  Scenario: Escrever sem se ligar
+    Given uma shell numa sessão
+    When se escreve "echo marca-$((40+2))" com a permissão de controlar, e com a de só ver
+    Then o ecrã mostra "marca-42", e a de só ver é recusada

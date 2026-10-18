@@ -10,8 +10,9 @@
 O desktop (a CLI agora, a UI e a ponte do agente depois) liga-se a um nó pelo `Dial` e recebe um
 `Node`. Por ele abre terminais interativos (`Shell`, que dá um `Terminal`) e faz chamadas de controlo
 (`Call` e os atalhos `ReadFile`, `WriteFile`, `List` e `Run`), e trabalha com as sessões de terminal do
-nó (`Sessions`, que dá cada `Session`; `NewSession`, `CloseSession`, `LockSession`; e `Attach`, que liga
-um `Terminal` a uma sessão que já existe). A ligação autentica-se com a identidade
+nó (`Sessions`, que dá cada `Session`; `NewSession`, `CloseSession`, `LockSession`; `Screen` e `Type`, para um agente; e `Attach`, que
+liga um `Terminal` a uma sessão que já existe), e encaminha sockets pela máquina do nó (`Connect` e
+`Listen`). A ligação autentica-se com a identidade
 da instalação e confere a chave do nó na lista de nós conhecidos. A configuração é o `Config`.
 
 ## Rules
@@ -49,6 +50,16 @@ nova também. O `Done` fecha-se quando a ligação acaba, fechada ou caída.
 O `Sessions` dá as sessões vivas do nó, cada uma com o id, o programa, o tamanho, os espectadores, se
 está travada e se esta ligação pode escrever nela. O `NewSession` cria uma sessão (o programa pedido, ou
 a shell do nó) e devolve o id; o `CloseSession` termina-a; o `LockSession` trava-a ou destrava-a.
+
+### CLNTI-B10 — O ecrã de uma sessão e escrever nela
+O `Screen` dá o ecrã atual de uma sessão em texto simples, e o `Type` escreve nela como quem tecla, sem se
+ligar a ela; a permissão é a desta ligação (o nó recusa quem só vê, e a sessão travada a quem não é o
+dono).
+
+### CLNTI-B11 — Os sockets da máquina do nó
+O `Connect` abre, pelo nó, uma ligação a um socket TCP ou Unix da máquina dele; o `Listen` põe o nó a
+escutar num socket da máquina dele e dá cada ligação que lá chega. Pedem a permissão de encaminhar do nó;
+sem ela, o nó recusa-os.
 
 ### CLNTI-B08 — Ligar-se a uma sessão
 O `Attach` dá um `Terminal` ligado a uma sessão que já existe: lê primeiro o ecrã atual dela e depois a
@@ -94,8 +105,13 @@ depois do código: é o código que a prova.
 | `CLNTI-B08` | `addr` |
 | `CLNTI-E04` | `addr` |
 | `CLNTI-B09` | `addr`, `Identity`, `KnownHosts` |
+| `CLNTI-B10` | `addr` |
+| `CLNTI-B11` | `addr` |
 
 ## Revisions
+
+> **CLNTI-R0003:** entram o `CLNTI-B10` (o ecrã de uma sessão e escrever nela) e o `CLNTI-B11` (os
+> sockets da máquina do nó), do plano ESRMS, W06.
 
 > **CLNTI-R0002:** entra o `CLNTI-B09` (emparelhar), do plano ESRMS, W03.
 

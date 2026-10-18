@@ -45,29 +45,29 @@ nodes:
       line_rev: 266be064740d
     - id: cmd/polvo/cli.feature
       kind: feature
-      rev: f7e82c60e490
+      rev: 6af49cb3e285
       updated_at: "2026-10-18"
       code: CLIXX
       file_code: CLFEA
       layer: feature
       tags:
         - feature
-      evidence_rev: da5b5b96ea87
-      line_rev: 507cf0e11fc2
+      evidence_rev: 086c2122df23
+      line_rev: 51a8ec7b1f6f
     - id: cmd/polvo/cli.go
       kind: code
-      rev: 9bcc342e3c09
+      rev: 43d308183f25
       updated_at: "2026-10-18"
       code: CLIXX
       file_code: CLIMX
       layer: cmd
       tags:
         - cli
-      evidence_rev: baf99a11473c
-      line_rev: fa6523887616
+      evidence_rev: 4cee10161971
+      line_rev: 8d92e1e153b3
     - id: cmd/polvo/cli.spec.md
       kind: spec
-      rev: 736fe671c288
+      rev: abcba0b69f54
       updated_at: "2026-10-18"
       code: CLIXX
       file_code: CLIXX
@@ -75,20 +75,20 @@ nodes:
       code_declared: true
       tags:
         - spec
-      evidence_rev: "882630457311"
-      rule_revs: {CLIXX-B01: e1849a836c74, CLIXX-B02: d7e0e6c9fb22, CLIXX-B03: e9a2876a236e, CLIXX-B04: c74927522eb2, CLIXX-B05: 95b51a43a683, CLIXX-B06: 405564fb7737, CLIXX-B07: 33fa866166fb, CLIXX-E01: 076b85d1b0b4, CLIXX-E02: 854a3dabe9f0}
-      rest_rev: 70d5b4c82f5e
+      evidence_rev: 2dc597028228
+      rule_revs: {CLIXX-B01: e1849a836c74, CLIXX-B02: a6850a5d0c9d, CLIXX-B03: e9a2876a236e, CLIXX-B04: c74927522eb2, CLIXX-B05: 95b51a43a683, CLIXX-B06: 405564fb7737, CLIXX-B07: 33fa866166fb, CLIXX-B08: 8de953bdbf0c, CLIXX-E01: 076b85d1b0b4, CLIXX-E02: 854a3dabe9f0}
+      rest_rev: 593fa124412f
     - id: cmd/polvo/cli_test.go
       kind: test
-      rev: 84174f742abd
+      rev: 7e1df23ebce7
       updated_at: "2026-10-18"
       code: CLIXX
       file_code: CLTSX
       layer: test
       tags:
         - test
-      evidence_rev: fbdf47deb225
-      line_rev: 45e372e85b0e
+      evidence_rev: 428160cfa776
+      line_rev: 41528a354f6e
     - id: cmd/polvo/main.go
       kind: code
       rev: 4da95951342e
@@ -1050,31 +1050,77 @@ nodes:
         - test
       evidence_rev: 6eee6b97b21b
       line_rev: 6b7dd5ef0084
+    - id: internal/forward/forward.feature
+      kind: feature
+      rev: 740836edb7b1
+      updated_at: "2026-10-18"
+      code: FRWRD
+      file_code: FRFTR
+      layer: feature
+      tags:
+        - feature
+      evidence_rev: c83abdcf55f1
+      line_rev: cac7342674c6
+    - id: internal/forward/forward.go
+      kind: code
+      rev: 8c46f290849a
+      updated_at: "2026-10-18"
+      code: FRWRD
+      file_code: FRIMP
+      layer: forward
+      tags:
+        - forward
+      evidence_rev: 1892814fe206
+      line_rev: 813e24e0ff0c
+    - id: internal/forward/forward.spec.md
+      kind: spec
+      rev: 6a2f41537d61
+      updated_at: "2026-10-18"
+      code: FRWRD
+      file_code: FRWRD
+      layer: spec
+      code_declared: true
+      tags:
+        - spec
+      evidence_rev: f4b374df867b
+      rule_revs: {FRWRD-B01: a0c275953bbf, FRWRD-B02: b7ea8d8add34, FRWRD-B03: 21660531c302, FRWRD-B04: 91b8fd4c0f0f, FRWRD-E01: 3d06975d2106, FRWRD-E02: bcf552c0a60e, FRWRD-E03: 49fbe9962078}
+      rest_rev: 36fd54defc0a
+    - id: internal/forward/forward_test.go
+      kind: test
+      rev: 7fd3f51db74d
+      updated_at: "2026-10-18"
+      code: FRWRD
+      file_code: FRTST
+      layer: test
+      tags:
+        - test
+      evidence_rev: 5b242832ca90
+      line_rev: 97feb6bb4bc3
     - id: internal/hub/client.feature
       kind: feature
-      rev: 9d890131c2e2
+      rev: 5fed319708a4
       updated_at: "2026-10-18"
       code: CLNTI
       file_code: CLFTR
       layer: feature
       tags:
         - feature
-      evidence_rev: 126ddbf62819
-      line_rev: 6b543954babb
+      evidence_rev: ec4dc6bc94c6
+      line_rev: fb8e7a32b5f5
     - id: internal/hub/client.go
       kind: code
-      rev: 4fa8a7f2c147
+      rev: 1dde9d47f374
       updated_at: "2026-10-18"
       code: CLNTI
       file_code: CLIMP
       layer: hub
       tags:
         - hub
-      evidence_rev: b5f32934a07e
-      line_rev: 13be7fdf999b
+      evidence_rev: 534fa6525126
+      line_rev: f0dc20dc6cc5
     - id: internal/hub/client.spec.md
       kind: spec
-      rev: 9546d9eb1d08
+      rev: e7bc20744baf
       updated_at: "2026-10-18"
       code: CLNTI
       file_code: CLNTI
@@ -1095,20 +1141,20 @@ nodes:
             - CLNTI-E01
             - CLNTI-E02
             - CLNTI-E03
-      evidence_rev: d99fe8a90f91
-      rule_revs: {CLNTI-B01: 56c267108e90, CLNTI-B02: e0918def90e2, CLNTI-B03: 28e3da044c70, CLNTI-B04: 3bf1ed5c333d, CLNTI-B05: cc21dfee411d, CLNTI-B06: c8ba53dde991, CLNTI-B07: 94f503b3a071, CLNTI-B08: 02fa1c37a8b0, CLNTI-B09: 0aa25c9b3089, CLNTI-E01: c00f9a5bb7f2, CLNTI-E02: f0fcdd5b16b0, CLNTI-E03: 96e2e7fa97a0, CLNTI-E04: 893fa4037791}
-      rest_rev: c16e11998674
+      evidence_rev: a7278e886bdb
+      rule_revs: {CLNTI-B01: 56c267108e90, CLNTI-B02: e0918def90e2, CLNTI-B03: 28e3da044c70, CLNTI-B04: 3bf1ed5c333d, CLNTI-B05: cc21dfee411d, CLNTI-B06: c8ba53dde991, CLNTI-B07: 94f503b3a071, CLNTI-B08: 02fa1c37a8b0, CLNTI-B09: 0aa25c9b3089, CLNTI-B10: e0a559b36070, CLNTI-B11: 6b9ad714de7b, CLNTI-E01: c00f9a5bb7f2, CLNTI-E02: f0fcdd5b16b0, CLNTI-E03: 96e2e7fa97a0, CLNTI-E04: 893fa4037791}
+      rest_rev: 1c85062593c2
     - id: internal/hub/client_test.go
       kind: test
-      rev: bda02c7cbfa9
+      rev: 5c4331b9f909
       updated_at: "2026-10-18"
       code: CLNTI
       file_code: CLTST
       layer: test
       tags:
         - test
-      evidence_rev: 5d24201c7ae5
-      line_rev: 1998f614a78c
+      evidence_rev: 8eba69b374ab
+      line_rev: fcf2dbcc810f
     - id: internal/mcp/server.feature
       kind: feature
       rev: 9b9a7633445b
@@ -1209,29 +1255,29 @@ nodes:
       line_rev: baafcae1f186
     - id: internal/mcp/tools.feature
       kind: feature
-      rev: 8bb23863af97
+      rev: 0e8bb22b2d8b
       updated_at: "2026-10-18"
       code: MCPTL
       file_code: MCFTT
       layer: feature
       tags:
         - feature
-      evidence_rev: c729e7ce1bbd
-      line_rev: acb364ec3ed7
+      evidence_rev: 1d17ed338cf5
+      line_rev: 4871719b0336
     - id: internal/mcp/tools.go
       kind: code
-      rev: 92f417223526
+      rev: 156c155596db
       updated_at: "2026-10-18"
       code: MCPTL
       file_code: MCIMT
       layer: mcp
       tags:
         - mcp
-      evidence_rev: 6f51f8dfdcd0
-      line_rev: fb48972afc45
+      evidence_rev: 0d692c4376ee
+      line_rev: 8b70e2ce6a88
     - id: internal/mcp/tools.spec.md
       kind: spec
-      rev: fd05e8718c4a
+      rev: e6b6cfbc325f
       updated_at: "2026-10-18"
       code: MCPTL
       file_code: MCPTL
@@ -1252,45 +1298,45 @@ nodes:
             - MCPTL-E01
             - MCPTL-E02
             - MCPTL-E03
-      evidence_rev: e5c863f70b22
-      rule_revs: {MCPTL-B01: 070502f3be1e, MCPTL-B02: 6a91f05b671a, MCPTL-B03: ecd80a0da9df, MCPTL-B04: f8c021f47f5d, MCPTL-B05: c641fd91e8e8, MCPTL-B06: f5f25a589b98, MCPTL-B07: a6a185e342c7, MCPTL-B08: 51353042ba9b, MCPTL-B09: 72332ffb5060, MCPTL-B10: a0850f9790f9, MCPTL-B11: ee885fb2fabb, MCPTL-B12: 67db9918325a, MCPTL-B13: 2d258e55b2bb, MCPTL-E01: 4bfeccc4a6d8, MCPTL-E02: 9c913542d6d3, MCPTL-E03: e6d70e3e5fda, MCPTL-E04: 6ccd62a37076}
-      rest_rev: caab9d63443e
+      evidence_rev: 993e13482787
+      rule_revs: {MCPTL-B01: 070502f3be1e, MCPTL-B02: 6a91f05b671a, MCPTL-B03: ecd80a0da9df, MCPTL-B04: f8c021f47f5d, MCPTL-B05: c641fd91e8e8, MCPTL-B06: f5f25a589b98, MCPTL-B07: a6a185e342c7, MCPTL-B08: 51353042ba9b, MCPTL-B09: 72332ffb5060, MCPTL-B10: a0850f9790f9, MCPTL-B11: ee885fb2fabb, MCPTL-B12: 67db9918325a, MCPTL-B13: 2d258e55b2bb, MCPTL-B14: 486807c2aff2, MCPTL-B15: 8ece7a5b614d, MCPTL-B16: 874f99716a2e, MCPTL-B17: 17596e7e0e6a, MCPTL-E01: 4bfeccc4a6d8, MCPTL-E02: 9c913542d6d3, MCPTL-E03: e6d70e3e5fda, MCPTL-E04: 6ccd62a37076, MCPTL-E05: 421b93130c22}
+      rest_rev: 548e6261b2d0
     - id: internal/mcp/tools_test.go
       kind: test
-      rev: 869ea7d8f8e2
+      rev: 4a29758a3ca1
       updated_at: "2026-10-18"
       code: MCPTL
       file_code: MCTST
       layer: test
       tags:
         - test
-      evidence_rev: ba23f2bce7ec
-      line_rev: f635ac7cfa7e
+      evidence_rev: 91383f56394a
+      line_rev: 958fe64219f5
     - id: internal/node/control.feature
       kind: feature
-      rev: 3c7f65772a22
+      rev: fe1a2aa719db
       updated_at: "2026-10-18"
       code: CNTRL
       file_code: CNFTR
       layer: feature
       tags:
         - feature
-      evidence_rev: 0b62a8cb1041
-      line_rev: 85cf75482bc6
+      evidence_rev: e2fd357ffea9
+      line_rev: a5c0d49b9878
     - id: internal/node/control.go
       kind: code
-      rev: 372bde0158ef
+      rev: b3f5e10f833b
       updated_at: "2026-10-18"
       code: CNTRL
       file_code: CNIMP
       layer: node
       tags:
         - node
-      evidence_rev: 36c5fc219aac
-      line_rev: 48493b33359d
+      evidence_rev: 74ae5b4bbf3c
+      line_rev: e17be071beb8
     - id: internal/node/control.spec.md
       kind: spec
-      rev: ed3e52fafeb6
+      rev: 45ce81dcc51c
       updated_at: "2026-10-18"
       code: CNTRL
       file_code: CNTRL
@@ -1298,45 +1344,56 @@ nodes:
       code_declared: true
       tags:
         - spec
-      evidence_rev: 18c296533f6f
-      rule_revs: {CNTRL-B01: "316986563459", CNTRL-B02: 802b79876f2f, CNTRL-B03: 884e4c321bc7, CNTRL-B04: 8d1e498da8c5, CNTRL-B05: 342a2b0f5cb6, CNTRL-B06: c5b173133779, CNTRL-B07: 455bd10eb2ea, CNTRL-B08: ea598b89c926, CNTRL-B09: c0253beb5d24, CNTRL-B10: 42889f3a7d01, CNTRL-E01: d1a2b67829aa, CNTRL-E02: 4449c1568c95, CNTRL-E03: ae2d67e525fc, CNTRL-E04: b89eadab3a8c, CNTRL-E05: f410ddb5ff2d, CNTRL-E06: 75edab71ac20}
-      rest_rev: f6a46395efd4
+      evidence_rev: d8c21710923f
+      rule_revs: {CNTRL-B01: "316986563459", CNTRL-B02: 802b79876f2f, CNTRL-B03: 884e4c321bc7, CNTRL-B04: 8d1e498da8c5, CNTRL-B05: 342a2b0f5cb6, CNTRL-B06: c5b173133779, CNTRL-B07: 911e736d2a58, CNTRL-B08: 2934e1f90332, CNTRL-B09: c0253beb5d24, CNTRL-B10: 42889f3a7d01, CNTRL-B11: 9d07f97eff86, CNTRL-E01: d1a2b67829aa, CNTRL-E02: 4449c1568c95, CNTRL-E03: ae2d67e525fc, CNTRL-E04: b89eadab3a8c, CNTRL-E05: f410ddb5ff2d, CNTRL-E06: 75edab71ac20}
+      rest_rev: "377454926584"
     - id: internal/node/control_test.go
       kind: test
-      rev: b69cf97a5060
+      rev: 0ba5c851467f
       updated_at: "2026-10-18"
       code: CNTRL
       file_code: CNTST
       layer: test
       tags:
         - test
-      evidence_rev: 7d72da28a263
-      line_rev: b27271eaf302
+      evidence_rev: f266032b9e36
+      line_rev: e7f5c6624c2a
+    - id: internal/node/forward.go
+      kind: code
+      rev: 75786b0c8243
+      updated_at: "2026-10-18"
+      code: SRVRE
+      file_code: SRFWD
+      layer: node
+      tags:
+        - node
+      evidence_rev: 948d6a8c4703
+      line_rev: 6f00b67ccf6a
     - id: internal/node/server.feature
       kind: feature
-      rev: 630718b9e018
+      rev: 9a1c4f7b7593
       updated_at: "2026-10-18"
       code: SRVRE
       file_code: SRFTR
       layer: feature
       tags:
         - feature
-      evidence_rev: 21f816d9429c
-      line_rev: aab5fef74aa5
+      evidence_rev: 5c8691e99317
+      line_rev: 76ca53873610
     - id: internal/node/server.go
       kind: code
-      rev: d708a844ea49
+      rev: 10f76fce960b
       updated_at: "2026-10-18"
       code: SRVRE
       file_code: SRIMP
       layer: node
       tags:
         - node
-      evidence_rev: 1d3ce2452c9d
-      line_rev: 63590646ccc3
+      evidence_rev: 859c27d0f0a0
+      line_rev: 9f0593171bfa
     - id: internal/node/server.spec.md
       kind: spec
-      rev: 98d20df10af4
+      rev: 529ff5390d8b
       updated_at: "2026-10-18"
       code: SRVRE
       file_code: SRVRE
@@ -1358,66 +1415,66 @@ nodes:
             - SRVRE-B08
             - SRVRE-E01
             - SRVRE-E02
-      evidence_rev: 94c33af70850
-      rule_revs: {SRVRE-B01: 27d338e5bd92, SRVRE-B02: b4fe3e474dfe, SRVRE-B03: 010ddadf6218, SRVRE-B04: 6998efa92dd4, SRVRE-B05: 5735663c0d9a, SRVRE-B06: 91a0e5c0038d, SRVRE-B07: c0d4fa9d3e39, SRVRE-B08: 5c7506510e2f, SRVRE-B09: 6e348f8751e6, SRVRE-B10: b919843c9001, SRVRE-B11: 1115c4fe780c, SRVRE-B12: 09d9413fbccb, SRVRE-E01: b70249e7954d, SRVRE-E02: b1d0739b5776, SRVRE-E03: 8fc2e800a308}
-      rest_rev: 1525eb43e1d0
+      evidence_rev: d1dd8c9299c1
+      rule_revs: {SRVRE-B01: 27d338e5bd92, SRVRE-B02: b4fe3e474dfe, SRVRE-B03: 010ddadf6218, SRVRE-B04: 6998efa92dd4, SRVRE-B05: 5735663c0d9a, SRVRE-B06: 91a0e5c0038d, SRVRE-B07: c0d4fa9d3e39, SRVRE-B08: f4a12b7b9ea0, SRVRE-B09: 6e348f8751e6, SRVRE-B10: b919843c9001, SRVRE-B11: 1115c4fe780c, SRVRE-B12: 09d9413fbccb, SRVRE-B13: c669dbfa43cc, SRVRE-E01: b70249e7954d, SRVRE-E02: b1d0739b5776, SRVRE-E03: 8fc2e800a308, SRVRE-E04: 819f8741896f}
+      rest_rev: 76ca1529f8e3
     - id: internal/node/server_test.go
       kind: test
-      rev: 10bff0cc5813
+      rev: 268b09566e7b
       updated_at: "2026-10-18"
       code: SRVRE
       file_code: SRTST
       layer: test
       tags:
         - test
-      evidence_rev: 17b366b1f675
-      line_rev: d78c71e2745a
+      evidence_rev: 3c72633be445
+      line_rev: 1aebdf4feb94
     - id: internal/nodeconf/nodeconf.feature
       kind: feature
-      rev: a0cc7c666519
-      updated_at: "2026-10-17"
+      rev: 0bac96f8f1cf
+      updated_at: "2026-10-18"
       code: NDCNN
       file_code: NCFND
       layer: feature
       tags:
         - feature
-      evidence_rev: a3d2b00c2925
-      line_rev: 958af94a539e
+      evidence_rev: 68883735e1b7
+      line_rev: a1bdc18d7ca7
     - id: internal/nodeconf/nodeconf.go
       kind: code
-      rev: c15b26614ca8
-      updated_at: "2026-10-17"
+      rev: 7c13939e3d07
+      updated_at: "2026-10-18"
       code: NDCNN
       file_code: NCIND
       layer: nodeconf
       tags:
         - nodeconf
-      evidence_rev: 0638f69cfd9a
-      line_rev: cda7eb8adfe4
+      evidence_rev: 86951458e548
+      line_rev: 0898993c17fd
     - id: internal/nodeconf/nodeconf.spec.md
       kind: spec
-      rev: 88ccc6f547d9
-      updated_at: "2026-10-17"
+      rev: 5fc3c305f7d9
+      updated_at: "2026-10-18"
       code: NDCNN
       file_code: NDCNN
       layer: spec
       code_declared: true
       tags:
         - spec
-      evidence_rev: abeb4e26b3df
-      rule_revs: {NDCNN-B01: 7b9728f24e6c, NDCNN-B02: b5b0a0f5a161, NDCNN-B03: 840ab8ec780a, NDCNN-E01: c5a1e4b6adec, NDCNN-E02: b44848c22801}
-      rest_rev: 9d1f68981917
+      evidence_rev: 2d8f11ab9070
+      rule_revs: {NDCNN-B01: 7b9728f24e6c, NDCNN-B02: b5b0a0f5a161, NDCNN-B03: 840ab8ec780a, NDCNN-B04: 315a9b908a04, NDCNN-D01: 2f4856f96e77, NDCNN-E01: c5a1e4b6adec, NDCNN-E02: b44848c22801}
+      rest_rev: 9541c202db0b
     - id: internal/nodeconf/nodeconf_test.go
       kind: test
-      rev: 348c9de2ef3d
-      updated_at: "2026-10-17"
+      rev: bb74f4f1f23e
+      updated_at: "2026-10-18"
       code: NDCNN
       file_code: NCTND
       layer: test
       tags:
         - test
-      evidence_rev: c33abb205b84
-      line_rev: c5dad1e732a5
+      evidence_rev: 49fafad5450b
+      line_rev: ce26770a136f
     - id: internal/pairing/pairing.feature
       kind: feature
       rev: 2cb3983b1c74
@@ -1673,29 +1730,29 @@ nodes:
       line_rev: d73a40cfd559
     - id: internal/sessions/sessions.feature
       kind: feature
-      rev: 7d696d69dee8
+      rev: f52d05fd8366
       updated_at: "2026-10-18"
       code: SSSNS
       file_code: SSFTS
       layer: feature
       tags:
         - feature
-      evidence_rev: 2a5af54fe72b
-      line_rev: 9d4dac1ad4a1
+      evidence_rev: c2a28fbde65f
+      line_rev: 0633a94047b6
     - id: internal/sessions/sessions.go
       kind: code
-      rev: fbbf734010f4
+      rev: 479ab0f97c2f
       updated_at: "2026-10-18"
       code: SSSNS
       file_code: SSIMS
       layer: sessions
       tags:
         - sessions
-      evidence_rev: 157238f6aa91
-      line_rev: c2aff12de5b5
+      evidence_rev: 0b924a61094f
+      line_rev: dac00a7dda84
     - id: internal/sessions/sessions.spec.md
       kind: spec
-      rev: a62132efb1bb
+      rev: 47bdd70b9aa6
       updated_at: "2026-10-18"
       code: SSSNS
       file_code: SSSNS
@@ -1703,20 +1760,20 @@ nodes:
       code_declared: true
       tags:
         - spec
-      evidence_rev: b8e5e823086a
-      rule_revs: {SSSNS-B01: 63ac826e4d21, SSSNS-B02: 48aae25e35f2, SSSNS-B03: 5a764596d918, SSSNS-B04: 03888e7656c6, SSSNS-B05: b9b639fa4bde, SSSNS-B06: 0eda3a50e68f, SSSNS-B07: 763e0fc3e38f, SSSNS-B08: fb7aed3a1f82, SSSNS-B09: 3a1898975082, SSSNS-B10: ae2081157b06, SSSNS-B11: d5ea6552179d, SSSNS-E01: 278ddc6d675f, SSSNS-E02: 31b9f3852b8a, SSSNS-E03: a6c6b74719e8, SSSNS-E04: fb0be3c1d784}
-      rest_rev: 12c9d43c34cb
+      evidence_rev: d65ee5eaa953
+      rule_revs: {SSSNS-B01: 63ac826e4d21, SSSNS-B02: 48aae25e35f2, SSSNS-B03: 5a764596d918, SSSNS-B04: 03888e7656c6, SSSNS-B05: b9b639fa4bde, SSSNS-B06: 0eda3a50e68f, SSSNS-B07: 763e0fc3e38f, SSSNS-B08: fb7aed3a1f82, SSSNS-B09: 3a1898975082, SSSNS-B10: ae2081157b06, SSSNS-B11: d5ea6552179d, SSSNS-B12: 2a5651dac808, SSSNS-B13: c38406d7dd74, SSSNS-E01: 278ddc6d675f, SSSNS-E02: 31b9f3852b8a, SSSNS-E03: a6c6b74719e8, SSSNS-E04: fb0be3c1d784}
+      rest_rev: 0b9e620bc541
     - id: internal/sessions/sessions_test.go
       kind: test
-      rev: 29a52bbe0b65
+      rev: 90c1497f456c
       updated_at: "2026-10-18"
       code: SSSNS
       file_code: SSTSS
       layer: test
       tags:
         - test
-      evidence_rev: 3d55fdc71f07
-      line_rev: af3b78b176b9
+      evidence_rev: b36189c476c3
+      line_rev: df6ce8861072
     - id: internal/sshx/keys.feature
       kind: feature
       rev: aa9564dcdff1
@@ -1830,18 +1887,18 @@ nodes:
       line_rev: 39d8122c1792
     - id: internal/station/station.go
       kind: code
-      rev: de37945ea4c6
+      rev: b09eb3d64b74
       updated_at: "2026-10-18"
       code: STATN
       file_code: STIMP
       layer: station
       tags:
         - station
-      evidence_rev: 8353184a7748
-      line_rev: 370fe002c10a
+      evidence_rev: 62b65ebc99f2
+      line_rev: fe386589e34a
     - id: internal/station/station.spec.md
       kind: spec
-      rev: 501495cdaa91
+      rev: 009096ad52c4
       updated_at: "2026-10-18"
       code: STATN
       file_code: STATN
@@ -1849,8 +1906,8 @@ nodes:
       code_declared: true
       tags:
         - spec
-      evidence_rev: baabcb2d45bb
-      rule_revs: {STATN-B01: 3feb54060a1f, STATN-B02: f7f33f97f434, STATN-B03: 5c2e9869920b, STATN-B04: d629aabb7957, STATN-B05: 256656c8259e, STATN-B06: 7d2b0c3b0944, STATN-B07: 8cddd36aaf2d, STATN-B08: 95483604a4c8, STATN-B09: ca4af386886d, STATN-B10: c25b62f91b0f, STATN-B11: 92827112d154, STATN-D01: 726c38e183a8, STATN-E01: 3a154fb24d61, STATN-E02: 6775eb8dd39b}
+      evidence_rev: ecb5c29c2137
+      rule_revs: {STATN-B01: 3feb54060a1f, STATN-B02: ab6cb230641f, STATN-B03: 5c2e9869920b, STATN-B04: d629aabb7957, STATN-B05: 256656c8259e, STATN-B06: 7d2b0c3b0944, STATN-B07: 8cddd36aaf2d, STATN-B08: 95483604a4c8, STATN-B09: ca4af386886d, STATN-B10: c25b62f91b0f, STATN-B11: 92827112d154, STATN-D01: 726c38e183a8, STATN-E01: 3a154fb24d61, STATN-E02: 6775eb8dd39b}
       rest_rev: a9ff3cc8faa2
     - id: internal/station/station_test.go
       kind: test
@@ -1959,7 +2016,7 @@ nodes:
       line_rev: 4443f8d9c69a
     - id: plans/espelho.plan.md
       kind: plan
-      rev: 7f1b91c1fde7
+      rev: ce2e298d4131
       updated_at: "2026-10-18"
       code: ESRMS
       file_code: ESRMS
@@ -1967,8 +2024,8 @@ nodes:
       code_declared: true
       tags:
         - plan
-      evidence_rev: 6658ce4516fc
-      line_rev: 53767219950e
+      evidence_rev: 091da25e400e
+      line_rev: e5fff1734461
     - id: plans/janela.plan.md
       kind: plan
       rev: e9b93aec7b68
@@ -3201,6 +3258,33 @@ edges:
         validated_to_rev: f23750adb9c0
         changed_at: "2026-10-18"
         verdict: ok
+    - from: internal/forward/forward.feature
+      to: internal/forward/forward_test.go
+      type: tested-by
+      origin: convention
+      stamp:
+        validated_from_rev: 740836edb7b1
+        validated_to_rev: 7fd3f51db74d
+        changed_at: "2026-10-18"
+        verdict: ok
+    - from: internal/forward/forward.spec.md
+      to: internal/forward/forward.feature
+      type: covered-by
+      origin: convention
+      stamp:
+        validated_from_rev: 6a2f41537d61
+        validated_to_rev: 740836edb7b1
+        changed_at: "2026-10-18"
+        verdict: ok
+    - from: internal/forward/forward.spec.md
+      to: internal/forward/forward.go
+      type: specifies
+      origin: convention
+      stamp:
+        validated_from_rev: 6a2f41537d61
+        validated_to_rev: 8c46f290849a
+        changed_at: "2026-10-18"
+        verdict: ok
     - from: internal/hub/client.feature
       to: internal/hub/client_test.go
       type: tested-by
@@ -3623,7 +3707,7 @@ edges:
       type: covered-by
       origin: convention
       stamp:
-        validated_from_rev: 501495cdaa91
+        validated_from_rev: 009096ad52c4
         validated_to_rev: 4a8bc045e0ba
         changed_at: "2026-10-18"
         verdict: ok
@@ -3632,7 +3716,7 @@ edges:
       type: specifies
       origin: convention
       stamp:
-        validated_from_rev: 501495cdaa91
+        validated_from_rev: 009096ad52c4
         validated_to_rev: b09eb3d64b74
         changed_at: "2026-10-18"
         verdict: ok
@@ -3935,6 +4019,15 @@ edges:
       stamp:
         validated_from_rev: 7f1b91c1fde7
         validated_to_rev: 7517ad7f1e46
+        changed_at: "2026-10-18"
+        verdict: ok
+    - from: plans/espelho.plan.md
+      to: internal/forward/forward.spec.md
+      type: seeds
+      origin: declared
+      stamp:
+        validated_from_rev: 7f1b91c1fde7
+        validated_to_rev: 6a2f41537d61
         changed_at: "2026-10-18"
         verdict: ok
     - from: plans/espelho.plan.md

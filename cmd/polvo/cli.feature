@@ -57,7 +57,7 @@ Feature: Cli
     Then a saída contém "33 99" e depois "44 111"
 
   @CLIXX-B06 @unit-level
-  Scenario: mcp inicializa, lista as nove ferramentas e corre um comando num nó
+  Scenario: mcp inicializa, lista as treze ferramentas e corre um comando num nó
     Given um nó a correr que autoriza a identidade da pasta de configuração
     When o polvo mcp recebe a inicialização, a lista das ferramentas e a chamada polvo_run de "echo do-agente" no nó, e o stdin acaba
     Then o servidor é "polvo", a lista tem polvo_run, polvo_read_file, polvo_write_file e polvo_list, o resultado tem "do-agente", e o código de saída é 0
@@ -103,3 +103,9 @@ Feature: Cli
     Given os argumentos "connect 127.0.0.1:1"
     When o polvo corre
     Then a saída de erro começa por "polvo: " e o código de saída é 1
+
+  @CLIXX-B08 @unit-level
+  Scenario: forward encaminha um socket pela máquina de um nó
+    Given um nó que deixa a chave desta instalação encaminhar, e na máquina dele um socket que devolve o que recebe
+    When corre "polvo forward 127.0.0.1:0 DESTINO ENDEREÇO", e alguém se liga ao socket que ele diz e escreve "ola"
+    Then lê "ola" de volta

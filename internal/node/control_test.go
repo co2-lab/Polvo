@@ -154,6 +154,22 @@ func TestControl_files(t *testing.T) {
 			t.Fatalf("want a.txt, m/, z.txt; got %+v", e)
 		}
 	})
+	t.Run("CNTRL-B11: O ~ é a pasta pessoal", func(t *testing.T) {
+		home := t.TempDir()
+		t.Setenv("HOME", home)
+		os.WriteFile(filepath.Join(home, "a.txt"), []byte("pessoal"), 0o644)
+		var l struct {
+			Entries []struct {
+				Name string `json:"name"`
+			} `json:"entries"`
+		}
+		result(t, control(t).call(t, 1, "fs.list", map[string]string{"path": "~"}), &l)
+		var r struct{ Data string }
+		result(t, control(t).call(t, 2, "fs.read", map[string]string{"path": "~/a.txt"}), &r)
+		if len(l.Entries) != 1 || l.Entries[0].Name != "a.txt" || unb64(t, r.Data) != "pessoal" {
+			t.Fatalf("got %+v and %q", l, r.Data)
+		}
+	})
 	t.Run("CNTRL-E02: Um fs.write com base64 inválido dá parâmetros inválidos", func(t *testing.T) {
 		p := filepath.Join(t.TempDir(), "c.txt")
 		wantError(t, control(t).call(t, 1, "fs.write", map[string]string{"path": p, "data": "!!!"}), proto.CodeInvalidParams, "")
@@ -290,6 +306,39 @@ func TestControl_sessions(t *testing.T) {
 		if fmt.Sprint(got) != "[false false true false true true]" {
 			t.Fatalf("want view nothing, control the free one, owner both; got %v", got)
 		}
+	})
+	t.Run("CNTRL-B07#05: O ecrã de uma sessão e escrever nela pelo controlo", func(t *testing.T) {
+		c := Controller{Sessions: sessions.NewManager()}
+		info, err := c.Sessions.Create([]string{"/bin/sh"}, "", pty.Size{Rows: 24, Cols: 80})
+		if err != nil {
+			t.Fatal(err)
+		}
+		defer c.Sessions.Close(info.ID)
+		p := controlWith(t, c.Serve, sessions.Control)
+		typed := base64.StdEncoding.EncodeToString([]byte("echo marca-$((40+2))\n"))
+		result(t, p.call(t, 1, "session.type", map[string]string{"id": info.ID, "data": typed}), &struct{}{})
+		var scr struct{ Text string }
+		end := time.Now().Add(10 * time.Second)
+		for i := int64(2); !strings.Contains(scr.Text, "marca-42") && time.Now().Before(end); i++ {
+			result(t, p.call(t, i, "session.screen", map[string]string{"id": info.ID}), &scr)
+			time.Sleep(20 * time.Millisecond)
+		}
+		if !strings.Contains(scr.Text, "marca-42") {
+			t.Fatalf("want marca-42 on the screen, got %q", scr.Text)
+		}
+	})
+	t.Run("CNTRL-B07#06: Só ver não escreve numa sessão, e a travada só aceita o dono", func(t *testing.T) {
+		c := Controller{Sessions: sessions.NewManager()}
+		info, err := c.Sessions.Create([]string{"/bin/sh", "-c", "sleep 5"}, "", pty.Size{Rows: 24, Cols: 80})
+		if err != nil {
+			t.Fatal(err)
+		}
+		defer c.Sessions.Close(info.ID)
+		c.Sessions.Lock(info.ID, true)
+		typed := map[string]string{"id": info.ID, "data": base64.StdEncoding.EncodeToString([]byte("x"))}
+		wantError(t, controlWith(t, c.Serve, sessions.View).call(t, 1, "session.type", typed), CodeForbidden, "permission")
+		wantError(t, controlWith(t, c.Serve, sessions.Control).call(t, 1, "session.type", typed), CodeForbidden, "locked")
+		result(t, controlWith(t, c.Serve, sessions.Owner).call(t, 1, "session.type", typed), &struct{}{})
 	})
 	t.Run("CNTRL-B07#03: Sem sessões, os pedidos de sessão dão erro", func(t *testing.T) {
 		wantError(t, control(t).call(t, 1, "session.list", struct{}{}), CodeOperation, "sessions")

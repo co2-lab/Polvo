@@ -18,6 +18,8 @@ import (
 	"github.com/co2-lab/polvo/internal/hub"
 	"github.com/co2-lab/polvo/internal/node"
 	"github.com/co2-lab/polvo/internal/progress"
+	"github.com/co2-lab/polvo/internal/pty"
+	"github.com/co2-lab/polvo/internal/sessions"
 	"github.com/co2-lab/polvo/internal/sshx"
 	"golang.org/x/crypto/ssh"
 )
@@ -78,7 +80,7 @@ func TestTools_run(t *testing.T) {
 			t.Fatalf("want /tmp and entrada, got %+v", r)
 		}
 	})
-	t.Run("MCPTL-E01: Sem o comando, polvo_run é uma falha", func(t *testing.T) {
+	t.Run("MCPTL-E01#01: Sem o comando, polvo_run é uma falha", func(t *testing.T) {
 		addr, p := nodeAndPool(t)
 		if r := callTool(t, p, "polvo_run", map[string]any{"node": addr}); !r.IsError || !strings.Contains(r.Text, "command") {
 			t.Fatalf("want a failure naming command, got %+v", r)
@@ -265,6 +267,73 @@ func TestTools_questions(t *testing.T) {
 		conv := job(t, b, "session-abc").Conversation
 		if conv == nil || conv.ID != "a" || conv.Dir != "/p" || conv.Kind != "claude" || conv.Model != "m" {
 			t.Fatalf("got %+v", conv)
+		}
+	})
+}
+
+func sessionNode(t *testing.T) (string, *sessions.Manager, *Pool) {
+	t.Helper()
+	id := newSigner(t)
+	ak := filepath.Join(t.TempDir(), "authorized_keys")
+	os.WriteFile(ak, []byte(sshx.AuthorizedLine(id.PublicKey(), "")), 0o600)
+	l, err := net.Listen("tcp", "127.0.0.1:0")
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Cleanup(func() { l.Close() })
+	m := sessions.NewManager()
+	go node.Serve(l, node.Config{HostKey: newSigner(t), Authorized: sshx.NewAuthorizedKeys(ak), Control: node.Controller{Sessions: m}.Serve})
+	p := NewPool(hub.Config{Identity: id, KnownHosts: sshx.NewKnownHosts(filepath.Join(t.TempDir(), "known_hosts"))})
+	t.Cleanup(p.Close)
+	return l.Addr().String(), m, p
+}
+
+func newShell(t *testing.T, m *sessions.Manager, argv ...string) string {
+	t.Helper()
+	if len(argv) == 0 {
+		argv = []string{"/bin/sh"}
+	}
+	info, err := m.Create(argv, "", pty.Size{Rows: 24, Cols: 80})
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Cleanup(func() { m.Close(info.ID) })
+	return info.ID
+}
+
+func TestTools_sessions(t *testing.T) {
+	t.Run("MCPTL-B14: polvo_sessions lista as sessões de um nó", func(t *testing.T) {
+		addr, m, p := sessionNode(t)
+		id := newShell(t, m, "/bin/sh", "-c", "sleep 30")
+		r := callTool(t, p, "polvo_sessions", map[string]any{"node": addr})
+		if r.IsError || r.Text != id+"  /bin/sh -c sleep 30  80x24  you may type" {
+			t.Fatalf("want the session's line, got %+v", r)
+		}
+	})
+	t.Run("MCPTL-B15: O agente escreve numa sessão e espera pelo resultado", func(t *testing.T) {
+		addr, m, p := sessionNode(t)
+		id := newShell(t, m)
+		typed := callTool(t, p, "polvo_type", map[string]any{"node": addr, "session": id, "text": "echo marca-$((40+2))", "keys": []string{"enter"}})
+		waited := callTool(t, p, "polvo_wait", map[string]any{"node": addr, "session": id, "text": "marca-42", "timeout": 10})
+		shown := callTool(t, p, "polvo_screen", map[string]any{"node": addr, "session": id})
+		if typed.IsError || waited.IsError || !strings.Contains(waited.Text, "marca-42") || !strings.Contains(shown.Text, "marca-42") {
+			t.Fatalf("want marca-42 waited for and shown, got %+v, %+v, %+v", typed, waited, shown)
+		}
+	})
+	t.Run("MCPTL-E05: A espera acaba sem o texto", func(t *testing.T) {
+		addr, m, p := sessionNode(t)
+		id := newShell(t, m)
+		r := callTool(t, p, "polvo_wait", map[string]any{"node": addr, "session": id, "text": "nunca-aparece", "timeout": 1})
+		if !r.IsError || !strings.Contains(r.Text, "nunca-aparece") || !strings.Contains(r.Text, "it shows") {
+			t.Fatalf("want the failure with the text and the screen, got %+v", r)
+		}
+	})
+	t.Run("MCPTL-E01#02: Uma tecla que não existe", func(t *testing.T) {
+		addr, m, p := sessionNode(t)
+		id := newShell(t, m)
+		r := callTool(t, p, "polvo_type", map[string]any{"node": addr, "session": id, "keys": []string{"hiper"}})
+		if !r.IsError || !strings.Contains(r.Text, "hiper") {
+			t.Fatalf("want the failure with the key, got %+v", r)
 		}
 	})
 }

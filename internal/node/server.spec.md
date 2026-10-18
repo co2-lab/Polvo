@@ -45,8 +45,9 @@ Uma sessão que pede o subsistema "polvo" é entregue ao controlo do nó (`Contr
 de mensagens sobre ela. Outro subsistema é recusado.
 
 ### SRVRE-B08 — O que o nó não serve é recusado
-Um canal que não é de sessão (o reencaminhamento de portas) é recusado com o motivo de tipo
-desconhecido. Um pedido de sessão que o nó não conhece é recusado, e a sessão continua.
+Um canal de um tipo que o nó não conhece é recusado com o motivo de tipo desconhecido, e o encaminhamento
+de quem não tem a permissão (`SRVRE-B13`) com o motivo de proibido. Um pedido de sessão que o nó não
+conhece é recusado, e a sessão continua.
 
 ### SRVRE-B09 — Ligar-se a uma sessão que já existe
 O pedido `attach@polvo`, com o id de uma sessão do nó, liga a ligação a essa sessão como espectador:
@@ -67,6 +68,17 @@ Com o emparelhamento ligado (`Pairer`), uma chave que não está na lista entra 
 emparelhar: o nó serve-lhe o subsistema `pairing@polvo` (o protocolo do emparelhamento) e recusa-lhe tudo
 o resto (a shell, os comandos, as sessões e o controlo). Sem o emparelhamento ligado, essa chave não entra.
 
+### SRVRE-B13 — Encaminhar sockets
+Uma ligação com a permissão de encaminhar (`Forward`; sem ele, só a do dono) encaminha sockets TCP e Unix
+pela máquina do nó, nos dois sentidos, como o `ssh -L` e o `ssh -R`:
+- o nó liga-se, na máquina dele, ao socket que a ligação pede (os canais `direct-tcpip` e
+  `direct-streamlocal@openssh.com`), e passa os bytes nos dois sentidos;
+- o nó escuta, na máquina dele, no socket que a ligação pede (os pedidos `tcpip-forward` e
+  `streamlocal-forward@openssh.com`; com a porta 0 diz a que escolheu), e manda cada ligação que lá chega
+  à ligação, num canal; o pedido de cancelar fecha-o.
+
+Quando a ligação acaba, o nó fecha o que escutava por ela.
+
 ## Domain
 
 | Input | Accepts | Outside the domain | Who guarantees |
@@ -78,6 +90,7 @@ o resto (a shell, os comandos, as sessões e o controlo). Sem o emparelhamento l
 | `Perms` | a permissão de cada chave | nenhuma | este módulo: sem ela, todas são donas |
 | `Owner` | a chave da instalação | nenhuma | este módulo: sem ela, só entram as chaves da lista |
 | `Pairer` | o emparelhamento do nó | nenhum | este módulo: sem ele, as chaves desconhecidas não entram |
+| `Forward` | quem pode encaminhar sockets | nenhum | este módulo: sem ele, só o dono |
 | `id` | o id de uma sessão viva do nó | outro | este módulo: o pedido é recusado (`SRVRE-E03`) |
 
 ## Errors / Failures
@@ -86,6 +99,7 @@ o resto (a shell, os comandos, as sessões e o controlo). Sem o emparelhamento l
 | `SRVRE-E01` | a configuração não tem a identidade do nó ou a lista de chaves autorizadas | o nó recusa servir, com erro |
 | `SRVRE-E02` | a shell ou o comando não arranca | a sessão recebe o código de saída 127 e a mensagem no canal de erro, e fecha |
 | `SRVRE-E03` | o `attach@polvo` com um id que não é de nenhuma sessão | o pedido é recusado, e a ligação continua |
+| `SRVRE-E04` | o socket que a ligação pede não responde, ou não se pode escutar nele | o canal é recusado com a falha da ligação, ou o pedido de escutar é recusado, e a ligação continua |
 
 ## Rule uses
 
@@ -98,6 +112,8 @@ o resto (a shell, os comandos, as sessões e o controlo). Sem o emparelhamento l
 | `SRVRE-B05` | `Shell` |
 | `SRVRE-B06` | `Shell` |
 | `SRVRE-B07` | `HostKey` |
+| `SRVRE-B13` | `Forward`, `Owner` |
+| `SRVRE-E04` | `Forward` |
 | `SRVRE-B08` | `HostKey` |
 | `SRVRE-E01` | `HostKey`, `Authorized` |
 | `SRVRE-B09` | `Sessions`, `id` |
@@ -112,6 +128,9 @@ o resto (a shell, os comandos, as sessões e o controlo). Sem o emparelhamento l
 > **SRVRE-R0001:** as shells do nó passam a ser sessões que vivem sem quem as vê, com vários
 > espectadores e a permissão de cada chave (plano ESRMS, W01): o `SRVRE-B02` muda, e entram o
 > `SRVRE-B09` (ligar-se a uma sessão), o `SRVRE-B10` (a permissão) e o `SRVRE-E03`.
+
+> **SRVRE-R0004:** entra o `SRVRE-B13` (encaminhar sockets) com o `SRVRE-E04`, do plano ESRMS, W06; o
+> `SRVRE-B08` deixa de recusar todo o encaminhamento: só o de quem não tem a permissão.
 
 > **SRVRE-R0003:** entra o `SRVRE-B12` (uma chave desconhecida só emparelha), do plano ESRMS, W03.
 

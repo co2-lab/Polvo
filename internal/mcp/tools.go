@@ -11,6 +11,7 @@ import (
 	"io"
 	"strings"
 	"sync"
+	"time"
 	"unicode/utf8"
 
 	"github.com/co2-lab/polvo/internal/agents"
@@ -187,6 +188,30 @@ func (p *Pool) Tools() []Tool {
 			Call:        p.list,
 		},
 		{
+			Name:        "polvo_sessions",
+			Description: "List the terminal sessions of a Polvo node: id, program, size, and whether you may type in it.",
+			InputSchema: objectSchema(`"node":{"type":"string","description":"the node's address, host:port; by default this machine's"}`),
+			Call:        p.sessions,
+		},
+		{
+			Name:        "polvo_screen",
+			Description: "Read the current screen of a terminal session, as plain text.",
+			InputSchema: objectSchema(sessionProps, "session"),
+			Call:        p.screen,
+		},
+		{
+			Name:        "polvo_type",
+			Description: "Type in a terminal session: the text as it is, then the keys by name (enter, tab, escape, backspace, delete, up, down, left, right, home, end, pageup, pagedown, ctrl-a to ctrl-z).",
+			InputSchema: objectSchema(sessionProps+`,"text":{"type":"string"},"keys":{"type":"array","items":{"type":"string"}}`, "session"),
+			Call:        p.typeIn,
+		},
+		{
+			Name:        "polvo_wait",
+			Description: "Wait until the screen of a terminal session shows the text, for up to timeout seconds (30 by default, 300 at most); returns the screen.",
+			InputSchema: objectSchema(sessionProps+`,"text":{"type":"string"},"timeout":{"type":"number"}`, "session", "text"),
+			Call:        p.wait,
+		},
+		{
 			Name:        "polvo_progress_start",
 			Description: "Start reporting a job to Polvo: its goal and its steps. Polvo shows your progress to the user. Returns the steps with their ids.",
 			InputSchema: objectSchema(progressProps+`,"goal":{"type":"string"},"steps":{"type":"array","items":{"type":"string"}}`, "goal"),
@@ -218,6 +243,9 @@ func (p *Pool) Tools() []Tool {
 		},
 	}
 }
+
+const sessionProps = `"node":{"type":"string","description":"the node's address, host:port; by default this machine's"},` +
+	`"session":{"type":"string","description":"the session's id, from polvo_sessions"}`
 
 const progressProps = `"agent":{"type":"string","description":"your name; inside a Polvo session it is the session's"},` +
 	`"node":{"type":"string","description":"the node's address, host:port; by default this machine's"}`
@@ -370,6 +398,153 @@ func (p *Pool) list(raw json.RawMessage) (Result, error) {
 		}
 	}
 	return Result{Text: strings.Join(lines, "\n")}, nil
+}
+
+// WAIT_DEFAULT, WAIT_MAX and WAIT_POLL are how long polvo_wait waits when not told, the longest it waits,
+// and how often it reads the screen (MCPTL-B17).
+const (
+	WAIT_DEFAULT = 30 * time.Second
+	WAIT_MAX     = 5 * time.Minute
+	WAIT_POLL    = 250 * time.Millisecond
+)
+
+// nodeOr is the node a session tool works on: the one given, or the agent's machine's (MCPTL-B11).
+func (p *Pool) nodeOr(node string) string {
+	if node != "" {
+		return node
+	}
+	p.mu.Lock()
+	node = p.here.Node
+	p.mu.Unlock()
+	if node == "" {
+		node = DEFAULT_NODE
+	}
+	return node
+}
+
+// sessions is MCPTL-B14.
+func (p *Pool) sessions(raw json.RawMessage) (Result, error) {
+	var a struct{ Node string }
+	if err := args(raw, &a, nil); err != nil {
+		return Result{}, err
+	}
+	var list []hub.Session
+	err := p.With(p.nodeOr(a.Node), func(n *hub.Node) (err error) {
+		list, err = n.Sessions()
+		return err
+	})
+	if err != nil {
+		return Result{}, err
+	}
+	if len(list) == 0 {
+		return Result{Text: "no sessions"}, nil
+	}
+	lines := make([]string, 0, len(list))
+	for _, s := range list {
+		may := "you may type"
+		if !s.Writable {
+			may = "view only"
+		}
+		lines = append(lines, fmt.Sprintf("%s  %s  %dx%d  %s", s.ID, strings.Join(s.Argv, " "), s.Cols, s.Rows, may))
+	}
+	return Result{Text: strings.Join(lines, "\n")}, nil
+}
+
+// screen is MCPTL-B15.
+func (p *Pool) screen(raw json.RawMessage) (Result, error) {
+	var a struct{ Node, Session string }
+	if err := args(raw, &a, map[string]*string{"session": &a.Session}); err != nil {
+		return Result{}, err
+	}
+	var text string
+	err := p.With(p.nodeOr(a.Node), func(n *hub.Node) (err error) {
+		text, err = n.Screen(a.Session)
+		return err
+	})
+	return Result{Text: text}, err
+}
+
+// keyBytes are what the keys of polvo_type send (MCPTL-B16).
+var keyBytes = map[string]string{
+	"enter": "\r", "tab": "\t", "escape": "\x1b", "backspace": "\x7f", "delete": "\x1b[3~",
+	"up": "\x1b[A", "down": "\x1b[B", "right": "\x1b[C", "left": "\x1b[D",
+	"home": "\x1b[H", "end": "\x1b[F", "pageup": "\x1b[5~", "pagedown": "\x1b[6~",
+}
+
+// keyOf is the bytes of a key by its name; false for a name it does not know (MCPTL-E01).
+func keyOf(name string) (string, bool) {
+	name = strings.ToLower(name)
+	if b, ok := keyBytes[name]; ok {
+		return b, true
+	}
+	if l, ok := strings.CutPrefix(name, "ctrl-"); ok && len(l) == 1 && l[0] >= 'a' && l[0] <= 'z' {
+		return string(rune(l[0] & 0x1f)), true
+	}
+	return "", false
+}
+
+// typeIn is MCPTL-B16.
+func (p *Pool) typeIn(raw json.RawMessage) (Result, error) {
+	var a struct {
+		Node, Session, Text string
+		Keys                []string
+	}
+	if err := args(raw, &a, map[string]*string{"session": &a.Session}); err != nil {
+		return Result{}, err
+	}
+	data := a.Text
+	for _, k := range a.Keys {
+		b, ok := keyOf(k)
+		if !ok {
+			// MCPTL-E01
+			return Result{}, fmt.Errorf("invalid arguments: unknown key %q", k)
+		}
+		data += b
+	}
+	if data == "" {
+		// MCPTL-E01
+		return Result{}, fmt.Errorf("missing argument: text or keys")
+	}
+	err := p.With(p.nodeOr(a.Node), func(n *hub.Node) error { return n.Type(a.Session, []byte(data)) })
+	if err != nil {
+		return Result{}, err
+	}
+	return Result{Text: fmt.Sprintf("typed %d bytes in %s", len(data), a.Session)}, nil
+}
+
+// wait is MCPTL-B17.
+func (p *Pool) wait(raw json.RawMessage) (Result, error) {
+	var a struct {
+		Node, Session, Text string
+		Timeout             float64
+	}
+	if err := args(raw, &a, map[string]*string{"session": &a.Session, "text": &a.Text}); err != nil {
+		return Result{}, err
+	}
+	limit := WAIT_DEFAULT
+	if a.Timeout > 0 {
+		limit = min(time.Duration(a.Timeout*float64(time.Second)), WAIT_MAX)
+	}
+	node := p.nodeOr(a.Node)
+	end := time.Now().Add(limit)
+	for {
+		var text string
+		err := p.With(node, func(n *hub.Node) (err error) {
+			text, err = n.Screen(a.Session)
+			return err
+		})
+		if err != nil {
+			return Result{}, err
+		}
+		if strings.Contains(text, a.Text) {
+			return Result{Text: text}, nil
+		}
+		if time.Now().After(end) {
+			// MCPTL-E05
+			return Result{}, fmt.Errorf("the screen did not show %q in %s; it shows:\n%s", a.Text, limit, text)
+		}
+		time.Sleep(WAIT_POLL)
+	}
 }
 
 // progressAnswer is MCPTL-B12.

@@ -269,6 +269,45 @@ func TestSessions_viewers(t *testing.T) {
 	})
 }
 
+// screenHas waits until the screen of the session has want.
+func screenHas(t *testing.T, m *Manager, id, want string) string {
+	t.Helper()
+	deadline := time.Now().Add(10 * time.Second)
+	for {
+		text, err := m.Screen(id)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if strings.Contains(text, want) || time.Now().After(deadline) {
+			return text
+		}
+		time.Sleep(20 * time.Millisecond)
+	}
+}
+
+func TestSessions_agent(t *testing.T) {
+	t.Run("SSSNS-B12: O ecrã em texto", func(t *testing.T) {
+		m := NewManager()
+		s := create(t, m, sh(`printf '\033[31mola\033[0m\r\nmundo   \r\n'; sleep 5`))
+		text := screenHas(t, m, s.ID, "mundo")
+		if !strings.HasPrefix(text, "ola\nmundo\n") && text != "ola\nmundo" || strings.Contains(text, "\x1b") {
+			t.Fatalf("want the plain lines, got %q", text)
+		}
+	})
+	t.Run("SSSNS-B13: Escrever sem se ligar", func(t *testing.T) {
+		m := NewManager()
+		s := create(t, m, []string{"/bin/sh"})
+		if err := m.Type(s.ID, Control, []byte("echo marca-$((40+2))\n")); err != nil {
+			t.Fatal(err)
+		}
+		text := screenHas(t, m, s.ID, "marca-42")
+		verr := m.Type(s.ID, View, []byte("echo nao\n"))
+		if !strings.Contains(text, "marca-42") || !errors.Is(verr, ErrViewOnly) {
+			t.Fatalf("want marca-42 and the viewer refused, got %q and %v", text, verr)
+		}
+	})
+}
+
 func TestSessions_end(t *testing.T) {
 	t.Run("SSSNS-B08: O fim do programa acaba a sessão", func(t *testing.T) {
 		m := NewManager()

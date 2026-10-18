@@ -14,6 +14,7 @@ import (
 	"io"
 	"os"
 	"os/exec"
+	"path/filepath"
 	"sort"
 	"strings"
 	"syscall"
@@ -97,6 +98,7 @@ var need = map[string]sessions.Perm{
 	"fs.read": sessions.View, "fs.list": sessions.View, "session.list": sessions.View,
 	"fs.write": sessions.Control, "proc.run": sessions.Control, "session.new": sessions.Control,
 	"session.close": sessions.Control, "session.lock": sessions.Owner,
+	"session.screen": sessions.View, "session.type": sessions.Control,
 	"progress.report": sessions.Control, "progress.list": sessions.View, "progress.get": sessions.View,
 	"progress.wait": sessions.View, "progress.ask": sessions.Control,
 }
@@ -148,7 +150,7 @@ func (c Controller) dispatch(m *proto.Message, perm sessions.Perm) (any, error) 
 		return fsList(m.Params)
 	case "proc.run":
 		return procRun(m.Params)
-	case "session.list", "session.new", "session.close", "session.lock":
+	case "session.list", "session.new", "session.close", "session.lock", "session.screen", "session.type":
 		return c.session(m, perm)
 	case "progress.report", "progress.list", "progress.get", "progress.wait", "progress.ask":
 		return c.progress(m)
@@ -163,6 +165,8 @@ type sessionParams struct {
 	Rows   uint16   `json:"rows"`
 	Cols   uint16   `json:"cols"`
 	Locked bool     `json:"locked"`
+	// Data is what session.type types, in base64.
+	Data string `json:"data"`
 }
 
 type sessionInfo struct {
@@ -212,6 +216,25 @@ func (c Controller) session(m *proto.Message, perm sessions.Perm) (any, error) {
 			return nil, opError{err}
 		}
 		return struct{}{}, nil
+	case "session.screen":
+		// CNTRL-B07: the screen as text, for an agent
+		text, err := c.Sessions.Screen(p.ID)
+		if err != nil {
+			return nil, opError{err}
+		}
+		return map[string]string{"text": text}, nil
+	case "session.type":
+		data, err := decode64(p.Data)
+		if err != nil {
+			return nil, err
+		}
+		if err := c.Sessions.Type(p.ID, perm, data); errors.Is(err, sessions.ErrViewOnly) {
+			// CNTRL-E06: a locked session takes only its owner's keys
+			return nil, forbiddenError{fmt.Errorf("permission denied: the session %s is locked", p.ID)}
+		} else if err != nil {
+			return nil, opError{err}
+		}
+		return struct{}{}, nil
 	default:
 		if err := c.Sessions.Lock(p.ID, p.Locked); err != nil {
 			return nil, opError{err}
@@ -248,6 +271,14 @@ func pathOf(raw json.RawMessage) (pathParams, error) {
 	}
 	if p.Path == "" {
 		return p, paramsError{errors.New("invalid params: no path")}
+	}
+	// CNTRL-B11: whoever asks from another machine does not know the home
+	if p.Path == "~" || strings.HasPrefix(p.Path, "~/") {
+		home, err := os.UserHomeDir()
+		if err != nil {
+			return p, opError{err}
+		}
+		p.Path = filepath.Join(home, strings.TrimPrefix(p.Path, "~"))
 	}
 	return p, nil
 }

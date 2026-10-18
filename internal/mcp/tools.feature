@@ -50,7 +50,7 @@ Feature: Tools
     When a ligação cai e o agente corre outro comando
     Then o comando corre por uma ligação nova
 
-  @MCPTL-E01 @unit-level
+  @MCPTL-E01#01 @unit-level
   Scenario: Sem o comando, polvo_run é uma falha
     Given um nó a correr
     When o agente chama polvo_run sem o comando
@@ -115,3 +115,27 @@ Feature: Tools
     Given o agente é o Claude Code com a conversa "a" na pasta "/p"
     When começa um trabalho
     Then o trabalho no nó tem a conversa "a" do claude, na pasta "/p"
+
+  @MCPTL-B14 @unit-level
+  Scenario: polvo_sessions lista as sessões de um nó
+    Given um nó com uma sessão de "sleep 30"
+    When o agente chama polvo_sessions
+    Then a linha tem o id, "sleep 30", "80x24" e que pode escrever
+
+  @MCPTL-B15 @MCPTL-B16 @MCPTL-B17 @unit-level
+  Scenario: O agente escreve numa sessão e espera pelo resultado
+    Given uma shell numa sessão do nó
+    When o agente escreve "echo marca-$((40+2))" com a tecla enter, e espera por "marca-42"
+    Then a espera devolve o ecrã com "marca-42", e o polvo_screen também o mostra
+
+  @MCPTL-E05 @unit-level
+  Scenario: A espera acaba sem o texto
+    Given uma shell numa sessão do nó
+    When o agente espera 1 segundo por "nunca-aparece"
+    Then é uma falha com o texto e o ecrã
+
+  @MCPTL-E01#02 @unit-level
+  Scenario: Uma tecla que não existe
+    Given uma sessão do nó
+    When o agente escreve com a tecla "hiper"
+    Then é uma falha que diz a tecla

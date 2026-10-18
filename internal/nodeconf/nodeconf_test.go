@@ -7,6 +7,7 @@ package nodeconf
 import (
 	"crypto/ed25519"
 	"crypto/rand"
+	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
@@ -53,6 +54,23 @@ func TestNodeconf(t *testing.T) {
 		c, err := Load(write(t, `{"guest":"view","keys":{"`+ssh.FingerprintSHA256(own)+`":"view"}}`), own)
 		if err != nil || c.PermFor(own) != sessions.Owner {
 			t.Fatalf("want owner, got %v", err)
+		}
+	})
+	t.Run("NDCNN-B04: Quem pode encaminhar sockets", func(t *testing.T) {
+		own, a, b, c := key(t), key(t), key(t), key(t)
+		fp := ssh.FingerprintSHA256
+		viewer := `"keys":{"` + fp(c) + `":"view"}`
+		named, err := Load(write(t, `{"forward":["`+fp(a)+`","`+fp(c)+`"],`+viewer+`}`), own)
+		if err != nil {
+			t.Fatal(err)
+		}
+		none, _ := Load(filepath.Join(t.TempDir(), "node.json"), own)
+		all, _ := Load(write(t, `{"forward":["*"],`+viewer+`}`), own)
+		got := []bool{named.MayForward(own), named.MayForward(a), named.MayForward(b), named.MayForward(c),
+			none.MayForward(own), none.MayForward(a), all.MayForward(b), all.MayForward(c)}
+		want := []bool{true, true, false, false, true, false, true, false}
+		if fmt.Sprint(got) != fmt.Sprint(want) {
+			t.Fatalf("want %v, got %v", want, got)
 		}
 	})
 	t.Run("NDCNN-E01: Um ficheiro estragado não deixa o nó arrancar", func(t *testing.T) {

@@ -247,17 +247,25 @@ func TestServer_subsystemsAndRefusals(t *testing.T) {
 			t.Fatal("want sftp refused")
 		}
 	})
-	t.Run("SRVRE-B08: O reencaminhamento de portas e um pedido desconhecido são recusados", func(t *testing.T) {
-		f := startNode(t, nil)
+	t.Run("SRVRE-B08: Um canal desconhecido, o encaminhamento sem permissão e um pedido desconhecido são recusados", func(t *testing.T) {
+		f := startNode(t, func(c *Config) { c.Perms = func(ssh.PublicKey) sessions.Perm { return sessions.Control } })
 		c, err := f.dial(t, ssh.PublicKeys(f.client))
 		if err != nil {
 			t.Fatal(err)
 		}
 		defer c.Close()
-		_, err = c.Dial("tcp", "127.0.0.1:1")
+		_, _, err = c.OpenChannel("x11", nil)
 		var oe *ssh.OpenChannelError
 		if !errors.As(err, &oe) || oe.Reason != ssh.UnknownChannelType {
 			t.Fatalf("want unknown channel type, got %v", err)
+		}
+		_, err = c.Dial("tcp", "127.0.0.1:1")
+		if !errors.As(err, &oe) || oe.Reason != ssh.Prohibited {
+			t.Fatalf("want the forward prohibited, got %v", err)
+		}
+		if l, err := c.Listen("tcp", "127.0.0.1:0"); err == nil {
+			l.Close()
+			t.Fatal("want the listen refused")
 		}
 		s, err := c.NewSession()
 		if err != nil {
@@ -456,6 +464,131 @@ func TestServer_pairing(t *testing.T) {
 		s3, _ := again.NewSession()
 		if out := shell(t, s3, 24, 80, nil, "echo emparelhado-$((1+1)); exit\n"); !strings.Contains(out, "emparelhado-2") {
 			t.Fatalf("want a shell now, got %q", out)
+		}
+	})
+}
+
+// echo serves on l a socket that writes back what it reads.
+func echo(t *testing.T, l net.Listener) {
+	t.Helper()
+	t.Cleanup(func() { l.Close() })
+	go func() {
+		for {
+			c, err := l.Accept()
+			if err != nil {
+				return
+			}
+			go func() { io.Copy(c, c); c.Close() }()
+		}
+	}()
+}
+
+// roundTrip writes "ola" in c and reads it back.
+func roundTrip(t *testing.T, c net.Conn) string {
+	t.Helper()
+	defer c.Close()
+	c.SetDeadline(time.Now().Add(10 * time.Second))
+	if _, err := c.Write([]byte("ola")); err != nil {
+		t.Fatal(err)
+	}
+	b := make([]byte, 3)
+	if _, err := io.ReadFull(c, b); err != nil {
+		t.Fatal(err)
+	}
+	return string(b)
+}
+
+// sock is a path for a Unix socket, short enough for the system's limit.
+func sock(t *testing.T) string {
+	t.Helper()
+	d, err := os.MkdirTemp("", "pf")
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Cleanup(func() { os.RemoveAll(d) })
+	return filepath.Join(d, "s")
+}
+
+func TestServer_forward(t *testing.T) {
+	t.Run("SRVRE-B13#01: Encaminhar da ligação para um socket do nó", func(t *testing.T) {
+		tl, err := net.Listen("tcp", "127.0.0.1:0")
+		if err != nil {
+			t.Fatal(err)
+		}
+		echo(t, tl)
+		path := sock(t)
+		ul, err := net.Listen("unix", path)
+		if err != nil {
+			t.Fatal(err)
+		}
+		echo(t, ul)
+		f := startNode(t, nil)
+		c, err := f.dial(t, ssh.PublicKeys(f.client))
+		if err != nil {
+			t.Fatal(err)
+		}
+		defer c.Close()
+		var got []string
+		for _, target := range [][2]string{{"tcp", tl.Addr().String()}, {"unix", path}} {
+			conn, err := c.Dial(target[0], target[1])
+			if err != nil {
+				t.Fatal(err)
+			}
+			got = append(got, roundTrip(t, conn))
+		}
+		if strings.Join(got, ",") != "ola,ola" {
+			t.Fatalf("want ola twice, got %v", got)
+		}
+	})
+	t.Run("SRVRE-B13#02: Encaminhar de um socket do nó para a ligação", func(t *testing.T) {
+		f := startNode(t, nil)
+		c, err := f.dial(t, ssh.PublicKeys(f.client))
+		if err != nil {
+			t.Fatal(err)
+		}
+		tl, err := c.Listen("tcp", "127.0.0.1:0")
+		if err != nil {
+			t.Fatal(err)
+		}
+		path := sock(t)
+		ul, err := c.ListenUnix(path)
+		if err != nil {
+			t.Fatal(err)
+		}
+		echo(t, tl)
+		echo(t, ul)
+		var got []string
+		for _, target := range [][2]string{{"tcp", tl.Addr().String()}, {"unix", path}} {
+			conn, err := net.Dial(target[0], target[1])
+			if err != nil {
+				t.Fatal(err)
+			}
+			got = append(got, roundTrip(t, conn))
+		}
+		c.Close()
+		closed := false
+		for end := time.Now().Add(5 * time.Second); !closed && time.Now().Before(end); time.Sleep(20 * time.Millisecond) {
+			conn, err := net.Dial("tcp", tl.Addr().String())
+			closed = err != nil
+			if conn != nil {
+				conn.Close()
+			}
+		}
+		if strings.Join(got, ",") != "ola,ola" || !closed {
+			t.Fatalf("want ola twice and the listener closed with the connection, got %v and %v", got, closed)
+		}
+	})
+	t.Run("SRVRE-E04: Um socket que não responde", func(t *testing.T) {
+		f := startNode(t, nil)
+		c, err := f.dial(t, ssh.PublicKeys(f.client))
+		if err != nil {
+			t.Fatal(err)
+		}
+		defer c.Close()
+		_, err = c.Dial("tcp", "127.0.0.1:1")
+		var oe *ssh.OpenChannelError
+		if !errors.As(err, &oe) || oe.Reason != ssh.ConnectionFailed {
+			t.Fatalf("want the connection failed, got %v", err)
 		}
 	})
 }

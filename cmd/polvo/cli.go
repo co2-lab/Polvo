@@ -13,11 +13,14 @@ import (
 	"net/http"
 	"os"
 	"os/exec"
+	"os/signal"
 	"path/filepath"
 	"runtime"
 	"strings"
+	"syscall"
 
 	"github.com/co2-lab/polvo/internal/discovery"
+	"github.com/co2-lab/polvo/internal/forward"
 	"github.com/co2-lab/polvo/internal/hub"
 	"github.com/co2-lab/polvo/internal/mcp"
 	"github.com/co2-lab/polvo/internal/node"
@@ -43,6 +46,9 @@ const usage = `usage:
   polvo node    [--dir DIR] [--listen ADDR]     serve this machine as a node
   polvo connect [--dir DIR] ADDR                open a shell on a node
   polvo mcp     [--dir DIR]                     serve the MCP bridge of the local agent on stdin/stdout
+  polvo forward [--dir DIR] [-R] LISTEN TARGET ADDR
+                                                forward a socket to a node's machine (-R: from it);
+                                                LISTEN and TARGET are host:port, port or unix:/path
   polvo [ui]    [--dir DIR] [--listen ADDR] [--no-browser]
                                                 open the desktop application (the default)
 `
@@ -73,6 +79,8 @@ func Run(args []string, std Stdio) int {
 			code, err = connect(args[1:], std)
 		case "mcp":
 			err = serveMCP(args[1:], std)
+		case "forward":
+			err = forwardSockets(args[1:], std)
 		}
 	}
 	switch {
@@ -165,6 +173,7 @@ func serveNode(args []string, std Stdio) error {
 		Authorized: sshx.NewAuthorizedKeys(filepath.Join(dir, "authorized_keys")),
 		Sessions:   sessions.NewManager(),
 		Perms:      perms.PermFor,
+		Forward:    perms.MayForward,
 		Owner:      own.PublicKey(),
 	}
 	if sh := os.Getenv("SHELL"); sh != "" {
@@ -245,6 +254,60 @@ func connect(args []string, std Stdio) (int, error) {
 		return 255, nil
 	}
 	return st.Code, nil
+}
+
+// forwardSockets is CLIXX-B08: a socket carried to the node's machine, or from it with -R, until the
+// process is stopped or the connection to the node ends.
+func forwardSockets(args []string, std Stdio) error {
+	var back bool
+	fs, dir, err := flags("forward", args, func(fs *flag.FlagSet) { fs.BoolVar(&back, "R", false, "listen on the node's machine") })
+	if err != nil {
+		return err
+	}
+	if fs.NArg() != 3 {
+		return errUsage
+	}
+	listen, err := forward.Parse(fs.Arg(0))
+	if err != nil {
+		return err
+	}
+	target, err := forward.Parse(fs.Arg(1))
+	if err != nil {
+		return err
+	}
+	id, _, err := sshx.LoadOrCreateIdentity(filepath.Join(dir, "id_ed25519"))
+	if err != nil {
+		return err
+	}
+	n, err := hub.Dial(fs.Arg(2), hub.Config{Identity: id, KnownHosts: sshx.NewKnownHosts(filepath.Join(dir, "known_hosts"))})
+	if err != nil {
+		return err
+	}
+	defer n.Close()
+	start, arrow := forward.Local, "->"
+	if back {
+		start, arrow = forward.Remote, "<-"
+	}
+	f, err := start(n, listen, target)
+	if err != nil {
+		return err
+	}
+	defer f.Close()
+	where := f.Addr().String()
+	if listen.Network == "unix" {
+		where = listen.String()
+	}
+	fmt.Fprintf(std.Stdout, "polvo forward: %s %s %s %s\n", where, arrow, fs.Arg(2), target)
+	stop := make(chan os.Signal, 1)
+	signal.Notify(stop, os.Interrupt, syscall.SIGTERM)
+	defer signal.Stop(stop)
+	select {
+	case <-stop:
+		return nil
+	case <-n.Done():
+		// CLIXX-E02
+		return errors.New("the connection to the node ended")
+	}
 }
 
 // serveMCP is CLIXX-B06: the MCP bridge on stdin and stdout, with the tools over the nodes.

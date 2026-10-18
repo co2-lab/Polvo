@@ -91,3 +91,15 @@ Feature: Client
     Given um nó com o emparelhamento ligado que não conhece esta instalação
     When o cliente emparelha com o código que o nó mostra
     Then o cliente passa a ligar-se ao nó, e a chave dele está na lista de nós conhecidos
+
+  @CLNTI-B10 @unit-level
+  Scenario: O ecrã de uma sessão e escrever nela
+    Given uma shell numa sessão do nó
+    When o cliente escreve "echo marca-$((40+2))" nela e lê o ecrã
+    Then o ecrã tem "marca-42"
+
+  @CLNTI-B11 @unit-level
+  Scenario: Os sockets da máquina do nó
+    Given um nó, e na máquina dele um socket que devolve o que recebe
+    When o cliente se liga a ele pelo nó, e põe o nó a escutar noutro socket a que alguém se liga
+    Then lê "ola" de volta, e recebe a ligação que chegou ao nó

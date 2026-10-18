@@ -435,6 +435,38 @@ func (n *Node) LockSession(id string, locked bool) error {
 	return n.Call("session.lock", map[string]any{"id": id, "locked": locked}, &struct{}{})
 }
 
+// Connect opens, through the node, a connection to a socket of its machine: network is "tcp" or "unix"
+// (CLNTI-B11).
+func (n *Node) Connect(network, addr string) (net.Conn, error) {
+	return n.client.Dial(network, addr)
+}
+
+// Listen listens on a socket of the node's machine, and gives each connection that comes there through
+// the node (CLNTI-B11); closing it stops the node listening.
+func (n *Node) Listen(network, addr string) (net.Listener, error) {
+	if network == "unix" {
+		return n.client.ListenUnix(addr)
+	}
+	return n.client.Listen(network, addr)
+}
+
+// Screen gives the current screen of a session as plain text (CLNTI-B10).
+func (n *Node) Screen(id string) (string, error) {
+	var r struct {
+		Text string `json:"text"`
+	}
+	if err := n.Call("session.screen", map[string]string{"id": id}, &r); err != nil {
+		return "", err
+	}
+	return r.Text, nil
+}
+
+// Type types data in a session, as one who keys it in (CLNTI-B10).
+func (n *Node) Type(id string, data []byte) error {
+	p := map[string]string{"id": id, "data": base64.StdEncoding.EncodeToString(data)}
+	return n.Call("session.type", p, &struct{}{})
+}
+
 // Attach gives a terminal of a session that exists: its current screen, then its output (CLNTI-B08);
 // ErrNoSession when the node has no such session (CLNTI-E04).
 func (n *Node) Attach(id string) (*Terminal, error) {

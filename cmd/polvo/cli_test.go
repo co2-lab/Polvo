@@ -75,7 +75,16 @@ var listening = regexp.MustCompile(`listening on (\S+) \((SHA256:\S+)\)`)
 // startNode runs `polvo node` authorizing the desktop of desktopDir, and returns its address.
 func startNode(t *testing.T, desktopDir string) string {
 	t.Helper()
+	return startNodeWith(t, desktopDir, "")
+}
+
+// startNodeWith is startNode with the node.json conf, when it is not empty.
+func startNodeWith(t *testing.T, desktopDir, conf string) string {
+	t.Helper()
 	nodeDir := t.TempDir()
+	if conf != "" {
+		os.WriteFile(filepath.Join(nodeDir, "node.json"), []byte(conf), 0o600)
+	}
 	if err := os.WriteFile(filepath.Join(nodeDir, "authorized_keys"), []byte(runKeygen(t, desktopDir)), 0o600); err != nil {
 		t.Fatal(err)
 	}
@@ -222,8 +231,44 @@ func TestCli_connect(t *testing.T) {
 	})
 }
 
+var forwarding = regexp.MustCompile(`polvo forward: (\S+) -> `)
+
+func TestCli_forward(t *testing.T) {
+	t.Run("CLIXX-B08: forward encaminha um socket pela máquina de um nó", func(t *testing.T) {
+		d := t.TempDir()
+		addr := startNodeWith(t, d, `{"forward":["*"]}`)
+		target, err := net.Listen("tcp", "127.0.0.1:0")
+		if err != nil {
+			t.Fatal(err)
+		}
+		defer target.Close()
+		go func() {
+			if c, err := target.Accept(); err == nil {
+				io.Copy(c, c)
+				c.Close()
+			}
+		}()
+		var out syncBuffer
+		go Run([]string{"forward", "--dir", d, "127.0.0.1:0", target.Addr().String(), addr}, Stdio{Stdout: &out, Stderr: io.Discard})
+		waitFor(t, &out, " -> ")
+		m := forwarding.FindStringSubmatch(out.String())
+		c, err := net.Dial("tcp", m[1])
+		if err != nil {
+			t.Fatal(err)
+		}
+		defer c.Close()
+		c.SetDeadline(time.Now().Add(10 * time.Second))
+		c.Write([]byte("ola"))
+		b := make([]byte, 3)
+		io.ReadFull(c, b)
+		if string(b) != "ola" {
+			t.Fatalf("want ola back, got %q", b)
+		}
+	})
+}
+
 func TestCli_mcp(t *testing.T) {
-	t.Run("CLIXX-B06: mcp inicializa, lista as nove ferramentas e corre um comando num nó", func(t *testing.T) {
+	t.Run("CLIXX-B06: mcp inicializa, lista as treze ferramentas e corre um comando num nó", func(t *testing.T) {
 		d := t.TempDir()
 		addr := startNode(t, d)
 		in := strings.Join([]string{
@@ -254,9 +299,10 @@ func TestCli_mcp(t *testing.T) {
 			names = append(names, tl.(map[string]any)["name"].(string))
 		}
 		want := "polvo_run,polvo_read_file,polvo_write_file,polvo_list," +
+			"polvo_sessions,polvo_screen,polvo_type,polvo_wait," +
 			"polvo_progress_start,polvo_progress_step,polvo_progress_note,polvo_progress_answer,polvo_progress_finish"
 		if strings.Join(names, ",") != want {
-			t.Fatalf("want the nine tools, got %v", names)
+			t.Fatalf("want the thirteen tools, got %v", names)
 		}
 		text := answers[3]["content"].([]any)[0].(map[string]any)["text"].(string)
 		if !strings.Contains(text, "do-agente") || answers[3]["isError"] != false {

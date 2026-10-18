@@ -26,8 +26,8 @@ O `polvo node` serve como nó no endereço da opção `--listen` (por omissão "
 a lista de chaves autorizadas da pasta de configuração; a chave do nó nasce na primeira vez. A shell das sessões é a da variável `SHELL`. Escreve na
 saída uma linha com o endereço em que ficou a escutar e a impressão digital da chave do nó.
 
-As shells do nó são sessões que vivem sem quem as vê, e o que cada chave pode fazer nelas vem do
-`node.json` da pasta de configuração; a chave da própria instalação (a identidade `id_ed25519`) é a
+As shells do nó são sessões que vivem sem quem as vê, e o que cada chave pode fazer nelas (e se pode
+encaminhar sockets) vem do `node.json` da pasta de configuração; a chave da própria instalação (a identidade `id_ed25519`) é a
 dona. Um `node.json` estragado não deixa o nó arrancar (`CLIXX-E02`). Cada sessão recebe no ambiente o
 endereço do nó por dentro da máquina (`POLVO_NODE`: o de `--listen`, com `127.0.0.1` quando escuta em
 todas as interfaces), para um agente que corre nela lhe reportar o progresso; o nó guarda o progresso na
@@ -69,6 +69,12 @@ recusado (o erro e o código 1): a UI dá shells nos nós, e só a própria máq
 | CLAUDECODE | string | no | — | `1` | no | o agente que corre o `polvo mcp` é o Claude Code: o trabalho leva a conversa dele, para o Polvo lhe perguntar |
 | CLAUDE_CODE_SESSION_ID | string | no | — | o id de uma conversa do Claude Code | no | a conversa do Claude Code que corre o `polvo mcp` |
 
+### CLIXX-B08 — `forward` encaminha um socket pela máquina de um nó
+O `polvo forward ESCUTAR DESTINO ENDEREÇO` escuta no socket `ESCUTAR` desta máquina e leva cada ligação ao
+socket `DESTINO` da máquina do nó (`FRWRD`); com `-R`, o nó escuta na máquina dele e traz as ligações ao
+destino nesta. Escreve na saída onde escuta, e encaminha até o processo receber o sinal de parar (acaba
+sem erro) ou a ligação ao nó cair (`CLIXX-E02`).
+
 ## Domain
 
 | Input | Accepts | Outside the domain | Who guarantees |
@@ -93,6 +99,7 @@ recusado (o erro e o código 1): a UI dá shells nos nós, e só a própria máq
 | `CLIXX-B05` | `args` |
 | `CLIXX-B06` | `args`, `--dir` |
 | `CLIXX-B07` | `args`, `--dir`, `SHELL` |
+| `CLIXX-B08` | `args`, `--dir` |
 | `CLIXX-E01` | `args` |
 | `CLIXX-E02` | `args`, `--dir` |
 
@@ -116,6 +123,8 @@ recusado (o erro e o código 1): a UI dá shells nos nós, e só a própria máq
 
 > **CLIXX-R0004:** o `CLIXX-B02` liga o nó às sessões e à configuração das permissões (plano ESRMS,
 > W01). As regras anteriores não mudam.
+
+> **CLIXX-R0005:** entra o `CLIXX-B08` (o `forward`), do plano ESRMS, W06.
 
 ## Open Decisions
 

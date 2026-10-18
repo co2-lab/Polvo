@@ -124,6 +124,14 @@ valem para os dois.
 > Windows, a janela corre os terminais nos ptys dela, sem espelho. Isso fica por fazer, numa fase do
 > Windows.
 
+> **ESRMS-R0004:** a W05 e a W06 fizeram-se assim. Na W05, a árvore e o editor ganharam a origem dos
+> ficheiros (`FileSource`: esta máquina ou o nó de outra), o `~` passou a ser a pasta pessoal no controlo
+> do nó, e a aba das máquinas abre a árvore de cada uma. Na W06, as ferramentas do agente pediram ao nó o
+> ecrã de uma sessão em texto e escrever nela sem se ligar (`SSSNS`, `CNTRL`, `CLNTI`); o encaminhamento
+> fez-se no servidor do nó (`SRVRE-B13`), no cliente (`CLNTI-B11`) e no `internal/forward`, e ganhou o
+> `polvo forward` na CLI para se poder usar. Por omissão só o dono encaminha (`NDCNN-D01`, por rever
+> pelo dono). Na janela, o encaminhamento ainda não tem aba: fica para quando o dono o pedir.
+
 ## Definition of Done
 
 - Duas instâncias do Polvo (duas máquinas, ou duas instalações na mesma máquina) espelham a mesma

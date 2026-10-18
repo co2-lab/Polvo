@@ -62,6 +62,14 @@ O programa de uma sessão recebe no ambiente o id dela (`POLVO_SESSION`) e o amb
 O emulador do nó responde às perguntas que o programa faz ao terminal; essas respostas descartam-se,
 porque quem responde ao programa é o terminal de cada espectador.
 
+### SSSNS-B12 — O ecrã em texto
+O `Screen` dá o ecrã atual de uma sessão em texto simples, sem as cores nem os estilos, uma linha por
+linha do ecrã e sem os espaços do fim, para um agente o ler.
+
+### SSSNS-B13 — Escrever sem se ligar
+O `Type` escreve na sessão como um espectador com a permissão dada, sem se ligar a ela: quem só vê, ou
+controla uma sessão travada, é recusado (`SSSNS-E03`).
+
 ## Domain
 
 | Input | Accepts | Outside the domain | Who guarantees |
@@ -103,11 +111,16 @@ porque quem responde ao programa é o terminal de cada espectador.
 | `SSSNS-E02` | `id` |
 | `SSSNS-E03` | `Perm` |
 | `SSSNS-E04` | `VIEWER_BACKLOG` |
+| `SSSNS-B12` | `id` |
+| `SSSNS-B13` | `id`, `Perm` |
 
 ## Revisions
 
 > **SSSNS-R0001:** entra o `SSSNS-B11` (o ambiente de uma sessão), para o agente que corre numa sessão
 > reportar o progresso dele com o nome da sessão (plano AGPRG, W02).
+
+> **SSSNS-R0002:** entram o `SSSNS-B12` (o ecrã em texto) e o `SSSNS-B13` (escrever sem se ligar), para o
+> agente trabalhar nas sessões de qualquer máquina pelo `polvo mcp` (plano ESRMS, W06).
 
 ## Open Decisions
 

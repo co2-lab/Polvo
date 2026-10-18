@@ -65,6 +65,12 @@ layers:
         kind: code
         tags: [discovery]
         exclude: ['**/*_test.go']
+    # Os sockets encaminhados entre maquinas (plano ESRMS, W06).
+    forward:
+        pattern: 'internal/forward/*.go'
+        kind: code
+        tags: [forward]
+        exclude: ['**/*_test.go']
     # O progresso dos agentes de uma maquina (plano AGPRG).
     progress:
         pattern: 'internal/progress/*.go'

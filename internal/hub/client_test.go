@@ -156,6 +156,68 @@ func TestClient_sessions(t *testing.T) {
 			t.Fatalf("want no session, got %+v", list)
 		}
 	})
+	t.Run("CLNTI-B10: O ecrã de uma sessão e escrever nela", func(t *testing.T) {
+		n := withSessions(t)
+		id, err := n.NewSession([]string{"/bin/sh"}, "", size)
+		if err != nil {
+			t.Fatal(err)
+		}
+		defer n.CloseSession(id)
+		if err := n.Type(id, []byte("echo marca-$((40+2))\n")); err != nil {
+			t.Fatal(err)
+		}
+		var text string
+		for end := time.Now().Add(10 * time.Second); !strings.Contains(text, "marca-42") && time.Now().Before(end); {
+			if text, err = n.Screen(id); err != nil {
+				t.Fatal(err)
+			}
+			time.Sleep(20 * time.Millisecond)
+		}
+		if !strings.Contains(text, "marca-42") {
+			t.Fatalf("want marca-42 on the screen, got %q", text)
+		}
+	})
+	t.Run("CLNTI-B11: Os sockets da máquina do nó", func(t *testing.T) {
+		n := withSessions(t)
+		target, err := net.Listen("tcp", "127.0.0.1:0")
+		if err != nil {
+			t.Fatal(err)
+		}
+		defer target.Close()
+		go func() {
+			if c, err := target.Accept(); err == nil {
+				io.Copy(c, c)
+				c.Close()
+			}
+		}()
+		c, err := n.Connect("tcp", target.Addr().String())
+		if err != nil {
+			t.Fatal(err)
+		}
+		c.Write([]byte("ola"))
+		back := make([]byte, 3)
+		io.ReadFull(c, back)
+		c.Close()
+		l, err := n.Listen("tcp", "127.0.0.1:0")
+		if err != nil {
+			t.Fatal(err)
+		}
+		defer l.Close()
+		go func() {
+			if c, err := net.Dial("tcp", l.Addr().String()); err == nil {
+				c.Write([]byte("veio"))
+				c.Close()
+			}
+		}()
+		in, err := l.Accept()
+		if err != nil {
+			t.Fatal(err)
+		}
+		came, _ := io.ReadAll(in)
+		if string(back) != "ola" || string(came) != "veio" {
+			t.Fatalf("want ola back and veio in, got %q and %q", back, came)
+		}
+	})
 	t.Run("CLNTI-B08: Ligar-se a uma sessão", func(t *testing.T) {
 		n := withSessions(t)
 		id, err := n.NewSession(nil, "", size)

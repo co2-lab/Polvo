@@ -27,7 +27,8 @@ ligações das outras máquinas.
 
 ### STATN-B02 — As outras máquinas espelham esta
 Com um endereço para escutar, o nó desta máquina aceita ligações de outras instalações pela rede
-(`ListenAddr`), com as chaves autorizadas e as permissões do `node.json`, como o `polvo node`.
+(`ListenAddr`), com as chaves autorizadas e as permissões do `node.json` (também a de encaminhar
+sockets), como o `polvo node`.
 
 ### STATN-B03 — Juntar uma máquina
 O `Add` liga-se a uma máquina pelo endereço e, quando liga, junta-a às conhecidas e grava-a. O `Machines`

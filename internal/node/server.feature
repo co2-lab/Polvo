@@ -57,10 +57,10 @@ Feature: Server
     Then a primeira lê "controlo:oi", e o pedido do "sftp" é recusado
 
   @SRVRE-B08 @unit-level
-  Scenario: O reencaminhamento de portas e um pedido desconhecido são recusados
-    Given um nó e uma ligação aberta
-    When a ligação pede um reencaminhamento para "127.0.0.1:1" e uma sessão envia o pedido "xpto"
-    Then o reencaminhamento é recusado com o motivo de tipo desconhecido, o pedido "xpto" é recusado, e a sessão ainda corre "echo ainda"
+  Scenario: Um canal desconhecido, o encaminhamento sem permissão e um pedido desconhecido são recusados
+    Given um nó e uma ligação aberta de quem controla, sem a permissão de encaminhar
+    When a ligação abre um canal "x11", pede um encaminhamento para "127.0.0.1:1" e para escutar, e uma sessão envia o pedido "xpto"
+    Then o canal é recusado com o motivo de tipo desconhecido, os encaminhamentos como proibidos, o pedido "xpto" é recusado, e a sessão ainda corre "echo ainda"
 
   @SRVRE-E01 @unit-level
   Scenario: Sem a identidade do nó o nó não serve
@@ -109,3 +109,21 @@ Feature: Server
     Given um nó com o emparelhamento ligado, e uma chave que ele não conhece
     When a chave pede uma shell, e depois emparelha com o código que o nó mostra
     Then a shell é recusada, o emparelhamento acaba bem, e a chave passa a abrir uma shell
+
+  @SRVRE-B13#01 @unit-level
+  Scenario: Encaminhar da ligação para um socket do nó
+    Given um nó, e na máquina dele um socket TCP e um Unix que devolvem o que recebem
+    When a ligação do dono se liga a cada um pelo nó e escreve "ola"
+    Then lê "ola" de cada um
+
+  @SRVRE-B13#02 @unit-level
+  Scenario: Encaminhar de um socket do nó para a ligação
+    Given um nó e a ligação do dono
+    When a ligação pede ao nó para escutar num socket TCP (porta 0) e num Unix, e alguém se liga a eles na máquina do nó e escreve "ola"
+    Then a ligação recebe cada um e lê "ola"; depois de a ligação acabar, o socket TCP já não aceita
+
+  @SRVRE-E04 @unit-level
+  Scenario: Um socket que não responde
+    Given um nó e a ligação do dono
+    When a ligação se liga pelo nó a "127.0.0.1:1"
+    Then o canal é recusado com a falha da ligação

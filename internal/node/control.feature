@@ -26,6 +26,12 @@ Feature: Control
     When o controlo recebe o pedido fs.list com o caminho da pasta
     Then as entradas são "a.txt" (1 byte), "m" (pasta) e "z.txt" (3 bytes), por esta ordem
 
+  @CNTRL-B11 @unit-level
+  Scenario: O ~ é a pasta pessoal
+    Given a pasta pessoal do utilizador do nó com o ficheiro "a.txt"
+    When o controlo recebe o fs.list de "~" e o fs.read de "~/a.txt"
+    Then a lista tem "a.txt", e a leitura dá o conteúdo dele
+
   @CNTRL-B04 @unit-level
   Scenario: proc.run devolve o código, a saída e o erro separados
     Given o programa "sh -c 'cat; echo erro >&2; exit 5'" com a entrada "entrada"
@@ -146,3 +152,15 @@ Feature: Control
     Given o trabalho de um agente sem conversa e que não é de uma sessão
     When se pergunta "onde vais?"
     Then a pergunta fica falhada com o motivo
+
+  @CNTRL-B07#05 @unit-level
+  Scenario: O ecrã de uma sessão e escrever nela pelo controlo
+    Given uma shell numa sessão do nó, e a ligação de quem controla
+    When pede "session.type" com "echo marca-$((40+2))" e depois "session.screen"
+    Then o ecrã tem "marca-42"
+
+  @CNTRL-B07#06 @CNTRL-E06 @unit-level
+  Scenario: Só ver não escreve numa sessão, e a travada só aceita o dono
+    Given uma sessão travada, e as ligações de quem vê, de quem controla e do dono
+    When cada uma pede "session.type"
+    Then quem vê e quem controla são recusados com o erro de permissão, e o dono escreve

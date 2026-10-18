@@ -1,6 +1,6 @@
 <!-- @anchors
   code: NDCNN
-  updated_at: 2026-10-17
+  updated_at: 2026-10-18
 -->
 # Nodeconf — a configuração do Polvo de uma máquina: quem pode o quê nas sessões dela
 
@@ -10,7 +10,8 @@
 Cada máquina decide o que pode fazer quem se liga a ela. A configuração do nó é o ficheiro
 `node.json` na pasta de configuração do Polvo dessa máquina, que o `Load` lê para um `Config`: a permissão por omissão
 de quem se liga de fora (`guest`) e a de cada chave autorizada (`keys`, pela impressão digital da chave).
-O `PermFor` dá a permissão (`sessions.Perm`) de uma chave. A chave da própria instalação é a do dono.
+O `PermFor` dá a permissão (`sessions.Perm`) de uma chave. A chave da própria instalação é a do dono. O
+`MayForward` diz se uma chave pode encaminhar sockets pela máquina (`forward`).
 
 ```json
 { "guest": "view", "keys": { "SHA256:abc…": "control" } }
@@ -30,6 +31,11 @@ O `PermFor` dá a permissão que o ficheiro dá à impressão digital da chave (
 A chave da própria instalação (a que o `Load` recebe) tem a permissão de dono, seja qual for o ficheiro:
 a janela da própria máquina controla sempre as sessões dela.
 
+### NDCNN-B04 — Quem pode encaminhar sockets
+O dono encaminha sempre. Outra chave só encaminha se controla e o ficheiro a nomeia na lista `forward`
+(pela impressão digital), ou a lista tem `*` (todas as que controlam). Sem a lista, só o dono: um socket
+encaminhado chega a tudo o que a máquina alcança na rede dela, mais do que as sessões.
+
 ## Domain
 
 | Input | Accepts | Outside the domain | Who guarantees |
@@ -37,6 +43,7 @@ a janela da própria máquina controla sempre as sessões dela.
 | `node.json` | o objeto com `guest` e `keys`, ou nenhum ficheiro | JSON estragado | este módulo: o erro (`NDCNN-E01`) |
 | `guest` | `view` ou `control` | outro valor | este módulo: o erro (`NDCNN-E02`) |
 | `keys` | impressões digitais `SHA256:…` com `view` ou `control` | outro valor | este módulo: o erro (`NDCNN-E02`) |
+| `forward` | uma lista de impressões digitais, ou com `*` | uma impressão que nenhuma chave tem (não dá nada a ninguém) | quem configura |
 
 ## Errors / Failures
 | Rule | Condition | Failure |
@@ -58,6 +65,7 @@ a janela da própria máquina controla sempre as sessões dela.
 | `NDCNN-B03` | `keys` |
 | `NDCNN-E01` | `node.json` |
 | `NDCNN-E02` | `guest`, `keys` |
+| `NDCNN-B04` | `forward`, `keys` |
 
 ## Revisions
 
@@ -65,9 +73,11 @@ a janela da própria máquina controla sempre as sessões dela.
 > autorizada num nó só via, e o `polvo connect`, os terminais remotos e o `polvo mcp` deixavam de abrir
 > shells; autorizar uma chave já é confiar nela. Decisão do agente, por rever pelo dono.
 
+> **NDCNN-R0002:** entra o `NDCNN-B04` (quem pode encaminhar sockets), do plano ESRMS, W06. Por omissão,
+> só o dono; decisão do agente, por rever pelo dono (`NDCNN-D01`).
+
 ## Open Decisions
 
 | Code | Question | Who decides | Becomes |
 | --- | --- | --- | --- |
-
-none
+| `NDCNN-D01` | Por omissão (sem a lista `forward`), só o dono encaminha sockets; as outras chaves, mesmo as que controlam, precisam de ser nomeadas. É o que o agente escolheu, por um socket encaminhado chegar à rede da máquina. Ou as que controlam também encaminham por omissão, como o `AllowTcpForwarding yes` do OpenSSH? @no-code: decisão por tomar pelo dono | dono | o valor por omissão do `NDCNN-B04` |

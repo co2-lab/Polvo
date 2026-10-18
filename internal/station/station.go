@@ -138,6 +138,7 @@ func Open(dir string, opt Options) (*Station, error) {
 		Shell:      opt.Shell,
 		Sessions:   m,
 		Perms:      perms.PermFor,
+		Forward:    perms.MayForward,
 		Owner:      id.PublicKey(),
 		Pairer:     pairer,
 	}

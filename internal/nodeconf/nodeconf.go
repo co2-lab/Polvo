@@ -26,16 +26,20 @@ type Config struct {
 	guest sessions.Perm
 	keys  map[string]sessions.Perm
 	owner string
+	// forward are the keys that may forward sockets, besides the owner; "*" is every key that controls
+	// (NDCNN-B04).
+	forward map[string]bool
 }
 
 type file struct {
-	Guest string            `json:"guest"`
-	Keys  map[string]string `json:"keys"`
+	Guest   string            `json:"guest"`
+	Keys    map[string]string `json:"keys"`
+	Forward []string          `json:"forward"`
 }
 
 // Load reads the configuration at path; owner is the key of this installation.
 func Load(path string, owner ssh.PublicKey) (*Config, error) {
-	c := &Config{guest: DEFAULT_GUEST, keys: map[string]sessions.Perm{}, owner: ssh.FingerprintSHA256(owner)}
+	c := &Config{guest: DEFAULT_GUEST, keys: map[string]sessions.Perm{}, owner: ssh.FingerprintSHA256(owner), forward: map[string]bool{}}
 	b, err := os.ReadFile(path)
 	if errors.Is(err, fs.ErrNotExist) {
 		// NDCNN-B01
@@ -58,6 +62,9 @@ func Load(path string, owner ssh.PublicKey) (*Config, error) {
 		if c.keys[fp], err = perm(p); err != nil {
 			return nil, fmt.Errorf("nodeconf: %s: key %s: %w", path, fp, err)
 		}
+	}
+	for _, fp := range f.Forward {
+		c.forward[fp] = true
 	}
 	return c, nil
 }
@@ -83,4 +90,14 @@ func (c *Config) PermFor(key ssh.PublicKey) sessions.Perm {
 		return p
 	}
 	return c.guest
+}
+
+// MayForward says whether key may forward sockets through the node (NDCNN-B04): the owner always; another
+// key only when it controls and the file names it in forward, or has "*" there.
+func (c *Config) MayForward(key ssh.PublicKey) bool {
+	p := c.PermFor(key)
+	if p == sessions.Owner {
+		return true
+	}
+	return p >= sessions.Control && (c.forward[ssh.FingerprintSHA256(key)] || c.forward["*"])
 }

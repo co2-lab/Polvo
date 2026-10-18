@@ -46,6 +46,8 @@ type Config struct {
 	Owner ssh.PublicKey
 	// Pairer pairs the keys the node does not know (SRVRE-B12); nil refuses them.
 	Pairer *pairing.Pairer
+	// Forward says whether a key may forward sockets (SRVRE-B13); nil lets only the owner.
+	Forward func(ssh.PublicKey) bool
 }
 
 // keyKey carries the key of a connection that may only pair, for the pairing (SRVRE-B12).
@@ -71,8 +73,8 @@ func (c Config) server() (*ssh.ServerConfig, error) {
 		// callback is set, so those methods are refused.
 		PublicKeyCallback: func(_ ssh.ConnMetadata, key ssh.PublicKey) (*ssh.Permissions, error) {
 			if c.Owner != nil && bytes.Equal(key.Marshal(), c.Owner.Marshal()) {
-				// SRVRE-B11
-				return &ssh.Permissions{Extensions: map[string]string{permKey: strconv.Itoa(int(sessions.Owner))}}, nil
+				// SRVRE-B11, SRVRE-B13
+				return &ssh.Permissions{Extensions: map[string]string{permKey: strconv.Itoa(int(sessions.Owner)), forwardKey: "1"}}, nil
 			}
 			ok, err := c.Authorized.Allows(key)
 			if err != nil {
@@ -90,7 +92,12 @@ func (c Config) server() (*ssh.ServerConfig, error) {
 			if c.Perms != nil {
 				perm = c.Perms(key)
 			}
-			return &ssh.Permissions{Extensions: map[string]string{permKey: strconv.Itoa(int(perm))}}, nil
+			ext := map[string]string{permKey: strconv.Itoa(int(perm))}
+			// SRVRE-B13
+			if c.Forward != nil && c.Forward(key) || c.Forward == nil && perm == sessions.Owner {
+				ext[forwardKey] = "1"
+			}
+			return &ssh.Permissions{Extensions: ext}, nil
 		},
 	}
 	sc.AddHostKey(c.HostKey)
@@ -134,18 +141,28 @@ func serveConn(conn net.Conn, cfg Config, sc *ssh.ServerConfig) error {
 		return err
 	}
 	defer sconn.Close()
-	go ssh.DiscardRequests(reqs)
 	perm := sessions.Owner
 	var key ssh.PublicKey
+	may := false
 	if sconn.Permissions != nil {
 		if p, err := strconv.Atoi(sconn.Permissions.Extensions[permKey]); err == nil {
 			perm = sessions.Perm(p)
 		}
 		key, _ = ssh.ParsePublicKey([]byte(sconn.Permissions.Extensions[keyKey]))
+		may = sconn.Permissions.Extensions[forwardKey] == "1"
 	}
+	fw := newForwards(sconn, may)
+	defer fw.closeAll()
+	go fw.requests(reqs)
 	for nc := range chans {
-		// SRVRE-B08: only sessions are served; port forwarding is refused.
-		if nc.ChannelType() != "session" {
+		switch nc.ChannelType() {
+		case "session":
+		case "direct-tcpip", "direct-streamlocal@openssh.com":
+			// SRVRE-B13, SRVRE-E04: the socket of the node's machine, or why not
+			go fw.direct(nc)
+			continue
+		default:
+			// SRVRE-B08
 			nc.Reject(ssh.UnknownChannelType, "node: unknown channel type")
 			continue
 		}
