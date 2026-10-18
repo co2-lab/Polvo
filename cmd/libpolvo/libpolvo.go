@@ -23,8 +23,8 @@ func fail(out **C.char, err error) {
 }
 
 //export polvo_open
-func polvo_open(dir, listen, shell *C.char, err **C.char) C.int64_t {
-	h, e := bridge.Open(C.GoString(dir), C.GoString(listen), C.GoString(shell))
+func polvo_open(dir, listen, shell, relay *C.char, port C.int, err **C.char) C.int64_t {
+	h, e := bridge.Open(C.GoString(dir), C.GoString(listen), C.GoString(shell), C.GoString(relay), int(port))
 	if e != nil {
 		fail(err, e)
 		return 0

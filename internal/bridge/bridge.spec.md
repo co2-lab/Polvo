@@ -15,12 +15,15 @@ uma sessão e dá o número dele, que o `Read`, o `Write`, o `Resize` e o `Detac
 estação e os terminais dela.
 
 O `Call` recebe `{"op": …}` e devolve o resultado em JSON:
-- `status`: onde o nó desta máquina escuta (`listen`) e, se não escuta, porquê (`listen_error`), e a
-  chave desta instalação como a linha que as outras máquinas juntam ao `authorized_keys` (`key`);
+- `status`: onde o nó desta máquina escuta (`listen`) e, se não escuta, porquê (`listen_error`), a
+  chave desta instalação como a linha que as outras máquinas juntam ao `authorized_keys` (`key`), e onde
+  ela se alcança entre redes (`p2p`; e `p2p_error`, quando o transporte não abriu);
 - `listen` (`addr`): o nó desta máquina passa a escutar as outras nesse endereço, ou deixa de escutar com
   ele vazio, e a instalação lembra-o;
 - `machines`: as máquinas (`name`, `local`);
 - `add` (`addr`) e `remove` (`name`): juntar e esquecer uma máquina;
+- `add_p2p` (`addr`): juntar uma máquina de outra rede pelo endereço que a instalação dela deu, e dá o
+  nome dela (`name`);
 - `sessions` (`machine`): as sessões dela, como o `hub.Session`;
 - `new` (`machine`, `argv`, `dir`, `rows`, `cols`): cria uma sessão e dá o `id`;
 - `close` e `lock` (`machine`, `id`, `locked`): termina, trava ou destrava uma sessão;
@@ -40,7 +43,8 @@ A estação abre-se a anunciar-se e a procurar no mDNS da rede (o `Open`).
 ## Rules
 
 ### BRDGE-B01 — Abrir e fechar uma estação
-O `Open` abre a estação de uma pasta (com o endereço para escutar e a shell) e dá um número que nenhuma
+O `Open` abre a estação de uma pasta (com o endereço para escutar, a shell, e o relay e a porta do
+transporte entre redes) e dá um número que nenhuma
 outra estação ou terminal aberto tem. O `Close` fecha-a com os terminais dela, e o número deixa de valer.
 
 ### BRDGE-B02 — Os pedidos sobre uma estação
@@ -95,6 +99,9 @@ ficheiro que não é texto em UTF-8 dá o erro.
 | `BRDGE-B06` | `Handle`, `request` |
 
 ## Revisions
+
+> **BRDGE-R0005:** o `Open` recebe o relay e a porta do transporte, o `status` diz o endereço entre redes, e
+> entra o `add_p2p`, do plano ESRMS, W04.
 
 > **BRDGE-R0004:** entra o pedido `listen`, para a janela aceitar as outras máquinas só quando o utilizador
 > o liga (o dono decidiu-o a 2026-10-18).

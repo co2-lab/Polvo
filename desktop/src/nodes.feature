@@ -91,3 +91,9 @@ Feature: Nodes
     Given a aba das máquinas de uma instalação que não escuta
     When o utilizador carrega em "Deixar outras máquinas ligarem-se", e depois no mesmo botão outra vez
     Then o nó escuta entre os dois cliques, o botão diz "Deixar de aceitar outras máquinas", e no fim não escuta
+
+  @MQNAS-B12 @unit-level
+  Scenario: As máquinas de outras redes
+    Given duas instalações com o transporte, a outra a aceitar e a autorizar esta
+    When o utilizador escreve no campo de juntar o endereço entre redes da outra e carrega em juntar
+    Then a aba diz que esta máquina se alcança de outras redes, e a outra junta-se com o nome "p2p:" e a chave

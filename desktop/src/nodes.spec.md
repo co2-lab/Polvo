@@ -60,6 +60,11 @@ ligarem-se" põe o nó dela a escutar em `ACCEPT_LISTEN` (e a anunciar-se na red
 "Deixar de aceitar outras máquinas", desliga-o e corta as ligações delas. A escolha fica para a próxima
 vez que a janela abre.
 
+### MQNAS-B12 — As máquinas de outras redes
+A aba diz se esta máquina se alcança de outras redes (ou porque não), com o botão que copia o endereço dela
+entre redes. Escrever no campo de juntar o endereço que a janela de outra máquina copiou junta-a pela
+chave, como no `MQNAS-B06`.
+
 ## Domain
 
 | Input | Accepts | Outside the domain | Who guarantees |
@@ -97,12 +102,15 @@ vez que a janela abre.
 | `MQNAS-B09` | `Station`, `PAIRINGS_EVERY` |
 | `MQNAS-B10` | `Station` |
 | `MQNAS-B11` | `Station`, `ACCEPT_LISTEN` |
+| `MQNAS-B12` | `Station`, `addr` |
 | `MQNAS-E03` | `addr` |
 
 ## Revisions
 
 > **MQNAS-R0001:** entram as máquinas da rede e o emparelhamento (`MQNAS-B07` a `MQNAS-B09`, `MQNAS-E03`),
 > do plano ESRMS, W03.
+
+> **MQNAS-R0004:** entra o `MQNAS-B12` (as máquinas de outras redes), do plano ESRMS, W04.
 
 > **MQNAS-R0003:** entra o `MQNAS-B11` (deixar outras máquinas ligarem-se): o dono decidiu a 2026-10-18
 > que a janela não escuta por omissão.

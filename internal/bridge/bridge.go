@@ -44,13 +44,13 @@ func next() Handle {
 
 // Open opens the station of dir, listening on listen (empty: not) with shell for new sessions, and
 // gives its number (BRDGE-B01).
-func Open(dir, listen, shell string) (Handle, error) {
-	return openWith(dir, listen, shell, &discovery.Options{})
+func Open(dir, listen, shell, relay string, port int) (Handle, error) {
+	return openWith(dir, listen, shell, relay, port, &discovery.Options{})
 }
 
 // openWith opens the station announcing itself, and asking, where disc says.
-func openWith(dir, listen, shell string, disc *discovery.Options) (Handle, error) {
-	opt := station.Options{Listen: listen, Discovery: disc}
+func openWith(dir, listen, shell, relay string, port int, disc *discovery.Options) (Handle, error) {
+	opt := station.Options{Listen: listen, Discovery: disc, Relay: relay, P2PPort: port}
 	if shell != "" {
 		opt.Shell = []string{shell}
 	}
@@ -152,9 +152,12 @@ func Call(h Handle, req []byte) ([]byte, error) {
 func answer(s *station.Station, r request) (any, error) {
 	switch r.Op {
 	case "status":
-		out := map[string]string{"listen": s.ListenAddr(), "key": sshx.AuthorizedLine(s.PublicKey(), "polvo")}
+		out := map[string]string{"listen": s.ListenAddr(), "key": sshx.AuthorizedLine(s.PublicKey(), "polvo"), "p2p": s.P2PAddr()}
 		if err := s.ListenError(); err != nil {
 			out["listen_error"] = err.Error()
+		}
+		if err := s.P2PError(); err != nil {
+			out["p2p_error"] = err.Error()
 		}
 		return out, nil
 	case "machines":
@@ -169,6 +172,10 @@ func answer(s *station.Station, r request) (any, error) {
 		return map[string]any{"machines": out}, nil
 	case "add":
 		return struct{}{}, s.Add(r.Addr)
+	case "add_p2p":
+		// BRDGE-B02: a machine of another network, by the address its installation gave
+		name, err := s.AddP2P(r.Addr)
+		return map[string]string{"name": name}, err
 	case "remove":
 		return struct{}{}, s.Remove(r.Name)
 	case "progress_all":

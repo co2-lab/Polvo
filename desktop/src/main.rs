@@ -48,7 +48,7 @@ mod window; // @dep: WNIMW
 /// others only where the user left it (MQNAS-B10); none when it does not open (the window then runs its terminals in its own ptys, and has no machines tab).
 fn open_station(shell: &str) -> Option<remote::Station> {
     let dir = dirs::config_dir()?.join("polvo");
-    match remote::Station::open(&dir, "", shell) {
+    match remote::Station::open_with(&dir, "", shell, "default", remote::P2P_PORT) {
         Ok(st) => {
             if let Ok(status) = st.status()
                 && let Some(e) = status.listen_error

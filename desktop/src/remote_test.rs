@@ -135,3 +135,13 @@ scenario!(rmtec_b08_aceitar_as_outras_maquinas, "RMTEC-B08: Aceitar as outras m√
     st.set_listen("").unwrap();
     assert_eq!((before.as_str(), during.is_empty(), st.status().unwrap().listen.as_str()), ("", false, ""));
 });
+
+scenario!(rmtec_b09_as_maquinas_de_outras_redes, "RMTEC-B09: As m√°quinas de outras redes", {
+    let (d1, d2) = (tempfile::tempdir().unwrap(), tempfile::tempdir().unwrap());
+    let first = Station::open_with(d1.path(), "127.0.0.1:0", "/bin/sh", "", 0).unwrap();
+    let second = Station::open_with(d2.path(), "", "/bin/sh", "", 0).unwrap();
+    std::fs::write(d1.path().join("authorized_keys"), second.status().unwrap().key + "\n").unwrap();
+    let name = second.add_p2p(&first.status().unwrap().p2p).unwrap();
+    let sessions = second.sessions(&name);
+    assert!(name.starts_with("p2p:") && sessions.is_ok(), "{name} {sessions:?}");
+});

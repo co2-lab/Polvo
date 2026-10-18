@@ -14,8 +14,18 @@ use serde_json::{Value, json};
 /// The name of this window's machine in the library.
 pub const LOCAL: &str = "local";
 
+/// The UDP port of the transport between networks, the same number as the node's (RMTEC-B09).
+pub const P2P_PORT: u16 = 2222;
+
 unsafe extern "C" {
-    fn polvo_open(dir: *const c_char, listen: *const c_char, shell: *const c_char, err: *mut *mut c_char) -> i64;
+    fn polvo_open(
+        dir: *const c_char,
+        listen: *const c_char,
+        shell: *const c_char,
+        relay: *const c_char,
+        port: c_int,
+        err: *mut *mut c_char,
+    ) -> i64;
     fn polvo_close(h: i64);
     fn polvo_call(h: i64, req: *const c_char, err: *mut *mut c_char) -> *mut c_char;
     fn polvo_attach(h: i64, machine: *const c_char, id: *const c_char, err: *mut *mut c_char) -> i64;
@@ -24,6 +34,25 @@ unsafe extern "C" {
     fn polvo_resize(t: i64, rows: u16, cols: u16, err: *mut *mut c_char) -> c_int;
     fn polvo_detach(t: i64);
     fn polvo_free(p: *mut c_char);
+}
+
+/// Keeps the C API of the transport in the executable: the library (Go) calls it, and the linker only keeps
+/// what something in Rust reaches (RMTEC-B09).
+fn keep_p2p() {
+    use polvo_p2p::ffi::*;
+    std::hint::black_box((
+        polvo_p2p_open as *const (),
+        polvo_p2p_addr as *const (),
+        polvo_p2p_id as *const (),
+        polvo_p2p_accept as *const (),
+        polvo_p2p_connect as *const (),
+        polvo_p2p_read as *const (),
+        polvo_p2p_write as *const (),
+        polvo_p2p_close_write as *const (),
+        polvo_p2p_close as *const (),
+        polvo_p2p_shutdown as *const (),
+        polvo_p2p_free as *const (),
+    ));
 }
 
 /// A refusal of the library, with its text (RMTEC-E01).
@@ -63,6 +92,10 @@ pub struct Status {
     pub listen_error: Option<String>,
     /// This installation's key, as the line another machine adds to its `authorized_keys` (RMTEC-B04).
     pub key: String,
+    /// Where this installation is reached between networks, empty without the transport (RMTEC-B09).
+    pub p2p: String,
+    /// Why the transport did not open.
+    pub p2p_error: Option<String>,
 }
 
 fn c(s: &str) -> CString {
@@ -203,12 +236,21 @@ impl Drop for Handle {
 }
 
 impl Station {
-    /// Opens the installation of `dir`, listening on `listen` (empty: not), with `shell` for new sessions.
+    /// Opens the installation of `dir`, listening on `listen` (empty: not), with `shell` for new sessions,
+    /// without reaching other networks.
+    #[cfg(test)]
     pub fn open(dir: &Path, listen: &str, shell: &str) -> Result<Station, RemoteError> {
-        let (d, l, s) = (c(&dir.to_string_lossy()), c(listen), c(shell));
+        Self::open_with(dir, listen, shell, "", 0)
+    }
+
+    /// Opens the installation of `dir` as `open` does, with the relay and the UDP port of the transport
+    /// between networks (RMTEC-B09).
+    pub fn open_with(dir: &Path, listen: &str, shell: &str, relay: &str, port: u16) -> Result<Station, RemoteError> {
+        keep_p2p();
+        let (d, l, s, r) = (c(&dir.to_string_lossy()), c(listen), c(shell), c(relay));
         let mut err = std::ptr::null_mut();
         // SAFETY: NUL-terminated texts, and an out-parameter the library fills or leaves null.
-        let h = unsafe { polvo_open(d.as_ptr(), l.as_ptr(), s.as_ptr(), &mut err) };
+        let h = unsafe { polvo_open(d.as_ptr(), l.as_ptr(), s.as_ptr(), r.as_ptr(), c_int::from(port), &mut err) };
         if h == 0 {
             return Err(RemoteError(unsafe { take(err) }));
         }
@@ -235,6 +277,8 @@ impl Station {
             listen: v["listen"].as_str().unwrap_or_default().to_string(),
             listen_error: v["listen_error"].as_str().map(str::to_string),
             key: v["key"].as_str().unwrap_or_default().to_string(),
+            p2p: v["p2p"].as_str().unwrap_or_default().to_string(),
+            p2p_error: v["p2p_error"].as_str().map(str::to_string),
         })
     }
 
@@ -258,6 +302,13 @@ impl Station {
     /// Connects to the machine at `addr` and keeps it (RMTEC-B04).
     pub fn add(&self, addr: &str) -> Result<(), RemoteError> {
         self.call(json!({ "op": "add", "addr": addr })).map(|_| ())
+    }
+
+    /// Joins a machine of another network by the address its installation gave, and gives its name
+    /// (RMTEC-B09).
+    pub fn add_p2p(&self, addr: &str) -> Result<String, RemoteError> {
+        let v = self.call(json!({ "op": "add_p2p", "addr": addr }))?;
+        Ok(text(&v, "name"))
     }
 
     /// Forgets a machine (RMTEC-B04).

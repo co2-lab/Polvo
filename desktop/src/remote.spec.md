@@ -64,6 +64,12 @@ ficheiro dela, e o `write_text` grava-o.
 O `set_listen` põe o nó desta máquina a escutar as outras no endereço dado, ou deixa de escutar com ele
 vazio; a instalação lembra-o para a próxima vez que abre.
 
+### RMTEC-B09 — As máquinas de outras redes
+O `open_with` abre a instalação com o relay e a porta UDP (`P2P_PORT`) do transporte entre redes; o
+`status` diz onde ela se alcança entre redes (`p2p`, e `p2p_error` quando o transporte não abriu); e o
+`add_p2p` junta uma máquina pelo endereço que a instalação dela deu, e dá o nome dela. O executável leva a
+API C do transporte (`p2p/`), que a biblioteca chama.
+
 ## Domain
 
 | Input | Accepts | Outside the domain | Who guarantees |
@@ -81,6 +87,7 @@ vazio; a instalação lembra-o para a próxima vez que abre.
 | Constant | Value | Why |
 | --- | --- | --- |
 | `LOCAL` | `local` | o nome da máquina desta janela na biblioteca |
+| `P2P_PORT` | 2222 | o número da porta do nó, em UDP: quem passa um endereço à mão só precisa do IP |
 
 ## Rule uses
 
@@ -95,8 +102,11 @@ vazio; a instalação lembra-o para a próxima vez que abre.
 | `RMTEC-B06` | `machine` |
 | `RMTEC-B07` | `machine` |
 | `RMTEC-B08` | `listen` |
+| `RMTEC-B09` | `listen`, `P2P_PORT` |
 
 ## Revisions
+
+> **RMTEC-R0006:** entra o `RMTEC-B09` (as máquinas de outras redes), do plano ESRMS, W04.
 
 > **RMTEC-R0005:** entra o `RMTEC-B08` (aceitar as outras máquinas), por a janela já não escutar por
 > omissão, como o dono decidiu a 2026-10-18.

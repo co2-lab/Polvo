@@ -19,7 +19,7 @@ import (
 
 func open(t *testing.T) Handle {
 	t.Helper()
-	h, err := Open(t.TempDir(), "", "/bin/sh")
+	h, err := Open(t.TempDir(), "", "/bin/sh", "", 0)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -58,7 +58,7 @@ func newSession(t *testing.T, h Handle) string {
 
 func TestBridge_station(t *testing.T) {
 	t.Run("BRDGE-B01: Abrir e fechar uma estação", func(t *testing.T) {
-		a, err := Open(t.TempDir(), "", "/bin/sh")
+		a, err := Open(t.TempDir(), "", "/bin/sh", "", 0)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -68,7 +68,7 @@ func TestBridge_station(t *testing.T) {
 			t.Fatalf("want two numbers, and the closed one refused; got %d %d %v", a, b, err)
 		}
 	})
-	t.Run("BRDGE-B02: Os pedidos sobre uma estação", func(t *testing.T) {
+	t.Run("BRDGE-B02#01: Os pedidos sobre uma estação", func(t *testing.T) {
 		h := open(t)
 		var status struct {
 			Listen string `json:"listen"`
@@ -229,7 +229,7 @@ func TestBridge_progress(t *testing.T) {
 // openIn opens a station that listens, announced in a test group of the loopback.
 func openIn(t *testing.T, g *discovery.Options) Handle {
 	t.Helper()
-	h, err := openWith(t.TempDir(), ":0", "/bin/sh", g)
+	h, err := openWith(t.TempDir(), ":0", "/bin/sh", "", 0, g)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -348,6 +348,42 @@ func TestBridge_files(t *testing.T) {
 		written, _ := os.ReadFile(filepath.Join(dir, "b.txt"))
 		if len(l.Entries) != 3 || r.Text != "ola" || binErr == nil || string(written) != "escrito" {
 			t.Fatalf("got %+v, %q, %v, %q", l, r.Text, binErr, written)
+		}
+	})
+}
+
+func TestBridge_p2p(t *testing.T) {
+	t.Run("BRDGE-B02#02: Juntar uma máquina de outra rede", func(t *testing.T) {
+		d1, d2 := t.TempDir(), t.TempDir()
+		h1, err := Open(d1, "127.0.0.1:0", "/bin/sh", "", 0)
+		if err != nil {
+			t.Fatal(err)
+		}
+		defer Close(h1)
+		h2, err := Open(d2, "", "/bin/sh", "", 0)
+		if err != nil {
+			t.Fatal(err)
+		}
+		defer Close(h2)
+		var first, second struct {
+			Key string `json:"key"`
+			P2P string `json:"p2p"`
+		}
+		call(t, h1, `{"op":"status"}`, &first)
+		call(t, h2, `{"op":"status"}`, &second)
+		if first.P2P == "" {
+			t.Skip("built without the transport (make test-p2p runs these)")
+		}
+		os.WriteFile(filepath.Join(d1, "authorized_keys"), []byte(second.Key+"\n"), 0o600)
+		req, _ := json.Marshal(map[string]string{"op": "add_p2p", "addr": first.P2P})
+		var added struct {
+			Name string `json:"name"`
+		}
+		call(t, h2, string(req), &added)
+		var l list
+		call(t, h2, `{"op":"sessions","machine":"`+added.Name+`"}`, &l)
+		if !strings.HasPrefix(added.Name, "p2p:") {
+			t.Fatalf("want a p2p name, got %q", added.Name)
 		}
 	})
 }

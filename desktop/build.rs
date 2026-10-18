@@ -10,7 +10,7 @@ fn main() {
     let go = env::var("GO").unwrap_or_else(|_| "go".into());
     let lib = out.join("libpolvo.a");
     let status = Command::new(&go)
-        .args(["build", "-buildmode=c-archive", "-trimpath", "-tags", "netgo,osusergo", "-o"])
+        .args(["build", "-buildmode=c-archive", "-trimpath", "-tags", "netgo,osusergo,polvo_p2p", "-o"])
         .arg(&lib)
         .arg("./cmd/libpolvo")
         .current_dir(&root)

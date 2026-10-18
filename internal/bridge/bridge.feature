@@ -14,7 +14,7 @@ Feature: Bridge
     When a primeira fecha
     Then os números eram diferentes, e o da primeira deixou de valer
 
-  @BRDGE-B02 @unit-level
+  @BRDGE-B02#01 @unit-level
   Scenario: Os pedidos sobre uma estação
     Given uma estação
     When pede o estado, as máquinas, cria uma sessão local, trava-a, lista-as e termina-a
@@ -79,3 +79,9 @@ Feature: Bridge
     Given uma estação, e uma pasta com "a.txt" e um ficheiro binário
     When grava "b.txt", lista a pasta, lê "a.txt" e lê o binário
     Then a lista tem os três ficheiros, a leitura dá o texto, e a do binário dá o erro
+
+  @BRDGE-B02#02 @unit-level
+  Scenario: Juntar uma máquina de outra rede
+    Given duas estações com o transporte, a primeira a aceitar as outras e a autorizar a segunda
+    When a segunda pede "add_p2p" com o "p2p" do "status" da primeira, e depois as sessões dela
+    Then o nome começa por "p2p:", e as sessões vêm

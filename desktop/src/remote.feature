@@ -61,3 +61,9 @@ Feature: Remote
     Given uma instalação aberta sem escutar
     When se pede para escutar num endereço, e depois para deixar de escutar
     Then escuta só entre os dois pedidos
+
+  @RMTEC-B09 @unit-level
+  Scenario: As máquinas de outras redes
+    Given duas instalações abertas com o transporte, a primeira a aceitar e a autorizar a segunda
+    When a segunda junta a primeira pelo "p2p" do estado dela
+    Then o nome começa por "p2p:", e as sessões da primeira vêm

@@ -276,3 +276,17 @@ scenario!(mqnas_b11_deixar_outras_maquinas_ligarem_se, "MQNAS-B11: Deixar outras
         (Some("Deixar outras máquinas ligarem-se"), Some("Deixar de aceitar outras máquinas"), "")
     );
 });
+
+scenario!(mqnas_b12_as_maquinas_de_outras_redes, "MQNAS-B12: As máquinas de outras redes", |cx| {
+    let (_d, me) = installation("");
+    let (_od, other, _addr) = other_for(&me);
+    let o = open(cx, &me);
+    let reach = shown(cx, &o, "machine-p2p".into());
+    let p2p = other.status().unwrap().p2p;
+    click(cx, &o, "join-addr".into());
+    cx.update_window(o.handle, |_, window, cx| window.input(&p2p, cx)).unwrap();
+    click(cx, &o, "join".into());
+    let names: Vec<String> = me.machines().unwrap().into_iter().map(|m| m.name).collect();
+    assert_eq!(reach.as_deref(), Some("Alcança-se de outras redes"));
+    assert!(names.len() == 2 && names[1].starts_with("p2p:"), "want the other joined by its key, got {names:?}");
+});

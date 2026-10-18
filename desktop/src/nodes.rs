@@ -96,7 +96,7 @@ pub struct NodesPanel {
 impl NodesPanel {
     /// The tab of the installation's machines, read at once.
     pub fn new(station: Station, window: &mut Window, cx: &mut Context<Self>) -> Self {
-        let addr = cx.new(|cx| InputState::new(window, cx).placeholder("máquina:porta"));
+        let addr = cx.new(|cx| InputState::new(window, cx).placeholder("máquina:porta, ou o endereço copiado de outra rede"));
         let pair_code = cx.new(|cx| InputState::new(window, cx).placeholder("o código da outra máquina"));
         let mut this = NodesPanel {
             focus: cx.focus_handle(),
@@ -276,7 +276,10 @@ impl NodesPanel {
             return;
         }
         self.addr.update(cx, |s, cx| s.set_value("", window, cx));
-        self.run(cx, move |st| st.add(&addr), |this, joined, _| match joined {
+        // MQNAS-B12: the address of an installation of another network is the JSON its window copies
+        let p2p = addr.starts_with('{');
+        let joining = move |st: &Station| if p2p { st.add_p2p(&addr).map(|_| ()) } else { st.add(&addr) };
+        self.run(cx, joining, |this, joined, _| match joined {
             Ok(()) => this.join_message = None,
             // MQNAS-E02: the machines stay as they were
             Err(e) => this.tell(e.0),
@@ -399,6 +402,22 @@ impl NodesPanel {
                         cx.write_to_clipboard(ClipboardItem::new_string(key.clone()));
                     })),
             );
+            // MQNAS-B12: where this machine is reached from other networks
+            let p2p = status.p2p.clone();
+            let reach = match (&status.p2p_error, p2p.is_empty()) {
+                (Some(e), _) => format!("Não se alcança de outras redes: {e}"),
+                (None, true) => "Não se alcança de outras redes".to_string(),
+                (None, false) => "Alcança-se de outras redes".to_string(),
+            };
+            let mut row = div().flex().items_center().gap(px(8.)).child(
+                div().id("machine-p2p").role(Role::Label).aria_label(reach.clone()).test_support().flex_1().text_color(muted).child(reach),
+            );
+            if !p2p.is_empty() {
+                row = row.child(Self::button("copy-p2p".into(), "Copiar o endereço", hover, move |_, _, cx| {
+                    cx.write_to_clipboard(ClipboardItem::new_string(p2p.clone()));
+                }));
+            }
+            body = body.child(row);
         }
         match &m.sessions {
             // MQNAS-E01
