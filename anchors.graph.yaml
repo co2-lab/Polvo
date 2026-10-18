@@ -2028,7 +2028,7 @@ nodes:
       line_rev: 8692fc34d47d
     - id: plans/identidade.plan.md
       kind: plan
-      rev: 2597aebdbe55
+      rev: ad7b5793cf69
       updated_at: "2026-10-18"
       code: IDNTD
       file_code: IDNTD
@@ -2036,8 +2036,8 @@ nodes:
       code_declared: true
       tags:
         - plan
-      evidence_rev: ac7a47698dc3
-      line_rev: 8a87177b74e3
+      evidence_rev: c808a2209878
+      line_rev: 23e6b7d5638d
     - id: plans/janela.plan.md
       kind: plan
       rev: e9b93aec7b68

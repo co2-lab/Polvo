@@ -9,7 +9,7 @@
 > Pedido pelo dono a 2026-10-18: um login social/federado (GitHub, Google, Apple, Microsoft, etc.) para
 > encontrar as sessões das outras máquinas, partilhar e dar permissões; uma identidade reforça a distinção
 > e o controlo. Com a versão mobile, para controlar as sessões das máquinas pelo telemóvel. O desenho e as
-> fases são do agente e estão por aprovar pelo dono (as `Open Decisions`).
+> fases são do agente; as decisões foram aprovadas pelo dono a 2026-10-18 (`IDNTD-R0002`).
 
 ## Objective
 
