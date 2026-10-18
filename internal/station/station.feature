@@ -2,7 +2,7 @@
 # @anchors
 #   code: STFST
 #   ref: STATN
-#   updated_at: 2026-10-17
+#   updated_at: 2026-10-18
 #   layer: feature
 
 @STATN
@@ -49,3 +49,9 @@ Feature: Station
     Given uma Station
     When junta um endereço onde ninguém escuta
     Then o Add dá o erro com o endereço, e as máquinas são só a local
+
+  @STATN-B06 @unit-level
+  Scenario: O progresso dos agentes desta máquina
+    Given uma Station onde um agente começou um trabalho pelo controlo do nó local
+    When a Station fecha e abre outra vez na mesma pasta
+    Then a lista do progresso tem o trabalho do agente

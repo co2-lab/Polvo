@@ -2,7 +2,7 @@
 # @anchors
 #   code: CNFTR
 #   ref: CNTRL
-#   updated_at: 2026-10-17
+#   updated_at: 2026-10-18
 #   layer: feature
 
 @CNTRL
@@ -110,3 +110,21 @@ Feature: Control
     When a que só vê lê um ficheiro, lista as sessões, escreve um ficheiro, corre um processo e cria uma sessão, e a que controla trava uma sessão
     Then ler e listar dão resultado, e escrever, correr, criar e travar dão erro de permissão
 
+
+  @CNTRL-B09#01 @unit-level
+  Scenario: O agente reporta e quem acompanha lê
+    Given o controlo de um nó com o quadro do progresso
+    When o agente começa um trabalho com o passo "ler", passa-o a feito, deixa uma nota e termina
+    Then o progress.get dá o trabalho terminado com o passo feito, e o progress.list tem-no
+
+  @CNTRL-B09#02 @unit-level
+  Scenario: Esperar pelo progresso
+    Given o controlo de um nó com o quadro do progresso, e uma espera desde a versão atual
+    When o agente deixa uma nota
+    Then a espera responde com a nota
+
+  @CNTRL-B09#03 @unit-level
+  Scenario: Quem só vê não reporta, e sem quadro há erro
+    Given o controlo de um nó com o quadro, para quem só vê, e o de um nó sem quadro
+    When quem só vê reporta, e se pede a lista ao nó sem quadro
+    Then o primeiro é recusado pela permissão, e o segundo dá erro de operação

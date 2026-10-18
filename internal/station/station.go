@@ -20,6 +20,7 @@ import (
 	"github.com/co2-lab/polvo/internal/hub"
 	"github.com/co2-lab/polvo/internal/node"
 	"github.com/co2-lab/polvo/internal/nodeconf"
+	"github.com/co2-lab/polvo/internal/progress"
 	"github.com/co2-lab/polvo/internal/sessions"
 	"github.com/co2-lab/polvo/internal/sshx"
 )
@@ -87,6 +88,11 @@ func Open(dir string, opt Options) (*Station, error) {
 	if err != nil {
 		return nil, err
 	}
+	// STATN-B06
+	board, err := progress.NewBoard(filepath.Join(dir, "progress"))
+	if err != nil {
+		return nil, err
+	}
 	m := sessions.NewManager()
 	cfg := node.Config{
 		HostKey:    host,
@@ -96,7 +102,7 @@ func Open(dir string, opt Options) (*Station, error) {
 		Perms:      perms.PermFor,
 		Owner:      id.PublicKey(),
 	}
-	cfg.Control = node.Controller{Sessions: m, Shell: opt.Shell}.Serve
+	cfg.Control = node.Controller{Sessions: m, Shell: opt.Shell, Progress: board}.Serve
 	s := &Station{dir: dir, id: id, known: sshx.NewKnownHosts(filepath.Join(dir, "known_hosts")), sessions: m, nodes: map[string]*hub.Node{}, hostKey: host.PublicKey(), conns: map[net.Conn]struct{}{}}
 	if b, err := os.ReadFile(s.file()); err == nil {
 		var sv saved

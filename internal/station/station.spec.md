@@ -1,6 +1,6 @@
 <!-- @anchors
   code: STATN
-  updated_at: 2026-10-17
+  updated_at: 2026-10-18
 -->
 # Station — a instalação do Polvo vista pela janela: o nó desta máquina e as outras máquinas
 
@@ -41,6 +41,10 @@ O `Remove` fecha a ligação a uma máquina conhecida e esquece-a, também no fi
 O `Node` de uma máquina conhecida liga-se a ela da primeira vez que é pedido, e dá a mesma ligação
 enquanto está viva; depois de a ligação cair, o pedido seguinte liga outra vez.
 
+### STATN-B06 — O progresso dos agentes desta máquina
+O nó desta máquina guarda o progresso dos agentes dela (`progress`) na pasta `progress` da instalação: o
+que um agente reporta pelo controlo fica lá, e volta no `Open` seguinte.
+
 ## Domain
 
 | Input | Accepts | Outside the domain | Who guarantees |
@@ -71,6 +75,11 @@ enquanto está viva; depois de a ligação cair, o pedido seguinte liga outra ve
 | `STATN-B05` | `addr` |
 | `STATN-E01` | `Options` |
 | `STATN-E02` | `addr` |
+| `STATN-B06` | `dir` |
+
+## Revisions
+
+> **STATN-R0001:** entra o `STATN-B06` (o progresso dos agentes desta máquina), do plano AGPRG, W01.
 
 ## Open Decisions
 

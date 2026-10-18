@@ -16,6 +16,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/co2-lab/polvo/internal/progress"
 	"github.com/co2-lab/polvo/internal/proto"
 	"github.com/co2-lab/polvo/internal/pty"
 	"github.com/co2-lab/polvo/internal/sessions"
@@ -318,5 +319,62 @@ func TestControl_sessions(t *testing.T) {
 		if b, _ := os.ReadFile(f); string(b) != "ola" {
 			t.Fatalf("want the file untouched, got %q", b)
 		}
+	})
+}
+
+func TestControl_progress(t *testing.T) {
+	newBoard := func(t *testing.T) *progress.Board {
+		b, err := progress.NewBoard(t.TempDir())
+		if err != nil {
+			t.Fatal(err)
+		}
+		return b
+	}
+	type job struct {
+		Agent    string `json:"agent"`
+		Finished bool   `json:"finished"`
+		Steps    []struct {
+			State string `json:"state"`
+		} `json:"steps"`
+		Log []struct {
+			Text string `json:"text"`
+		} `json:"log"`
+	}
+	type list struct {
+		Version uint64 `json:"version"`
+		Agents  []job  `json:"agents"`
+	}
+	t.Run("CNTRL-B09#01: O agente reporta e quem acompanha lê", func(t *testing.T) {
+		p := controlWith(t, Controller{Progress: newBoard(t)}.Serve, sessions.Control)
+		result(t, p.call(t, 1, "progress.report", map[string]any{"agent": "a", "op": "start", "goal": "migrar", "steps": []string{"ler"}}), &struct{}{})
+		result(t, p.call(t, 2, "progress.report", map[string]any{"agent": "a", "op": "step", "step": "ler", "state": "done"}), &struct{}{})
+		result(t, p.call(t, 3, "progress.report", map[string]any{"agent": "a", "op": "note", "text": "uma nota"}), &struct{}{})
+		result(t, p.call(t, 4, "progress.report", map[string]any{"agent": "a", "op": "finish", "text": "feito"}), &struct{}{})
+		var got job
+		result(t, p.call(t, 5, "progress.get", map[string]string{"agent": "a"}), &got)
+		var l list
+		result(t, p.call(t, 6, "progress.list", struct{}{}), &l)
+		if !got.Finished || got.Steps[0].State != "done" || len(got.Log) != 4 || len(l.Agents) != 1 || l.Version != 4 {
+			t.Fatalf("got %+v and %+v", got, l)
+		}
+	})
+	t.Run("CNTRL-B09#02: Esperar pelo progresso", func(t *testing.T) {
+		b := newBoard(t)
+		b.Start("a", "g", nil)
+		p := controlWith(t, Controller{Progress: b}.Serve, sessions.View)
+		go func() {
+			time.Sleep(100 * time.Millisecond)
+			b.Note("a", "chegou")
+		}()
+		var l list
+		result(t, p.call(t, 1, "progress.wait", map[string]any{"since": b.Version(), "timeout_ms": 5000}), &l)
+		if l.Version != 2 || l.Agents[0].Log[1].Text != "chegou" {
+			t.Fatalf("want the note, got %+v", l)
+		}
+	})
+	t.Run("CNTRL-B09#03: Quem só vê não reporta, e sem quadro há erro", func(t *testing.T) {
+		v := controlWith(t, Controller{Progress: newBoard(t)}.Serve, sessions.View)
+		wantError(t, v.call(t, 1, "progress.report", map[string]any{"agent": "a", "op": "start"}), CodeForbidden, "permission")
+		wantError(t, control(t).call(t, 2, "progress.list", struct{}{}), CodeOperation, "progress")
 	})
 }

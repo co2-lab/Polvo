@@ -47,6 +47,12 @@ layers:
         tags: [hub]
         exclude: ['**/*_test.go']
     # A instalacao vista pela janela: o no' desta maquina no processo e as outras (plano ESRMS, W02).
+    # O progresso dos agentes de uma maquina (plano AGPRG).
+    progress:
+        pattern: 'internal/progress/*.go'
+        kind: code
+        tags: [progress]
+        exclude: ['**/*_test.go']
     station:
         pattern: 'internal/station/*.go'
         kind: code

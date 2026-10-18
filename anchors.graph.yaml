@@ -2,7 +2,7 @@
 # Material e versionado. Fonte de verdade do grafo; índices em memória são cache.
 version: 8
 generated_by: 0.1.353
-config_rev: 0ff4ff818373
+config_rev: 80c066393264
 nodes:
     - id: AGENTS.md
       kind: doc
@@ -56,15 +56,15 @@ nodes:
       line_rev: 9c846c49c8fd
     - id: cmd/polvo/cli.go
       kind: code
-      rev: 869e9dd2eaf9
-      updated_at: "2026-10-17"
+      rev: 36299ffd5a1a
+      updated_at: "2026-10-18"
       code: CLIXX
       file_code: CLIMX
       layer: cmd
       tags:
         - cli
-      evidence_rev: c66ba6b3d9d0
-      line_rev: f00bbff3a07e
+      evidence_rev: ebb0485e54e6
+      line_rev: 141afcd038bc
     - id: cmd/polvo/cli.spec.md
       kind: spec
       rev: baf8d6c455d7
@@ -1166,50 +1166,50 @@ nodes:
       line_rev: 2de8ceef65e8
     - id: internal/node/control.feature
       kind: feature
-      rev: 4021c62724ef
-      updated_at: "2026-10-17"
+      rev: 1805b240f7b6
+      updated_at: "2026-10-18"
       code: CNTRL
       file_code: CNFTR
       layer: feature
       tags:
         - feature
-      evidence_rev: a2e3c8fc9d0d
-      line_rev: 529071a168f8
+      evidence_rev: bdce7846c551
+      line_rev: f9077a50e292
     - id: internal/node/control.go
       kind: code
-      rev: 60b004dc2603
-      updated_at: "2026-10-17"
+      rev: b1ebd2be90f5
+      updated_at: "2026-10-18"
       code: CNTRL
       file_code: CNIMP
       layer: node
       tags:
         - node
-      evidence_rev: c18f7ffa9713
-      line_rev: 18cd31f88354
+      evidence_rev: fd2ad4b93c44
+      line_rev: 76969957993d
     - id: internal/node/control.spec.md
       kind: spec
-      rev: 6cd445a56c54
-      updated_at: "2026-10-17"
+      rev: 41309977db3f
+      updated_at: "2026-10-18"
       code: CNTRL
       file_code: CNTRL
       layer: spec
       code_declared: true
       tags:
         - spec
-      evidence_rev: a17e26432dc8
-      rule_revs: {CNTRL-B01: "316986563459", CNTRL-B02: 802b79876f2f, CNTRL-B03: 884e4c321bc7, CNTRL-B04: 8d1e498da8c5, CNTRL-B05: 342a2b0f5cb6, CNTRL-B06: c5b173133779, CNTRL-B07: 455bd10eb2ea, CNTRL-B08: dfea3168b418, CNTRL-E01: d1a2b67829aa, CNTRL-E02: 4449c1568c95, CNTRL-E03: ae2d67e525fc, CNTRL-E04: b89eadab3a8c, CNTRL-E05: f410ddb5ff2d, CNTRL-E06: 75edab71ac20}
-      rest_rev: 13915cc07a53
+      evidence_rev: ce73f29976af
+      rule_revs: {CNTRL-B01: "316986563459", CNTRL-B02: 802b79876f2f, CNTRL-B03: 884e4c321bc7, CNTRL-B04: 8d1e498da8c5, CNTRL-B05: 342a2b0f5cb6, CNTRL-B06: c5b173133779, CNTRL-B07: 455bd10eb2ea, CNTRL-B08: 077939a3a43d, CNTRL-B09: a6cb0b3883b2, CNTRL-E01: d1a2b67829aa, CNTRL-E02: 4449c1568c95, CNTRL-E03: ae2d67e525fc, CNTRL-E04: b89eadab3a8c, CNTRL-E05: f410ddb5ff2d, CNTRL-E06: 75edab71ac20}
+      rest_rev: 8cec3b6312f8
     - id: internal/node/control_test.go
       kind: test
-      rev: e2a0e4175752
-      updated_at: "2026-10-17"
+      rev: 9c504cf15c55
+      updated_at: "2026-10-18"
       code: CNTRL
       file_code: CNTST
       layer: test
       tags:
         - test
-      evidence_rev: 265da6ded054
-      line_rev: 8f654163ae1a
+      evidence_rev: ce6de8387e84
+      line_rev: 8db2312967b8
     - id: internal/node/server.feature
       kind: feature
       rev: f38249b36c38
@@ -1316,6 +1316,52 @@ nodes:
         - test
       evidence_rev: c33abb205b84
       line_rev: c5dad1e732a5
+    - id: internal/progress/progress.feature
+      kind: feature
+      rev: 3209bdf695ec
+      updated_at: "2026-10-18"
+      code: PRGRS
+      file_code: PRFST
+      layer: feature
+      tags:
+        - feature
+      evidence_rev: 1b1505aa1215
+      line_rev: 741cf6ea1b75
+    - id: internal/progress/progress.go
+      kind: code
+      rev: 552c5b2b02f2
+      updated_at: "2026-10-18"
+      code: PRGRS
+      file_code: PRIMQ
+      layer: progress
+      tags:
+        - progress
+      evidence_rev: 245916c96f56
+      line_rev: 8a9f417b5895
+    - id: internal/progress/progress.spec.md
+      kind: spec
+      rev: aa5e7fd8c44c
+      updated_at: "2026-10-18"
+      code: PRGRS
+      file_code: PRGRS
+      layer: spec
+      code_declared: true
+      tags:
+        - spec
+      evidence_rev: ab993d0a115c
+      rule_revs: {PRGRS-B01: b161c60d827d, PRGRS-B02: 973674484a50, PRGRS-B03: a7ef78bbdeaa, PRGRS-B04: 868c50db2fad, PRGRS-B05: 052b730071ef, PRGRS-B06: d6959d37f23f, PRGRS-B07: fbb292073cfa, PRGRS-B08: c8f93228a5e7, PRGRS-E01: 4b84721cd7f6, PRGRS-E02: d9616c6baa21, PRGRS-E03: 683b24d6ce69, PRGRS-E04: b000780d266a, PRGRS-E05: bd8ad5c1ad04, PRGRS-E06: bbe85082ed18}
+      rest_rev: b697f7b00a35
+    - id: internal/progress/progress_test.go
+      kind: test
+      rev: a79b49f35ba6
+      updated_at: "2026-10-18"
+      code: PRGRS
+      file_code: PRTST
+      layer: test
+      tags:
+        - test
+      evidence_rev: fb8030f19073
+      line_rev: 64d12b2855e4
     - id: internal/proto/codec.feature
       kind: feature
       rev: 6be08d1e69b3
@@ -1625,50 +1671,50 @@ nodes:
       line_rev: 82b4778df5ca
     - id: internal/station/station.feature
       kind: feature
-      rev: 0886be9c8fc1
-      updated_at: "2026-10-17"
+      rev: ba38749e3301
+      updated_at: "2026-10-18"
       code: STATN
       file_code: STFST
       layer: feature
       tags:
         - feature
-      evidence_rev: 3946e5393fca
-      line_rev: befda2544a8e
+      evidence_rev: 5f0e38c9479a
+      line_rev: 5d4ef0c9d4f4
     - id: internal/station/station.go
       kind: code
-      rev: 89cea59dfa4a
-      updated_at: "2026-10-17"
+      rev: d4db7d0cfccc
+      updated_at: "2026-10-18"
       code: STATN
       file_code: STIMP
       layer: station
       tags:
         - station
-      evidence_rev: dfbbc7c264e0
-      line_rev: 176e059ee2ea
+      evidence_rev: 8d29e9005e60
+      line_rev: 88a5f1430c90
     - id: internal/station/station.spec.md
       kind: spec
-      rev: e50bbf84b047
-      updated_at: "2026-10-17"
+      rev: 0567534edeb7
+      updated_at: "2026-10-18"
       code: STATN
       file_code: STATN
       layer: spec
       code_declared: true
       tags:
         - spec
-      evidence_rev: d337d3c4db00
-      rule_revs: {STATN-B01: 3feb54060a1f, STATN-B02: f7f33f97f434, STATN-B03: 5c2e9869920b, STATN-B04: d629aabb7957, STATN-B05: 256656c8259e, STATN-D01: 726c38e183a8, STATN-E01: 3a154fb24d61, STATN-E02: 6775eb8dd39b}
-      rest_rev: de0457047832
+      evidence_rev: 025c930059e4
+      rule_revs: {STATN-B01: 3feb54060a1f, STATN-B02: f7f33f97f434, STATN-B03: 5c2e9869920b, STATN-B04: d629aabb7957, STATN-B05: 256656c8259e, STATN-B06: 7d2b0c3b0944, STATN-D01: 726c38e183a8, STATN-E01: 3a154fb24d61, STATN-E02: 6775eb8dd39b}
+      rest_rev: 286f20a1346a
     - id: internal/station/station_test.go
       kind: test
-      rev: 40c19cb4d791
-      updated_at: "2026-10-17"
+      rev: 0074fbaf8898
+      updated_at: "2026-10-18"
       code: STATN
       file_code: STTST
       layer: test
       tags:
         - test
-      evidence_rev: cebba23e7524
-      line_rev: 0f6b70cc4c8a
+      evidence_rev: 31d2c7a6a038
+      line_rev: 333b57d77c17
     - id: internal/web/server.feature
       kind: feature
       rev: fe0b35e9322c
@@ -1915,8 +1961,8 @@ edges:
       origin: convention
       stamp:
         validated_from_rev: baf8d6c455d7
-        validated_to_rev: 869e9dd2eaf9
-        changed_at: "2026-10-17"
+        validated_to_rev: 36299ffd5a1a
+        changed_at: "2026-10-18"
         verdict: ok
     - from: desktop/src/editor.feature
       to: desktop/src/editor_test.rs
@@ -2959,27 +3005,27 @@ edges:
       type: tested-by
       origin: convention
       stamp:
-        validated_from_rev: 4021c62724ef
-        validated_to_rev: e2a0e4175752
-        changed_at: "2026-10-17"
+        validated_from_rev: 1805b240f7b6
+        validated_to_rev: 9c504cf15c55
+        changed_at: "2026-10-18"
         verdict: ok
     - from: internal/node/control.spec.md
       to: internal/node/control.feature
       type: covered-by
       origin: convention
       stamp:
-        validated_from_rev: 6cd445a56c54
-        validated_to_rev: 4021c62724ef
-        changed_at: "2026-10-17"
+        validated_from_rev: 41309977db3f
+        validated_to_rev: 1805b240f7b6
+        changed_at: "2026-10-18"
         verdict: ok
     - from: internal/node/control.spec.md
       to: internal/node/control.go
       type: specifies
       origin: convention
       stamp:
-        validated_from_rev: 6cd445a56c54
-        validated_to_rev: 60b004dc2603
-        changed_at: "2026-10-17"
+        validated_from_rev: 41309977db3f
+        validated_to_rev: b1ebd2be90f5
+        changed_at: "2026-10-18"
         verdict: ok
     - from: internal/node/server.feature
       to: internal/node/server_test.go
@@ -3048,6 +3094,33 @@ edges:
         validated_from_rev: 88ccc6f547d9
         validated_to_rev: c15b26614ca8
         changed_at: "2026-10-17"
+        verdict: ok
+    - from: internal/progress/progress.feature
+      to: internal/progress/progress_test.go
+      type: tested-by
+      origin: convention
+      stamp:
+        validated_from_rev: 3209bdf695ec
+        validated_to_rev: a79b49f35ba6
+        changed_at: "2026-10-18"
+        verdict: ok
+    - from: internal/progress/progress.spec.md
+      to: internal/progress/progress.feature
+      type: covered-by
+      origin: convention
+      stamp:
+        validated_from_rev: aa5e7fd8c44c
+        validated_to_rev: 3209bdf695ec
+        changed_at: "2026-10-18"
+        verdict: ok
+    - from: internal/progress/progress.spec.md
+      to: internal/progress/progress.go
+      type: specifies
+      origin: convention
+      stamp:
+        validated_from_rev: aa5e7fd8c44c
+        validated_to_rev: 552c5b2b02f2
+        changed_at: "2026-10-18"
         verdict: ok
     - from: internal/proto/codec.feature
       to: internal/proto/codec_test.go
@@ -3204,27 +3277,27 @@ edges:
       type: tested-by
       origin: convention
       stamp:
-        validated_from_rev: 0886be9c8fc1
-        validated_to_rev: 40c19cb4d791
-        changed_at: "2026-10-17"
+        validated_from_rev: ba38749e3301
+        validated_to_rev: 0074fbaf8898
+        changed_at: "2026-10-18"
         verdict: ok
     - from: internal/station/station.spec.md
       to: internal/station/station.feature
       type: covered-by
       origin: convention
       stamp:
-        validated_from_rev: e50bbf84b047
-        validated_to_rev: 0886be9c8fc1
-        changed_at: "2026-10-17"
+        validated_from_rev: 0567534edeb7
+        validated_to_rev: ba38749e3301
+        changed_at: "2026-10-18"
         verdict: ok
     - from: internal/station/station.spec.md
       to: internal/station/station.go
       type: specifies
       origin: convention
       stamp:
-        validated_from_rev: e50bbf84b047
-        validated_to_rev: 89cea59dfa4a
-        changed_at: "2026-10-17"
+        validated_from_rev: 0567534edeb7
+        validated_to_rev: d4db7d0cfccc
+        changed_at: "2026-10-18"
         verdict: ok
     - from: internal/web/server.feature
       to: internal/web/server_test.go
@@ -3395,8 +3468,17 @@ edges:
       origin: declared
       stamp:
         validated_from_rev: 6dd8970d673d
-        validated_to_rev: 6cd445a56c54
-        changed_at: "2026-10-17"
+        validated_to_rev: 41309977db3f
+        changed_at: "2026-10-18"
+        verdict: ok
+    - from: plans/agentes.plan.md
+      to: internal/progress/progress.spec.md
+      type: seeds
+      origin: declared
+      stamp:
+        validated_from_rev: 6dd8970d673d
+        validated_to_rev: aa5e7fd8c44c
+        changed_at: "2026-10-18"
         verdict: ok
     - from: plans/desktop.plan.md
       to: cmd/polvo/cli.spec.md
@@ -3515,8 +3597,8 @@ edges:
       origin: declared
       stamp:
         validated_from_rev: ade55fd83795
-        validated_to_rev: 6cd445a56c54
-        changed_at: "2026-10-17"
+        validated_to_rev: 41309977db3f
+        changed_at: "2026-10-18"
         verdict: ok
     - from: plans/espelho.plan.md
       to: internal/node/server.spec.md
@@ -3637,8 +3719,8 @@ edges:
       origin: declared
       stamp:
         validated_from_rev: 03470fc704da
-        validated_to_rev: 6cd445a56c54
-        changed_at: "2026-10-17"
+        validated_to_rev: 41309977db3f
+        changed_at: "2026-10-18"
         verdict: ok
     - from: plans/terminal-remoto.plan.md
       to: internal/node/server.spec.md

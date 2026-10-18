@@ -21,6 +21,7 @@ import (
 	"github.com/co2-lab/polvo/internal/mcp"
 	"github.com/co2-lab/polvo/internal/node"
 	"github.com/co2-lab/polvo/internal/nodeconf"
+	"github.com/co2-lab/polvo/internal/progress"
 	"github.com/co2-lab/polvo/internal/pty"
 	"github.com/co2-lab/polvo/internal/sessions"
 	"github.com/co2-lab/polvo/internal/sshx"
@@ -163,7 +164,11 @@ func serveNode(args []string, std Stdio) error {
 	if sh := os.Getenv("SHELL"); sh != "" {
 		cfg.Shell = []string{sh}
 	}
-	cfg.Control = node.Controller{Sessions: cfg.Sessions, Shell: cfg.Shell}.Serve
+	board, err := progress.NewBoard(filepath.Join(dir, "progress"))
+	if err != nil {
+		return err
+	}
+	cfg.Control = node.Controller{Sessions: cfg.Sessions, Shell: cfg.Shell, Progress: board}.Serve
 	return node.Serve(l, cfg)
 }
 

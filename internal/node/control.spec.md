@@ -1,6 +1,6 @@
 <!-- @anchors
   code: CNTRL
-  updated_at: 2026-10-17
+  updated_at: 2026-10-18
 -->
 # Control — as operações de controlo de um nó: ficheiros e processos
 
@@ -50,10 +50,22 @@ O controlo de um nó com sessões (o `Controller`, com as `Sessions`) atende:
 
 O `ServeControl` é o controlo sem sessões: os pedidos de sessão dão erro de operação.
 
+### CNTRL-B09 — O progresso dos agentes pelo controlo
+O controlo de um nó com o quadro do progresso (o `Controller`, com o `Progress`) atende:
+- `progress.report`: o agente (`agent`) reporta pelo `op`: `start` (o `goal` e os `steps`), `step` (o
+  `step`, o `state` e a `text`), `note` (a `text`) ou `finish` (a `text`);
+- `progress.list`: os trabalhos de todos os agentes, com a versão do quadro;
+- `progress.get`: o trabalho de um agente;
+- `progress.wait`: os trabalhos, quando o quadro mudou desde a versão dada (`since`), ou quando passa o
+  prazo (`timeout_ms`, até `WAIT_MAX`).
+
+Sem quadro, os pedidos do progresso dão erro de operação, e os erros do quadro também.
+
 ### CNTRL-B08 — O que cada permissão pode fazer
 O controlo atende com a permissão da ligação:
-- quem só vê lê e lista ficheiros e sessões;
-- escrever ficheiros, correr processos, e criar e terminar sessões pede controlar;
+- quem só vê lê e lista ficheiros, sessões e o progresso, e espera por ele;
+- reportar o progresso, escrever ficheiros, correr processos, e criar e terminar sessões pede
+  controlar;
 - travar e destravar uma sessão pede ser o dono.
 
 O pedido sem a permissão é recusado com o erro de permissão (`CNTRL-E06`), sem fazer nada.
@@ -65,6 +77,7 @@ O pedido sem a permissão é recusado com o erro de permissão (`CNTRL-E06`), se
 | `path` | um caminho do sistema de ficheiros do nó | um caminho vazio | este módulo: responde com parâmetros inválidos (`CNTRL-E02`) |
 | `argv` | o programa e os argumentos | uma lista vazia | este módulo: responde com parâmetros inválidos (`CNTRL-E02`) |
 | `data` | texto em base64 | texto que não é base64 | este módulo: responde com parâmetros inválidos (`CNTRL-E02`) |
+| `op` | `start`, `step`, `note`, `finish` | outro | este módulo: responde com parâmetros inválidos (`CNTRL-E02`) |
 
 ## Errors / Failures
 | Rule | Condition | Failure |
@@ -82,6 +95,7 @@ O pedido sem a permissão é recusado com o erro de permissão (`CNTRL-E06`), se
 | `MaxFile` | 8 MiB | em base64 cabe numa linha do codec (16 MiB), com folga |
 | `CodeOperation` | -32000 | o primeiro código do intervalo que o JSON-RPC 2.0 deixa às aplicações |
 | `CodeForbidden` | -32001 | o seguinte do intervalo das aplicações: a permissão não chega |
+| `WAIT_MAX` | 30 s | uma espera longa por mudanças passa os proxies e as NAT sem que a ligação pareça morta |
 
 ## Rule uses
 
@@ -97,6 +111,7 @@ O pedido sem a permissão é recusado com o erro de permissão (`CNTRL-E06`), se
 | `CNTRL-E02` | `path`, `argv`, `data` |
 | `CNTRL-B07` | `argv`, `path` |
 | `CNTRL-B08` | `argv`, `path`, `CodeForbidden` |
+| `CNTRL-B09` | `op`, `WAIT_MAX` |
 | `CNTRL-E06` | `CodeForbidden` |
 | `CNTRL-E03` | `path`, `argv`, `CodeOperation` |
 | `CNTRL-E04` | `path`, `MaxFile` |
@@ -113,6 +128,8 @@ O pedido sem a permissão é recusado com o erro de permissão (`CNTRL-E06`), se
 
 > **CNTRL-R0003:** o `session.list` diz a cada ligação se pode escrever em cada sessão, para a janela mostrar
 > as que só se veem (plano ESRMS, W02).
+
+> **CNTRL-R0004:** entra o `CNTRL-B09` (o progresso dos agentes pelo controlo), do plano AGPRG, W01.
 
 ## Open Decisions
 

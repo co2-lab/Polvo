@@ -233,3 +233,27 @@ func TestStation_machines(t *testing.T) {
 		}
 	})
 }
+
+func TestStation_progress(t *testing.T) {
+	t.Run("STATN-B06: O progresso dos agentes desta máquina", func(t *testing.T) {
+		dir := t.TempDir()
+		s := open(t, dir, sh)
+		report := map[string]any{"agent": "claude-1", "op": "start", "goal": "migrar", "steps": []string{"ler"}}
+		if err := nodeOf(t, s, LOCAL).Call("progress.report", report, &struct{}{}); err != nil {
+			t.Fatal(err)
+		}
+		s.Close()
+		again := open(t, dir, sh)
+		var l struct {
+			Agents []struct {
+				Agent string `json:"agent"`
+			} `json:"agents"`
+		}
+		if err := nodeOf(t, again, LOCAL).Call("progress.list", struct{}{}, &l); err != nil {
+			t.Fatal(err)
+		}
+		if len(l.Agents) != 1 || l.Agents[0].Agent != "claude-1" {
+			t.Fatalf("want the agent's job, got %+v", l)
+		}
+	})
+}

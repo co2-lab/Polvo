@@ -6,6 +6,7 @@ package node
 
 import (
 	"bytes"
+	"context"
 	"encoding/base64"
 	"encoding/json"
 	"errors"
@@ -17,6 +18,7 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/co2-lab/polvo/internal/progress"
 	"github.com/co2-lab/polvo/internal/proto"
 	"github.com/co2-lab/polvo/internal/pty"
 	"github.com/co2-lab/polvo/internal/sessions"
@@ -39,6 +41,8 @@ type Controller struct {
 	Sessions *sessions.Manager
 	// Shell is what session.new runs when it names no program; empty is /bin/sh.
 	Shell []string
+	// Progress is the board of the node's agents; nil answers the progress requests with an error.
+	Progress *progress.Board
 }
 
 type opError struct{ error }
@@ -89,7 +93,12 @@ var need = map[string]sessions.Perm{
 	"fs.read": sessions.View, "fs.list": sessions.View, "session.list": sessions.View,
 	"fs.write": sessions.Control, "proc.run": sessions.Control, "session.new": sessions.Control,
 	"session.close": sessions.Control, "session.lock": sessions.Owner,
+	"progress.report": sessions.Control, "progress.list": sessions.View, "progress.get": sessions.View,
+	"progress.wait": sessions.View,
 }
+
+// WAIT_MAX is the longest a progress.wait waits (CNTRL-B09).
+const WAIT_MAX = 30 * time.Second
 
 var errUnknownMethod = errors.New("unknown method")
 
@@ -137,6 +146,8 @@ func (c Controller) dispatch(m *proto.Message, perm sessions.Perm) (any, error) 
 		return procRun(m.Params)
 	case "session.list", "session.new", "session.close", "session.lock":
 		return c.session(m, perm)
+	case "progress.report", "progress.list", "progress.get", "progress.wait":
+		return c.progress(m)
 	}
 	return nil, errUnknownMethod
 }
@@ -345,4 +356,66 @@ func procRun(raw json.RawMessage) (any, error) {
 		"stdout": base64.StdEncoding.EncodeToString(out.Bytes()),
 		"stderr": base64.StdEncoding.EncodeToString(errb.Bytes()),
 	}, nil
+}
+
+type progressParams struct {
+	Agent     string   `json:"agent"`
+	Op        string   `json:"op"`
+	Goal      string   `json:"goal"`
+	Steps     []string `json:"steps"`
+	Step      string   `json:"step"`
+	State     string   `json:"state"`
+	Text      string   `json:"text"`
+	Since     uint64   `json:"since"`
+	TimeoutMS int64    `json:"timeout_ms"`
+}
+
+// progress answers the progress requests (CNTRL-B09).
+func (c Controller) progress(m *proto.Message) (any, error) {
+	if c.Progress == nil {
+		return nil, opError{errors.New("this node keeps no progress")}
+	}
+	var p progressParams
+	if len(m.Params) > 0 {
+		if err := params(m.Params, &p); err != nil {
+			return nil, err
+		}
+	}
+	board := c.Progress
+	switch m.Method {
+	case "progress.list":
+		v, list := board.List()
+		return map[string]any{"version": v, "agents": list}, nil
+	case "progress.get":
+		got, err := board.Get(p.Agent)
+		if err != nil {
+			return nil, opError{err}
+		}
+		return got, nil
+	case "progress.wait":
+		d := time.Duration(p.TimeoutMS) * time.Millisecond
+		if d <= 0 || d > WAIT_MAX {
+			d = WAIT_MAX
+		}
+		v, list := board.Wait(context.Background(), p.Since, d)
+		return map[string]any{"version": v, "agents": list}, nil
+	}
+	var err error
+	switch p.Op {
+	case "start":
+		_, err = board.Start(p.Agent, p.Goal, p.Steps)
+	case "step":
+		err = board.Step(p.Agent, p.Step, progress.State(p.State), p.Text)
+	case "note":
+		err = board.Note(p.Agent, p.Text)
+	case "finish":
+		err = board.Finish(p.Agent, p.Text)
+	default:
+		// CNTRL-E02
+		return nil, paramsError{fmt.Errorf("op %q is not start, step, note nor finish", p.Op)}
+	}
+	if err != nil {
+		return nil, opError{err}
+	}
+	return struct{}{}, nil
 }
