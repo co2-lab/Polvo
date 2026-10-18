@@ -2,7 +2,7 @@
 # Material e versionado. Fonte de verdade do grafo; índices em memória são cache.
 version: 8
 generated_by: 0.1.353
-config_rev: 01123620f81e
+config_rev: 20fd69b39c2d
 nodes:
     - id: AGENTS.md
       kind: doc
@@ -1004,6 +1004,52 @@ nodes:
         - test
       evidence_rev: 9e8d97d0621a
       line_rev: ccaf86f88d1b
+    - id: internal/discovery/discovery.feature
+      kind: feature
+      rev: e439f7b75176
+      updated_at: "2026-10-18"
+      code: DSCVR
+      file_code: DSFST
+      layer: feature
+      tags:
+        - feature
+      evidence_rev: fc35ed228fda
+      line_rev: ade68aae58a3
+    - id: internal/discovery/discovery.go
+      kind: code
+      rev: f23750adb9c0
+      updated_at: "2026-10-18"
+      code: DSCVR
+      file_code: DSIMP
+      layer: discovery
+      tags:
+        - discovery
+      evidence_rev: 44877e3855f1
+      line_rev: 3d672413dbfa
+    - id: internal/discovery/discovery.spec.md
+      kind: spec
+      rev: 7517ad7f1e46
+      updated_at: "2026-10-18"
+      code: DSCVR
+      file_code: DSCVR
+      layer: spec
+      code_declared: true
+      tags:
+        - spec
+      evidence_rev: c9a9eb845848
+      rule_revs: {DSCVR-B01: d0888b16309e, DSCVR-B02: 91f095303a5a, DSCVR-B03: b4095c28d8ae, DSCVR-B04: 87574c31f55d, DSCVR-E01: 619a042c9cc0, DSCVR-E02: a6f624e321af}
+      rest_rev: b68302811946
+    - id: internal/discovery/discovery_test.go
+      kind: test
+      rev: 7a67c2971de1
+      updated_at: "2026-10-18"
+      code: DSCVR
+      file_code: DSTST
+      layer: test
+      tags:
+        - test
+      evidence_rev: 6eee6b97b21b
+      line_rev: 6b7dd5ef0084
     - id: internal/hub/client.feature
       kind: feature
       rev: 9f2778f74102
@@ -3043,7 +3089,7 @@ edges:
       origin: convention
       stamp:
         validated_from_rev: 68ae535d9f37
-        validated_to_rev: 4833c1210691
+        validated_to_rev: 697d3cc51e17
         changed_at: "2026-10-18"
         verdict: ok
     - from: internal/bridge/bridge.spec.md
@@ -3062,6 +3108,33 @@ edges:
       stamp:
         validated_from_rev: c2618b362725
         validated_to_rev: 46bfc1014abe
+        changed_at: "2026-10-18"
+        verdict: ok
+    - from: internal/discovery/discovery.feature
+      to: internal/discovery/discovery_test.go
+      type: tested-by
+      origin: convention
+      stamp:
+        validated_from_rev: e439f7b75176
+        validated_to_rev: 2ca5787a37a6
+        changed_at: "2026-10-18"
+        verdict: ok
+    - from: internal/discovery/discovery.spec.md
+      to: internal/discovery/discovery.feature
+      type: covered-by
+      origin: convention
+      stamp:
+        validated_from_rev: 7517ad7f1e46
+        validated_to_rev: e439f7b75176
+        changed_at: "2026-10-18"
+        verdict: ok
+    - from: internal/discovery/discovery.spec.md
+      to: internal/discovery/discovery.go
+      type: specifies
+      origin: convention
+      stamp:
+        validated_from_rev: 7517ad7f1e46
+        validated_to_rev: f23750adb9c0
         changed_at: "2026-10-18"
         verdict: ok
     - from: internal/hub/client.feature
@@ -3631,7 +3704,7 @@ edges:
       type: seeds
       origin: declared
       stamp:
-        validated_from_rev: 7df534e19535
+        validated_from_rev: 2b041953bf16
         validated_to_rev: f39d7bf8cec3
         changed_at: "2026-10-18"
         verdict: ok
@@ -3640,7 +3713,7 @@ edges:
       type: seeds
       origin: declared
       stamp:
-        validated_from_rev: 7df534e19535
+        validated_from_rev: 2b041953bf16
         validated_to_rev: 50d9cab21ff5
         changed_at: "2026-10-18"
         verdict: ok
@@ -3649,7 +3722,7 @@ edges:
       type: seeds
       origin: declared
       stamp:
-        validated_from_rev: 7df534e19535
+        validated_from_rev: 2b041953bf16
         validated_to_rev: fd05e8718c4a
         changed_at: "2026-10-18"
         verdict: ok
@@ -3658,7 +3731,7 @@ edges:
       type: seeds
       origin: declared
       stamp:
-        validated_from_rev: 7df534e19535
+        validated_from_rev: 2b041953bf16
         validated_to_rev: ed3e52fafeb6
         changed_at: "2026-10-18"
         verdict: ok
@@ -3667,7 +3740,7 @@ edges:
       type: seeds
       origin: declared
       stamp:
-        validated_from_rev: 7df534e19535
+        validated_from_rev: 2b041953bf16
         validated_to_rev: 4e727eec381f
         changed_at: "2026-10-18"
         verdict: ok
@@ -3763,6 +3836,15 @@ edges:
         validated_from_rev: ade55fd83795
         validated_to_rev: 4cb0732a1b6f
         changed_at: "2026-10-17"
+        verdict: ok
+    - from: plans/espelho.plan.md
+      to: internal/discovery/discovery.spec.md
+      type: seeds
+      origin: declared
+      stamp:
+        validated_from_rev: ade55fd83795
+        validated_to_rev: 7517ad7f1e46
+        changed_at: "2026-10-18"
         verdict: ok
     - from: plans/espelho.plan.md
       to: internal/hub/client.spec.md

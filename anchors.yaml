@@ -53,6 +53,12 @@ layers:
         kind: code
         tags: [agents]
         exclude: ['**/*_test.go']
+    # Os nos da rede local, por mDNS (plano ESRMS, W03).
+    discovery:
+        pattern: 'internal/discovery/*.go'
+        kind: code
+        tags: [discovery]
+        exclude: ['**/*_test.go']
     # O progresso dos agentes de uma maquina (plano AGPRG).
     progress:
         pattern: 'internal/progress/*.go'
