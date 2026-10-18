@@ -2002,6 +2002,18 @@ nodes:
         - plan
       evidence_rev: 2acd4df9b392
       line_rev: 18e685417e96
+    - id: plans/browser.plan.md
+      kind: plan
+      rev: 33b8aebb8baa
+      updated_at: "2026-10-18"
+      code: BRWSR
+      file_code: BRWSR
+      layer: plan
+      code_declared: true
+      tags:
+        - plan
+      evidence_rev: 038ef6a5b17e
+      line_rev: 4a53ec68b324
     - id: plans/desktop.plan.md
       kind: plan
       rev: 8ceec0ebc810
@@ -2050,6 +2062,18 @@ nodes:
         - plan
       evidence_rev: 3366b0aabab5
       line_rev: 114fbcb6728b
+    - id: plans/mobile.plan.md
+      kind: plan
+      rev: c65dda25ccbd
+      updated_at: "2026-10-18"
+      code: MOBIL
+      file_code: MOBIL
+      layer: plan
+      code_declared: true
+      tags:
+        - plan
+      evidence_rev: 6773bcb965f8
+      line_rev: 5001eb6d0b4b
     - id: plans/terminal-remoto.plan.md
       kind: plan
       rev: 03470fc704da
