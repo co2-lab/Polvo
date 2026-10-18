@@ -115,3 +115,15 @@ Feature: Station
     Given uma instalação num executável sem o transporte
     When junta uma máquina pelo endereço dela
     Then é o erro que diz que esta instalação não tem o transporte, e a máquina não se junta
+
+  @STATN-B16 @unit-level
+  Scenario: O endereço novo chega a quem conhece esta máquina
+    Given a segunda instalação ligou-se à primeira pela chave, e o histórico da segunda perdeu os endereços da primeira
+    When a primeira manda o endereço dela às que conhece
+    Then a primeira já tinha a segunda no histórico, e a segunda volta a ter os endereços da primeira
+
+  @STATN-E04 @unit-level
+  Scenario: Um endereço de quem esta instalação não conhece
+    Given uma instalação que outra nunca viu
+    When ela lhe manda o seu endereço
+    Then a outra não o guarda

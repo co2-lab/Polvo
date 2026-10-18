@@ -51,6 +51,9 @@ type Controller struct {
 	// P2P gives where the node's installation is reached between networks now (CNTRL-B12); nil answers
 	// with an error.
 	P2P func() string
+	// P2PSeen keeps where the installation of a connection is reached, for the node's own new address to
+	// reach it (CNTRL-B12); nil ignores it.
+	P2PSeen func(addr string)
 }
 
 type opError struct{ error }
@@ -102,7 +105,7 @@ var need = map[string]sessions.Perm{
 	"fs.write": sessions.Control, "proc.run": sessions.Control, "session.new": sessions.Control,
 	"session.close": sessions.Control, "session.lock": sessions.Owner,
 	"session.screen": sessions.View, "session.type": sessions.Control,
-	"p2p.addr": sessions.View,
+	"p2p.addr": sessions.View, "p2p.seen": sessions.View,
 	"progress.report": sessions.Control, "progress.list": sessions.View, "progress.get": sessions.View,
 	"progress.wait": sessions.View, "progress.ask": sessions.Control,
 }
@@ -164,6 +167,18 @@ func (c Controller) dispatch(m *proto.Message, perm sessions.Perm) (any, error) 
 			return nil, opError{errors.New("this node is not reached between networks")}
 		}
 		return map[string]string{"addr": c.P2P()}, nil
+	case "p2p.seen":
+		// CNTRL-B12
+		var p struct {
+			Addr string `json:"addr"`
+		}
+		if err := params(m.Params, &p); err != nil {
+			return nil, err
+		}
+		if c.P2PSeen != nil && p.Addr != "" {
+			c.P2PSeen(p.Addr)
+		}
+		return struct{}{}, nil
 	}
 	return nil, errUnknownMethod
 }

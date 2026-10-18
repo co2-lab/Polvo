@@ -99,6 +99,33 @@ func TestTransport_peer(t *testing.T) {
 			t.Fatalf("got %q, %q (want %q), %q (want %q), %v", back, theirs, a.ID(), c.Remote(), b.ID(), closed)
 		}
 	})
+	t.Run("TRNSP-B05: Para que é uma ligação", func(t *testing.T) {
+		a, _ := peer(t)
+		b, _ := peer(t)
+		kinds := make(chan byte, 2)
+		go func() {
+			for i := 0; i < 2; i++ {
+				c, err := b.Listener().Accept()
+				if err != nil {
+					return
+				}
+				kinds <- c.(*transport.Conn).Kind()
+			}
+		}()
+		s1, err := a.Dial(b.Addr())
+		if err != nil {
+			t.Fatal(err)
+		}
+		defer s1.Close()
+		s2, err := a.DialFor(b.Addr(), transport.KIND_ADDR)
+		if err != nil {
+			t.Fatal(err)
+		}
+		defer s2.Close()
+		if got := string([]byte{<-kinds, <-kinds}); got != "PA" {
+			t.Fatalf("want PA, got %q", got)
+		}
+	})
 	t.Run("TRNSP-E01: Um endereço que não é", func(t *testing.T) {
 		a, _ := peer(t)
 		if _, err := a.Dial("isto não é um endereço"); err == nil {

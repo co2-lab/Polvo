@@ -532,8 +532,11 @@ func TestControl_p2p(t *testing.T) {
 		var got struct{ Addr string }
 		result(t, with.call(t, 1, "p2p.addr", struct{}{}), &got)
 		wantError(t, controlWith(t, Controller{}.Serve, sessions.View).call(t, 1, "p2p.addr", struct{}{}), CodeOperation, "networks")
-		if got.Addr != "ADDR" {
-			t.Fatalf("want ADDR, got %+v", got)
+		var seen string
+		c := Controller{P2PSeen: func(a string) { seen = a }}
+		result(t, controlWith(t, c.Serve, sessions.View).call(t, 1, "p2p.seen", map[string]string{"addr": "OUTRO"}), &struct{}{})
+		if got.Addr != "ADDR" || seen != "OUTRO" {
+			t.Fatalf("want ADDR and OUTRO seen, got %+v and %q", got, seen)
 		}
 	})
 }

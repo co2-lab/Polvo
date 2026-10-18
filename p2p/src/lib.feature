@@ -46,3 +46,9 @@ Feature: O transporte entre redes
     Given uma porta UDP livre
     When se abre um endpoint nela, e outro na mesma
     Then o primeiro escuta nela, e o segundo noutra
+
+  @PTRNS-B06 @unit-level
+  Scenario: Para que é uma ligação
+    Given duas instalações
+    When uma abre uma ligação para o SSH e outra para um endereço
+    Then a outra recebe-as com SSH e com ADDR

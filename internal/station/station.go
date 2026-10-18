@@ -11,6 +11,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io"
 	"net"
 	"os"
 	"path/filepath"
@@ -79,9 +80,11 @@ type Station struct {
 	accepting bool
 
 	// p2p is the transport between networks; nil without it (STATN-B14)
-	p2p       transport.Peer
-	p2pErr    error
-	histMu    sync.Mutex
+	p2p    transport.Peer
+	p2pErr error
+	histMu sync.Mutex
+	// watching ends with the station: the watch of this installation's own addresses (STATN-B16)
+	watching  chan struct{}
 	announcer *discovery.Announcer
 	discovery *discovery.Options
 	name      string
@@ -162,7 +165,8 @@ func Open(dir string, opt Options) (*Station, error) {
 		Owner:      id.PublicKey(),
 		Pairer:     pairer,
 	}
-	cfg.Control = node.Controller{Sessions: m, Shell: opt.Shell, Progress: board, P2P: s.P2PAddr}.Serve
+	cfg.Control = node.Controller{Sessions: m, Shell: opt.Shell, Progress: board, P2P: s.P2PAddr,
+		P2PSeen: func(addr string) { s.remember(addr) }}.Serve
 	if b, err := os.ReadFile(s.file()); err == nil {
 		var sv saved
 		if json.Unmarshal(b, &sv) == nil {
@@ -451,6 +455,7 @@ func (s *Station) Close() error {
 	s.mu.Unlock()
 	s.listen("")
 	if s.p2p != nil {
+		close(s.watching)
 		s.p2p.Close()
 	}
 	s.own.Close()
@@ -627,7 +632,9 @@ func (s *Station) openP2P(hostPath string, opt Options, cfg node.Config) error {
 		return nil
 	}
 	s.p2p = p
+	s.watching = make(chan struct{})
 	go s.acceptP2P(cfg)
+	go s.watchAddr()
 	return nil
 }
 
@@ -639,6 +646,11 @@ func (s *Station) acceptP2P(cfg node.Config) {
 		c, err := l.Accept()
 		if err != nil {
 			return
+		}
+		if pc, ok := c.(*transport.Conn); ok && pc.Kind() == transport.KIND_ADDR {
+			// STATN-B16: an address, whether the others are accepted or not
+			go s.receiveAddr(pc)
+			continue
 		}
 		s.listenMu.Lock()
 		on := s.accepting
@@ -789,6 +801,8 @@ func (s *Station) dialP2P(name string) (*hub.Node, error) {
 	if n.Call("p2p.addr", struct{}{}, &now) == nil {
 		s.remember(now.Addr)
 	}
+	// STATN-B16: the node learns where this installation is, for its new address to reach it
+	n.Call("p2p.seen", map[string]string{"addr": s.P2PAddr()}, &struct{}{})
 	return n, nil
 }
 
@@ -805,3 +819,93 @@ func (s *Station) AddP2P(addr string) (string, error) {
 
 // isP2P says whether a machine's name is its key.
 func isP2P(name string) bool { return strings.HasPrefix(name, P2P_PREFIX) }
+
+// ADDR_EVERY is how often an installation looks at its own addresses, to tell the others when they
+// change (STATN-B16).
+const ADDR_EVERY = 10 * time.Second
+
+// MAX_ADDR is the most an address may weigh, as JSON (STATN-B16).
+const MAX_ADDR = 64 << 10
+
+// direct is the direct addresses of an address, in order: what changes when the machine changes network.
+func direct(addr string) string {
+	var e endpoint
+	if json.Unmarshal([]byte(addr), &e) != nil {
+		return ""
+	}
+	var ips []string
+	for _, raw := range e.Addrs {
+		var p path
+		if json.Unmarshal(raw, &p) == nil && p.IP != "" {
+			ips = append(ips, p.IP)
+		}
+	}
+	sort.Strings(ips)
+	return strings.Join(ips, " ")
+}
+
+// watchAddr tells the others this installation's new address when its own direct addresses change
+// (STATN-B16): one whose address changed still knows theirs.
+func (s *Station) watchAddr() {
+	last := direct(s.P2PAddr())
+	t := time.NewTicker(ADDR_EVERY)
+	defer t.Stop()
+	for {
+		select {
+		case <-s.watching:
+			return
+		case <-t.C:
+		}
+		if now := direct(s.P2PAddr()); now != last {
+			last = now
+			s.tellAddr()
+		}
+	}
+}
+
+// tellAddr sends this installation's address to every installation in the history (STATN-B16).
+func (s *Station) tellAddr() {
+	s.histMu.Lock()
+	ids := make([]string, 0)
+	for id := range s.readHistory() {
+		ids = append(ids, id)
+	}
+	s.histMu.Unlock()
+	mine := s.P2PAddr()
+	for _, id := range ids {
+		go func() {
+			c, err := s.p2p.DialFor(s.addrOf(id), transport.KIND_ADDR)
+			if err != nil {
+				// it is not reachable now: it will have the address on its next connection to this one
+				return
+			}
+			defer c.Close()
+			c.Write([]byte(mine))
+			c.CloseWrite()
+			io.Copy(io.Discard, c)
+		}()
+	}
+}
+
+// receiveAddr keeps the new address another installation sent, when it is one this installation knows
+// and the address is its own (STATN-B16).
+func (s *Station) receiveAddr(c *transport.Conn) {
+	defer c.Close()
+	b, err := io.ReadAll(io.LimitReader(c, MAX_ADDR))
+	if err != nil {
+		return
+	}
+	var e endpoint
+	if json.Unmarshal(b, &e) != nil || e.ID != c.Remote() {
+		// STATN-E04: an address that is not the sender's
+		return
+	}
+	s.histMu.Lock()
+	_, known := s.readHistory()[e.ID]
+	s.histMu.Unlock()
+	if !known {
+		// STATN-E04: from an installation this one does not know
+		return
+	}
+	s.remember(string(b))
+}

@@ -168,5 +168,5 @@ Feature: Control
   @CNTRL-B12 @unit-level
   Scenario: Onde a instalação do nó se alcança entre redes
     Given um nó cuja instalação se alcança em "ADDR", e outro sem o transporte
-    When se pede "p2p.addr" a cada um
-    Then o primeiro dá "ADDR", e o segundo o erro de operação
+    When se pede "p2p.addr" a cada um, e se dá "OUTRO" ao "p2p.seen"
+    Then o primeiro dá "ADDR", o segundo o erro de operação, e o nó guarda "OUTRO"

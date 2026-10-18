@@ -1314,29 +1314,29 @@ nodes:
       line_rev: 958fe64219f5
     - id: internal/node/control.feature
       kind: feature
-      rev: b1be4c45027f
+      rev: d69c3668784c
       updated_at: "2026-10-18"
       code: CNTRL
       file_code: CNFTR
       layer: feature
       tags:
         - feature
-      evidence_rev: 71dc42b60e34
-      line_rev: 2a4de08bcf66
+      evidence_rev: f12109c427ac
+      line_rev: f6254b25551f
     - id: internal/node/control.go
       kind: code
-      rev: e4ef390848d7
+      rev: 06f78c497cd8
       updated_at: "2026-10-18"
       code: CNTRL
       file_code: CNIMP
       layer: node
       tags:
         - node
-      evidence_rev: a6c705bfdd0b
-      line_rev: fe8b98ff0d1e
+      evidence_rev: 4d7470687d4f
+      line_rev: 29bb4ea699d8
     - id: internal/node/control.spec.md
       kind: spec
-      rev: 7f3f4099df73
+      rev: 918675dac327
       updated_at: "2026-10-18"
       code: CNTRL
       file_code: CNTRL
@@ -1344,20 +1344,20 @@ nodes:
       code_declared: true
       tags:
         - spec
-      evidence_rev: 1c31f1734212
-      rule_revs: {CNTRL-B01: "316986563459", CNTRL-B02: 802b79876f2f, CNTRL-B03: 884e4c321bc7, CNTRL-B04: 8d1e498da8c5, CNTRL-B05: 342a2b0f5cb6, CNTRL-B06: c5b173133779, CNTRL-B07: 911e736d2a58, CNTRL-B08: 2934e1f90332, CNTRL-B09: c0253beb5d24, CNTRL-B10: 42889f3a7d01, CNTRL-B11: 9d07f97eff86, CNTRL-B12: ab427e832a03, CNTRL-E01: d1a2b67829aa, CNTRL-E02: 4449c1568c95, CNTRL-E03: ae2d67e525fc, CNTRL-E04: b89eadab3a8c, CNTRL-E05: f410ddb5ff2d, CNTRL-E06: 75edab71ac20}
+      evidence_rev: ff351e42579e
+      rule_revs: {CNTRL-B01: "316986563459", CNTRL-B02: 802b79876f2f, CNTRL-B03: 884e4c321bc7, CNTRL-B04: 8d1e498da8c5, CNTRL-B05: 342a2b0f5cb6, CNTRL-B06: c5b173133779, CNTRL-B07: 911e736d2a58, CNTRL-B08: 2934e1f90332, CNTRL-B09: c0253beb5d24, CNTRL-B10: 42889f3a7d01, CNTRL-B11: 9d07f97eff86, CNTRL-B12: 2189ea3a006e, CNTRL-E01: d1a2b67829aa, CNTRL-E02: 4449c1568c95, CNTRL-E03: ae2d67e525fc, CNTRL-E04: b89eadab3a8c, CNTRL-E05: f410ddb5ff2d, CNTRL-E06: 75edab71ac20}
       rest_rev: d4aa0226046c
     - id: internal/node/control_test.go
       kind: test
-      rev: ffb163e6a333
+      rev: b655af59d15c
       updated_at: "2026-10-18"
       code: CNTRL
       file_code: CNTST
       layer: test
       tags:
         - test
-      evidence_rev: 4fed7652d13f
-      line_rev: e97da466e03b
+      evidence_rev: baad8cfa3993
+      line_rev: 1ef6681c6734
     - id: internal/node/forward.go
       kind: code
       rev: 75786b0c8243
@@ -1876,29 +1876,29 @@ nodes:
       line_rev: 82b4778df5ca
     - id: internal/station/station.feature
       kind: feature
-      rev: "577929711438"
+      rev: 254b999838d0
       updated_at: "2026-10-18"
       code: STATN
       file_code: STFST
       layer: feature
       tags:
         - feature
-      evidence_rev: 10f3e782af29
-      line_rev: 0989c6040d32
+      evidence_rev: 50d536debabd
+      line_rev: b0e50524c5ee
     - id: internal/station/station.go
       kind: code
-      rev: 957cf870588b
+      rev: 9801b918b06e
       updated_at: "2026-10-18"
       code: STATN
       file_code: STIMP
       layer: station
       tags:
         - station
-      evidence_rev: e9bb48f188da
-      line_rev: 81a0c4966bb1
+      evidence_rev: 0f27a4f594bb
+      line_rev: 2799c280e46e
     - id: internal/station/station.spec.md
       kind: spec
-      rev: 633a81ecd985
+      rev: 237137029a5f
       updated_at: "2026-10-18"
       code: STATN
       file_code: STATN
@@ -1906,31 +1906,31 @@ nodes:
       code_declared: true
       tags:
         - spec
-      evidence_rev: 84582f807bcf
-      rule_revs: {STATN-B01: 3feb54060a1f, STATN-B02: ab6cb230641f, STATN-B03: 5c2e9869920b, STATN-B04: d629aabb7957, STATN-B05: 256656c8259e, STATN-B06: 7d2b0c3b0944, STATN-B07: 8cddd36aaf2d, STATN-B08: 95483604a4c8, STATN-B09: ca4af386886d, STATN-B10: c25b62f91b0f, STATN-B11: 92827112d154, STATN-B12: c4f1d36f4d23, STATN-B13: b72fa2f39c63, STATN-B14: f294dfe4749a, STATN-B15: 2996f45f7d16, STATN-E01: 3a154fb24d61, STATN-E02: 6775eb8dd39b, STATN-E03: cb2a55d7ea4d}
-      rest_rev: 3d4a5f6ae754
+      evidence_rev: 07da28203393
+      rule_revs: {STATN-B01: 3feb54060a1f, STATN-B02: ab6cb230641f, STATN-B03: 5c2e9869920b, STATN-B04: d629aabb7957, STATN-B05: 256656c8259e, STATN-B06: 7d2b0c3b0944, STATN-B07: 8cddd36aaf2d, STATN-B08: 95483604a4c8, STATN-B09: ca4af386886d, STATN-B10: c25b62f91b0f, STATN-B11: 92827112d154, STATN-B12: c4f1d36f4d23, STATN-B13: b72fa2f39c63, STATN-B14: f294dfe4749a, STATN-B15: 2996f45f7d16, STATN-B16: 1eb59b79d0e6, STATN-E01: 3a154fb24d61, STATN-E02: 6775eb8dd39b, STATN-E03: cb2a55d7ea4d, STATN-E04: a3682412f670}
+      rest_rev: 43aa2a735250
     - id: internal/station/station_test.go
       kind: test
-      rev: 8f9574a1dc21
+      rev: 8ef2710f531d
       updated_at: "2026-10-18"
       code: STATN
       file_code: STTST
       layer: test
       tags:
         - test
-      evidence_rev: 6802c70caf3f
-      line_rev: 2aeec63a7e44
+      evidence_rev: 566b9f009ba2
+      line_rev: 85a8ecf2534c
     - id: internal/transport/p2p_cgo.go
       kind: code
-      rev: 77094c05fa19
+      rev: 886b6fc08945
       updated_at: "2026-10-18"
       code: TRNSP
       file_code: TRCGO
       layer: transport
       tags:
         - transport
-      evidence_rev: 357f71b9910f
-      line_rev: 6f69c1702261
+      evidence_rev: cde1d5de2bba
+      line_rev: 6dd2a160fa3d
     - id: internal/transport/p2p_none.go
       kind: code
       rev: f42c85e5da81
@@ -1944,29 +1944,29 @@ nodes:
       line_rev: 61dc66e66eb0
     - id: internal/transport/transport.feature
       kind: feature
-      rev: c2d845582d62
+      rev: fae7185b87f7
       updated_at: "2026-10-18"
       code: TRNSP
       file_code: TRFTR
       layer: feature
       tags:
         - feature
-      evidence_rev: 1883e98412a4
-      line_rev: ffb4fbfa014b
+      evidence_rev: 71e6bdf45bfd
+      line_rev: 251a7c4a28e2
     - id: internal/transport/transport.go
       kind: code
-      rev: d2526dcf49cd
+      rev: 1ec1090d4b35
       updated_at: "2026-10-18"
       code: TRNSP
       file_code: TRIMP
       layer: transport
       tags:
         - transport
-      evidence_rev: b5503574cbed
-      line_rev: 1870c9d2c007
+      evidence_rev: c6556fe8b560
+      line_rev: 294fd31506de
     - id: internal/transport/transport.spec.md
       kind: spec
-      rev: 4d55ecea366d
+      rev: ec41131d0451
       updated_at: "2026-10-18"
       code: TRNSP
       file_code: TRNSP
@@ -1974,20 +1974,20 @@ nodes:
       code_declared: true
       tags:
         - spec
-      evidence_rev: 4767ee245f14
-      rule_revs: {TRNSP-B01: 8d6042b7f5a6, TRNSP-B02: 8ee89d08aa16, TRNSP-B03: a5911e51e9f7, TRNSP-B04: 76739dbc7399, TRNSP-E01: 1ac333ff802d, TRNSP-E02: a3f3ba57f5fc, TRNSP-E03: 2322b371c2d2}
-      rest_rev: 946ad279581a
+      evidence_rev: 1b8746be0050
+      rule_revs: {TRNSP-B01: 8d6042b7f5a6, TRNSP-B02: 8ee89d08aa16, TRNSP-B03: a5911e51e9f7, TRNSP-B04: 76739dbc7399, TRNSP-B05: 5d99258a95b9, TRNSP-E01: 1ac333ff802d, TRNSP-E02: a3f3ba57f5fc, TRNSP-E03: 2322b371c2d2}
+      rest_rev: 49bbc85fed61
     - id: internal/transport/transport_test.go
       kind: test
-      rev: 6aad9e8b0562
+      rev: d18bc7f3a0c7
       updated_at: "2026-10-18"
       code: TRNSP
       file_code: TRTST
       layer: test
       tags:
         - test
-      evidence_rev: 8408aa7831bf
-      line_rev: 7220bfceb3d7
+      evidence_rev: 18bdd1a93c9f
+      line_rev: 0b22fa673c67
     - id: internal/web/server.feature
       kind: feature
       rev: fe0b35e9322c
@@ -2036,40 +2036,40 @@ nodes:
       line_rev: 5ecc238e0e55
     - id: p2p/src/ffi.rs
       kind: code
-      rev: 8263000d447e
+      rev: 43d3bb7f5677
       updated_at: "2026-10-18"
       code: PTRNS
       file_code: P2FFI
       layer: p2p
       tags:
         - p2p
-      evidence_rev: 1f83659650f5
-      line_rev: 6f740fa5fc1b
+      evidence_rev: 395c65bfa46c
+      line_rev: 181022366cf9
     - id: p2p/src/lib.feature
       kind: feature
-      rev: b92d0cb5549b
+      rev: bccc285fcd65
       updated_at: "2026-10-18"
       code: PTRNS
       file_code: P2FTR
       layer: feature
       tags:
         - feature
-      evidence_rev: 7067c391d5b4
-      line_rev: 3c651ec906cc
+      evidence_rev: 304297989b69
+      line_rev: d6e02c663b01
     - id: p2p/src/lib.rs
       kind: code
-      rev: d5dd1a0c64fa
+      rev: 9e069d24658f
       updated_at: "2026-10-18"
       code: PTRNS
       file_code: P2IMP
       layer: p2p
       tags:
         - p2p
-      evidence_rev: 95f508a770b6
-      line_rev: 98e5c9f2200e
+      evidence_rev: 96dff79271f1
+      line_rev: 144e390a1111
     - id: p2p/src/lib.spec.md
       kind: spec
-      rev: 6d732b40e55e
+      rev: 38bdfbf66ec9
       updated_at: "2026-10-18"
       code: PTRNS
       file_code: PTRNS
@@ -2077,12 +2077,12 @@ nodes:
       code_declared: true
       tags:
         - spec
-      evidence_rev: 52df517c7ff3
-      rule_revs: {PTRNS-B01: 7fac9dd950ea, PTRNS-B02: 3439d4b62122, PTRNS-B03: 48135657b7d5, PTRNS-B04: 86476c2e5a37, PTRNS-B05: 976918da223f, PTRNS-E01: 670c7e0058a4, PTRNS-E02: 3e219b3a1e49}
-      rest_rev: 00733dfb1ba3
+      evidence_rev: f2f0bf5e74ae
+      rule_revs: {PTRNS-B01: 7fac9dd950ea, PTRNS-B02: 3439d4b62122, PTRNS-B03: 48135657b7d5, PTRNS-B04: 853a367742c4, PTRNS-B05: 976918da223f, PTRNS-B06: ea9fb63a7d71, PTRNS-E01: 670c7e0058a4, PTRNS-E02: 3e219b3a1e49}
+      rest_rev: 851dcb195c0e
     - id: p2p/src/lib_test.rs
       kind: test
-      rev: 54645f889c95
+      rev: db851a614134
       updated_at: "2026-10-18"
       code: PTRNS
       file_code: P2TST
@@ -2090,8 +2090,8 @@ nodes:
       tags:
         - test
         - p2p
-      evidence_rev: da98e7ee1a91
-      line_rev: bbd6558d0ab1
+      evidence_rev: f6e6be3cb2b3
+      line_rev: c5f30e409912
     - id: plans/abas.plan.md
       kind: plan
       rev: 669c28de36d4
@@ -3561,8 +3561,8 @@ edges:
       type: tested-by
       origin: convention
       stamp:
-        validated_from_rev: b1be4c45027f
-        validated_to_rev: ffb163e6a333
+        validated_from_rev: d69c3668784c
+        validated_to_rev: b655af59d15c
         changed_at: "2026-10-18"
         verdict: ok
     - from: internal/node/control.spec.md
@@ -3570,8 +3570,8 @@ edges:
       type: covered-by
       origin: convention
       stamp:
-        validated_from_rev: 7f3f4099df73
-        validated_to_rev: b1be4c45027f
+        validated_from_rev: 918675dac327
+        validated_to_rev: d69c3668784c
         changed_at: "2026-10-18"
         verdict: ok
     - from: internal/node/control.spec.md
@@ -3579,8 +3579,8 @@ edges:
       type: specifies
       origin: convention
       stamp:
-        validated_from_rev: 7f3f4099df73
-        validated_to_rev: e4ef390848d7
+        validated_from_rev: 918675dac327
+        validated_to_rev: 06f78c497cd8
         changed_at: "2026-10-18"
         verdict: ok
     - from: internal/node/server.feature
@@ -3860,8 +3860,8 @@ edges:
       type: tested-by
       origin: convention
       stamp:
-        validated_from_rev: "577929711438"
-        validated_to_rev: 8f9574a1dc21
+        validated_from_rev: 254b999838d0
+        validated_to_rev: 8ef2710f531d
         changed_at: "2026-10-18"
         verdict: ok
     - from: internal/station/station.spec.md
@@ -3869,8 +3869,8 @@ edges:
       type: covered-by
       origin: convention
       stamp:
-        validated_from_rev: 633a81ecd985
-        validated_to_rev: "577929711438"
+        validated_from_rev: 237137029a5f
+        validated_to_rev: 254b999838d0
         changed_at: "2026-10-18"
         verdict: ok
     - from: internal/station/station.spec.md
@@ -3878,8 +3878,8 @@ edges:
       type: specifies
       origin: convention
       stamp:
-        validated_from_rev: 633a81ecd985
-        validated_to_rev: 957cf870588b
+        validated_from_rev: 237137029a5f
+        validated_to_rev: 9801b918b06e
         changed_at: "2026-10-18"
         verdict: ok
     - from: internal/transport/transport.feature
@@ -3887,8 +3887,8 @@ edges:
       type: tested-by
       origin: convention
       stamp:
-        validated_from_rev: c2d845582d62
-        validated_to_rev: 6aad9e8b0562
+        validated_from_rev: fae7185b87f7
+        validated_to_rev: d18bc7f3a0c7
         changed_at: "2026-10-18"
         verdict: ok
     - from: internal/transport/transport.spec.md
@@ -3896,8 +3896,8 @@ edges:
       type: covered-by
       origin: convention
       stamp:
-        validated_from_rev: 4d55ecea366d
-        validated_to_rev: c2d845582d62
+        validated_from_rev: ec41131d0451
+        validated_to_rev: fae7185b87f7
         changed_at: "2026-10-18"
         verdict: ok
     - from: internal/transport/transport.spec.md
@@ -3905,8 +3905,8 @@ edges:
       type: specifies
       origin: convention
       stamp:
-        validated_from_rev: 4d55ecea366d
-        validated_to_rev: d2526dcf49cd
+        validated_from_rev: ec41131d0451
+        validated_to_rev: 1ec1090d4b35
         changed_at: "2026-10-18"
         verdict: ok
     - from: internal/web/server.feature
@@ -3955,8 +3955,8 @@ edges:
       type: tested-by
       origin: convention
       stamp:
-        validated_from_rev: b92d0cb5549b
-        validated_to_rev: 54645f889c95
+        validated_from_rev: bccc285fcd65
+        validated_to_rev: db851a614134
         changed_at: "2026-10-18"
         verdict: ok
     - from: p2p/src/lib.rs
@@ -3964,8 +3964,8 @@ edges:
       type: depends-on
       origin: declared
       stamp:
-        validated_from_rev: d5dd1a0c64fa
-        validated_to_rev: 8263000d447e
+        validated_from_rev: 9e069d24658f
+        validated_to_rev: 43d3bb7f5677
         changed_at: "2026-10-18"
         verdict: ok
     - from: p2p/src/lib.spec.md
@@ -3973,8 +3973,8 @@ edges:
       type: covered-by
       origin: convention
       stamp:
-        validated_from_rev: 6d732b40e55e
-        validated_to_rev: b92d0cb5549b
+        validated_from_rev: 38bdfbf66ec9
+        validated_to_rev: bccc285fcd65
         changed_at: "2026-10-18"
         verdict: ok
     - from: p2p/src/lib.spec.md
@@ -3982,8 +3982,8 @@ edges:
       type: specifies
       origin: convention
       stamp:
-        validated_from_rev: 6d732b40e55e
-        validated_to_rev: d5dd1a0c64fa
+        validated_from_rev: 38bdfbf66ec9
+        validated_to_rev: 9e069d24658f
         changed_at: "2026-10-18"
         verdict: ok
     - from: plans/abas.plan.md
@@ -4132,7 +4132,7 @@ edges:
       origin: declared
       stamp:
         validated_from_rev: 2906b6a46d1a
-        validated_to_rev: 7f3f4099df73
+        validated_to_rev: 918675dac327
         changed_at: "2026-10-18"
         verdict: ok
     - from: plans/agentes.plan.md
@@ -4279,7 +4279,7 @@ edges:
       origin: declared
       stamp:
         validated_from_rev: 3d828a062a24
-        validated_to_rev: 7f3f4099df73
+        validated_to_rev: 918675dac327
         changed_at: "2026-10-18"
         verdict: ok
     - from: plans/espelho.plan.md
@@ -4437,7 +4437,7 @@ edges:
       origin: declared
       stamp:
         validated_from_rev: 03470fc704da
-        validated_to_rev: 7f3f4099df73
+        validated_to_rev: 918675dac327
         changed_at: "2026-10-18"
         verdict: ok
     - from: plans/terminal-remoto.plan.md

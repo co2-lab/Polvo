@@ -15,9 +15,11 @@ pub mod ffi; // @dep: P2FFI
 /// The protocol of a Polvo connection, for the endpoint to accept only these (PTRNS-B01).
 pub const ALPN: &[u8] = b"polvo/ssh/1";
 
-/// What the side that connects writes first: a QUIC stream reaches the other side only with its first
-/// bytes, and the one that accepts must not wait for the SSH of the other to speak (PTRNS-B02).
-const HELLO: &[u8] = b"P";
+/// What a connection is for, the first byte the side that connects writes: a QUIC stream reaches the
+/// other side only with its first bytes, and the one that accepts must not wait for the other to speak
+/// (PTRNS-B02). `SSH` carries the SSH of Polvo; `ADDR` the new address of an installation (PTRNS-B06).
+pub const SSH: u8 = b'P';
+pub const ADDR: u8 = b'A';
 
 /// How long a closed stream of the C API waits for the other side to have what was written (PTRNS-B04).
 pub const CLOSE_WAIT: std::time::Duration = std::time::Duration::from_secs(5);
@@ -54,6 +56,8 @@ pub struct Peer {
 pub struct Stream {
     /// The key of the other installation, which the handshake proved (PTRNS-B03).
     pub remote: String,
+    /// What the connection is for: `SSH` or `ADDR` (PTRNS-B06).
+    pub kind: u8,
     pub send: SendStream,
     pub recv: RecvStream,
     // the stream lives while its connection does
@@ -122,7 +126,7 @@ impl Peer {
                 let (send, mut recv) = conn.accept_bi().await.map_err(|e| format!("p2p: no stream: {e}"))?;
                 let mut hello = [0u8; 1];
                 recv.read_exact(&mut hello).await.map_err(|e| format!("p2p: no hello: {e}"))?;
-                Ok(Stream { remote: conn.remote_id().to_string(), send, recv, _conn: conn })
+                Ok(Stream { remote: conn.remote_id().to_string(), kind: hello[0], send, recv, _conn: conn })
             }
             .await,
         )
@@ -131,6 +135,11 @@ impl Peer {
     /// A connection to the installation at `addr` (as `addr` gives it); an error when it cannot be reached,
     /// or another key answers (PTRNS-E01, PTRNS-B03).
     pub async fn connect(&self, addr: &str) -> Result<Stream, String> {
+        self.connect_for(addr, SSH).await
+    }
+
+    /// A connection for `kind` (PTRNS-B06), as `connect` makes one for the SSH.
+    pub async fn connect_for(&self, addr: &str, kind: u8) -> Result<Stream, String> {
         let addr: EndpointAddr = match serde_json::from_str(addr) {
             Ok(a) => a,
             // PTRNS-E01
@@ -142,8 +151,8 @@ impl Peer {
             Err(e) => return Err(format!("p2p: no connection: {e}")),
         };
         let (mut send, recv) = conn.open_bi().await.map_err(|e| format!("p2p: no stream: {e}"))?;
-        send.write_all(HELLO).await.map_err(|e| format!("p2p: no hello: {e}"))?;
-        Ok(Stream { remote: conn.remote_id().to_string(), send, recv, _conn: conn })
+        send.write_all(&[kind]).await.map_err(|e| format!("p2p: no hello: {e}"))?;
+        Ok(Stream { remote: conn.remote_id().to_string(), kind, send, recv, _conn: conn })
     }
 
     /// Ends the endpoint and its connections.

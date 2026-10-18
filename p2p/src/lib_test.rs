@@ -95,7 +95,7 @@ fn ptrns_b04_a_api_c() {
     let addr = CString::new(take(polvo_p2p_addr(b))).unwrap();
     let server = std::thread::spawn(move || {
         let mut who = std::ptr::null_mut();
-        let s = unsafe { polvo_p2p_accept(b, &mut who, std::ptr::null_mut()) };
+        let s = unsafe { polvo_p2p_accept(b, &mut who, std::ptr::null_mut(), std::ptr::null_mut()) };
         let mut buf = [0u8; 16];
         let mut got = Vec::new();
         loop {
@@ -109,7 +109,7 @@ fn ptrns_b04_a_api_c() {
         polvo_p2p_close(s);
         take(who)
     });
-    let s = unsafe { polvo_p2p_connect(a, addr.as_ptr(), &mut err) };
+    let s = unsafe { polvo_p2p_connect(a, addr.as_ptr(), SSH, &mut err) };
     assert!(s > 0);
     unsafe { polvo_p2p_write(s, b"ola".as_ptr(), 3) };
     polvo_p2p_close_write(s);
@@ -123,7 +123,7 @@ fn ptrns_b04_a_api_c() {
         back.extend_from_slice(&buf[..n as usize]);
     }
     let who = server.join().unwrap();
-    let waiting = std::thread::spawn(move || unsafe { polvo_p2p_accept(b, std::ptr::null_mut(), std::ptr::null_mut()) });
+    let waiting = std::thread::spawn(move || unsafe { polvo_p2p_accept(b, std::ptr::null_mut(), std::ptr::null_mut(), std::ptr::null_mut()) });
     std::thread::sleep(std::time::Duration::from_millis(200));
     polvo_p2p_shutdown(b);
     let after = waiting.join().unwrap();
@@ -143,4 +143,21 @@ async fn ptrns_b05_a_porta_de_cada_rede() {
     let (a, b) = (ports(&first), ports(&second));
     assert!(a.iter().all(|&p| p == port) && !a.is_empty(), "want the first on {port}: {a:?}");
     assert!(b.iter().all(|&p| p != port) && !b.is_empty(), "want the second on another port: {b:?}");
+}
+
+#[doc = "PTRNS-B06: Para que é uma ligação"]
+#[tokio::test]
+async fn ptrns_b06_para_que_e_uma_ligacao() {
+    let (a, b) = (peer(13).await, peer(14).await);
+    let kinds = tokio::spawn({
+        let b = b.clone();
+        async move {
+            let first = b.accept().await.unwrap().unwrap().kind;
+            let second = b.accept().await.unwrap().unwrap().kind;
+            (first, second)
+        }
+    });
+    let _ssh = a.connect(&b.addr()).await.unwrap();
+    let _addr = a.connect_for(&b.addr(), ADDR).await.unwrap();
+    assert_eq!(kinds.await.unwrap(), (SSH, ADDR));
 }

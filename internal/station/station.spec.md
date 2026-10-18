@@ -90,6 +90,12 @@ nó dela) no histórico: os endereços, quando e quantas vezes cada um respondeu
 recentes primeiro. Ligar-se a ela dá ao transporte todos os do histórico de uma vez, e ele tenta-os todos:
 uma máquina que alterna entre duas redes volta a ser achada num endereço onde já esteve.
 
+### STATN-B16 — O endereço novo chega a quem conhece esta máquina
+Quem se liga a uma máquina pela chave diz-lhe onde se alcança (o `p2p.seen` do nó dela), e ela guarda-o no
+histórico. A cada `ADDR_EVERY`, cada instalação vê os seus endereços diretos; quando mudam, manda o
+endereço novo a todas as do histórico (uma ligação do transporte que só o leva), porque a que mudou ainda
+sabe o endereço das outras. Quem o recebe guarda-o no histórico, aceite ou não as outras máquinas.
+
 ## Domain
 
 | Input | Accepts | Outside the domain | Who guarantees |
@@ -103,6 +109,7 @@ uma máquina que alterna entre duas redes volta a ser achada num endereço onde 
 | --- | --- | --- |
 | `STATN-E01` | o endereço para escutar não se abre (ocupado, sem permissão) | a `Station` abre sem escutar, a máquina desta janela funciona, e o `ListenError` diz porquê |
 | `STATN-E02` | a máquina não responde, ou recusa a chave desta instalação | o `Add` e o `Node` devolvem o erro com o endereço; o `Add` não a junta |
+| `STATN-E04` | o endereço que chega não é de quem o mandou, ou vem de uma instalação que esta não conhece, ou passa de `MAX_ADDR` | é ignorado, e o histórico fica como estava |
 | `STATN-E03` | o transporte não abre, ou o executável não o tem, e uma máquina é pela chave | o `P2PError` diz porquê; ligar-se a essa máquina dá o erro, e o resto funciona |
 
 ## Business Constants
@@ -110,6 +117,8 @@ uma máquina que alterna entre duas redes volta a ser achada num endereço onde 
 | --- | --- | --- |
 | `LOCAL` | `local` | o nome da máquina desta janela, que não tem endereço |
 | `P2P_PREFIX` | `p2p:` | o nome de uma máquina pela chave: não se confunde com um endereço máquina:porta |
+| `ADDR_EVERY` | 10 s | uma mudança de rede chega às outras em segundos, e ver os endereços desta máquina não custa nada |
+| `MAX_ADDR` | 64 KiB | um endereço tem uma chave e alguns caminhos; mais do que isto não é um endereço |
 | `MAX_HISTORY` | 16 | as redes por onde uma máquina costuma andar cabem com folga, e tentar todas ao mesmo tempo não pesa |
 
 ## Rule uses
@@ -134,8 +143,14 @@ uma máquina que alterna entre duas redes volta a ser achada num endereço onde 
 | `STATN-B14` | `Options` |
 | `STATN-B15` | `addr`, `MAX_HISTORY` |
 | `STATN-E03` | `Options`, `addr` |
+| `STATN-B16` | `addr`, `ADDR_EVERY` |
+| `STATN-E04` | `addr`, `MAX_ADDR` |
 
 ## Revisions
+
+> **STATN-R0005:** entram o `STATN-B16` e o `STATN-E04` (o endereço novo chega a quem conhece esta máquina),
+> a parte automática do `ESRMS-R0006`, pedida pelo dono. O plano dizia que nasceria um
+> `internal/transport/addresses.spec.md`; fica aqui, porque é a estação que sabe as máquinas e o histórico.
 
 > **STATN-R0004:** entram as máquinas de outras redes pela chave (`STATN-B13` a `STATN-B15`, `STATN-E03`),
 > do plano ESRMS, W04.

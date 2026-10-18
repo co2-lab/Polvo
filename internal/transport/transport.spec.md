@@ -28,6 +28,10 @@ O `Dial` liga-se à instalação do endereço dado, e o `Accept` do `Listener` d
 passam nos dois sentidos, e o `CloseWrite` de um lado é o fim do que o outro lê. Fechar o `Peer` fecha o
 `Listener`, e o `Accept` à espera dá `net.ErrClosed`.
 
+### TRNSP-B05 — Para que é uma ligação
+O `DialFor` abre uma ligação para o SSH (`KIND_SSH`, a do `Dial`) ou para levar o endereço novo de uma
+instalação (`KIND_ADDR`), e a ligação aceite di-lo (`Kind`).
+
 ### TRNSP-B03 — A chave do outro lado
 Cada ligação sabe a chave do outro lado (`Remote`, e o `RemoteAddr`), que o handshake provou.
 
@@ -56,6 +60,8 @@ corre no nó do outro lado.
 | --- | --- | --- |
 | `DEFAULT_RELAY` | `default` | os relays públicos do iroh, para funcionar entre redes sem configurar nada |
 | `DEFAULT_PORT` | 2222 | o número da porta TCP do nó: quem passa um endereço à mão só precisa do IP |
+| `KIND_SSH` | `P` | o primeiro byte de uma ligação para o SSH, o mesmo do `p2p/` |
+| `KIND_ADDR` | `A` | o de uma ligação que leva um endereço novo |
 
 ## Rule uses
 
@@ -65,11 +71,14 @@ corre no nó do outro lado.
 | `TRNSP-B02` | `addr` |
 | `TRNSP-B03` | `addr` |
 | `TRNSP-B04` | `addr` |
+| `TRNSP-B05` | `addr`, `KIND_SSH`, `KIND_ADDR` |
 | `TRNSP-E01` | `relay`, `addr` |
 | `TRNSP-E02` | `key` |
 | `TRNSP-E03` | `addr` |
 
 ## Revisions
+
+> **TRNSP-R0002:** entra o `TRNSP-B05` (para que é uma ligação), como o `PTRNS-R0002` do `p2p/`.
 
 > **TRNSP-R0001:** o `Open` recebe a porta (`DEFAULT_PORT`), pela mesma razão do `PTRNS-R0001` do `p2p/`.
 

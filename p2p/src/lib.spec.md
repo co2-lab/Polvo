@@ -26,6 +26,10 @@ O endpoint escuta na porta UDP pedida em todas as redes da máquina (IPv4, e IPv
 passa o endereço à mão saber a porta; quando ela está tomada, escuta noutra que o sistema dá. A porta 0 é
 qualquer uma.
 
+### PTRNS-B06 — Para que é uma ligação
+Cada ligação diz para que é (`connect_for`; o `connect` é para o SSH): `SSH`, ou `ADDR`, que leva o
+endereço novo de uma instalação. Quem aceita sabe-o (`kind`), com a chave de quem a abriu.
+
 ### PTRNS-B02 — Ligar e aceitar
 O `connect` liga-se à instalação do `addr` que ela deu, e o `accept` dela recebe a ligação; o que um lado
 escreve o outro lê, nos dois sentidos, e o fim de um lado é o fim do que o outro lê.
@@ -36,7 +40,7 @@ não é a de quem responde falha.
 
 ### PTRNS-B04 — A API C
 As mesmas operações em C, para o nó em Go: abrir o endpoint (`polvo_p2p_open`, com a porta), o endereço e a chave
-(`polvo_p2p_addr`, `polvo_p2p_id`), aceitar e ligar (`polvo_p2p_accept`, `polvo_p2p_connect`), ler e
+(`polvo_p2p_addr`, `polvo_p2p_id`), aceitar e ligar (`polvo_p2p_accept`, que diz para que é a ligação, e `polvo_p2p_connect`, que o diz), ler e
 escrever (`polvo_p2p_read`, `polvo_p2p_write`), dizer que não se escreve mais (`polvo_p2p_close_write`),
 fechar o stream (`polvo_p2p_close`, que espera até `CLOSE_WAIT` que o outro lado tenha o que se escreveu)
 e o endpoint (`polvo_p2p_shutdown`, depois do qual o `accept` à espera dá 0), e libertar o texto que deram
@@ -62,6 +66,8 @@ e o endpoint (`polvo_p2p_shutdown`, depois do qual o `accept` à espera dá 0), 
 | --- | --- | --- |
 | `ALPN` | `polvo/ssh/1` | o protocolo de uma ligação do Polvo, com a versão: o endpoint recusa os outros |
 | `CLOSE_WAIT` | 5 s | o que fechar espera pelo outro lado: uma rede lenta tem tempo de entregar o fim, e um lado que sumiu não prende nada |
+| `SSH` | `P` | o primeiro byte de uma ligação para o SSH |
+| `ADDR` | `A` | o primeiro byte de uma ligação que leva um endereço novo |
 
 ## Rule uses
 
@@ -74,8 +80,12 @@ e o endpoint (`polvo_p2p_shutdown`, depois do qual o `accept` à espera dá 0), 
 | `PTRNS-E01` | `addr` |
 | `PTRNS-E02` | `relay` |
 | `PTRNS-B05` | `port` |
+| `PTRNS-B06` | `addr`, `SSH`, `ADDR` |
 
 ## Revisions
+
+> **PTRNS-R0002:** entra o `PTRNS-B06` (para que é uma ligação), para uma instalação mandar o endereço
+> novo às que a conhecem (o plano ESRMS, `ESRMS-R0006`).
 
 > **PTRNS-R0001:** entra o `PTRNS-B05` (a porta de cada rede): com a porta a mudar a cada arranque, quem
 > passa o endereço à mão (o IP e o código) não sabia a porta, e o histórico dos endereços de uma máquina

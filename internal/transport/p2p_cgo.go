@@ -13,8 +13,8 @@ package transport
 int64_t polvo_p2p_open(const uint8_t *seed, const char *relay, uint16_t port, char **err);
 char *polvo_p2p_addr(int64_t h);
 char *polvo_p2p_id(int64_t h);
-int64_t polvo_p2p_accept(int64_t h, char **remote, char **err);
-int64_t polvo_p2p_connect(int64_t h, const char *addr, char **err);
+int64_t polvo_p2p_accept(int64_t h, char **remote, uint8_t *kind, char **err);
+int64_t polvo_p2p_connect(int64_t h, const char *addr, uint8_t kind, char **err);
 int64_t polvo_p2p_read(int64_t s, uint8_t *buf, size_t len);
 int64_t polvo_p2p_write(int64_t s, const uint8_t *buf, size_t len);
 void polvo_p2p_close_write(int64_t s);
@@ -66,16 +66,18 @@ func (p *cPeer) ID() string             { return p.id }
 func (p *cPeer) Addr() string           { return take(C.polvo_p2p_addr(p.h)) }
 func (p *cPeer) Listener() net.Listener { return p.l }
 
-func (p *cPeer) Dial(addr string) (*Conn, error) {
+func (p *cPeer) Dial(addr string) (*Conn, error) { return p.DialFor(addr, KIND_SSH) }
+
+func (p *cPeer) DialFor(addr string, kind byte) (*Conn, error) {
 	ca := C.CString(addr)
 	defer C.free(unsafe.Pointer(ca))
 	var cerr *C.char
-	s := C.polvo_p2p_connect(p.h, ca, &cerr)
+	s := C.polvo_p2p_connect(p.h, ca, C.uint8_t(kind), &cerr)
 	if s < 0 {
 		// TRNSP-E01
 		return nil, errors.New(take(cerr))
 	}
-	return &Conn{stream: &cStream{s: s}, local: Addr(p.id), remote: remoteOf(addr)}, nil
+	return &Conn{stream: &cStream{s: s}, local: Addr(p.id), remote: remoteOf(addr), kind: kind}, nil
 }
 
 func (p *cPeer) Close() error {
@@ -89,14 +91,15 @@ type listener struct{ p *cPeer }
 // Accept waits for the next connection; net.ErrClosed once the endpoint is closed.
 func (l *listener) Accept() (net.Conn, error) {
 	var remote, cerr *C.char
-	s := C.polvo_p2p_accept(l.p.h, &remote, &cerr)
+	var kind C.uint8_t
+	s := C.polvo_p2p_accept(l.p.h, &remote, &kind, &cerr)
 	switch {
 	case s == 0:
 		return nil, net.ErrClosed
 	case s < 0:
 		return nil, errors.New(take(cerr))
 	}
-	return &Conn{stream: &cStream{s: s}, local: Addr(l.p.id), remote: Addr(take(remote))}, nil
+	return &Conn{stream: &cStream{s: s}, local: Addr(l.p.id), remote: Addr(take(remote)), kind: byte(kind)}, nil
 }
 
 func (l *listener) Close() error   { return l.p.Close() }

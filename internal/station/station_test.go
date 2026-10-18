@@ -22,6 +22,7 @@ import (
 	"github.com/co2-lab/polvo/internal/hub"
 	"github.com/co2-lab/polvo/internal/pty"
 	"github.com/co2-lab/polvo/internal/sshx"
+	"github.com/co2-lab/polvo/internal/transport"
 )
 
 var size = pty.Size{Rows: 24, Cols: 80}
@@ -503,6 +504,46 @@ func TestStation_noP2P(t *testing.T) {
 		_, err := s.AddP2P(addr)
 		if err == nil || !strings.Contains(err.Error(), "no transport") || len(s.Machines()) != 1 {
 			t.Fatalf("want the error and no machine joined, got %v and %v", err, s.Machines())
+		}
+	})
+}
+
+func TestStation_newAddress(t *testing.T) {
+	t.Run("STATN-B16: O endereço novo chega a quem conhece esta máquina", func(t *testing.T) {
+		first, _, second, secondDir := p2pPair(t)
+		name, err := second.AddP2P(first.P2PAddr())
+		if err != nil {
+			t.Fatal(err)
+		}
+		if _, err := nodeOf(t, second, name).Sessions(); err != nil {
+			t.Fatal(err)
+		}
+		id := strings.TrimPrefix(name, P2P_PREFIX)
+		_, knows := first.readHistory()[second.mustID(t)]
+		// the second forgets where the first is
+		os.WriteFile(filepath.Join(secondDir, "addresses.json"), []byte(`{"`+id+`":{"addrs":[]}}`), 0o600)
+		first.tellAddr()
+		back := false
+		for end := time.Now().Add(10 * time.Second); !back && time.Now().Before(end); time.Sleep(50 * time.Millisecond) {
+			back = len(second.readHistory()[id].Addrs) > 0
+		}
+		if !knows || !back {
+			t.Fatalf("want the first knowing the second, and the second with the first's address again, got %v and %v", knows, back)
+		}
+	})
+	t.Run("STATN-E04: Um endereço de quem esta instalação não conhece", func(t *testing.T) {
+		first, _, second, _ := p2pPair(t)
+		c, err := second.p2p.DialFor(first.P2PAddr(), transport.KIND_ADDR)
+		if err != nil {
+			t.Fatal(err)
+		}
+		c.Write([]byte(second.P2PAddr()))
+		c.CloseWrite()
+		io.Copy(io.Discard, c)
+		c.Close()
+		time.Sleep(300 * time.Millisecond)
+		if _, kept := first.readHistory()[second.mustID(t)]; kept {
+			t.Fatal("want the address of an unknown installation ignored")
 		}
 	})
 }

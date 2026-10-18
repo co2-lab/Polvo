@@ -22,6 +22,12 @@ var ErrNotBuilt = errors.New("transport: this executable was built without the p
 // DEFAULT_RELAY is the relay an endpoint uses when none is given: the public ones of iroh (TRNSP-B01).
 const DEFAULT_RELAY = "default"
 
+// What a connection is for (TRNSP-B05): the SSH of Polvo, or the new address of an installation.
+const (
+	KIND_SSH  byte = 'P'
+	KIND_ADDR byte = 'A'
+)
+
 // DEFAULT_PORT is the UDP port of the endpoint, the same number as the node's TCP one (TRNSP-B01).
 const DEFAULT_PORT = 2222
 
@@ -33,8 +39,10 @@ type Peer interface {
 	Addr() string
 	// Listener gives the connections of the other installations (TRNSP-B02).
 	Listener() net.Listener
-	// Dial connects to the installation at addr, as its Addr gave it (TRNSP-B02, TRNSP-E01).
+	// Dial connects to the installation at addr, as its Addr gave it, for the SSH (TRNSP-B02, TRNSP-E01).
 	Dial(addr string) (*Conn, error)
+	// DialFor connects for kind, KIND_SSH or KIND_ADDR (TRNSP-B05).
+	DialFor(addr string, kind byte) (*Conn, error)
 	// Close ends the endpoint and its connections.
 	Close() error
 }
@@ -62,7 +70,11 @@ type Conn struct {
 	stream stream
 	local  Addr
 	remote Addr
+	kind   byte
 }
+
+// Kind is what the connection is for: KIND_SSH or KIND_ADDR (TRNSP-B05).
+func (c *Conn) Kind() byte { return c.kind }
 
 // stream is what the C API gives a connection.
 type stream interface {

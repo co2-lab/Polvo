@@ -40,3 +40,9 @@ Feature: A ligação entre redes para o nó e para o cliente
     Given um executável compilado sem a etiqueta polvo_p2p
     When se abre o endpoint
     Then é o ErrNotBuilt
+
+  @TRNSP-B05 @unit-level
+  Scenario: Para que é uma ligação
+    Given duas instalações
+    When uma abre uma ligação para o SSH e outra para um endereço
+    Then a outra aceita-as com KIND_SSH e KIND_ADDR

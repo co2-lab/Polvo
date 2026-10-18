@@ -58,7 +58,7 @@ unsafe fn text<'a>(s: *const c_char) -> &'a str {
     unsafe { CStr::from_ptr(s) }.to_str().unwrap_or_default()
 }
 
-fn keep(s: crate::Stream) -> (i64, String) {
+fn keep(s: crate::Stream) -> (i64, String, u8) {
     let n = next();
     let halves = Halves {
         send: Arc::new(tokio::sync::Mutex::new(s.send)),
@@ -66,7 +66,7 @@ fn keep(s: crate::Stream) -> (i64, String) {
         conn: s._conn,
     };
     STREAMS.lock().unwrap().insert(n, halves);
-    (n, s.remote)
+    (n, s.remote, s.kind)
 }
 
 /// Opens the endpoint of the key whose secret is the 32 bytes at `seed`, with the relay "default", ""
@@ -110,21 +110,25 @@ pub extern "C" fn polvo_p2p_id(h: i64) -> *mut c_char {
     peer(h).map_or(std::ptr::null_mut(), |p| give(p.id()))
 }
 
-/// Waits for the next connection of another installation: the stream's number and the other's key in
-/// `remote`; 0 when the endpoint closed; -1 and why in `err`.
+/// Waits for the next connection of another installation: the stream's number, the other's key in
+/// `remote`, and what it is for in `kind` (PTRNS-B06); 0 when the endpoint closed; -1 and why in `err`.
 ///
 /// # Safety
-/// `remote` and `err` are null or places for a pointer.
+/// `remote` and `err` are null or places for a pointer; `kind` is null or a place for a byte.
 #[unsafe(no_mangle)]
-pub unsafe extern "C" fn polvo_p2p_accept(h: i64, remote: *mut *mut c_char, err: *mut *mut c_char) -> i64 {
+pub unsafe extern "C" fn polvo_p2p_accept(h: i64, remote: *mut *mut c_char, kind: *mut u8, err: *mut *mut c_char) -> i64 {
     let Some(p) = peer(h) else { return 0 };
     match RUNTIME.block_on(p.accept()) {
         None => 0,
         Some(Ok(s)) => {
-            let (n, who) = keep(s);
+            let (n, who, what) = keep(s);
             if !remote.is_null() {
                 // SAFETY: a place for one pointer.
                 unsafe { *remote = give(who) };
+            }
+            if !kind.is_null() {
+                // SAFETY: a place for one byte.
+                unsafe { *kind = what };
             }
             n
         }
@@ -132,15 +136,16 @@ pub unsafe extern "C" fn polvo_p2p_accept(h: i64, remote: *mut *mut c_char, err:
     }
 }
 
-/// Connects to the installation at `addr`: the stream's number, or -1 and why in `err`.
+/// Connects to the installation at `addr`, for `kind` (the SSH or an address, PTRNS-B06): the stream's
+/// number, or -1 and why in `err`.
 ///
 /// # Safety
 /// `addr` is a C string; `err` is null or a place for a pointer.
 #[unsafe(no_mangle)]
-pub unsafe extern "C" fn polvo_p2p_connect(h: i64, addr: *const c_char, err: *mut *mut c_char) -> i64 {
+pub unsafe extern "C" fn polvo_p2p_connect(h: i64, addr: *const c_char, kind: u8, err: *mut *mut c_char) -> i64 {
     let Some(p) = peer(h) else { return unsafe { fail(err, "p2p: the endpoint is closed".into()) } };
     let addr = unsafe { text(addr) }.to_string();
-    match RUNTIME.block_on(p.connect(&addr)) {
+    match RUNTIME.block_on(p.connect_for(&addr, kind)) {
         Ok(s) => keep(s).0,
         Err(e) => unsafe { fail(err, e) },
     }

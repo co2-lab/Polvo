@@ -29,7 +29,8 @@ o nome, se é pasta e o tamanho.
 ### CNTRL-B12 — Onde a instalação do nó se alcança entre redes
 O `p2p.addr` dá onde a instalação do nó se alcança agora entre redes (`addr`: a chave, os endereços
 diretos e o relay, como o transporte os dá), para quem se liga guardar o histórico; um nó sem o
-transporte responde com o erro de operação.
+transporte responde com o erro de operação. O `p2p.seen` recebe onde se alcança a instalação de quem se
+ligou (`addr`), para o endereço novo do nó lhe chegar quando mudar (`STATN`).
 
 ### CNTRL-B11 — O `~` é a pasta pessoal
 Nos pedidos de ficheiros (`fs.read`, `fs.write`, `fs.list`), um caminho que é `~`, ou que começa por `~/`,
