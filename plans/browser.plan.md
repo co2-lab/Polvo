@@ -50,7 +50,11 @@ Playwright) sobre o CDP.
 um dia entrar: no Android a WebView do sistema é um Chromium e dá o CDP (com o
 `setWebContentsDebuggingEnabled`), por isso as mesmas ferramentas servem; no iOS todo o browser tem de usar
 o WebKit (a regra da App Store, menos para os browsers na UE), e o WKWebView não tem um protocolo de
-automação oficial: sobra o JavaScript injetado, com os limites de cima.
+automação oficial: sobra o JavaScript injetado, com os limites de cima. No Android, o que custa: um plugin pequeno em
+Kotlin que abre o socket do CDP da WebView (um `LocalSocket`; o Chromium só deixa entrar a própria app e
+o `adb`), um caminho pouco documentado (a Google pensou-o para depuração), nem todo o CDP do Chrome de
+desktop, e a depuração ligada só enquanto o agente usa o browser. Antes de o adotar, um protótipo de um
+ou dois dias em dois ou três telemóveis (pergunta do dono a 2026-10-18).
 
 ## Phases
 
