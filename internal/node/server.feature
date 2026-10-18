@@ -2,7 +2,7 @@
 # @anchors
 #   code: SRFTR
 #   ref: SRVRE
-#   updated_at: 2026-10-17
+#   updated_at: 2026-10-18
 #   layer: feature
 
 @SRVRE
@@ -103,3 +103,9 @@ Feature: Server
     Given um nó cuja lista não tem a chave da instalação, e que só deixa ver as outras chaves
     When a instalação se liga e pede uma shell
     Then entra, e a shell abre
+
+  @SRVRE-B12 @unit-level
+  Scenario: Uma chave desconhecida só emparelha
+    Given um nó com o emparelhamento ligado, e uma chave que ele não conhece
+    When a chave pede uma shell, e depois emparelha com o código que o nó mostra
+    Then a shell é recusada, o emparelhamento acaba bem, e a chave passa a abrir uma shell

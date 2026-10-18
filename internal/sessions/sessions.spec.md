@@ -68,7 +68,7 @@ porque quem responde ao programa é o terminal de cada espectador.
 | --- | --- | --- | --- |
 | `argv` | o programa e os argumentos | vazio, ou um programa que não arranca | este módulo: o erro (`SSSNS-E01`) |
 | `id` | o id de uma sessão viva | um id que nenhuma sessão viva tem | este módulo: `ErrNoSession` (`SSSNS-E02`) |
-| `Perm` | `View`, `Control` ou `Owner` | — | o tipo |
+| `Perm` | `View`, `Control` ou `Owner`; o `Pairing`, abaixo do `View`, é de quem só pode emparelhar | — | o tipo |
 | `Size` | linhas e colunas maiores que zero | zero | o `pty`: o tamanho por omissão |
 
 ## Errors / Failures

@@ -17,6 +17,7 @@ import (
 	"sync"
 	"syscall"
 
+	"github.com/co2-lab/polvo/internal/pairing"
 	"github.com/co2-lab/polvo/internal/pty"
 	"github.com/co2-lab/polvo/internal/sessions"
 	"github.com/co2-lab/polvo/internal/sshx"
@@ -43,7 +44,12 @@ type Config struct {
 	Perms func(ssh.PublicKey) sessions.Perm
 	// Owner is the installation's own key (SRVRE-B11).
 	Owner ssh.PublicKey
+	// Pairer pairs the keys the node does not know (SRVRE-B12); nil refuses them.
+	Pairer *pairing.Pairer
 }
+
+// keyKey carries the key of a connection that may only pair, for the pairing (SRVRE-B12).
+const keyKey = "polvo-key"
 
 func (c Config) shell() []string {
 	if len(c.Shell) == 0 {
@@ -71,6 +77,10 @@ func (c Config) server() (*ssh.ServerConfig, error) {
 			ok, err := c.Authorized.Allows(key)
 			if err != nil {
 				return nil, err
+			}
+			if !ok && c.Pairer != nil {
+				// SRVRE-B12: an unknown key may only pair
+				return &ssh.Permissions{Extensions: map[string]string{permKey: strconv.Itoa(int(sessions.Pairing)), keyKey: string(key.Marshal())}}, nil
 			}
 			if !ok {
 				return nil, errors.New("node: key not authorized")
@@ -126,10 +136,12 @@ func serveConn(conn net.Conn, cfg Config, sc *ssh.ServerConfig) error {
 	defer sconn.Close()
 	go ssh.DiscardRequests(reqs)
 	perm := sessions.Owner
+	var key ssh.PublicKey
 	if sconn.Permissions != nil {
 		if p, err := strconv.Atoi(sconn.Permissions.Extensions[permKey]); err == nil {
 			perm = sessions.Perm(p)
 		}
+		key, _ = ssh.ParsePublicKey([]byte(sconn.Permissions.Extensions[keyKey]))
 	}
 	for nc := range chans {
 		// SRVRE-B08: only sessions are served; port forwarding is refused.
@@ -141,7 +153,7 @@ func serveConn(conn net.Conn, cfg Config, sc *ssh.ServerConfig) error {
 		if err != nil {
 			continue
 		}
-		s := &session{cfg: cfg, ch: ch, perm: perm}
+		s := &session{cfg: cfg, ch: ch, perm: perm, key: key}
 		go s.serve(creqs)
 	}
 	return nil
@@ -151,6 +163,8 @@ type session struct {
 	cfg  Config
 	ch   ssh.Channel
 	perm sessions.Perm
+	// key is the connection's key, when it may only pair (SRVRE-B12).
+	key ssh.PublicKey
 
 	mu      sync.Mutex
 	started bool
@@ -176,6 +190,21 @@ type commandRequest struct{ Command string }
 func (s *session) serve(reqs <-chan *ssh.Request) {
 	for r := range reqs {
 		ok := false
+		if s.perm == sessions.Pairing {
+			// SRVRE-B12: only the pairing, once
+			var c commandRequest
+			if r.Type == "subsystem" && ssh.Unmarshal(r.Payload, &c) == nil && c.Command == "pairing@polvo" && s.key != nil && s.claim() {
+				ok = true
+				go func() {
+					s.cfg.Pairer.Serve(s.ch, s.key, s.cfg.HostKey.PublicKey())
+					s.ch.Close()
+				}()
+			}
+			if r.WantReply {
+				r.Reply(ok, nil)
+			}
+			continue
+		}
 		switch r.Type {
 		case "pty-req":
 			var p ptyRequest

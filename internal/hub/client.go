@@ -16,6 +16,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/co2-lab/polvo/internal/pairing"
 	"github.com/co2-lab/polvo/internal/proto"
 	"github.com/co2-lab/polvo/internal/pty"
 	"github.com/co2-lab/polvo/internal/sshx"
@@ -462,4 +463,57 @@ func (n *Node) Attach(id string) (*Terminal, error) {
 		return nil, fmt.Errorf("%w: %s", ErrNoSession, id)
 	}
 	return &Terminal{s: s, in: in, out: out}, nil
+}
+
+// Pair pairs this installation, as name, with the node at addr that does not know it yet; typed gives the
+// code the user read on the node (CLNTI-B09). The node's key is recorded in the known hosts only after
+// the code proved it.
+func Pair(addr string, cfg Config, name string, typed func() (string, error)) error {
+	if err := cfg.check(); err != nil {
+		return err
+	}
+	var host ssh.PublicKey
+	user := cfg.User
+	if user == "" {
+		user = "polvo"
+	}
+	client, err := ssh.Dial("tcp", addr, &ssh.ClientConfig{
+		User: user,
+		Auth: []ssh.AuthMethod{ssh.PublicKeys(cfg.Identity)},
+		// the code proves the node's key; it is checked against the known hosts after it
+		HostKeyCallback: func(_ string, _ net.Addr, key ssh.PublicKey) error { host = key; return nil },
+	})
+	if err != nil {
+		return fmt.Errorf("hub: connecting to %s: %w", addr, err)
+	}
+	defer client.Close()
+	s, err := client.NewSession()
+	if err != nil {
+		return fmt.Errorf("hub: pairing with %s: %w", addr, err)
+	}
+	defer s.Close()
+	in, err := s.StdinPipe()
+	if err != nil {
+		return err
+	}
+	out, err := s.StdoutPipe()
+	if err != nil {
+		return err
+	}
+	if err := s.RequestSubsystem("pairing@polvo"); err != nil {
+		return fmt.Errorf("hub: %s does not pair this installation (it may know it already): %w", addr, err)
+	}
+	rw := struct {
+		io.Reader
+		io.Writer
+	}{out, in}
+	if err := pairing.Pair(rw, name, host, cfg.Identity.PublicKey(), typed); err != nil {
+		return err
+	}
+	if cfg.KnownHosts != nil {
+		if err := cfg.KnownHosts.Check(addr, client.RemoteAddr(), host); err != nil {
+			return fmt.Errorf("hub: recording %s: %w", addr, err)
+		}
+	}
+	return nil
 }

@@ -37,6 +37,9 @@ const VIEWER_BACKLOG = 4 << 20
 // Perm is what a viewer may do.
 type Perm int
 
+// Pairing may only pair: the key the node does not know yet (SSSNS-B06, below View).
+const Pairing Perm = -1
+
 const (
 	// View watches.
 	View Perm = iota

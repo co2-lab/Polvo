@@ -1,6 +1,6 @@
 <!-- @anchors
   code: CLNTI
-  updated_at: 2026-10-17
+  updated_at: 2026-10-18
 -->
 # Client — a ligação do desktop a um nó: o terminal e as chamadas de controlo
 
@@ -55,6 +55,12 @@ O `Attach` dá um `Terminal` ligado a uma sessão que já existe: lê primeiro o
 saída, e o que se escreve chega à sessão quando a ligação a pode controlar. Fechar o `Terminal` deixa a
 sessão viva.
 
+### CLNTI-B09 — Emparelhar com um nó
+O `Pair` liga-se a um nó que ainda não conhece esta instalação e corre o emparelhamento (`pairing.Pair`)
+com o nome dela, pedindo o código pelo `typed`. Com o código certo, a chave do nó entra na lista de nós
+conhecidos, e daí em diante o `Dial` entra como qualquer chave autorizada. A chave do nó só se grava
+depois do código: é o código que a prova.
+
 ## Domain
 
 | Input | Accepts | Outside the domain | Who guarantees |
@@ -87,8 +93,11 @@ sessão viva.
 | `CLNTI-B07` | `addr` |
 | `CLNTI-B08` | `addr` |
 | `CLNTI-E04` | `addr` |
+| `CLNTI-B09` | `addr`, `Identity`, `KnownHosts` |
 
 ## Revisions
+
+> **CLNTI-R0002:** entra o `CLNTI-B09` (emparelhar), do plano ESRMS, W03.
 
 > **CLNTI-R0001:** entram as sessões do nó (`CLNTI-B07`, `CLNTI-B08`, `CLNTI-E04`), para a janela as
 > mostrar e espelhar (plano ESRMS, W02), o `Done` no `CLNTI-B06`, para quem guarda a ligação saber

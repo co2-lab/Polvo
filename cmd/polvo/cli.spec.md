@@ -31,7 +31,9 @@ As shells do nó são sessões que vivem sem quem as vê, e o que cada chave pod
 dona. Um `node.json` estragado não deixa o nó arrancar (`CLIXX-E02`). Cada sessão recebe no ambiente o
 endereço do nó por dentro da máquina (`POLVO_NODE`: o de `--listen`, com `127.0.0.1` quando escuta em
 todas as interfaces), para um agente que corre nela lhe reportar o progresso; o nó guarda o progresso na
-pasta `progress` da pasta de configuração.
+pasta `progress` da pasta de configuração. Uma instalação que o nó não conhece pode emparelhar: o nó escreve
+na saída o pedido, com o nome dela, a impressão digital e o código. A escutar num endereço que as outras
+máquinas alcançam (não o loopback), o nó anuncia-se na rede local.
 
 ### CLIXX-B03 — `connect` liga o terminal local a uma shell do nó
 O `polvo connect ENDEREÇO` abre uma shell no nó com o tamanho do terminal local (24 por 80 se a

@@ -53,6 +53,12 @@ layers:
         kind: code
         tags: [agents]
         exclude: ['**/*_test.go']
+    # A primeira ligacao entre duas instalacoes, por um codigo curto (plano ESRMS, W03).
+    pairing:
+        pattern: 'internal/pairing/*.go'
+        kind: code
+        tags: [pairing]
+        exclude: ['**/*_test.go']
     # Os nos da rede local, por mDNS (plano ESRMS, W03).
     discovery:
         pattern: 'internal/discovery/*.go'

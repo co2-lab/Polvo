@@ -21,6 +21,7 @@ import (
 	"github.com/co2-lab/polvo/internal/sshx"
 	"golang.org/x/crypto/ssh"
 
+	"github.com/co2-lab/polvo/internal/pairing"
 	"github.com/co2-lab/polvo/internal/pty"
 	"github.com/co2-lab/polvo/internal/sessions"
 )
@@ -412,6 +413,49 @@ func TestServer_sessions(t *testing.T) {
 		}
 		if out, err := s.Output("echo ainda"); err != nil || string(out) != "ainda\n" {
 			t.Fatalf("want the session still running, got %q %v", out, err)
+		}
+	})
+}
+
+func TestServer_pairing(t *testing.T) {
+	t.Run("SRVRE-B12: Uma chave desconhecida só emparelha", func(t *testing.T) {
+		shown := make(chan pairing.Request, 1)
+		var keys string
+		stranger := signer(t)
+		f := startNode(t, func(c *Config) {
+			keys = filepath.Join(t.TempDir(), "authorized_keys")
+			c.Authorized = sshx.NewAuthorizedKeys(keys)
+			c.Pairer = pairing.NewPairer(keys, func(r pairing.Request) { shown <- r })
+		})
+		c, err := f.dial(t, ssh.PublicKeys(stranger))
+		if err != nil {
+			t.Fatalf("want the unknown key in, to pair; got %v", err)
+		}
+		defer c.Close()
+		s1, _ := c.NewSession()
+		shellErr := s1.Shell()
+		s2, _ := c.NewSession()
+		in, _ := s2.StdinPipe()
+		out, _ := s2.StdoutPipe()
+		if err := s2.RequestSubsystem("pairing@polvo"); err != nil {
+			t.Fatal(err)
+		}
+		rw := struct {
+			io.Reader
+			io.Writer
+		}{out, in}
+		err = pairing.Pair(rw, "estranho", f.host.PublicKey(), stranger.PublicKey(), func() (string, error) { return (<-shown).Code, nil })
+		if shellErr == nil || err != nil {
+			t.Fatalf("want the shell refused and the pairing done, got %v and %v", shellErr, err)
+		}
+		again, err := f.dial(t, ssh.PublicKeys(stranger))
+		if err != nil {
+			t.Fatal(err)
+		}
+		defer again.Close()
+		s3, _ := again.NewSession()
+		if out := shell(t, s3, 24, 80, nil, "echo emparelhado-$((1+1)); exit\n"); !strings.Contains(out, "emparelhado-2") {
+			t.Fatalf("want a shell now, got %q", out)
 		}
 	})
 }

@@ -11,6 +11,8 @@ import (
 	"bytes"
 	"encoding/binary"
 	"encoding/json"
+	"github.com/co2-lab/polvo/internal/hub"
+	"github.com/co2-lab/polvo/internal/sshx"
 	"io"
 	"net"
 	"net/http"
@@ -119,6 +121,39 @@ func TestCli_node(t *testing.T) {
 		}
 		if strings.Join(got, " ") != "127.0.0.1:2222 127.0.0.1:2222 10.0.0.5:2222" {
 			t.Fatalf("got %v", got)
+		}
+	})
+	t.Run("CLIXX-B02: node escreve o pedido de emparelhamento com o código", func(t *testing.T) {
+		desktop := t.TempDir()
+		runKeygen(t, desktop)
+		r, w := io.Pipe()
+		go Run([]string{"node", "--dir", t.TempDir(), "--listen", "127.0.0.1:0"}, Stdio{Stdout: w, Stderr: io.Discard})
+		lines := bufio.NewReader(r)
+		first, err := lines.ReadString('\n')
+		if err != nil {
+			t.Fatal(err)
+		}
+		addr := listening.FindStringSubmatch(first)[1]
+		id, _, err := sshx.LoadOrCreateIdentity(filepath.Join(desktop, "id_ed25519"))
+		if err != nil {
+			t.Fatal(err)
+		}
+		code := regexp.MustCompile(`pairing request from portatil \(SHA256:[^)]+\): code (\d{6})`)
+		typed := func() (string, error) {
+			for {
+				line, err := lines.ReadString('\n')
+				if err != nil {
+					return "", err
+				}
+				if m := code.FindStringSubmatch(line); m != nil {
+					go io.Copy(io.Discard, r)
+					return m[1], nil
+				}
+			}
+		}
+		cfg := hub.Config{Identity: id, KnownHosts: sshx.NewKnownHosts(filepath.Join(desktop, "known_hosts"))}
+		if err := hub.Pair(addr, cfg, "portatil", typed); err != nil {
+			t.Fatal(err)
 		}
 	})
 	t.Run("CLIXX-B02: node não arranca com um node.json estragado", func(t *testing.T) {

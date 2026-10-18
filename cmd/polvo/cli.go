@@ -17,10 +17,12 @@ import (
 	"runtime"
 	"strings"
 
+	"github.com/co2-lab/polvo/internal/discovery"
 	"github.com/co2-lab/polvo/internal/hub"
 	"github.com/co2-lab/polvo/internal/mcp"
 	"github.com/co2-lab/polvo/internal/node"
 	"github.com/co2-lab/polvo/internal/nodeconf"
+	"github.com/co2-lab/polvo/internal/pairing"
 	"github.com/co2-lab/polvo/internal/progress"
 	"github.com/co2-lab/polvo/internal/pty"
 	"github.com/co2-lab/polvo/internal/sessions"
@@ -154,7 +156,11 @@ func serveNode(args []string, std Stdio) error {
 	}
 	defer l.Close()
 	fmt.Fprintf(std.Stdout, "polvo node: listening on %s (%s)\n", l.Addr(), ssh.FingerprintSHA256(host.PublicKey()))
+	pairer := pairing.NewPairer(filepath.Join(dir, "authorized_keys"), func(r pairing.Request) {
+		fmt.Fprintf(std.Stdout, "polvo node: pairing request from %s (%s): code %s\n", r.Name, r.Fingerprint, r.Code)
+	})
 	cfg := node.Config{
+		Pairer:     pairer,
 		HostKey:    host,
 		Authorized: sshx.NewAuthorizedKeys(filepath.Join(dir, "authorized_keys")),
 		Sessions:   sessions.NewManager(),
@@ -171,6 +177,16 @@ func serveNode(args []string, std Stdio) error {
 	cfg.Control = node.Controller{Sessions: cfg.Sessions, Shell: cfg.Shell, Progress: board}.Serve
 	// an agent in a session reports to this node, from inside the machine
 	cfg.Sessions.SetEnv([]string{"POLVO_NODE=" + loopback(l.Addr())})
+	// the others find a node they can reach: one that listens on the loopback is not announced
+	if tcp, ok := l.Addr().(*net.TCPAddr); ok && !tcp.IP.IsLoopback() {
+		name, _ := os.Hostname()
+		svc := discovery.Service{Instance: name, Host: name, Port: tcp.Port, Fingerprint: ssh.FingerprintSHA256(host.PublicKey())}
+		if a, err := discovery.Announce(svc, discovery.Options{}); err != nil {
+			fmt.Fprintf(std.Stderr, "polvo node: not announced in the network: %v\n", err)
+		} else {
+			defer a.Close()
+		}
+	}
 	return node.Serve(l, cfg)
 }
 

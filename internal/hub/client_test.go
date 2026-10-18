@@ -20,6 +20,7 @@ import (
 	"time"
 
 	"github.com/co2-lab/polvo/internal/node"
+	"github.com/co2-lab/polvo/internal/pairing"
 	"github.com/co2-lab/polvo/internal/proto"
 	"github.com/co2-lab/polvo/internal/pty"
 	"github.com/co2-lab/polvo/internal/sessions"
@@ -381,6 +382,44 @@ func TestClient_control(t *testing.T) {
 		case <-n.Done():
 		case <-time.After(4 * time.Second):
 			t.Fatal("want Done closed when the connection fell")
+		}
+	})
+}
+
+func TestClient_pairing(t *testing.T) {
+	t.Run("CLNTI-B09: Emparelhar com um nó", func(t *testing.T) {
+		host, id := signer(t), signer(t)
+		keys := filepath.Join(t.TempDir(), "authorized_keys")
+		shown := make(chan pairing.Request, 1)
+		l, err := net.Listen("tcp", "127.0.0.1:0")
+		if err != nil {
+			t.Fatal(err)
+		}
+		t.Cleanup(func() { l.Close() })
+		go node.Serve(l, node.Config{HostKey: host, Authorized: sshx.NewAuthorizedKeys(keys), Control: node.ServeControl,
+			Pairer: pairing.NewPairer(keys, func(r pairing.Request) { shown <- r })})
+		known := filepath.Join(t.TempDir(), "known_hosts")
+		cfg := Config{Identity: id, KnownHosts: sshx.NewKnownHosts(known)}
+		code := func() (string, error) {
+			// the node's key is not known before the code proves it
+			if b, _ := os.ReadFile(known); len(b) > 0 {
+				return "", fmt.Errorf("the node's key was recorded before the code: %q", b)
+			}
+			return (<-shown).Code, nil
+		}
+		if err := Pair(l.Addr().String(), cfg, "portatil", code); err != nil {
+			t.Fatal(err)
+		}
+		n, err := Dial(l.Addr().String(), cfg)
+		if err != nil {
+			t.Fatal(err)
+		}
+		defer n.Close()
+		if _, err := n.List(t.TempDir()); err != nil {
+			t.Fatalf("want the node's control after pairing, got %v", err)
+		}
+		if b, _ := os.ReadFile(known); !strings.Contains(string(b), strings.TrimSpace(string(ssh.MarshalAuthorizedKey(host.PublicKey())))) {
+			t.Fatalf("want the node's key known, got %q", b)
 		}
 	})
 }

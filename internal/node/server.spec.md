@@ -1,6 +1,6 @@
 <!-- @anchors
   code: SRVRE
-  updated_at: 2026-10-17
+  updated_at: 2026-10-18
 -->
 # Server — o nó: quem entra, a sessão de terminal e o comando avulso
 
@@ -62,6 +62,11 @@ que se ligou o que escreve não chega à shell.
 A chave da própria instalação (`Owner`) entra sem estar na lista de chaves autorizadas, e com a
 permissão de dono, seja qual for a que o `Perms` daria. É como a janela usa as sessões da sua máquina.
 
+### SRVRE-B12 — Uma chave desconhecida só emparelha
+Com o emparelhamento ligado (`Pairer`), uma chave que não está na lista entra com a permissão de só
+emparelhar: o nó serve-lhe o subsistema `pairing@polvo` (o protocolo do emparelhamento) e recusa-lhe tudo
+o resto (a shell, os comandos, as sessões e o controlo). Sem o emparelhamento ligado, essa chave não entra.
+
 ## Domain
 
 | Input | Accepts | Outside the domain | Who guarantees |
@@ -72,6 +77,7 @@ permissão de dono, seja qual for a que o `Perms` daria. É como a janela usa as
 | `Sessions` | as sessões do nó | nenhumas | este módulo: o nó faz as suas |
 | `Perms` | a permissão de cada chave | nenhuma | este módulo: sem ela, todas são donas |
 | `Owner` | a chave da instalação | nenhuma | este módulo: sem ela, só entram as chaves da lista |
+| `Pairer` | o emparelhamento do nó | nenhum | este módulo: sem ele, as chaves desconhecidas não entram |
 | `id` | o id de uma sessão viva do nó | outro | este módulo: o pedido é recusado (`SRVRE-E03`) |
 
 ## Errors / Failures
@@ -97,6 +103,7 @@ permissão de dono, seja qual for a que o `Perms` daria. É como a janela usa as
 | `SRVRE-B09` | `Sessions`, `id` |
 | `SRVRE-B10` | `Perms` |
 | `SRVRE-B11` | `Owner`, `Perms` |
+| `SRVRE-B12` | `Pairer`, `Authorized` |
 | `SRVRE-E02` | `Shell` |
 | `SRVRE-E03` | `id` |
 
@@ -105,6 +112,8 @@ permissão de dono, seja qual for a que o `Perms` daria. É como a janela usa as
 > **SRVRE-R0001:** as shells do nó passam a ser sessões que vivem sem quem as vê, com vários
 > espectadores e a permissão de cada chave (plano ESRMS, W01): o `SRVRE-B02` muda, e entram o
 > `SRVRE-B09` (ligar-se a uma sessão), o `SRVRE-B10` (a permissão) e o `SRVRE-E03`.
+
+> **SRVRE-R0003:** entra o `SRVRE-B12` (uma chave desconhecida só emparelha), do plano ESRMS, W03.
 
 > **SRVRE-R0002:** entra o `SRVRE-B11` (a chave da instalação entra como dona), para a janela chegar às
 > sessões da sua máquina pelo mesmo caminho que às das outras (plano ESRMS, W02).

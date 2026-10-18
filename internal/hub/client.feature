@@ -2,7 +2,7 @@
 # @anchors
 #   code: CLFTR
 #   ref: CLNTI
-#   updated_at: 2026-10-17
+#   updated_at: 2026-10-18
 #   layer: feature
 
 @CLNTI
@@ -85,3 +85,9 @@ Feature: Client
     Given um nó, e a sua chave dada ao cliente sem lista de nós conhecidos
     When o cliente se liga, e depois liga-se com a chave de outro nó
     Then a primeira ligação entra e a segunda é recusada
+
+  @CLNTI-B09 @unit-level
+  Scenario: Emparelhar com um nó
+    Given um nó com o emparelhamento ligado que não conhece esta instalação
+    When o cliente emparelha com o código que o nó mostra
+    Then o cliente passa a ligar-se ao nó, e a chave dele está na lista de nós conhecidos

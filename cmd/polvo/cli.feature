@@ -27,6 +27,12 @@ Feature: Cli
     Then é o 127.0.0.1 com a porta, ou o próprio endereço
 
   @CLIXX-B02 @unit-level
+  Scenario: node escreve o pedido de emparelhamento com o código
+    Given um node que não conhece a instalação do desktop
+    When o desktop emparelha com o código que o node escreve
+    Then o emparelhamento acaba bem
+
+  @CLIXX-B02 @unit-level
   Scenario: node não arranca com um node.json estragado
     Given uma pasta de configuração com um node.json que não é JSON
     When o polvo node arranca
