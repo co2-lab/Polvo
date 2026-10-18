@@ -1,5 +1,5 @@
 <!-- anchors:progress v1 — written by `anchors progress`; never edit by hand -->
-# Progress — 100% (44/44 points)
+# Progress — 100% (52/52 points)
 
 ## D01 — AgenteLocal (plan: plans/agente-local.plan.md) — 100% (6/6)
 ### D01.S1 — AGLCG-W01 — A ponte MCP — 100% (2/2)
@@ -51,13 +51,21 @@
 - [x] D04.T9 — O `polvo node` a correr no Galaxy (`GALAXY_ENGINE=go galaxy run ./cmd/polvo node`) aceita o · 1 (estimate) · done 2026-10-17 by migrated
 - [x] D04.T10 — `anchors check` sem gates bloqueantes a falhar. · 1 (estimate) · done 2026-10-17 by migrated
 
-## D05 — Espelho remoto (plan: plans/espelho.plan.md) — 100% (4/4)
+## D05 — Espelho remoto (plan: plans/espelho.plan.md) — 100% (12/12)
 ### D05.S1 — ESRMS-W01 — As sessões no nó — 100% (4/4)
 - [x] D05.T1 — `internal/sessions/sessions.spec.md` · 1 · done 2026-10-17 by OK-BR-PE0EF71F/polvo-main
 - [x] D05.T2 — `internal/nodeconf/nodeconf.spec.md` · 1 · done 2026-10-17 by OK-BR-PE0EF71F/polvo-main
 - [x] D05.T3 — `internal/node/server.spec.md` (muda) · 1 · done 2026-10-17 by OK-BR-PE0EF71F/polvo-main
 - [x] D05.T4 — `internal/node/control.spec.md` (muda) · 1 · done 2026-10-17 by OK-BR-PE0EF71F/polvo-main
-### D05.S2 — ESRMS-W02 — A janela como cliente dos nós (depends on ESRMS-W01) — — (0/0)
+### D05.S2 — ESRMS-W02 — A janela como cliente dos nós (depends on ESRMS-W01) — 100% (8/8)
+- [x] D05.T5 — `internal/hub/client.spec.md` (muda: as sessões, o Done e a HostKey) · 1 · done 2026-10-17 by OK-BR-PE0EF71F/polvo-main
+- [x] D05.T6 — `internal/node/control.spec.md` e `server.spec.md` (mudam: quem pode escrever, e a chave da instalação como dona) · 1 · done 2026-10-17 by OK-BR-PE0EF71F/polvo-main
+- [x] D05.T7 — `internal/station/station.spec.md` (nasce: o nó desta máquina na janela e as outras) · 1 · done 2026-10-17 by OK-BR-PE0EF71F/polvo-main
+- [x] D05.T8 — `internal/bridge/bridge.spec.md` (nasce: a API da cmd/libpolvo, em Go puro) · 1 · done 2026-10-17 by OK-BR-PE0EF71F/polvo-main
+- [x] D05.T9 — `desktop/src/remote.spec.md` (nasce: a libpolvo na janela, com a forma de atravessar para C, em vez do cmd/libpolvo/libpolvo.spec.md) · 1 · done 2026-10-17 by OK-BR-PE0EF71F/polvo-main
+- [x] D05.T10 — `desktop/src/screen.spec.md` e `panel.spec.md` (mudam: o terminal de uma sessão, dona ou alheia, e o só ver) · 1 · done 2026-10-17 by OK-BR-PE0EF71F/polvo-main
+- [x] D05.T11 — `desktop/src/nodes.spec.md` (nasce: as máquinas e as sessões) · 1 · done 2026-10-17 by OK-BR-PE0EF71F/polvo-main
+- [x] D05.T12 — `desktop/src/window.spec.md` (muda: a aba das máquinas, e os terminais como sessões desta máquina) · 1 · done 2026-10-17 by OK-BR-PE0EF71F/polvo-main
 ### D05.S3 — ESRMS-W03 — Descoberta e emparelhamento (depends on ESRMS-W02) — — (0/0)
 ### D05.S4 — ESRMS-W04 — P2P através de NAT (depends on ESRMS-W03) — — (0/0)
 ### D05.S5 — ESRMS-W05 — Os ficheiros de qualquer máquina (depends on ESRMS-W02) — — (0/0)
@@ -84,4 +92,4 @@
 - [x] D07.T10 — `desktop/src/git.spec.md` · 1 · done 2026-10-17 by OK-BR-PE0EF71F/polvo-main
 - [x] D07.T11 — `desktop/src/window.spec.md` (muda: o tipo de aba do git) · 1 · done 2026-10-17 by OK-BR-PE0EF71F/polvo-main
 
-<!-- anchors:progress sum=279ee72a2cff -->
+<!-- anchors:progress sum=8f208066e76a -->
