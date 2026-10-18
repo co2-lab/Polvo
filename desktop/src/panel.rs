@@ -20,6 +20,7 @@ use gpui_kit::{
     prelude::*, px,
 };
 
+use crate::agents::AgentMark; // @dep: AGIMP
 use crate::keymap::{Action, Keymap}; // @dep: KYIMA
 use crate::keys::{Modifiers, translate}; // @dep: KYIMK
 use crate::prefs::Prefs; // @dep: PRIMP
@@ -67,6 +68,8 @@ pub struct TerminalPanel {
     scroll_acc: f32,
     /// The session the panel shows, when it is not a pty of the window (TRPNT-B10).
     session: Option<SessionTab>,
+    /// The mark of the agent that runs in the session (TRPNT-B12).
+    mark: Option<AgentMark>,
     _listening: Option<Task<()>>,
 }
 
@@ -138,6 +141,7 @@ impl TerminalPanel {
             selecting: false,
             scroll_acc: 0.,
             session: None,
+            mark: None,
             _listening: listening,
         }
     }
@@ -212,10 +216,29 @@ impl TerminalPanel {
     /// The title of the tab: the shell's title for the terminal, or the shell's name (TRPNT-B06).
     pub fn tab_title(&self) -> String {
         let title = self.screen.title();
-        if !title.is_empty() {
-            return title;
+        let title = if title.is_empty() {
+            Path::new(&self.shell).file_name().map_or(self.shell.clone(), |n| n.to_string_lossy().into_owned())
+        } else {
+            title
+        };
+        match self.mark {
+            // TRPNT-B12
+            Some(mark) => format!("{} {title}", mark.glyph()),
+            None => title,
         }
-        Path::new(&self.shell).file_name().map_or(self.shell.clone(), |n| n.to_string_lossy().into_owned())
+    }
+
+    /// The machine and the id of the session the panel shows, if it shows one.
+    pub fn session_key(&self) -> Option<(String, String)> {
+        self.session.as_ref().map(|t| (t.machine.clone(), t.id.clone()))
+    }
+
+    /// Marks the tab with the agent that runs in the session, or with none (TRPNT-B12).
+    pub fn set_mark(&mut self, mark: Option<AgentMark>, cx: &mut Context<Self>) {
+        if self.mark != mark {
+            self.mark = mark;
+            cx.notify();
+        }
     }
 
     /// Where the panel was laid out in the last frame (TRPNT-B04).

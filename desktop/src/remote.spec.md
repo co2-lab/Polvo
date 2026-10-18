@@ -1,6 +1,6 @@
 <!-- @anchors
   code: RMTEC
-  updated_at: 2026-10-17
+  updated_at: 2026-10-18
 -->
 # Remote — as máquinas e as sessões de terminal, pela biblioteca do Polvo
 
@@ -44,6 +44,12 @@ O estado dá a chave desta instalação, como a linha que a outra máquina junta
 ela autorizada lá, o `add` junta a outra máquina pelo endereço, e as sessões dela passam a dar-se pelo
 nome (o endereço); o `remove` esquece-a.
 
+### RMTEC-B05 — O progresso dos agentes
+O `progress_all` dá o progresso dos agentes de todas as máquinas (`MachineProgress`, com os trabalhos,
+`AgentJob`, e os passos, `AgentStep`, o registo, `AgentEntry`, e as perguntas, `AgentQuestion`, de cada
+um), assim que alguma mudou desde as versões que
+a janela tem, ou quando passa o prazo; o `ask` pergunta a um agente de uma máquina e dá o id da pergunta.
+
 ## Domain
 
 | Input | Accepts | Outside the domain | Who guarantees |
@@ -70,8 +76,11 @@ nome (o endereço); o `remove` esquece-a.
 | `RMTEC-B03` | `machine`, `id` |
 | `RMTEC-E01` | `machine`, `id` |
 | `RMTEC-B04` | `machine` |
+| `RMTEC-B05` | `machine` |
 
 ## Revisions
+
+> **RMTEC-R0002:** entra o `RMTEC-B05` (o progresso dos agentes), do plano AGPRG, W04.
 
 > **RMTEC-R0001:** o `RMTEC-B03` passa a ter o `detach`, para o ecrã de uma sessão a largar enquanto a
 > leitura dela ainda está à espera (o `Screen::attach`, plano ESRMS, W02).

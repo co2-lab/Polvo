@@ -2,7 +2,7 @@
 # @anchors
 #   code: WNFTW
 #   ref: WNDWI
-#   updated_at: 2026-10-17
+#   updated_at: 2026-10-18
 #   layer: feature
 
 @WNDWI
@@ -211,3 +211,15 @@ Feature: Window
     Given a organização gravada com a aba de uma sessão alheia, e a sessão terminada depois
     When a janela abre outra vez com o mesmo ficheiro da organização
     Then a aba diz que a sessão não se ligou
+
+  @WNDWI-B23 @unit-level
+  Scenario: Os agentes
+    Given uma janela com a instalação e o progresso dos agentes
+    When o utilizador escolhe os agentes no escolhedor, e depois outra vez
+    Then a doca tem uma aba dos agentes, com o foco
+
+  @WNDWI-B24 @unit-level
+  Scenario: A marca do agente na aba da sessão dele
+    Given uma janela com a aba de uma sessão onde corre um agente à espera de uma resposta, e a de outra sem agente
+    When o progresso dos agentes muda
+    Then a aba da primeira começa por "?", e a da outra não tem marca

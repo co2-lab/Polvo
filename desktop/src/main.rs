@@ -27,6 +27,7 @@ macro_rules! scenario {
     };
 }
 
+mod agents; // @dep: AGIMP
 mod editor; // @dep: EDIMP
 mod files; // @dep: FLIMP
 mod git; // @dep: GTIMP

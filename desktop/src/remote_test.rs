@@ -80,3 +80,18 @@ scenario!(rmtec_e01_o_erro_da_biblioteca, "RMTEC-E01: O erro da biblioteca", {
     let err = st.sessions("nenhuma").unwrap_err();
     assert!(err.0.contains("nenhuma"), "{err:?}");
 });
+
+scenario!(rmtec_b05_o_progresso_dos_agentes, "RMTEC-B05: O progresso dos agentes", {
+    let dir = tempfile::tempdir().unwrap();
+    std::fs::create_dir_all(dir.path().join("progress")).unwrap();
+    let job = r#"{"agent":"a","goal":"migrar","steps":[{"id":"1","title":"ler","state":"doing"}],"log":[{"at":"2026-10-18T10:00:00Z","kind":"start","text":"migrar"}],"finished":false}"#;
+    std::fs::write(dir.path().join("progress").join("a.json"), job).unwrap();
+    let st = Station::open(dir.path(), "", "/bin/sh").unwrap();
+    let all = st.progress_all(&std::collections::BTreeMap::new(), 1000).unwrap();
+    let q = st.ask(LOCAL, "a", "onde vais?").unwrap();
+    assert_eq!(all.len(), 1);
+    let agent = &all[0].agents[0];
+    assert_eq!((all[0].name.as_str(), agent.agent.as_str(), agent.goal.as_str()), (LOCAL, "a", "migrar"));
+    assert_eq!((agent.steps[0].title.as_str(), agent.steps[0].state.as_str(), agent.log.len()), ("ler", "doing", 1));
+    assert!(!q.is_empty());
+});

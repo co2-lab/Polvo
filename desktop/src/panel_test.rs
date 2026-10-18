@@ -4,6 +4,7 @@
 
 use super::*;
 use crate::keymap::{Action, Keymap}; // @dep: KYIMA
+use crate::agents::AgentMark; // @dep: AGIMP
 use crate::remote::{LOCAL, Station}; // @dep: RMIMP
 use crate::prefs::{Button, Prefs}; // @dep: PRIMP
 use crate::screen::tests::Sink; // @dep: SCIMS
@@ -351,4 +352,12 @@ scenario!(trpnt_b11_so_ver, "TRPNT-B11: Só ver", |cx| {
     let got = reader.join().unwrap();
     assert_eq!(banner.as_deref(), Some("Só ver"));
     assert!(!got.contains("marca-5"), "the session ran it: {got:?}");
+});
+
+scenario!(trpnt_b12_a_marca_do_agente_na_aba, "TRPNT-B12: A marca do agente na aba", |cx| {
+    let (_dir, st, id) = local_session();
+    let (_handle, panel) = open_session(cx, SessionTab { station: st.clone(), machine: LOCAL.into(), id, owned: false, writable: true });
+    panel.update(cx, |p, cx| p.set_mark(Some(AgentMark::Waiting), cx));
+    let title = panel.read_with(cx, |p, _| p.tab_title());
+    assert!(title.starts_with("? "), "{title}");
 });

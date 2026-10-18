@@ -6,6 +6,7 @@ package bridge
 
 import (
 	"encoding/json"
+	"fmt"
 	"strings"
 	"testing"
 	"time"
@@ -137,6 +138,76 @@ func TestBridge_station(t *testing.T) {
 		_, err := Call(h, []byte(`{"op":"sessions","machine":"nenhuma"}`))
 		if err == nil || !strings.Contains(err.Error(), "nenhuma") {
 			t.Fatalf("want the machine's error, got %v", err)
+		}
+	})
+}
+
+type allProgress struct {
+	Machines []struct {
+		Name    string `json:"name"`
+		Version uint64 `json:"version"`
+		Error   string `json:"error"`
+		Agents  []struct {
+			Agent string `json:"agent"`
+		} `json:"agents"`
+	} `json:"machines"`
+}
+
+// report has an agent of the station's machine start a job, as the agent's tool does.
+func report(t *testing.T, h Handle, agent string) {
+	t.Helper()
+	s, _ := stationOf(h)
+	n, err := s.Node("local")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := n.Call("progress.report", map[string]any{"agent": agent, "op": "start", "goal": "g"}, &struct{}{}); err != nil {
+		t.Fatal(err)
+	}
+}
+
+func TestBridge_progress(t *testing.T) {
+	t.Run("BRDGE-B04#01: O progresso de uma máquina, e perguntar a um agente", func(t *testing.T) {
+		h := open(t)
+		report(t, h, "a")
+		var l struct {
+			Version uint64 `json:"version"`
+			Agents  []struct {
+				Agent string `json:"agent"`
+			} `json:"agents"`
+		}
+		call(t, h, `{"op":"progress","machine":"local"}`, &l)
+		var q struct {
+			ID string `json:"id"`
+		}
+		call(t, h, `{"op":"ask","machine":"local","agent":"a","text":"onde vais?"}`, &q)
+		if len(l.Agents) != 1 || l.Agents[0].Agent != "a" || q.ID == "" {
+			t.Fatalf("got %+v and %+v", l, q)
+		}
+	})
+	t.Run("BRDGE-B04#02: Esperar pela mudança de qualquer máquina", func(t *testing.T) {
+		h := open(t)
+		var first allProgress
+		call(t, h, `{"op":"progress_all","timeout_ms":1000}`, &first)
+		go func() {
+			time.Sleep(100 * time.Millisecond)
+			report(t, h, "a")
+		}()
+		var got allProgress
+		req := fmt.Sprintf(`{"op":"progress_all","since":{"local":%d},"timeout_ms":5000}`, first.Machines[0].Version)
+		call(t, h, req, &got)
+		if len(got.Machines) != 1 || len(got.Machines[0].Agents) != 1 {
+			t.Fatalf("want the agent, got %+v", got)
+		}
+	})
+	t.Run("BRDGE-B04#03: Uma máquina que a janela não conhece volta logo", func(t *testing.T) {
+		h := open(t)
+		began := time.Now()
+		var got allProgress
+		// at once, and not after the 20 s of the wait: half of it tells them apart in both engines
+		call(t, h, `{"op":"progress_all","timeout_ms":20000}`, &got)
+		if time.Since(began) > 10*time.Second || len(got.Machines) != 1 || got.Machines[0].Name != "local" {
+			t.Fatalf("want local at once, got %+v in %v", got, time.Since(began))
 		}
 	})
 }

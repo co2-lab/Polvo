@@ -1,6 +1,6 @@
 <!-- @anchors
   code: TRPNT
-  updated_at: 2026-10-17
+  updated_at: 2026-10-18
 -->
 # Panel — um terminal como painel da doca
 
@@ -66,6 +66,10 @@ organização da doca guarda a máquina e a sessão, para a aba voltar ligada a 
 O painel de uma sessão onde a janela não pode escrever mostra "Só ver", e as teclas e o colar não vão
 para a sessão; copiar e os atalhos da janela continuam.
 
+### TRPNT-B12 — A marca do agente na aba
+O título da aba de uma sessão onde corre um agente começa pela marca dele (`set_mark`): a trabalhar, à
+espera de uma resposta, bloqueado, ou terminado.
+
 ## Domain
 
 | Input | Accepts | Outside the domain | Who guarantees |
@@ -103,6 +107,7 @@ para a sessão; copiar e os atalhos da janela continuam.
 | `TRPNT-E01` | `SHELL_FALLBACK` |
 | `TRPNT-B10` | `SessionTab` |
 | `TRPNT-B11` | `SessionTab`, `key` |
+| `TRPNT-B12` | `SessionTab` |
 
 ## Revisions
 
@@ -114,6 +119,8 @@ para a sessão; copiar e os atalhos da janela continuam.
 > utilizador muda; os atalhos das ações da janela deixam de ir para a shell.
 
 > **TRPNT-R0003:** o atalho de gravar do mapa (o Ctrl+S, do editor) vai para a shell (plano CEACN, W03).
+
+> **TRPNT-R0005:** entra o `TRPNT-B12` (a marca do agente na aba), do plano AGPRG, W04.
 
 > **TRPNT-R0004:** entram o `TRPNT-B10` (o terminal de uma sessão, dona ou não) e o `TRPNT-B11` (só ver),
 > para as abas das sessões desta máquina e das outras (plano ESRMS, W02).

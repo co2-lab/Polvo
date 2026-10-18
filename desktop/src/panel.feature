@@ -2,7 +2,7 @@
 # @anchors
 #   code: TPFTR
 #   ref: TRPNT
-#   updated_at: 2026-10-17
+#   updated_at: 2026-10-18
 #   layer: feature
 
 @TRPNT
@@ -97,3 +97,9 @@ Feature: Panel
     Given o painel de uma sessão onde a janela não pode escrever
     When o utilizador escreve "echo marca-$((2+3))" e Enter
     Then o painel mostra "Só ver", e a sessão não corre o comando
+
+  @TRPNT-B12 @unit-level
+  Scenario: A marca do agente na aba
+    Given o painel de uma sessão
+    When recebe a marca de um agente à espera de uma resposta
+    Then o título da aba começa por "?"

@@ -1,6 +1,6 @@
 <!-- @anchors
   code: BRDGE
-  updated_at: 2026-10-17
+  updated_at: 2026-10-18
 -->
 # Bridge — as estações e os terminais por números, para a janela os usar através de C
 
@@ -21,7 +21,11 @@ O `Call` recebe `{"op": …}` e devolve o resultado em JSON:
 - `add` (`addr`) e `remove` (`name`): juntar e esquecer uma máquina;
 - `sessions` (`machine`): as sessões dela, como o `hub.Session`;
 - `new` (`machine`, `argv`, `dir`, `rows`, `cols`): cria uma sessão e dá o `id`;
-- `close` e `lock` (`machine`, `id`, `locked`): termina, trava ou destrava uma sessão.
+- `close` e `lock` (`machine`, `id`, `locked`): termina, trava ou destrava uma sessão;
+- `progress` (`machine`): o progresso dos agentes dela, com a versão;
+- `ask` (`machine`, `agent`, `text`): pergunta a um agente dela, e dá o id da pergunta;
+- `progress_all` (`since`, a versão que a janela tem de cada máquina, e `timeout_ms`): o progresso de
+  todas as máquinas, quando alguma mudou desde a versão dada, ou quando passa o prazo.
 
 ## Rules
 
@@ -37,6 +41,11 @@ O `Attach` liga um terminal a uma sessão de uma máquina e dá o número dele. 
 mostra (primeiro o ecrã atual), à medida que chega, e o fim (zero bytes) quando o terminal acaba; o
 `Write` escreve na sessão; o `Resize` muda-lhe o tamanho; o `Detach` larga o terminal, e a sessão
 continua.
+
+### BRDGE-B04 — O progresso dos agentes de todas as máquinas
+O `progress_all` volta logo quando alguma máquina já mudou desde a versão dada (uma que a janela ainda não
+conhece mudou sempre), e senão espera pela primeira mudança de qualquer uma, ou pelo prazo; dá todas as
+máquinas, cada uma com a versão e os agentes, ou o erro dela.
 
 ## Domain
 
@@ -62,6 +71,12 @@ continua.
 | `BRDGE-E01` | `Handle` |
 | `BRDGE-E02` | `request` |
 | `BRDGE-E03` | `request` |
+| `BRDGE-B04` | `Handle`, `request` |
+
+## Revisions
+
+> **BRDGE-R0001:** entram os pedidos do progresso dos agentes (`progress`, `ask`, `progress_all`, e o
+> `BRDGE-B04`), do plano AGPRG, W04.
 
 ## Open Decisions
 

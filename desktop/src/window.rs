@@ -24,6 +24,7 @@ use gpui_kit::{
     Render, Styled as _, Subscription, Task, Window, div, prelude::*, px,
 };
 
+use crate::agents::{AgentsFeed, AgentsPanel, FeedEvent}; // @dep: AGIMP
 use crate::editor::EditorPanel; // @dep: EDIMP
 use crate::files::{FileTree, FileTreeEvent}; // @dep: FLIMP
 use crate::git::{GitEvent, GitPanel}; // @dep: GTIMP
@@ -63,8 +64,11 @@ pub const OPEN_FILE: TabKind = TabKind { id: "open-file", label: "Abrir um fiche
 /// The machines and their sessions, with the installation open (WNDWI-B21).
 pub const MACHINES: TabKind = TabKind { id: "machines", label: "Máquinas" };
 
+/// The agents and their progress, with the installation open (WNDWI-B23).
+pub const AGENTS: TabKind = TabKind { id: "agents", label: "Agentes" };
+
 /// The kinds of tab the window can open (WNDWI-B10).
-pub const KINDS: [TabKind; 6] = [TERMINAL, FILES, GIT_INFO, EDITOR, OPEN_FILE, MACHINES];
+pub const KINDS: [TabKind; 7] = [TERMINAL, FILES, GIT_INFO, EDITOR, OPEN_FILE, MACHINES, AGENTS];
 
 /// How the window opens the panel of a session (WNDWI-B22): connected in the application, with no
 /// channel in the tests.
@@ -201,6 +205,11 @@ pub struct PolvoWindow {
     open_session: OpenSession,
     /// The machines tab, when it is in the dock (WNDWI-B21).
     machines: Option<Entity<NodesPanel>>,
+    /// The agents' progress, with the installation (WNDWI-B23).
+    feed: Option<Entity<AgentsFeed>>,
+    /// The agents tab, when it is in the dock (WNDWI-B23).
+    agents: Option<Entity<AgentsPanel>>,
+    _feed_heard: Option<Subscription>,
     /// What the window hears from each terminal, by the terminal's entity.
     heard: HashMap<EntityId, Subscription>,
     /// What the window hears from the dock.
@@ -220,6 +229,7 @@ impl PolvoWindow {
         root: PathBuf,
         station: Option<Station>,
         open_session: OpenSession,
+        feed: Option<Entity<AgentsFeed>>,
         window: &mut Window,
         cx: &mut Context<Self>,
     ) -> Self {
@@ -248,6 +258,9 @@ impl PolvoWindow {
             station,
             open_session,
             machines: None,
+            feed: feed.clone(),
+            agents: None,
+            _feed_heard: None,
             heard: HashMap::new(),
             dock_heard: None,
             saving: None,
@@ -317,6 +330,16 @@ impl PolvoWindow {
                 panel_handle(panel)
             });
         }
+        // WNDWI-B23
+        let restored_agents: Rc<RefCell<Option<Entity<AgentsPanel>>>> = Rc::default();
+        if let Some(feed) = feed.clone() {
+            let restored = restored_agents.clone();
+            register_panel(cx, "agents", move |_, window, cx| {
+                let panel = cx.new(|cx| AgentsPanel::new(feed.clone(), window, cx));
+                *restored.borrow_mut() = Some(panel.clone());
+                panel_handle(panel)
+            });
+        }
         let restored_gits: Rc<RefCell<Vec<Entity<GitPanel>>>> = Rc::default();
         {
             let (restored, fallback) = (restored_gits.clone(), this.root.clone());
@@ -350,6 +373,11 @@ impl PolvoWindow {
         this.settings = restored.borrow_mut().take();
         for tree in restored_trees.borrow_mut().drain(..) {
             this.watch_tree(tree, window, cx);
+        }
+        this.agents = restored_agents.borrow_mut().take();
+        // WNDWI-B24: each change of the progress marks the sessions' tabs
+        if let Some(feed) = &feed {
+            this._feed_heard = Some(cx.subscribe(feed, |this, _, _: &FeedEvent, cx| this.mark_sessions(cx)));
         }
         if let Some(panel) = restored_machines.borrow_mut().take() {
             this.watch_machines(panel, window, cx);
@@ -407,6 +435,9 @@ impl PolvoWindow {
         if self.settings.as_ref().is_some_and(|s| !in_dock(s.entity_id())) {
             self.settings = None;
         }
+        if self.agents.as_ref().is_some_and(|a| !in_dock(a.entity_id())) {
+            self.agents = None;
+        }
         if let Some(id) = self.machines.as_ref().map(|m| m.entity_id()).filter(|id| !in_dock(*id)) {
             self.machines = None;
             self.heard.remove(&id);
@@ -431,6 +462,7 @@ impl PolvoWindow {
         if self.terminals.is_empty()
             && self.settings.is_none()
             && self.machines.is_none()
+            && self.agents.is_none()
             && self.trees.is_empty()
             && self.gits.is_empty()
             && self.editors.is_empty()
@@ -472,7 +504,10 @@ impl PolvoWindow {
         }
         let before = window.focused(cx);
         // WNDWI-B21: the machines only with the installation
-        let kinds: Vec<TabKind> = KINDS.into_iter().filter(|k| *k != MACHINES || self.station.is_some()).collect();
+        let kinds: Vec<TabKind> = KINDS
+            .into_iter()
+            .filter(|k| (*k != MACHINES || self.station.is_some()) && (*k != AGENTS || self.feed.is_some()))
+            .collect();
         let chooser = cx.new(|cx| NewTabChooser::new(kinds, window, cx));
         let heard = cx.subscribe_in(&chooser, window, |this, _, ev: &ChooserEvent, window, cx| {
             let before = this.choosing.take().and_then(|c| c.before);
@@ -506,7 +541,41 @@ impl PolvoWindow {
             self.ask_file(window, cx);
         } else if kind == MACHINES {
             self.open_machines(window, cx);
+        } else if kind == AGENTS {
+            self.open_agents(window, cx);
         }
+    }
+
+    /// Opens the agents tab with the focus, or shows the one open (WNDWI-B23).
+    fn open_agents(&mut self, window: &mut Window, cx: &mut Context<Self>) {
+        let Some(feed) = self.feed.clone() else { return };
+        let panel = match &self.agents {
+            Some(panel) => {
+                let id = PanelId::from(panel.entity_id());
+                self.dock.update(cx, |dock, cx| dock.select_panel(id, window, cx));
+                panel.clone()
+            }
+            None => {
+                let panel = cx.new(|cx| AgentsPanel::new(feed, window, cx));
+                self.dock.update(cx, |dock, cx| dock.add_panel(panel.clone(), DockPlacement::Center, None, window, cx));
+                self.agents = Some(panel.clone());
+                panel
+            }
+        };
+        let focus = panel.read(cx).focus_handle(cx);
+        window.focus(&focus, cx);
+        cx.notify();
+    }
+
+    /// Marks each session's tab with the agent that runs in it, or with none (WNDWI-B24).
+    fn mark_sessions(&mut self, cx: &mut Context<Self>) {
+        let Some(feed) = &self.feed else { return };
+        let marks = feed.read(cx).marks();
+        for t in self.terminals.clone() {
+            let mark = t.read(cx).session_key().and_then(|k| marks.get(&k).copied());
+            t.update(cx, |p, cx| p.set_mark(mark, cx));
+        }
+        cx.notify();
     }
 
     /// Opens the machines tab with the focus, or shows the one open (WNDWI-B21).
@@ -671,6 +740,8 @@ impl PolvoWindow {
         } else if let Some(panel) = self.settings.clone().filter(|s| focused(s.read(cx).focus_handle(cx))) {
             self.dock.update(cx, |dock, cx| dock.remove_panel(panel, window, cx));
         } else if let Some(panel) = self.trees.iter().find(|t| focused(t.read(cx).focus_handle(cx))).cloned() {
+            self.dock.update(cx, |dock, cx| dock.remove_panel(panel, window, cx));
+        } else if let Some(panel) = self.agents.clone().filter(|a| focused(a.read(cx).focus_handle(cx))) {
             self.dock.update(cx, |dock, cx| dock.remove_panel(panel, window, cx));
         } else if let Some(panel) = self.machines.clone().filter(|m| focused(m.read(cx).focus_handle(cx))) {
             self.dock.update(cx, |dock, cx| dock.remove_panel(panel, window, cx));
@@ -894,8 +965,10 @@ pub fn open(shell: String, cwd: Option<std::path::PathBuf>, prefs: Prefs, statio
         None => Rc::new(move |prefs, window, cx| TerminalPanel::spawn(&shell, cwd.as_deref(), prefs, window, cx)),
     };
     let open_session: OpenSession = Rc::new(TerminalPanel::session);
+    // WNDWI-B24: the agents' progress, kept up to date while the window lives
+    let feed = station.clone().map(|st| cx.new(|cx| AgentsFeed::new(st, true, cx)));
     let opened = gpui_kit::open_window(options, cx, |window, cx| {
-        cx.new(|cx| PolvoWindow::new(prefs, new_terminal, LayoutFile::default(), root, station, open_session, window, cx))
+        cx.new(|cx| PolvoWindow::new(prefs, new_terminal, LayoutFile::default(), root, station, open_session, feed, window, cx))
     });
     if let Err(e) = opened {
         // WNDWI-E01

@@ -12,6 +12,7 @@ import (
 	"io"
 	"strings"
 	"sync"
+	"time"
 
 	"github.com/co2-lab/polvo/internal/hub"
 	"github.com/co2-lab/polvo/internal/pty"
@@ -113,6 +114,11 @@ type request struct {
 	Rows    uint16   `json:"rows"`
 	Cols    uint16   `json:"cols"`
 	Locked  bool     `json:"locked"`
+	Agent   string   `json:"agent"`
+	Text    string   `json:"text"`
+	// Since is the version the window has of each machine's progress (BRDGE-B04).
+	Since     map[string]uint64 `json:"since"`
+	TimeoutMS int64             `json:"timeout_ms"`
 }
 
 // Call answers a request in JSON about the station (BRDGE-B02).
@@ -156,9 +162,11 @@ func answer(s *station.Station, r request) (any, error) {
 		return struct{}{}, s.Add(r.Addr)
 	case "remove":
 		return struct{}{}, s.Remove(r.Name)
+	case "progress_all":
+		return progressAll(s, r.Since, time.Duration(r.TimeoutMS)*time.Millisecond), nil
 	}
 	switch r.Op {
-	case "sessions", "new", "close", "lock":
+	case "sessions", "new", "close", "lock", "progress", "ask":
 	default:
 		// BRDGE-E02
 		return nil, fmt.Errorf("bridge: unknown op %q", r.Op)
@@ -182,6 +190,14 @@ func answer(s *station.Station, r request) (any, error) {
 		return map[string]string{"id": id}, err
 	case "close":
 		return struct{}{}, n.CloseSession(r.ID)
+	case "progress":
+		var out json.RawMessage
+		err := n.Call("progress.list", struct{}{}, &out)
+		return out, err
+	case "ask":
+		var out json.RawMessage
+		err := n.Call("progress.ask", map[string]string{"agent": r.Agent, "text": r.Text}, &out)
+		return out, err
 	default:
 		return struct{}{}, n.LockSession(r.ID, r.Locked)
 	}
@@ -251,4 +267,89 @@ func Detach(h Handle) {
 	if t != nil {
 		t.t.Close()
 	}
+}
+
+// machineProgress is a machine's progress, or why it was not read.
+type machineProgress struct {
+	Name    string          `json:"name"`
+	Version uint64          `json:"version"`
+	Agents  json.RawMessage `json:"agents,omitempty"`
+	Error   string          `json:"error,omitempty"`
+}
+
+// readProgress reads a machine's progress: at once, or waiting for a change since `since` for at most d.
+func readProgress(s *station.Station, name string, since *uint64, d time.Duration) machineProgress {
+	out := machineProgress{Name: name}
+	n, err := s.Node(name)
+	if err != nil {
+		out.Error = err.Error()
+		return out
+	}
+	var r struct {
+		Version uint64          `json:"version"`
+		Agents  json.RawMessage `json:"agents"`
+	}
+	if since == nil {
+		err = n.Call("progress.list", struct{}{}, &r)
+	} else {
+		err = n.Call("progress.wait", map[string]any{"since": *since, "timeout_ms": d.Milliseconds()}, &r)
+	}
+	if err != nil {
+		out.Error = err.Error()
+		return out
+	}
+	out.Version, out.Agents = r.Version, r.Agents
+	return out
+}
+
+// readAll reads every machine's progress at once.
+func readAll(s *station.Station) []machineProgress {
+	ms := s.Machines()
+	out := make([]machineProgress, len(ms))
+	var wg sync.WaitGroup
+	for i, m := range ms {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			out[i] = readProgress(s, m.Name, nil, 0)
+		}()
+	}
+	wg.Wait()
+	return out
+}
+
+func changed(all []machineProgress, since map[string]uint64) bool {
+	for _, m := range all {
+		v, known := since[m.Name]
+		if !known || m.Error == "" && m.Version != v {
+			return true
+		}
+	}
+	return false
+}
+
+// progressAll is BRDGE-B04: every machine's progress, as soon as one changed since the versions the
+// window has, or when d passes.
+func progressAll(s *station.Station, since map[string]uint64, d time.Duration) map[string]any {
+	all := readAll(s)
+	if changed(all, since) || d <= 0 {
+		return map[string]any{"machines": all}
+	}
+	first := make(chan struct{}, len(all))
+	for _, m := range all {
+		if m.Error != "" {
+			continue
+		}
+		v := since[m.Name]
+		go func() {
+			if got := readProgress(s, m.Name, &v, d); got.Error == "" && got.Version != v {
+				first <- struct{}{}
+			}
+		}()
+	}
+	select {
+	case <-first:
+	case <-time.After(d):
+	}
+	return map[string]any{"machines": readAll(s)}
 }

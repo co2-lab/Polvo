@@ -2,7 +2,7 @@
 # @anchors
 #   code: RMFST
 #   ref: RMTEC
-#   updated_at: 2026-10-17
+#   updated_at: 2026-10-18
 #   layer: feature
 
 @RMTEC
@@ -37,3 +37,9 @@ Feature: Remote
     Given duas instalações, a segunda a escutar e com a chave da primeira autorizada
     When a primeira junta a segunda pelo endereço, pede as sessões dela, e depois esquece-a
     Then a segunda aparece nas máquinas com as sessões dela, e no fim só fica a local
+
+  @RMTEC-B05 @unit-level
+  Scenario: O progresso dos agentes
+    Given uma instalação onde o agente "a" tem o trabalho "migrar" com o passo "ler" em curso
+    When a janela pede o progresso sem versões, e pergunta ao agente "onde vais?"
+    Then esta máquina tem o agente com o trabalho e o passo, e a pergunta tem um id

@@ -7,6 +7,7 @@ use crate::layout::{DockAreaState, LayoutFile}; // @dep: DLIDC
 use crate::prefs::{Button, Prefs}; // @dep: PRIMP
 use crate::screen::tests::Sink; // @dep: SCIMS
 use crate::keymap::{Action, Keymap}; // @dep: KYIMA
+use crate::agents::AgentsFeed; // @dep: AGIMP
 use crate::panel::SessionTab; // @dep: TPITR
 use crate::remote::{LOCAL, RemoteError, Station}; // @dep: RMIMP
 use crate::screen::{Event, Screen, Size}; // @dep: SCIMS
@@ -66,12 +67,11 @@ fn open_in(cx: &mut TestAppContext, prefs: Prefs, ok: usize, layout: Option<Layo
     open_all(cx, prefs, ok, layout, root, None)
 }
 
-/// The panels of the sessions with no channel: their output comes from a thread the test scheduler
-/// does not run.
+/// The panels of the sessions, on terminals with no shell: the session's output comes from a thread the
+/// test scheduler does not run.
 fn offline_sessions() -> OpenSession {
     Rc::new(|tab: SessionTab, prefs: &Prefs, window: &mut gpui_kit::Window, cx: &mut gpui_kit::App| {
-        let term = tab.station.attach(&tab.machine, &tab.id)?;
-        let (screen, _events) = Screen::attach(term, Size { rows: 24, cols: 80, cell_w: 9, cell_h: 20 }).map_err(RemoteError)?;
+        let screen = Screen::new(Size { rows: 24, cols: 80, cell_w: 9, cell_h: 20 }, Box::new(Sink::default())).map_err(RemoteError)?;
         Ok(cx.new(|cx| TerminalPanel::with_session(screen, None, tab, prefs, window, cx)))
     })
 }
@@ -85,6 +85,8 @@ fn open_all(
     station: Option<Station>,
 ) -> Opened {
     cx.update(gpui_kit::init);
+    // the agents' progress that waits for no change: a wait would hold the test scheduler
+    let feed = station.as_ref().map(|st| cx.update(|cx| cx.new(|cx| AgentsFeed::new(st.clone(), false, cx))));
     let made = Rc::new(RefCell::new(Made::default()));
     let new_terminal = offline_terminals(made.clone(), ok);
     let options = WindowOptions {
@@ -94,7 +96,7 @@ fn open_all(
     let (handle, view) = cx
         .update(|cx| {
             gpui_kit::open_window(options, cx, |window, cx| {
-                cx.new(|cx| PolvoWindow::new(prefs, new_terminal, layout, root, station, offline_sessions(), window, cx))
+                cx.new(|cx| PolvoWindow::new(prefs, new_terminal, layout, root, station, offline_sessions(), feed, window, cx))
             })
         })
         .unwrap();
@@ -624,4 +626,42 @@ scenario!(wndwi_b22_02_a_aba_de_uma_sessao_volta_ou_diz_porque, "WNDWI-B22#02: A
     let again = open_all(cx, gnome_left(), usize::MAX, Some(file), std::env::temp_dir(), Some(st.clone()));
     let texts: Vec<String> = again.view.update(cx, |v, cx| v.terminals.iter().map(|t| t.update(cx, |p, _| p.screen_text())).collect());
     assert!(texts.iter().any(|t| t.contains(&id)), "{texts:?}");
+});
+
+scenario!(wndwi_b23_os_agentes, "WNDWI-B23: Os agentes", |cx| {
+    let (_dir, _st, o) = with_station(cx, None);
+    choose_kind(cx, &o, 7);
+    let first = o.view.read_with(cx, |v, _| v.agents.clone()).expect("the agents tab");
+    choose_kind(cx, &o, 7);
+    let again = o.view.read_with(cx, |v, _| v.agents.clone()).expect("the agents tab");
+    let in_dock = {
+        let state = o.view.read_with(cx, |v, cx| v.dock.read(cx).dump(cx));
+        fn count(p: &gpui_kit::component::dock::PanelState) -> usize {
+            usize::from(p.panel_name == "agents") + p.children.iter().map(count).sum::<usize>()
+        }
+        count(&state.center)
+    };
+    assert_eq!((in_dock, first == again, has_focus(cx, &o, &again)), (1, true, true));
+});
+
+scenario!(wndwi_b24_a_marca_do_agente_na_aba_da_sessao, "WNDWI-B24: A marca do agente na aba da sessão dele", |cx| {
+    let dir = tempfile::tempdir().unwrap();
+    std::fs::create_dir_all(dir.path().join("progress")).unwrap();
+    let job = r#"{"agent":"session-s1","goal":"g","steps":[],"log":[],"finished":false,"questions":[{"id":"q-1","text":"?","state":"pending"}]}"#;
+    std::fs::write(dir.path().join("progress").join("session-s1.json"), job).unwrap();
+    let st = Station::open(dir.path(), "", "/bin/sh").unwrap();
+    let o = open_all(cx, gnome_left(), usize::MAX, None, std::env::temp_dir(), Some(st.clone()));
+    for id in ["s1", "s2"] {
+        let tab = SessionTab { station: st.clone(), machine: LOCAL.into(), id: id.into(), owned: false, writable: true };
+        cx.update_window(o.handle, |_, window, cx| o.view.update(cx, |v, cx| v.open_session_tab(tab, window, cx))).unwrap();
+    }
+    let feed = o.view.read_with(cx, |v, _| v.feed.clone()).expect("the feed");
+    feed.update(cx, |f, cx| f.refresh(cx));
+    for _ in 0..3 {
+        cx.run_until_parked();
+        frame(cx, o.handle);
+    }
+    let titles: Vec<String> = o.view.read_with(cx, |v, cx| v.terminals.iter().skip(1).map(|t| t.read(cx).tab_title()).collect());
+    assert!(titles[0].starts_with("? "), "{titles:?}");
+    assert!(!titles[1].starts_with("? ") && !titles[1].starts_with("◐ "), "{titles:?}");
 });

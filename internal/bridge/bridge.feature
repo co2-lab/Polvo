@@ -2,7 +2,7 @@
 # @anchors
 #   code: BRFST
 #   ref: BRDGE
-#   updated_at: 2026-10-17
+#   updated_at: 2026-10-18
 #   layer: feature
 
 @BRDGE
@@ -43,3 +43,21 @@ Feature: Bridge
     Given uma estação
     When pede as sessões da máquina "nenhuma"
     Then o erro diz a máquina
+
+  @BRDGE-B04#01 @unit-level
+  Scenario: O progresso de uma máquina, e perguntar a um agente
+    Given uma estação onde um agente começou um trabalho
+    When pede o progresso desta máquina e pergunta ao agente "onde vais?"
+    Then o progresso tem o agente, e a pergunta tem um id
+
+  @BRDGE-B04#02 @unit-level
+  Scenario: Esperar pela mudança de qualquer máquina
+    Given uma estação, e a versão que a janela já tem dela
+    When um agente começa um trabalho enquanto a janela espera
+    Then a espera volta com o agente
+
+  @BRDGE-B04#03 @unit-level
+  Scenario: Uma máquina que a janela não conhece volta logo
+    Given uma estação
+    When a janela espera sem versões
+    Then a espera volta logo, com esta máquina

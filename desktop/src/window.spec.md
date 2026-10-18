@@ -1,6 +1,6 @@
 <!-- @anchors
   code: WNDWI
-  updated_at: 2026-10-17
+  updated_at: 2026-10-18
 -->
 # Window — a janela do Polvo: a barra do sistema e a doca dos terminais
 
@@ -17,7 +17,8 @@ nem margem à volta (o dono aprovou-a assim a 2026-10-17).
 
 O `PolvoWindow::new` recebe as preferências, a forma de fazer os terminais (`NewTerminal`), o ficheiro
 da organização (`LayoutFile`), quando a há, a pasta da janela (`root`, a pasta onde o Polvo abriu), a
-instalação (`Station`), quando abriu, e a forma de abrir o painel de uma sessão (`OpenSession`); o `open` abre a janela com a shell do utilizador.
+instalação (`Station`), quando abriu, a forma de abrir o painel de uma sessão (`OpenSession`) e o progresso
+dos agentes (`AgentsFeed`), quando há a instalação; o `open` abre a janela com a shell do utilizador.
 
 ## Rules
 
@@ -46,7 +47,7 @@ Em cada grupo da doca, a barra das abas fica por baixo dos terminais (o dono ped
 O botão "+" da barra abre o escolhedor do tipo da aba nova (`NWTBS`), com os tipos que a janela sabe
 abrir (`KINDS`): o terminal, a árvore de ficheiros (`WNDWI-B18`), a informação de git (`WNDWI-B20`), o
 editor vazio, um ficheiro do computador (`WNDWI-B19`) e, com a instalação aberta, as máquinas
-(`WNDWI-B21`). Escolher o terminal abre um terminal novo numa aba da doca, com o foco.
+(`WNDWI-B21`) e os agentes (`WNDWI-B23`). Escolher o terminal abre um terminal novo numa aba da doca, com o foco.
 
 ### WNDWI-B11 — O fim de uma shell tira a aba dela
 Quando a shell de um terminal termina, a aba dele sai da doca. Quando sai a última, a janela fecha.
@@ -98,6 +99,14 @@ uma, como a da configuração. Sem a instalação, o escolhedor não tem esse ti
 Uma sessão aberta na aba das máquinas abre numa aba do terminal (`OpenSession`), com o foco. Uma aba ligada
 a uma sessão que já não existe, ao voltar com a organização, diz porquê.
 
+### WNDWI-B23 — Os agentes
+Com o progresso dos agentes, o tipo "Agentes" abre a aba dos agentes (`AGNTS`), com o foco; a janela só
+tem uma. Sem ele, o escolhedor não tem esse tipo.
+
+### WNDWI-B24 — A marca do agente na aba da sessão dele
+Cada vez que o progresso muda, a aba de cada sessão onde corre um agente mostra a marca dele, e a de uma
+sessão sem agente não mostra nenhuma.
+
 ## Domain
 
 | Input | Accepts | Outside the domain | Who guarantees |
@@ -105,6 +114,7 @@ a uma sessão que já não existe, ao voltar com a organização, diz porquê.
 | `Prefs` | as preferências do `prefs::read` | — | o `Prefs`: nunca falta nenhum valor (os de omissão) |
 | `NewTerminal` | a forma de fazer um terminal novo | um terminal que não arranca | esta unidade: o aviso (`WNDWI-E02`, `WNDWI-E04`) |
 | `Station` | a instalação, ou nenhuma (não abriu) | — | esta unidade: sem ela, não há a aba das máquinas |
+| `AgentsFeed` | o progresso dos agentes, ou nenhum | — | esta unidade: sem ele, não há a aba dos agentes nem as marcas |
 | `OpenSession` | a forma de abrir o painel de uma sessão | uma sessão que não se liga | esta unidade: o painel diz porquê |
 | `root` | a pasta onde o Polvo abriu | uma pasta que não se lê | a árvore (`FLTRE`): o motivo no lugar do conteúdo |
 | `LayoutFile` | o ficheiro da organização, ou nenhum | um ficheiro que não se grava | esta unidade: o aviso (`WNDWI-E03`) |
@@ -122,7 +132,7 @@ a uma sessão que já não existe, ao voltar com a organização, diz porquê.
 | Constant | Value | Why |
 | --- | --- | --- |
 | `TITLE_H` | 38 px | a altura da barra do GNOME (libadwaita) |
-| `KINDS` | `[TERMINAL, FILES, GIT_INFO, EDITOR, OPEN_FILE, MACHINES]` | os tipos de aba que o escolhedor mostra (`WNDWI-B10`), pela ordem do mais usado |
+| `KINDS` | `[TERMINAL, FILES, GIT_INFO, EDITOR, OPEN_FILE, MACHINES, AGENTS]` | os tipos de aba que o escolhedor mostra (`WNDWI-B10`), pela ordem do mais usado |
 | `SAVE_DELAY` | 500 ms | um arrasto muda a doca muitas vezes seguidas; grava-se uma vez, no fim |
 
 ## Rule uses
@@ -150,6 +160,8 @@ a uma sessão que já não existe, ao voltar com a organização, diz porquê.
 | `WNDWI-B20` | `root` |
 | `WNDWI-B21` | `Station`, `KINDS` |
 | `WNDWI-B22` | `Station`, `OpenSession` |
+| `WNDWI-B23` | `AgentsFeed`, `KINDS` |
+| `WNDWI-B24` | `AgentsFeed` |
 
 ## Revisions
 
@@ -186,6 +198,9 @@ a uma sessão que já não existe, ao voltar com a organização, diz porquê.
 > organização guarda a aba das máquinas e as sessões alheias. O terminal novo da aplicação é uma sessão
 > desta máquina quando a instalação abriu, para as outras o poderem espelhar, e um pty da janela quando
 > não abriu (o Windows, até o pty do Go o servir).
+
+> **WNDWI-R0009:** entram o `WNDWI-B23` (a aba dos agentes) e o `WNDWI-B24` (a marca do agente na aba da
+> sessão dele), do plano AGPRG, W04; o `new` passa a receber o progresso dos agentes.
 
 ## Open Decisions
 

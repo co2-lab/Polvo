@@ -88,6 +88,79 @@ fn answered(out: *mut c_char, err: *mut c_char) -> Result<String, RemoteError> {
     Ok(unsafe { take(out) })
 }
 
+/// A step of an agent's job.
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct AgentStep {
+    pub id: String,
+    pub title: String,
+    /// `todo`, `doing`, `done` or `blocked`.
+    pub state: String,
+}
+
+/// Something that happened in an agent's job.
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct AgentEntry {
+    pub at: String,
+    /// `start`, `step`, `note` or `finish`.
+    pub kind: String,
+    pub step: String,
+    pub state: String,
+    pub text: String,
+}
+
+/// A question Polvo asked an agent, and its answer.
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct AgentQuestion {
+    pub id: String,
+    pub text: String,
+    /// `pending`, `answered` or `failed`.
+    pub state: String,
+    pub answer: String,
+}
+
+/// An agent's job, as its node keeps it (RMTEC-B05).
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct AgentJob {
+    pub agent: String,
+    pub goal: String,
+    pub steps: Vec<AgentStep>,
+    pub log: Vec<AgentEntry>,
+    pub questions: Vec<AgentQuestion>,
+    pub finished: bool,
+}
+
+/// A machine's progress, or why it was not read (RMTEC-B05).
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct MachineProgress {
+    pub name: String,
+    pub version: u64,
+    pub agents: Vec<AgentJob>,
+    pub error: Option<String>,
+}
+
+fn text(v: &Value, key: &str) -> String {
+    v[key].as_str().unwrap_or_default().to_string()
+}
+
+fn items(v: &Value) -> impl Iterator<Item = &Value> {
+    v.as_array().into_iter().flatten()
+}
+
+fn job(v: &Value) -> AgentJob {
+    AgentJob {
+        agent: text(v, "agent"),
+        goal: text(v, "goal"),
+        steps: items(&v["steps"]).map(|s| AgentStep { id: text(s, "id"), title: text(s, "title"), state: text(s, "state") }).collect(),
+        log: items(&v["log"])
+            .map(|e| AgentEntry { at: text(e, "at"), kind: text(e, "kind"), step: text(e, "step"), state: text(e, "state"), text: text(e, "text") })
+            .collect(),
+        questions: items(&v["questions"])
+            .map(|q| AgentQuestion { id: text(q, "id"), text: text(q, "text"), state: text(q, "state"), answer: text(q, "answer") })
+            .collect(),
+        finished: v["finished"].as_bool().unwrap_or(false),
+    }
+}
+
 /// The installation, with this machine's node (RMTEC-B01); the clones share it, and the last one closes it.
 #[derive(Clone)]
 pub struct Station {
@@ -193,6 +266,26 @@ impl Station {
     /// Ends a session (RMTEC-B02).
     pub fn close_session(&self, machine: &str, id: &str) -> Result<(), RemoteError> {
         self.call(json!({ "op": "close", "machine": machine, "id": id })).map(|_| ())
+    }
+
+    /// The progress of the agents of every machine, as soon as one changed since the versions in
+    /// `since`, or when `timeout_ms` passes (RMTEC-B05).
+    pub fn progress_all(&self, since: &std::collections::BTreeMap<String, u64>, timeout_ms: u64) -> Result<Vec<MachineProgress>, RemoteError> {
+        let v = self.call(json!({ "op": "progress_all", "since": since, "timeout_ms": timeout_ms }))?;
+        Ok(items(&v["machines"])
+            .map(|m| MachineProgress {
+                name: text(m, "name"),
+                version: m["version"].as_u64().unwrap_or(0),
+                agents: items(&m["agents"]).map(job).collect(),
+                error: m["error"].as_str().filter(|e| !e.is_empty()).map(str::to_string),
+            })
+            .collect())
+    }
+
+    /// Asks an agent of a machine, and gives the question's id (RMTEC-B05).
+    pub fn ask(&self, machine: &str, agent: &str, question: &str) -> Result<String, RemoteError> {
+        let v = self.call(json!({ "op": "ask", "machine": machine, "agent": agent, "text": question }))?;
+        Ok(text(&v, "id"))
     }
 
     /// A terminal of a session (RMTEC-B03).
