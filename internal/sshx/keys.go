@@ -65,6 +65,28 @@ func LoadOrCreateIdentity(path string) (signer ssh.Signer, created bool, err err
 	return s, false, nil
 }
 
+// RawKey is the ed25519 private key of the identity at path, as LoadOrCreateIdentity made it, for what
+// needs the key itself and not an SSH signer: the transport between networks (KYSEX-B08).
+func RawKey(path string) (ed25519.PrivateKey, error) {
+	if _, _, err := LoadOrCreateIdentity(path); err != nil {
+		return nil, err
+	}
+	b, err := os.ReadFile(path)
+	if err != nil {
+		return nil, fmt.Errorf("sshx: reading the identity %s: %w", path, err)
+	}
+	raw, err := ssh.ParseRawPrivateKey(b)
+	if err != nil {
+		return nil, fmt.Errorf("sshx: the identity %s is not a private key: %w", path, err)
+	}
+	k, ok := raw.(*ed25519.PrivateKey)
+	if !ok {
+		// KYSEX-E03
+		return nil, fmt.Errorf("sshx: the identity %s is not an ed25519 key", path)
+	}
+	return *k, nil
+}
+
 // createIdentity writes a new ed25519 pair readable only by its owner (KYSEX-B02).
 func createIdentity(path string) (ssh.Signer, error) {
 	_, priv, err := ed25519.GenerateKey(rand.Reader)

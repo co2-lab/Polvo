@@ -32,6 +32,10 @@ passam nos dois sentidos, e o `CloseWrite` de um lado é o fim do que o outro l�
 O `DialFor` abre uma ligação para o SSH (`KIND_SSH`, a do `Dial`) ou para levar o endereço novo de uma
 instalação (`KIND_ADDR`), e a ligação aceite di-lo (`Kind`).
 
+### TRNSP-B06 — A chave que um endereço nomeia
+O `IsAddr` diz se um texto é um endereço do transporte (o JSON que uma instalação dá, ou `p2p:` e a
+chave), e o `KeyOf` dá a chave que ele nomeia, para quem se liga exigir essa chave ao nó do outro lado.
+
 ### TRNSP-B03 — A chave do outro lado
 Cada ligação sabe a chave do outro lado (`Remote`, e o `RemoteAddr`), que o handshake provou.
 
@@ -53,6 +57,7 @@ corre no nó do outro lado.
 | --- | --- | --- |
 | `TRNSP-E01` | o endpoint não abre, ou a outra instalação não se alcança | o `Open` ou o `Dial` devolvem o erro do `p2p/` |
 | `TRNSP-E02` | o executável foi compilado sem o transporte | o `Open` devolve o `ErrNotBuilt` |
+| `TRNSP-E04` | o texto não nomeia a chave de uma instalação | o `KeyOf` devolve o erro com o texto |
 | `TRNSP-E03` | quem usa a ligação pede um prazo | o `SetDeadline` e os irmãos devolvem o erro: o stream não tem prazos, e o SSH não os usa |
 
 ## Business Constants
@@ -72,11 +77,16 @@ corre no nó do outro lado.
 | `TRNSP-B03` | `addr` |
 | `TRNSP-B04` | `addr` |
 | `TRNSP-B05` | `addr`, `KIND_SSH`, `KIND_ADDR` |
+| `TRNSP-B06` | `addr` |
+| `TRNSP-E04` | `addr` |
 | `TRNSP-E01` | `relay`, `addr` |
 | `TRNSP-E02` | `key` |
 | `TRNSP-E03` | `addr` |
 
 ## Revisions
+
+> **TRNSP-R0003:** entram o `TRNSP-B06` e o `TRNSP-E04` (a chave que um endereço nomeia), para a CLI e o
+> agente se ligarem a um nó por um endereço do transporte.
 
 > **TRNSP-R0002:** entra o `TRNSP-B05` (para que é uma ligação), como o `PTRNS-R0002` do `p2p/`.
 

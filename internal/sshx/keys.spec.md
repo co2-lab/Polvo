@@ -1,6 +1,6 @@
 <!-- @anchors
   code: KYSEX
-  updated_at: 2026-10-17
+  updated_at: 2026-10-18
 -->
 # Keys — a identidade de uma instalação, quem entra num nó e que nós o desktop conhece
 
@@ -22,6 +22,11 @@ identidade acabou de nascer. É o `LoadOrCreateIdentity`.
 ### KYSEX-B02 — A chave privada só é legível pelo dono
 O ficheiro da chave privada nasce legível e gravável só pelo dono, e a pasta que o guarda, quando é
 criada, só é acessível pelo dono.
+
+### KYSEX-B08 — A chave em bruto
+O `RawKey` dá a chave privada ed25519 da identidade (criando-a como o `LoadOrCreateIdentity`, se não
+existe), para o transporte entre redes, que usa a chave e não um assinante do SSH. Uma identidade que não é
+ed25519 é um erro (`KYSEX-E03`).
 
 ### KYSEX-B03 — Entra quem está na lista de chaves autorizadas
 Um nó aceita uma chave que está na lista de chaves autorizadas e recusa uma que não está. As linhas
@@ -67,6 +72,7 @@ de um nó, editando a lista.
 | `KYSEX-E01` | num sistema Unix, o ficheiro da chave privada é legível ou gravável por outros além do dono | a identidade é recusada com o erro de permissões (`PermissionError`, com o caminho e as permissões encontradas) |
 | `KYSEX-E02` | o ficheiro da chave privada existe mas não é uma chave, ou não se consegue ler nem criar | erro com o caminho do ficheiro |
 | `KYSEX-E03` | a lista de chaves autorizadas não existe | ninguém entra, e não é um erro: um nó sem lista está fechado |
+| `KYSEX-E03` | a identidade não é uma chave ed25519 | o `RawKey` devolve o erro com o ficheiro |
 
 ## Rule uses
 
@@ -84,6 +90,12 @@ de um nó, editando a lista.
 | `KYSEX-E03` | `path`, `key` |
 | `KYSEX-I01` | `path`, `key` |
 | `KYSEX-I02` | `path`, `hostport`, `key` |
+| `KYSEX-B08` | `path` |
+| `KYSEX-E03` | `path` |
+
+## Revisions
+
+> **KYSEX-R0001:** entra o `KYSEX-B08` (a chave em bruto), para o transporte entre redes (plano ESRMS, W04).
 
 ## Open Decisions
 

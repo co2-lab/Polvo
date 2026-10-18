@@ -7,6 +7,7 @@ package transport_test
 import (
 	"crypto/ed25519"
 	"crypto/rand"
+	"encoding/hex"
 	"encoding/json"
 	"errors"
 	"io"
@@ -158,6 +159,21 @@ func signer(t *testing.T) ssh.Signer {
 		t.Fatal(err)
 	}
 	return s
+}
+
+func TestTransport_keyOf(t *testing.T) {
+	t.Run("TRNSP-B06: A chave que um endereço nomeia", func(t *testing.T) {
+		k := key(t).Public().(ed25519.PublicKey)
+		id := hex.EncodeToString(k)
+		json, name := `{"id":"`+id+`","addrs":[]}`, "p2p:"+id
+		a, errA := transport.KeyOf(json)
+		b, errB := transport.KeyOf(name)
+		_, errC := transport.KeyOf("maquina:2222")
+		if !transport.IsAddr(json) || !transport.IsAddr(name) || transport.IsAddr("maquina:2222") ||
+			errA != nil || errB != nil || errC == nil || !a.Equal(k) || !b.Equal(k) {
+			t.Fatalf("got %v %v %v", errA, errB, errC)
+		}
+	})
 }
 
 func TestTransport_none(t *testing.T) {

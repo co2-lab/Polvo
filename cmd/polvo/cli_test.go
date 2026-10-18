@@ -458,3 +458,25 @@ func echo(t *testing.T, tty *os.File) bool {
 	}
 	return binary.LittleEndian.Uint32(buf[12:16])&0x8 != 0
 }
+
+var between = regexp.MustCompile(`reachable between networks at (\S+)`)
+
+func TestCli_p2p(t *testing.T) {
+	t.Run("CLIXX-B09: Entre redes", func(t *testing.T) {
+		d, nodeDir := t.TempDir(), t.TempDir()
+		os.WriteFile(filepath.Join(nodeDir, "authorized_keys"), []byte(runKeygen(t, d)), 0o600)
+		var out syncBuffer
+		go Run([]string{"node", "--dir", nodeDir, "--listen", "127.0.0.1:0", "--relay", "", "--p2p-port", "0"}, Stdio{Stdout: &out, Stderr: io.Discard})
+		waitFor(t, &out, "listening on")
+		time.Sleep(300 * time.Millisecond)
+		m := between.FindStringSubmatch(out.String())
+		if m == nil {
+			t.Skip("built without the transport (make test-p2p runs these)")
+		}
+		var got syncBuffer
+		code := Run([]string{"connect", "--dir", d, m[1]}, Stdio{Stdin: strings.NewReader("echo marca-$((40+2)); exit 4\n"), Stdout: &got, Stderr: io.Discard})
+		if code != 4 || !strings.Contains(got.String(), "marca-42") {
+			t.Fatalf("want marca-42 and code 4, got %d and %q", code, got.String())
+		}
+	})
+}

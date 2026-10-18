@@ -139,3 +139,9 @@ Feature: Tools
     Given uma sessão do nó
     When o agente escreve com a tecla "hiper"
     Then é uma falha que diz a tecla
+
+  @MCPTL-B18 @unit-level
+  Scenario: Os nós de outras redes
+    Given um nó servido pelo transporte entre redes, e o conjunto com o endpoint desta instalação
+    When o agente corre "echo do-agente" com o node no endereço entre redes dele
+    Then o resultado tem "do-agente"

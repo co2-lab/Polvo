@@ -103,3 +103,9 @@ Feature: Client
     Given um nó, e na máquina dele um socket que devolve o que recebe
     When o cliente se liga a ele pelo nó, e põe o nó a escutar noutro socket a que alguém se liga
     Then lê "ola" de volta, e recebe a ligação que chegou ao nó
+
+  @CLNTI-B12 @unit-level
+  Scenario: Ligar-se a um nó de outra rede
+    Given um nó servido pelo transporte entre redes, que autoriza esta instalação
+    When o cliente se liga pelo endereço dele e corre "echo marca-$((40+2))"
+    Then a saída é "marca-42"

@@ -61,6 +61,10 @@ O `Connect` abre, pelo nó, uma ligação a um socket TCP ou Unix da máquina de
 escutar num socket da máquina dele e dá cada ligação que lá chega. Pedem a permissão de encaminhar do nó;
 sem ela, o nó recusa-os.
 
+### CLNTI-B12 — Ligar-se a um nó de outra rede
+O `DialVia` liga-se a um nó por um endereço do transporte entre redes (pelo endpoint desta instalação), e
+exige ao nó a chave que o endereço nomeia, a mesma que o transporte provou.
+
 ### CLNTI-B08 — Ligar-se a uma sessão
 O `Attach` dá um `Terminal` ligado a uma sessão que já existe: lê primeiro o ecrã atual dela e depois a
 saída, e o que se escreve chega à sessão quando a ligação a pode controlar. Fechar o `Terminal` deixa a
@@ -108,8 +112,11 @@ transporte entre redes); com a chave do nó dada (`HostKey`), o nó tem de ter e
 | `CLNTI-B09` | `addr`, `Identity`, `KnownHosts` |
 | `CLNTI-B10` | `addr` |
 | `CLNTI-B11` | `addr` |
+| `CLNTI-B12` | `addr` |
 
 ## Revisions
+
+> **CLNTI-R0005:** entra o `CLNTI-B12` (ligar-se a um nó de outra rede), do plano ESRMS, W04.
 
 > **CLNTI-R0004:** entra o `PairConn` no `CLNTI-B09`, para emparelhar pelo transporte entre redes (plano
 > ESRMS, W04).

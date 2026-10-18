@@ -46,3 +46,9 @@ Feature: A ligação entre redes para o nó e para o cliente
     Given duas instalações
     When uma abre uma ligação para o SSH e outra para um endereço
     Then a outra aceita-as com KIND_SSH e KIND_ADDR
+
+  @TRNSP-B06 @TRNSP-E04 @unit-level
+  Scenario: A chave que um endereço nomeia
+    Given o JSON de um endereço com o id K, o texto "p2p:K", e o texto "maquina:2222"
+    When se pergunta se são endereços e que chave nomeiam
+    Then os dois primeiros são, e nomeiam K; o terceiro não é, e o KeyOf dá um erro

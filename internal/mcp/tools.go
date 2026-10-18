@@ -16,6 +16,7 @@ import (
 
 	"github.com/co2-lab/polvo/internal/agents"
 	"github.com/co2-lab/polvo/internal/hub"
+	"github.com/co2-lab/polvo/internal/transport"
 )
 
 // Pool keeps one connection per node, reused between calls (MCPTL-B05).
@@ -25,6 +26,15 @@ type Pool struct {
 	mu    sync.Mutex
 	nodes map[string]*hub.Node
 	here  Here
+	// peer reaches the nodes of other networks (MCPTL-B18); nil reaches only host:port
+	peer transport.Peer
+}
+
+// SetPeer gives the pool this installation's endpoint, for the nodes of other networks (MCPTL-B18).
+func (p *Pool) SetPeer(peer transport.Peer) {
+	p.mu.Lock()
+	p.peer = peer
+	p.mu.Unlock()
 }
 
 // NewPool connects with the installation's identity and known hosts.
@@ -106,7 +116,14 @@ func (p *Pool) node(addr string) (*hub.Node, error) {
 	if n, ok := p.nodes[addr]; ok {
 		return n, nil
 	}
-	n, err := hub.Dial(addr, p.cfg)
+	var n *hub.Node
+	var err error
+	if transport.IsAddr(addr) && p.peer != nil {
+		// MCPTL-B18
+		n, err = hub.DialVia(p.peer, addr, p.cfg)
+	} else {
+		n, err = hub.Dial(addr, p.cfg)
+	}
 	if err != nil {
 		// MCPTL-E02: the error of hub.Dial names the address.
 		return nil, err

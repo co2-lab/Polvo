@@ -75,6 +75,13 @@ socket `DESTINO` da máquina do nó (`FRWRD`); com `-R`, o nó escuta na máquin
 destino nesta. Escreve na saída onde escuta, e encaminha até o processo receber o sinal de parar (acaba
 sem erro) ou a ligação ao nó cair (`CLIXX-E02`).
 
+### CLIXX-B09 — Entre redes
+O `polvo node` abre também o transporte entre redes, com a chave do nó (o relay do `--relay`, por omissão
+os públicos; a porta UDP do `--p2p-port`), serve o nó por ele, e escreve na saída onde se alcança ("polvo
+node: reachable between networks at" e o endereço). O `connect`, o `forward` e as ferramentas do `mcp`
+aceitam esse endereço (ou `p2p:` e a chave) no lugar de máquina:porta, e ligam-se pelo transporte, com a
+chave do nó conferida. Num executável sem o transporte, o nó serve só a rede.
+
 ## Domain
 
 | Input | Accepts | Outside the domain | Who guarantees |
@@ -100,6 +107,7 @@ sem erro) ou a ligação ao nó cair (`CLIXX-E02`).
 | `CLIXX-B06` | `args`, `--dir` |
 | `CLIXX-B07` | `args`, `--dir`, `SHELL` |
 | `CLIXX-B08` | `args`, `--dir` |
+| `CLIXX-B09` | `args`, `--dir` |
 | `CLIXX-E01` | `args` |
 | `CLIXX-E02` | `args`, `--dir` |
 
@@ -123,6 +131,8 @@ sem erro) ou a ligação ao nó cair (`CLIXX-E02`).
 
 > **CLIXX-R0004:** o `CLIXX-B02` liga o nó às sessões e à configuração das permissões (plano ESRMS,
 > W01). As regras anteriores não mudam.
+
+> **CLIXX-R0006:** entra o `CLIXX-B09` (entre redes), do plano ESRMS, W04.
 
 > **CLIXX-R0005:** entra o `CLIXX-B08` (o `forward`), do plano ESRMS, W06.
 

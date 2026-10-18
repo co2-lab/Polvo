@@ -9,10 +9,12 @@ package transport
 
 import (
 	"crypto/ed25519"
+	"encoding/hex"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"net"
+	"strings"
 	"time"
 )
 
@@ -122,4 +124,25 @@ func remoteOf(addr string) Addr {
 		return Addr(a.ID)
 	}
 	return Addr(addr)
+}
+
+// IsAddr says whether text is an address of the transport: the JSON an installation gives, or "p2p:" and
+// a key (TRNSP-B06).
+func IsAddr(text string) bool {
+	return strings.HasPrefix(text, "{") || strings.HasPrefix(text, "p2p:")
+}
+
+// KeyOf is the key an address of the transport names: the "id" of the JSON, or what follows "p2p:"
+// (TRNSP-B06); TRNSP-E04 when it names none.
+func KeyOf(addr string) (ed25519.PublicKey, error) {
+	id := strings.TrimPrefix(addr, "p2p:")
+	if strings.HasPrefix(addr, "{") {
+		id = string(remoteOf(addr))
+	}
+	b, err := hex.DecodeString(id)
+	if err != nil || len(b) != ed25519.PublicKeySize {
+		// TRNSP-E04
+		return nil, fmt.Errorf("transport: %q names no installation's key", addr)
+	}
+	return ed25519.PublicKey(b), nil
 }

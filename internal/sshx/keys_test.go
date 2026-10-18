@@ -5,6 +5,7 @@
 package sshx
 
 import (
+	"bytes"
 	"crypto/ed25519"
 	"crypto/rand"
 	"errors"
@@ -230,6 +231,24 @@ func TestKeys_identityErrors(t *testing.T) {
 		_, _, err := LoadOrCreateIdentity(p)
 		if err == nil || !strings.Contains(err.Error(), p) {
 			t.Fatalf("want an error naming %s, got %v", p, err)
+		}
+	})
+}
+
+func TestKeys_raw(t *testing.T) {
+	t.Run("KYSEX-B08: A chave em bruto", func(t *testing.T) {
+		path := filepath.Join(t.TempDir(), "id_ed25519")
+		k, err := RawKey(path)
+		if err != nil {
+			t.Fatal(err)
+		}
+		s, _, err := LoadOrCreateIdentity(path)
+		if err != nil {
+			t.Fatal(err)
+		}
+		pub, _ := ssh.NewPublicKey(k.Public())
+		if !bytes.Equal(pub.Marshal(), s.PublicKey().Marshal()) {
+			t.Fatal("want the raw key's public key to be the identity's")
 		}
 	})
 }

@@ -88,6 +88,10 @@ o dono (`MCPTL-E03`).
 A ferramenta `polvo_wait` lê o ecrã da sessão a cada `WAIT_POLL` até ele mostrar o texto, e devolve-o;
 espera até ao `timeout` pedido (em segundos), `WAIT_DEFAULT` sem ele, e nunca mais que `WAIT_MAX`.
 
+### MCPTL-B18 — Os nós de outras redes
+Com o endpoint desta instalação (`SetPeer`), as ferramentas aceitam no `node` um endereço do transporte
+entre redes (ou `p2p:` e a chave), e ligam-se por ele, com a chave do nó conferida.
+
 ## Domain
 
 | Input | Accepts | Outside the domain | Who guarantees |
@@ -144,6 +148,7 @@ espera até ao `timeout` pedido (em segundos), `WAIT_DEFAULT` sem ele, e nunca m
 | `MCPTL-B16` | `node`, `session`, `keys` |
 | `MCPTL-B17` | `node`, `session`, `timeout`, `WAIT_DEFAULT`, `WAIT_MAX`, `WAIT_POLL` |
 | `MCPTL-E05` | `session`, `timeout` |
+| `MCPTL-B18` | `node` |
 
 ## Implementation Notes
 
@@ -158,6 +163,8 @@ espera até ao `timeout` pedido (em segundos), `WAIT_DEFAULT` sem ele, e nunca m
 > **MCPTL-R0002:** entram as ferramentas do progresso (`MCPTL-B07` a `MCPTL-B11`, `MCPTL-E04`), do plano
 > AGPRG, W02, e as da W03: responder a uma pergunta (`MCPTL-B12`) e a conversa do Claude Code
 > (`MCPTL-B13`).
+
+> **MCPTL-R0004:** entra o `MCPTL-B18` (os nós de outras redes), do plano ESRMS, W04.
 
 > **MCPTL-R0003:** entram as ferramentas das sessões (`MCPTL-B14` a `MCPTL-B17`, `MCPTL-E05`), do plano
 > ESRMS, W06; o nó por omissão do `MCPTL-B11` vale também para elas.

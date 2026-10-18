@@ -8,6 +8,7 @@ package hub
 
 import (
 	"encoding/base64"
+	"encoding/hex"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -20,6 +21,7 @@ import (
 	"github.com/co2-lab/polvo/internal/proto"
 	"github.com/co2-lab/polvo/internal/pty"
 	"github.com/co2-lab/polvo/internal/sshx"
+	"github.com/co2-lab/polvo/internal/transport"
 	"golang.org/x/crypto/ssh"
 )
 
@@ -59,6 +61,26 @@ func Dial(addr string, cfg Config) (*Node, error) {
 		return nil, fmt.Errorf("hub: connecting to %s: %w", addr, err)
 	}
 	return DialConn(conn, addr, cfg)
+}
+
+// DialVia connects through p to the node at addr, an address of the transport between networks; the node
+// must have the key the address names, which the transport proved too (CLNTI-B12).
+func DialVia(p transport.Peer, addr string, cfg Config) (*Node, error) {
+	k, err := transport.KeyOf(addr)
+	if err != nil {
+		return nil, err
+	}
+	key, err := ssh.NewPublicKey(k)
+	if err != nil {
+		return nil, err
+	}
+	conn, err := p.Dial(addr)
+	if err != nil {
+		// CLNTI-E01
+		return nil, fmt.Errorf("hub: connecting to %s: %w", addr, err)
+	}
+	cfg.HostKey = key
+	return DialConn(conn, "p2p:"+hex.EncodeToString(k), cfg)
 }
 
 // DialConn runs the SSH handshake over a connection already open to addr.

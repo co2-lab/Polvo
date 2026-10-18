@@ -2,7 +2,7 @@
 # @anchors
 #   code: KYFTR
 #   ref: KYSEX
-#   updated_at: 2026-10-17
+#   updated_at: 2026-10-18
 #   layer: feature
 
 @KYSEX
@@ -79,3 +79,9 @@ Feature: Keys
     Given uma lista de nós conhecidos vazia que registou a chave N do nó "10.0.0.1:2222" no primeiro contacto
     When outra lista é aberta sobre o mesmo ficheiro e o desktop se liga ao nó com a chave N
     Then a ligação é aceite
+
+  @KYSEX-B08 @unit-level
+  Scenario: A chave em bruto
+    Given uma pasta sem identidade
+    When se pede a chave em bruto
+    Then a identidade nasce, e a chave pública da chave em bruto é a da identidade

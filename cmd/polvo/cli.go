@@ -30,6 +30,7 @@ import (
 	"github.com/co2-lab/polvo/internal/pty"
 	"github.com/co2-lab/polvo/internal/sessions"
 	"github.com/co2-lab/polvo/internal/sshx"
+	"github.com/co2-lab/polvo/internal/transport"
 	"github.com/co2-lab/polvo/internal/web"
 	"golang.org/x/crypto/ssh"
 	"golang.org/x/term"
@@ -135,9 +136,12 @@ func keygen(args []string, std Stdio) error {
 
 // serveNode is CLIXX-B02.
 func serveNode(args []string, std Stdio) error {
-	var listen string
+	var listen, relay string
+	var port int
 	fs, dir, err := flags("node", args, func(fs *flag.FlagSet) {
 		fs.StringVar(&listen, "listen", ":2222", "the address to listen on")
+		fs.StringVar(&relay, "relay", transport.DEFAULT_RELAY, `the relay between networks: "default", "" for none, or a relay's URL`)
+		fs.IntVar(&port, "p2p-port", transport.DEFAULT_PORT, "the UDP port between networks")
 	})
 	if err != nil {
 		return err
@@ -183,7 +187,23 @@ func serveNode(args []string, std Stdio) error {
 	if err != nil {
 		return err
 	}
-	cfg.Control = node.Controller{Sessions: cfg.Sessions, Shell: cfg.Shell, Progress: board}.Serve
+	// CLIXX-B09: reached between networks too, by the node's key
+	var between transport.Peer
+	if key, err := sshx.RawKey(filepath.Join(dir, "host_ed25519")); err == nil {
+		switch p, err := transport.Open(key, relay, port); {
+		case err == nil:
+			defer p.Close()
+			between = p
+			fmt.Fprintf(std.Stdout, "polvo node: reachable between networks at %s\n", p.Addr())
+		case !errors.Is(err, transport.ErrNotBuilt):
+			fmt.Fprintf(std.Stderr, "polvo node: not reachable between networks: %v\n", err)
+		}
+	}
+	var reach func() string
+	if between != nil {
+		reach = between.Addr
+	}
+	cfg.Control = node.Controller{Sessions: cfg.Sessions, Shell: cfg.Shell, Progress: board, P2P: reach}.Serve
 	// an agent in a session reports to this node, from inside the machine
 	cfg.Sessions.SetEnv([]string{"POLVO_NODE=" + loopback(l.Addr())})
 	// the others find a node they can reach: one that listens on the loopback is not announced
@@ -195,6 +215,9 @@ func serveNode(args []string, std Stdio) error {
 		} else {
 			defer a.Close()
 		}
+	}
+	if between != nil {
+		go node.Serve(between.Listener(), cfg)
 	}
 	return node.Serve(l, cfg)
 }
@@ -212,11 +235,11 @@ func connect(args []string, std Stdio) (int, error) {
 	if err != nil {
 		return 0, err
 	}
-	n, err := hub.Dial(fs.Arg(0), hub.Config{Identity: id, KnownHosts: sshx.NewKnownHosts(filepath.Join(dir, "known_hosts"))})
+	n, done, err := dialNode(dir, fs.Arg(0), id)
 	if err != nil {
 		return 0, err
 	}
-	defer n.Close()
+	defer done()
 
 	size := pty.Size{Rows: 24, Cols: 80}
 	local, isTerm := std.Stdin.(*os.File)
@@ -279,11 +302,11 @@ func forwardSockets(args []string, std Stdio) error {
 	if err != nil {
 		return err
 	}
-	n, err := hub.Dial(fs.Arg(2), hub.Config{Identity: id, KnownHosts: sshx.NewKnownHosts(filepath.Join(dir, "known_hosts"))})
+	n, done, err := dialNode(dir, fs.Arg(2), id)
 	if err != nil {
 		return err
 	}
-	defer n.Close()
+	defer done()
 	start, arrow := forward.Local, "->"
 	if back {
 		start, arrow = forward.Remote, "<-"
@@ -325,6 +348,13 @@ func serveMCP(args []string, std Stdio) error {
 	}
 	pool := mcp.NewPool(hub.Config{Identity: id, KnownHosts: sshx.NewKnownHosts(filepath.Join(dir, "known_hosts"))})
 	defer pool.Close()
+	// CLIXX-B06: the nodes of other networks too, through this installation's endpoint
+	if key, err := sshx.RawKey(filepath.Join(dir, "id_ed25519")); err == nil {
+		if p, err := transport.Open(key, transport.DEFAULT_RELAY, 0); err == nil {
+			defer p.Close()
+			pool.SetPeer(p)
+		}
+	}
 	// the session of Polvo the agent runs in tells it where its node is
 	here := mcp.Here{Node: os.Getenv("POLVO_NODE"), Session: os.Getenv("POLVO_SESSION")}
 	if os.Getenv("CLAUDECODE") == "1" {
@@ -413,4 +443,31 @@ func loopback(addr net.Addr) string {
 		host = "127.0.0.1"
 	}
 	return net.JoinHostPort(host, port)
+}
+
+// dialNode connects to the node at addr: host:port, or an address of the transport between networks,
+// through an endpoint of this installation (CLIXX-B03, CLIXX-B09); done ends both.
+func dialNode(dir, addr string, id ssh.Signer) (*hub.Node, func(), error) {
+	cfg := hub.Config{Identity: id, KnownHosts: sshx.NewKnownHosts(filepath.Join(dir, "known_hosts"))}
+	if !transport.IsAddr(addr) {
+		n, err := hub.Dial(addr, cfg)
+		if err != nil {
+			return nil, nil, err
+		}
+		return n, func() { n.Close() }, nil
+	}
+	key, err := sshx.RawKey(filepath.Join(dir, "id_ed25519"))
+	if err != nil {
+		return nil, nil, err
+	}
+	p, err := transport.Open(key, transport.DEFAULT_RELAY, 0)
+	if err != nil {
+		return nil, nil, err
+	}
+	n, err := hub.DialVia(p, addr, cfg)
+	if err != nil {
+		p.Close()
+		return nil, nil, err
+	}
+	return n, func() { n.Close(); p.Close() }, nil
 }

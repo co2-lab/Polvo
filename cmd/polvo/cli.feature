@@ -109,3 +109,9 @@ Feature: Cli
     Given um nó que deixa a chave desta instalação encaminhar, e na máquina dele um socket que devolve o que recebe
     When corre "polvo forward 127.0.0.1:0 DESTINO ENDEREÇO", e alguém se liga ao socket que ele diz e escreve "ola"
     Then lê "ola" de volta
+
+  @CLIXX-B09 @unit-level
+  Scenario: Entre redes
+    Given um polvo node que autoriza esta instalação, a escrever onde se alcança entre redes
+    When o connect se liga por esse endereço e corre "echo marca-$((40+2)); exit 4"
+    Then a saída tem "marca-42", e o código é 4

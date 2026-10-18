@@ -25,6 +25,7 @@ import (
 	"github.com/co2-lab/polvo/internal/pty"
 	"github.com/co2-lab/polvo/internal/sessions"
 	"github.com/co2-lab/polvo/internal/sshx"
+	"github.com/co2-lab/polvo/internal/transport"
 	"golang.org/x/crypto/ssh"
 )
 
@@ -482,6 +483,40 @@ func TestClient_pairing(t *testing.T) {
 		}
 		if b, _ := os.ReadFile(known); !strings.Contains(string(b), strings.TrimSpace(string(ssh.MarshalAuthorizedKey(host.PublicKey())))) {
 			t.Fatalf("want the node's key known, got %q", b)
+		}
+	})
+}
+
+func TestClient_p2p(t *testing.T) {
+	t.Run("CLNTI-B12: Ligar-se a um nó de outra rede", func(t *testing.T) {
+		_, hk, _ := ed25519.GenerateKey(rand.Reader)
+		nodePeer, err := transport.Open(hk, "", 0)
+		if errors.Is(err, transport.ErrNotBuilt) {
+			t.Skip("built without the transport (make test-p2p runs these)")
+		}
+		if err != nil {
+			t.Fatal(err)
+		}
+		defer nodePeer.Close()
+		host, _ := ssh.NewSignerFromKey(hk)
+		id := signer(t)
+		ak := filepath.Join(t.TempDir(), "authorized_keys")
+		os.WriteFile(ak, []byte(sshx.AuthorizedLine(id.PublicKey(), "")), 0o600)
+		go node.Serve(nodePeer.Listener(), node.Config{HostKey: host, Authorized: sshx.NewAuthorizedKeys(ak), Control: node.ServeControl})
+		_, ck, _ := ed25519.GenerateKey(rand.Reader)
+		me, err := transport.Open(ck, "", 0)
+		if err != nil {
+			t.Fatal(err)
+		}
+		defer me.Close()
+		n, err := DialVia(me, nodePeer.Addr(), Config{Identity: id})
+		if err != nil {
+			t.Fatal(err)
+		}
+		defer n.Close()
+		r, err := n.Run([]string{"/bin/sh", "-c", "echo marca-$((40+2))"}, "", nil)
+		if err != nil || !strings.Contains(string(r.Stdout), "marca-42") {
+			t.Fatalf("want marca-42, got %+v %v", r, err)
 		}
 	})
 }

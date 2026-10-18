@@ -8,6 +8,7 @@ import (
 	"crypto/ed25519"
 	"crypto/rand"
 	"encoding/json"
+	"errors"
 	"net"
 	"os"
 	"path/filepath"
@@ -21,6 +22,7 @@ import (
 	"github.com/co2-lab/polvo/internal/pty"
 	"github.com/co2-lab/polvo/internal/sessions"
 	"github.com/co2-lab/polvo/internal/sshx"
+	"github.com/co2-lab/polvo/internal/transport"
 	"golang.org/x/crypto/ssh"
 )
 
@@ -334,6 +336,38 @@ func TestTools_sessions(t *testing.T) {
 		r := callTool(t, p, "polvo_type", map[string]any{"node": addr, "session": id, "keys": []string{"hiper"}})
 		if !r.IsError || !strings.Contains(r.Text, "hiper") {
 			t.Fatalf("want the failure with the key, got %+v", r)
+		}
+	})
+}
+
+func TestTools_p2p(t *testing.T) {
+	t.Run("MCPTL-B18: Os nós de outras redes", func(t *testing.T) {
+		_, hk, _ := ed25519.GenerateKey(rand.Reader)
+		far, err := transport.Open(hk, "", 0)
+		if errors.Is(err, transport.ErrNotBuilt) {
+			t.Skip("built without the transport (make test-p2p runs these)")
+		}
+		if err != nil {
+			t.Fatal(err)
+		}
+		defer far.Close()
+		host, _ := ssh.NewSignerFromKey(hk)
+		id := newSigner(t)
+		ak := filepath.Join(t.TempDir(), "authorized_keys")
+		os.WriteFile(ak, []byte(sshx.AuthorizedLine(id.PublicKey(), "")), 0o600)
+		go node.Serve(far.Listener(), node.Config{HostKey: host, Authorized: sshx.NewAuthorizedKeys(ak), Control: node.ServeControl})
+		_, ck, _ := ed25519.GenerateKey(rand.Reader)
+		me, err := transport.Open(ck, "", 0)
+		if err != nil {
+			t.Fatal(err)
+		}
+		defer me.Close()
+		p := NewPool(hub.Config{Identity: id, KnownHosts: sshx.NewKnownHosts(filepath.Join(t.TempDir(), "known_hosts"))})
+		defer p.Close()
+		p.SetPeer(me)
+		r := callTool(t, p, "polvo_run", map[string]any{"node": far.Addr(), "command": "echo do-agente"})
+		if r.IsError || !strings.Contains(r.Text, "do-agente") {
+			t.Fatalf("want do-agente, got %+v", r)
 		}
 	})
 }

@@ -3,7 +3,7 @@ GALAXY ?= galaxy
 GALAXY_MEM ?= 6G
 PKGS ?= ./...
 
-.PHONY: test test-go test-galaxy test-ui test-desktop test-p2p p2p-lib vet ui desktop
+.PHONY: test test-go test-galaxy test-ui test-desktop test-p2p p2p-lib cli vet ui desktop
 
 test: vet test-go test-galaxy test-ui test-desktop test-p2p
 
@@ -29,7 +29,12 @@ p2p-lib:
 
 test-p2p: p2p-lib
 	cd p2p && $(P2P_CARGO) test
-	CGO_LDFLAGS="-L$(P2P_TARGET_DIR)/release" go test -tags polvo_p2p ./internal/transport/... ./internal/station/... ./internal/node/...
+	CGO_LDFLAGS="-L$(P2P_TARGET_DIR)/release" go test -tags polvo_p2p ./internal/transport/... ./internal/station/... ./internal/node/... \
+	  ./internal/hub/... ./internal/bridge/... ./internal/mcp/... ./cmd/polvo/...
+
+# O executavel polvo com o transporte entre redes (a CLI: o node, o connect, o forward e o mcp).
+cli: p2p-lib
+	CGO_LDFLAGS="-L$(P2P_TARGET_DIR)/release" go build -tags polvo_p2p -o polvo ./cmd/polvo
 
 .PHONY: report-p2p
 report-p2p:

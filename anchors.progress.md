@@ -1,5 +1,5 @@
 <!-- anchors:progress v1 — written by `anchors progress`; never edit by hand -->
-# Progress — 98% (85/86 points)
+# Progress — 100% (86/86 points)
 
 ## D01 — AgenteLocal (plan: plans/agente-local.plan.md) — 100% (6/6)
 ### D01.S1 — AGLCG-W01 — A ponte MCP — 100% (2/2)
@@ -51,7 +51,7 @@
 - [x] D04.T9 — O `polvo node` a correr no Galaxy (`GALAXY_ENGINE=go galaxy run ./cmd/polvo node`) aceita o · 1 (estimate) · done 2026-10-17 by migrated
 - [x] D04.T10 — `anchors check` sem gates bloqueantes a falhar. · 1 (estimate) · done 2026-10-17 by migrated
 
-## D05 — Espelho remoto (plan: plans/espelho.plan.md) — 97% (33/34)
+## D05 — Espelho remoto (plan: plans/espelho.plan.md) — 100% (34/34)
 ### D05.S1 — ESRMS-W01 — As sessões no nó — 100% (4/4)
 - [x] D05.T1 — `internal/sessions/sessions.spec.md` · 1 · done 2026-10-17 by OK-BR-PE0EF71F/polvo-main
 - [x] D05.T2 — `internal/nodeconf/nodeconf.spec.md` · 1 · done 2026-10-17 by OK-BR-PE0EF71F/polvo-main
@@ -72,14 +72,14 @@
 - [x] D05.T15 — `internal/node/server.spec.md`, `internal/hub/client.spec.md` e `internal/sessions` (mudam: a chave desconhecida só emparelha) · 1 · done 2026-10-18 by OK-BR-PE0EF71F/polvo-main
 - [x] D05.T16 — `internal/station/station.spec.md` e `internal/bridge/bridge.spec.md` (mudam: anunciar, procurar e emparelhar) · 1 · done 2026-10-18 by OK-BR-PE0EF71F/polvo-main
 - [x] D05.T17 — `desktop/src/remote.spec.md` e `nodes.spec.md` (mudam: as máquinas da rede e o emparelhamento) · 1 · done 2026-10-18 by OK-BR-PE0EF71F/polvo-main
-### D05.S4 — ESRMS-W04 — P2P através de NAT (depends on ESRMS-W03) — 85% (6/7)
+### D05.S4 — ESRMS-W04 — P2P através de NAT (depends on ESRMS-W03) — 100% (7/7)
 - [x] D05.T28 — `p2p/` (nasce: o transporte sobre o iroh, com a API C) · 1 · done 2026-10-18 by OK-BR-PE0EF71F/polvo-main
 - [x] D05.T29 — `internal/transport/transport.spec.md` (nasce: o lado Go do transporte) · 1 · done 2026-10-18 by OK-BR-PE0EF71F/polvo-main
 - [x] D05.T30 — `internal/station/station.spec.md` e `internal/node/control.spec.md` (mudam: as máquinas pela chave e o histórico) · 1 · done 2026-10-18 by OK-BR-PE0EF71F/polvo-main
 - [x] D05.T31 — `internal/bridge`, `desktop/src/remote.spec.md` e `nodes.spec.md` (mudam: a janela entre redes) · 1 · done 2026-10-18 by OK-BR-PE0EF71F/polvo-main
 - [x] D05.T32 — `internal/transport/addresses.spec.md` (nasce: o endereço novo mandado à outra máquina, e o aviso com os endereços à mão) · 1 · done 2026-10-18 by OK-BR-PE0EF71F/polvo-main
 - [x] D05.T33 — `internal/station/station.spec.md`, `internal/hub/client.spec.md` e `desktop/src/nodes.spec.md` (mudam: emparelhar pelo P2P; o QR passa para a identidade) · 1 · done 2026-10-18 by OK-BR-PE0EF71F/polvo-main
-- [ ] D05.T34 — `cmd/polvo/cli.spec.md` (muda: o polvo node e o connect entre redes) · 1
+- [x] D05.T34 — `cmd/polvo/cli.spec.md` (muda: o polvo node e o connect entre redes) · 1 · done 2026-10-18 by OK-BR-PE0EF71F/polvo-main
 ### D05.S5 — ESRMS-W05 — Os ficheiros de qualquer máquina (depends on ESRMS-W02) — 100% (4/4)
 - [x] D05.T18 — `internal/node/control.spec.md` (muda: o ~ é a pasta pessoal) · 1 · done 2026-10-18 by OK-BR-PE0EF71F/polvo-main
 - [x] D05.T19 — `internal/bridge/bridge.spec.md` e `desktop/src/remote.spec.md` (mudam: os ficheiros de uma máquina) · 1 · done 2026-10-18 by OK-BR-PE0EF71F/polvo-main
@@ -128,4 +128,4 @@
 - [x] D07.T10 — `desktop/src/git.spec.md` · 1 · done 2026-10-17 by OK-BR-PE0EF71F/polvo-main
 - [x] D07.T11 — `desktop/src/window.spec.md` (muda: o tipo de aba do git) · 1 · done 2026-10-17 by OK-BR-PE0EF71F/polvo-main
 
-<!-- anchors:progress sum=acc1e54de80a -->
+<!-- anchors:progress sum=69915442c95f -->
