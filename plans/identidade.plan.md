@@ -96,16 +96,19 @@ máquinas é pedir a lista à conta.
 > **IDNTD-R0001:** o dono pediu a 2026-10-18 que cada pessoa tenha um código (nome e apelido, nome de
 > utilizador, etc.) e que dar acesso a outra seja convidá-la por esse código.
 
+> **IDNTD-R0002:** o dono aprovou a 2026-10-18 as propostas do agente: o serviço de contas é nosso,
+> pequeno, em Go, e fala OIDC/OAuth diretamente com cada fornecedor (era a `IDNTD-D01`); a co2lab aloja-o
+> (e o relay do iroh), e a app vem configurada para ele, mas quem quiser aloja o seu e aponta a app para
+> lá (`IDNTD-D02`); a conta é opcional (`IDNTD-D03`); os dispositivos da mesma conta são donos uns dos
+> outros depois de aprovados (`IDNTD-D04`); os fornecedores da primeira versão são GitHub, Google, Apple,
+> Microsoft e o OIDC genérico (`IDNTD-D05`); o código Polvo segue a proposta (`IDNTD-D06`).
+
 ## Open Decisions
 
 | Code | Question | Who decides | Becomes |
 | --- | --- | --- | --- |
-| `IDNTD-D01` | O serviço de contas: um servidor nosso, pequeno, em Go, que fala OIDC/OAuth diretamente com cada fornecedor (proposta do agente: o que precisamos é saber quem é a pessoa, e as partilhas são o nosso modelo; o MFA é o do fornecedor), ou um fornecedor de identidade completo e alojável (Zitadel em Go, com os logins sociais e as organizações prontos; Keycloak, maduro mas pesado, 2 GB de memória)? @no-code: decisão por tomar pelo dono | dono | a fase IDNTD-W01 |
-| `IDNTD-D02` | A co2lab aloja o serviço (e o relay do iroh) por omissão, e quem quiser aloja o seu? Proposta do agente: sim. @no-code: decisão por tomar pelo dono | dono | a fase IDNTD-W01 |
-| `IDNTD-D03` | A conta é opcional (sem ela, o emparelhamento por código continua)? Proposta do agente: sim. @no-code: decisão por tomar pelo dono | dono | as fases IDNTD-W02 e IDNTD-W03 |
-| `IDNTD-D04` | Os dispositivos da mesma conta são o dono das máquinas uns dos outros, depois de aprovados por um que já lá está? Proposta do agente: sim. @no-code: decisão por tomar pelo dono | dono | a fase IDNTD-W02 |
-| `IDNTD-D06` | O código Polvo: letras minúsculas, algarismos, ponto e hífen, de 3 a 30; sugerido do nome de utilizador do fornecedor ou do nome e apelido, com um número quando está tomado; a pessoa pode mudá-lo (o código antigo fica livre). Proposta do agente, a partir do pedido do dono. @no-code: decisão por tomar pelo dono | dono | a fase IDNTD-W01 |
-| `IDNTD-D05` | Os fornecedores da primeira versão: GitHub, Google, Apple, Microsoft e o OIDC genérico (o Apple é obrigatório na App Store quando há login social). Mais algum (GitLab, Discord)? @no-code: decisão por tomar pelo dono | dono | a fase IDNTD-W01 |
+
+none
 
 ## Definition of Done
 
