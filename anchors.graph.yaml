@@ -2026,6 +2026,18 @@ nodes:
         - plan
       evidence_rev: f015e2173ba7
       line_rev: 8692fc34d47d
+    - id: plans/identidade.plan.md
+      kind: plan
+      rev: cbd072ba7eb3
+      updated_at: "2026-10-18"
+      code: IDNTD
+      file_code: IDNTD
+      layer: plan
+      code_declared: true
+      tags:
+        - plan
+      evidence_rev: 2bafc0fccc26
+      line_rev: c7130b48d18e
     - id: plans/janela.plan.md
       kind: plan
       rev: e9b93aec7b68
@@ -4093,6 +4105,26 @@ edges:
         validated_to_rev: 47bdd70b9aa6
         changed_at: "2026-10-18"
         verdict: ok
+    - from: plans/identidade.plan.md
+      to: desktop/src/nodes.spec.md
+      type: seeds
+      origin: declared
+    - from: plans/identidade.plan.md
+      to: internal/hub/client.spec.md
+      type: seeds
+      origin: declared
+    - from: plans/identidade.plan.md
+      to: internal/node/server.spec.md
+      type: seeds
+      origin: declared
+    - from: plans/identidade.plan.md
+      to: internal/nodeconf/nodeconf.spec.md
+      type: seeds
+      origin: declared
+    - from: plans/identidade.plan.md
+      to: internal/station/station.spec.md
+      type: seeds
+      origin: declared
     - from: plans/janela.plan.md
       to: desktop/src/keys.spec.md
       type: seeds
