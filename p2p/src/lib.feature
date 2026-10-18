@@ -40,3 +40,9 @@ Feature: O transporte entre redes
     Given o relay "não é url"
     When se abre o endpoint
     Then é um erro
+
+  @PTRNS-B05 @unit-level
+  Scenario: A porta de cada rede
+    Given uma porta UDP livre
+    When se abre um endpoint nela, e outro na mesma
+    Then o primeiro escuta nela, e o segundo noutra

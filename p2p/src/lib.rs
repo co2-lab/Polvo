@@ -61,8 +61,16 @@ pub struct Stream {
 }
 
 impl Peer {
-    /// The endpoint of the installation whose key's secret is `seed` (PTRNS-B01).
-    pub async fn bind(seed: [u8; 32], relay: Relay) -> Result<Peer, String> {
+    /// The endpoint of the installation whose key's secret is `seed` (PTRNS-B01), on the UDP `port` of
+    /// every network (0: any); on another port when that one is taken (PTRNS-B05).
+    pub async fn bind(seed: [u8; 32], relay: Relay, port: u16) -> Result<Peer, String> {
+        match Self::bind_on(seed, relay.clone(), port).await {
+            Err(_) if port != 0 => Self::bind_on(seed, relay, 0).await,
+            bound => bound,
+        }
+    }
+
+    async fn bind_on(seed: [u8; 32], relay: Relay, port: u16) -> Result<Peer, String> {
         let mode = match relay {
             Relay::Default => RelayMode::Default,
             Relay::Disabled => RelayMode::Disabled,
@@ -72,12 +80,22 @@ impl Peer {
                 Err(e) => return Err(format!("p2p: the relay {url} is not a URL: {e}")),
             },
         };
-        let bound = Endpoint::builder(presets::Minimal)
+        let builder = Endpoint::builder(presets::Minimal)
             .secret_key(SecretKey::from_bytes(&seed))
             .alpns(vec![ALPN.to_vec()])
             .relay_mode(mode)
-            .bind()
-            .await;
+            .clear_ip_transports();
+        let builder = match builder.bind_addr(std::net::SocketAddr::from(([0, 0, 0, 0], port))) {
+            Ok(b) => b,
+            // PTRNS-E02
+            Err(e) => return Err(format!("p2p: the port {port}: {e}")),
+        };
+        // IPv6 when the machine has it; an endpoint with only IPv4 is still one
+        let builder = match builder.bind_addr(std::net::SocketAddr::from(([0u16; 8], port))) {
+            Ok(b) => b,
+            Err(e) => return Err(format!("p2p: the port {port}: {e}")),
+        };
+        let bound = builder.bind().await;
         match bound {
             Ok(ep) => Ok(Peer { ep }),
             // PTRNS-E02

@@ -10,7 +10,7 @@ package transport
 #cgo LDFLAGS: -lpolvo_p2p -lm -ldl -lpthread
 #include <stdint.h>
 #include <stdlib.h>
-int64_t polvo_p2p_open(const uint8_t *seed, const char *relay, char **err);
+int64_t polvo_p2p_open(const uint8_t *seed, const char *relay, uint16_t port, char **err);
 char *polvo_p2p_addr(int64_t h);
 char *polvo_p2p_id(int64_t h);
 int64_t polvo_p2p_accept(int64_t h, char **remote, char **err);
@@ -48,11 +48,11 @@ type cPeer struct {
 	l    *listener
 }
 
-func open(seed []byte, relay string) (Peer, error) {
+func open(seed []byte, relay string, port int) (Peer, error) {
 	cr := C.CString(relay)
 	defer C.free(unsafe.Pointer(cr))
 	var cerr *C.char
-	h := C.polvo_p2p_open((*C.uint8_t)(unsafe.Pointer(&seed[0])), cr, &cerr)
+	h := C.polvo_p2p_open((*C.uint8_t)(unsafe.Pointer(&seed[0])), cr, C.uint16_t(port), &cerr)
 	if h < 0 {
 		// TRNSP-E01
 		return nil, errors.New(take(cerr))

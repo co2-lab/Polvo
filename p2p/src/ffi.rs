@@ -70,12 +70,13 @@ fn keep(s: crate::Stream) -> (i64, String) {
 }
 
 /// Opens the endpoint of the key whose secret is the 32 bytes at `seed`, with the relay "default", ""
-/// (none) or a URL; its number, or -1 and why in `err`.
+/// (none) or a URL, on the UDP `port` (0: any; another when it is taken); its number, or -1 and why in
+/// `err`.
 ///
 /// # Safety
 /// `seed` points to 32 bytes; `relay` is a C string or null; `err` is null or a place for a pointer.
 #[unsafe(no_mangle)]
-pub unsafe extern "C" fn polvo_p2p_open(seed: *const u8, relay: *const c_char, err: *mut *mut c_char) -> i64 {
+pub unsafe extern "C" fn polvo_p2p_open(seed: *const u8, relay: *const c_char, port: u16, err: *mut *mut c_char) -> i64 {
     if seed.is_null() {
         return unsafe { fail(err, "p2p: no key".into()) };
     }
@@ -83,7 +84,7 @@ pub unsafe extern "C" fn polvo_p2p_open(seed: *const u8, relay: *const c_char, e
     // SAFETY: the caller gives 32 bytes.
     key.copy_from_slice(unsafe { std::slice::from_raw_parts(seed, 32) });
     let relay = Relay::parse(unsafe { text(relay) });
-    match RUNTIME.block_on(Peer::bind(key, relay)) {
+    match RUNTIME.block_on(Peer::bind(key, relay, port)) {
         Ok(peer) => {
             let n = next();
             PEERS.lock().unwrap().insert(n, peer);

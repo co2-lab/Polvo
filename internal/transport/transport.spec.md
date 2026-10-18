@@ -21,7 +21,7 @@ cgo); sem ela, o `Open` diz que não está (`ErrNotBuilt`).
 
 ### TRNSP-B01 — O endpoint da instalação
 O `Open` abre o endpoint da chave ed25519 da instalação, com o relay pedido (`DEFAULT_RELAY`, nenhum, ou o
-URL de um); o `ID` é a chave pública, e o `Addr` diz onde a instalação se alcança agora.
+URL de um), na porta UDP pedida (`DEFAULT_PORT` por omissão; outra quando está tomada); o `ID` é a chave pública, e o `Addr` diz onde a instalação se alcança agora.
 
 ### TRNSP-B02 — Ligar e aceitar
 O `Dial` liga-se à instalação do endereço dado, e o `Accept` do `Listener` dela recebe a ligação; os bytes
@@ -41,6 +41,7 @@ corre no nó do outro lado.
 | --- | --- | --- | --- |
 | `key` | a chave ed25519 da instalação | nenhuma | quem chama |
 | `relay` | `DEFAULT_RELAY`, vazio, ou o URL de um relay | outro texto | o `p2p/`: o erro (`TRNSP-E01`) |
+| `port` | uma porta UDP, ou 0 | — | o `p2p/`: a tomada dá outra |
 | `addr` | o endereço que o `Addr` de outra instalação deu | outro texto, ou uma instalação que não se alcança | o `p2p/`: o erro (`TRNSP-E01`) |
 
 ## Errors / Failures
@@ -54,18 +55,23 @@ corre no nó do outro lado.
 | Constant | Value | Why |
 | --- | --- | --- |
 | `DEFAULT_RELAY` | `default` | os relays públicos do iroh, para funcionar entre redes sem configurar nada |
+| `DEFAULT_PORT` | 2222 | o número da porta TCP do nó: quem passa um endereço à mão só precisa do IP |
 
 ## Rule uses
 
 | Rule | Uses |
 | --- | --- |
-| `TRNSP-B01` | `key`, `relay`, `DEFAULT_RELAY` |
+| `TRNSP-B01` | `key`, `relay`, `port`, `DEFAULT_RELAY`, `DEFAULT_PORT` |
 | `TRNSP-B02` | `addr` |
 | `TRNSP-B03` | `addr` |
 | `TRNSP-B04` | `addr` |
 | `TRNSP-E01` | `relay`, `addr` |
 | `TRNSP-E02` | `key` |
 | `TRNSP-E03` | `addr` |
+
+## Revisions
+
+> **TRNSP-R0001:** o `Open` recebe a porta (`DEFAULT_PORT`), pela mesma razão do `PTRNS-R0001` do `p2p/`.
 
 ## Open Decisions
 

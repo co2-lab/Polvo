@@ -7,4 +7,4 @@
 package transport
 
 // open is TRNSP-E02 in an executable built without the transport.
-func open([]byte, string) (Peer, error) { return nil, ErrNotBuilt }
+func open([]byte, string, int) (Peer, error) { return nil, ErrNotBuilt }

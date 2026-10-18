@@ -10,7 +10,7 @@ fn seed(n: u8) -> [u8; 32] {
 }
 
 async fn peer(n: u8) -> Peer {
-    Peer::bind(seed(n), Relay::Disabled).await.unwrap()
+    Peer::bind(seed(n), Relay::Disabled, 0).await.unwrap()
 }
 
 #[doc = "PTRNS-B01: O endpoint de uma instalação"]
@@ -73,7 +73,7 @@ async fn ptrns_e01_um_endereco_que_nao_e() {
 #[doc = "PTRNS-E02: Um relay que não é URL"]
 #[tokio::test]
 async fn ptrns_e02_um_relay_que_nao_e_url() {
-    assert!(Peer::bind(seed(8), Relay::parse("não é url")).await.is_err());
+    assert!(Peer::bind(seed(8), Relay::parse("não é url"), 0).await.is_err());
 }
 
 fn take(p: *mut std::ffi::c_char) -> String {
@@ -89,8 +89,8 @@ fn ptrns_b04_a_api_c() {
     let none = CString::new("").unwrap();
     let mut err = std::ptr::null_mut();
     let (ka, kb) = (seed(9), seed(10));
-    let a = unsafe { polvo_p2p_open(ka.as_ptr(), none.as_ptr(), &mut err) };
-    let b = unsafe { polvo_p2p_open(kb.as_ptr(), none.as_ptr(), &mut err) };
+    let a = unsafe { polvo_p2p_open(ka.as_ptr(), none.as_ptr(), 0, &mut err) };
+    let b = unsafe { polvo_p2p_open(kb.as_ptr(), none.as_ptr(), 0, &mut err) };
     assert!(a > 0 && b > 0);
     let addr = CString::new(take(polvo_p2p_addr(b))).unwrap();
     let server = std::thread::spawn(move || {
@@ -130,4 +130,17 @@ fn ptrns_b04_a_api_c() {
     polvo_p2p_close(s);
     polvo_p2p_shutdown(a);
     assert_eq!((back.as_slice(), who, after), (&b"ola"[..], SecretKey::from_bytes(&ka).public().to_string(), 0));
+}
+
+#[doc = "PTRNS-B05: A porta de cada rede"]
+#[tokio::test]
+async fn ptrns_b05_a_porta_de_cada_rede() {
+    // a free port, found by asking the system for one
+    let port = std::net::UdpSocket::bind("0.0.0.0:0").unwrap().local_addr().unwrap().port();
+    let first = Peer::bind(seed(11), Relay::Disabled, port).await.unwrap();
+    let second = Peer::bind(seed(12), Relay::Disabled, port).await.unwrap();
+    let ports = |p: &Peer| p.ep.addr().ip_addrs().map(|a| a.port()).collect::<Vec<_>>();
+    let (a, b) = (ports(&first), ports(&second));
+    assert!(a.iter().all(|&p| p == port) && !a.is_empty(), "want the first on {port}: {a:?}");
+    assert!(b.iter().all(|&p| p != port) && !b.is_empty(), "want the second on another port: {b:?}");
 }

@@ -37,7 +37,7 @@ func key(t *testing.T) ed25519.PrivateKey {
 func peer(t *testing.T) (transport.Peer, ed25519.PrivateKey) {
 	t.Helper()
 	k := key(t)
-	p, err := transport.Open(k, "")
+	p, err := transport.Open(k, "", 0)
 	if errors.Is(err, transport.ErrNotBuilt) {
 		t.Skip("built without the transport (make test-p2p runs these)")
 	}
@@ -135,7 +135,7 @@ func signer(t *testing.T) ssh.Signer {
 
 func TestTransport_none(t *testing.T) {
 	t.Run("TRNSP-E02: O executável sem o transporte", func(t *testing.T) {
-		p, err := transport.Open(key(t), "")
+		p, err := transport.Open(key(t), "", 0)
 		if err == nil {
 			p.Close()
 			t.Skip("built with the transport")

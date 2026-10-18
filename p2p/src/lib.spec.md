@@ -21,6 +21,11 @@ O `bind` abre o endpoint da chave cujo segredo são os 32 bytes dados, com o rel
 públicos do iroh; nenhum; ou um URL), e aceita só as ligações do Polvo (`ALPN`). O `id` é a chave pública;
 o `addr` diz, em JSON, a chave, os endereços diretos e o relay.
 
+### PTRNS-B05 — A porta de cada rede
+O endpoint escuta na porta UDP pedida em todas as redes da máquina (IPv4, e IPv6 quando a há), para quem
+passa o endereço à mão saber a porta; quando ela está tomada, escuta noutra que o sistema dá. A porta 0 é
+qualquer uma.
+
 ### PTRNS-B02 — Ligar e aceitar
 O `connect` liga-se à instalação do `addr` que ela deu, e o `accept` dela recebe a ligação; o que um lado
 escreve o outro lê, nos dois sentidos, e o fim de um lado é o fim do que o outro lê.
@@ -30,7 +35,7 @@ Cada lado sabe a chave do outro (`remote`), que o handshake provou: ligar-se a u
 não é a de quem responde falha.
 
 ### PTRNS-B04 — A API C
-As mesmas operações em C, para o nó em Go: abrir o endpoint (`polvo_p2p_open`), o endereço e a chave
+As mesmas operações em C, para o nó em Go: abrir o endpoint (`polvo_p2p_open`, com a porta), o endereço e a chave
 (`polvo_p2p_addr`, `polvo_p2p_id`), aceitar e ligar (`polvo_p2p_accept`, `polvo_p2p_connect`), ler e
 escrever (`polvo_p2p_read`, `polvo_p2p_write`), dizer que não se escreve mais (`polvo_p2p_close_write`),
 fechar o stream (`polvo_p2p_close`, que espera até `CLOSE_WAIT` que o outro lado tenha o que se escreveu)
@@ -42,6 +47,7 @@ e o endpoint (`polvo_p2p_shutdown`, depois do qual o `accept` à espera dá 0), 
 | Input | Accepts | Outside the domain | Who guarantees |
 | --- | --- | --- | --- |
 | `seed` | os 32 bytes do segredo de uma chave ed25519 | outro tamanho | quem chama |
+| `port` | uma porta UDP, ou 0 | — | este módulo: a tomada dá outra (`PTRNS-B05`) |
 | `relay` | "default", vazio, ou o URL de um relay | um texto que não é URL | este módulo: o erro (`PTRNS-E02`) |
 | `addr` | o JSON que o `addr` de outra instalação deu | outro texto | este módulo: o erro (`PTRNS-E01`) |
 
@@ -67,6 +73,13 @@ e o endpoint (`polvo_p2p_shutdown`, depois do qual o `accept` à espera dá 0), 
 | `PTRNS-B04` | `seed`, `relay`, `addr`, `CLOSE_WAIT` |
 | `PTRNS-E01` | `addr` |
 | `PTRNS-E02` | `relay` |
+| `PTRNS-B05` | `port` |
+
+## Revisions
+
+> **PTRNS-R0001:** entra o `PTRNS-B05` (a porta de cada rede): com a porta a mudar a cada arranque, quem
+> passa o endereço à mão (o IP e o código) não sabia a porta, e o histórico dos endereços de uma máquina
+> não se repetia.
 
 ## Open Decisions
 

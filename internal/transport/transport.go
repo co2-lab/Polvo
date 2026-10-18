@@ -22,6 +22,9 @@ var ErrNotBuilt = errors.New("transport: this executable was built without the p
 // DEFAULT_RELAY is the relay an endpoint uses when none is given: the public ones of iroh (TRNSP-B01).
 const DEFAULT_RELAY = "default"
 
+// DEFAULT_PORT is the UDP port of the endpoint, the same number as the node's TCP one (TRNSP-B01).
+const DEFAULT_PORT = 2222
+
 // Peer is the endpoint of this installation.
 type Peer interface {
 	// ID is this installation's key, which is its address.
@@ -37,9 +40,9 @@ type Peer interface {
 }
 
 // Open opens the endpoint of the installation whose key is key, with the relay ("default", "" for none,
-// or a relay's URL) (TRNSP-B01).
-func Open(key ed25519.PrivateKey, relay string) (Peer, error) {
-	p, err := open(key.Seed(), relay)
+// or a relay's URL), on the UDP port (0: any; another when it is taken) (TRNSP-B01).
+func Open(key ed25519.PrivateKey, relay string, port int) (Peer, error) {
+	p, err := open(key.Seed(), relay, port)
 	if err != nil {
 		// TRNSP-E01, TRNSP-E02
 		return nil, fmt.Errorf("transport: %w", err)
