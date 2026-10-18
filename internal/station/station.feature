@@ -91,3 +91,9 @@ Feature: Station
     Given uma Station a escutar no loopback, com o grupo de teste
     When se procura no grupo
     Then não encontra nada
+
+  @STATN-B12 @unit-level
+  Scenario: Aceitar as outras máquinas, e deixar de aceitar
+    Given duas instalações, a segunda com a primeira junta
+    When a primeira deixa de escutar, e depois volta a escutar no mesmo endereço
+    Then a ligação da segunda é cortada enquanto não escuta, volta a chegar depois, e a primeira aberta outra vez sem endereço escuta no mesmo

@@ -173,6 +173,9 @@ func answer(s *station.Station, r request) (any, error) {
 		return struct{}{}, s.Remove(r.Name)
 	case "progress_all":
 		return progressAll(s, r.Since, time.Duration(r.TimeoutMS)*time.Millisecond), nil
+	case "listen":
+		// BRDGE-B02: accept the other machines at addr, or stop with it empty
+		return struct{}{}, s.Listen(r.Addr)
 	case "discover":
 		return discover(s, time.Duration(r.TimeoutMS)*time.Millisecond)
 	case "pairings":

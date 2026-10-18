@@ -1,0 +1,75 @@
+diff -ru gpui-base-0.7.3/src/dock/dock_area.rs gpui-base/src/dock/dock_area.rs
+--- gpui-base-0.7.3/src/dock/dock_area.rs	2006-07-23 22:21:28.000000000 -0300
++++ gpui-base/src/dock/dock_area.rs	2026-10-18 12:15:14.619032758 -0300
+@@ -1209,7 +1209,15 @@
+                 item: item.clone(),
+                 target: *target,
+             }),
+-            TabGroupEvent::ClosePanel { panel } => self.remove_panel_id(*panel, window, cx),
++            TabGroupEvent::ClosePanel { panel } => {
++                // The panel may refuse, to ask the user first.
++                if let Some(view) = self.panel(*panel).cloned()
++                    && !view.request_close(window, cx)
++                {
++                    return;
++                }
++                self.remove_panel_id(*panel, window, cx)
++            }
+             TabGroupEvent::ActiveChanged { ix } => {
+                 let node = group.read(cx).node();
+                 let Some(region) = self.placement_of_node(node) else {
+diff -ru gpui-base-0.7.3/src/dock/panel.rs gpui-base/src/dock/panel.rs
+--- gpui-base-0.7.3/src/dock/panel.rs	2006-07-23 22:21:28.000000000 -0300
++++ gpui-base/src/dock/panel.rs	2026-10-18 12:15:14.616928857 -0300
+@@ -81,6 +81,15 @@
+     /// to another never leaves the dock, so it never hears this.
+     fn on_removed(&mut self, window: &mut Window, cx: &mut Context<Self>) {}
+ 
++    /// Asked when the user closes the panel (its tab's close button, or the
++    /// close action), before the dock removes it: `false` keeps it open. A
++    /// panel with unsaved work can refuse, ask the user, and remove itself
++    /// afterwards. Removals the user did not ask for (a wholesale `load`,
++    /// `set_center`) do not ask.
++    fn request_close(&mut self, window: &mut Window, cx: &mut Context<Self>) -> bool {
++        true
++    }
++
+     /// The panel's own persisted state, written into the layout under its
+     /// [`panel_name`](Panel::panel_name) and handed back to the
+     /// [`PanelRegistry`](crate::dock::PanelRegistry) builder on the next load.
+@@ -105,6 +114,10 @@
+     fn set_zoomed(&self, zoomed: bool, window: &mut Window, cx: &mut App);
+     fn on_added_to(&self, group: WeakEntity<TabGroup>, window: &mut Window, cx: &mut App);
+     fn on_removed(&self, window: &mut Window, cx: &mut App);
++    /// See [`Panel::request_close`].
++    fn request_close(&self, window: &mut Window, cx: &mut App) -> bool {
++        true
++    }
+     fn view(&self) -> AnyView;
+     fn focus_handle(&self, cx: &App) -> FocusHandle;
+     fn dump(&self, cx: &App) -> PanelState;
+@@ -172,6 +185,10 @@
+         self.update(cx, |this, cx| this.on_removed(window, cx));
+     }
+ 
++    fn request_close(&self, window: &mut Window, cx: &mut App) -> bool {
++        self.update(cx, |this, cx| this.request_close(window, cx))
++    }
++
+     fn view(&self) -> AnyView {
+         self.clone().into()
+     }
+diff -ru gpui-component-0.7.3/src/dock/panel.rs gpui-component/src/dock/panel.rs
+--- gpui-component-0.7.3/src/dock/panel.rs	2006-07-23 22:21:28.000000000 -0300
++++ gpui-component/src/dock/panel.rs	2026-10-18 12:15:14.619542530 -0300
+@@ -293,6 +293,10 @@
+         self.0.on_removed(window, cx);
+     }
+ 
++    fn request_close(&self, window: &mut Window, cx: &mut App) -> bool {
++        self.0.request_close(window, cx)
++    }
++
+     fn view(&self) -> AnyView {
+         self.0.view()
+     }

@@ -20,6 +20,10 @@ use crate::remote::{NetMachine, PairingRequest, SessionInfo, Station, Status}; /
 /// How often the tab reads this machine's pairing requests again (MQNAS-B09).
 pub const PAIRINGS_EVERY: std::time::Duration = std::time::Duration::from_secs(1);
 
+/// Where this machine's node listens for the others when the user accepts them, as the `polvo node`'s
+/// (MQNAS-B11).
+pub const ACCEPT_LISTEN: &str = ":2222";
+
 /// How long a search of the network waits for answers (MQNAS-B07).
 const DISCOVER_MS: u64 = 1500;
 
@@ -85,6 +89,8 @@ pub struct NodesPanel {
     requests: Vec<PairingRequest>,
     _polling: Option<Task<()>>,
     _pairing_task: Option<Task<()>>,
+    /// Where the node listens when the user accepts the others (MQNAS-B11).
+    accept_at: String,
 }
 
 impl NodesPanel {
@@ -106,6 +112,7 @@ impl NodesPanel {
             requests: Vec::new(),
             _polling: None,
             _pairing_task: None,
+            accept_at: ACCEPT_LISTEN.to_string(),
         };
         this.refresh(cx);
         this.poll_pairings(cx);
@@ -285,6 +292,22 @@ impl NodesPanel {
         });
     }
 
+    /// MQNAS-B11: accepting the others, or not, at once and the next times.
+    fn accept(&mut self, on: bool, cx: &mut Context<Self>) {
+        let addr = if on { self.accept_at.clone() } else { String::new() };
+        self.run(cx, move |st| st.set_listen(&addr), |this, done, _| {
+            if let Err(e) = done {
+                this.tell(e.0);
+            }
+        });
+    }
+
+    /// Where the node listens when the user accepts the others, in place of `ACCEPT_LISTEN`.
+    #[cfg(test)]
+    pub fn accept_at(&mut self, addr: &str) {
+        self.accept_at = addr.to_string();
+    }
+
     /// Shows the user why something they did failed.
     fn tell(&mut self, message: String) {
         self.join_message = Some(message);
@@ -350,7 +373,11 @@ impl NodesPanel {
                 (None, false) => format!("Escuta em {}", status.listen),
             };
             let key = status.key.clone();
-            body = body.child(div().text_color(muted).child(listen)).child(
+            // MQNAS-B11
+            let listening = !status.listen.is_empty();
+            let label = if listening { "Deixar de aceitar outras máquinas" } else { "Deixar outras máquinas ligarem-se" };
+            let toggle = Self::button("accept-machines".into(), label, hover, cx.listener(move |this, _, _, cx| this.accept(!listening, cx)));
+            body = body.child(div().flex().items_center().gap(px(8.)).child(div().flex_1().text_color(muted).child(listen)).child(toggle)).child(
                 div()
                     .flex()
                     .items_center()

@@ -60,12 +60,17 @@ fim, e o `pair_cancel` desiste.
 O `list_dir` dá as entradas de uma pasta de uma máquina (`RemoteEntry`), o `read_text` o texto de um
 ficheiro dela, e o `write_text` grava-o.
 
+### RMTEC-B08 — Aceitar as outras máquinas
+O `set_listen` põe o nó desta máquina a escutar as outras no endereço dado, ou deixa de escutar com ele
+vazio; a instalação lembra-o para a próxima vez que abre.
+
 ## Domain
 
 | Input | Accepts | Outside the domain | Who guarantees |
 | --- | --- | --- | --- |
 | `machine` | `LOCAL`, ou uma máquina juntada | outra | a biblioteca: o erro dela (`RMTEC-E01`) |
 | `id` | o id de uma sessão viva | outro | a biblioteca: o erro dela (`RMTEC-E01`) |
+| `listen` | um endereço onde escutar (máquina:porta, ou `:porta`), ou vazio | um ocupado ou sem permissão | a biblioteca: o erro dela (`RMTEC-E01`) |
 
 ## Errors / Failures
 | Rule | Condition | Failure |
@@ -89,8 +94,12 @@ ficheiro dela, e o `write_text` grava-o.
 | `RMTEC-B05` | `machine` |
 | `RMTEC-B06` | `machine` |
 | `RMTEC-B07` | `machine` |
+| `RMTEC-B08` | `listen` |
 
 ## Revisions
+
+> **RMTEC-R0005:** entra o `RMTEC-B08` (aceitar as outras máquinas), por a janela já não escutar por
+> omissão, como o dono decidiu a 2026-10-18.
 
 > **RMTEC-R0004:** entra o `RMTEC-B07` (os ficheiros de uma máquina), do plano ESRMS, W05.
 

@@ -94,13 +94,16 @@ Depende da janela como cliente dos nós (ESRMS-W02).
 > corre); quando não o tem, ou a conversa não está em disco, a conversa é a mudada mais recentemente da
 > pasta do projeto (`~/.claude/projects/<pasta>`). O trabalho leva a conversa ao começar, e o nó pergunta
 > por ela. A cópia da conversa corre no modo de planeamento e com as mesmas ferramentas, para ler a cache
-> de prompts (mudar as ferramentas muda o começo do prompt). Fica por rever pelo dono.
+> de prompts (mudar as ferramentas muda o começo do prompt). O dono aprovou-o a 2026-10-18, com um
+> reforço: quando for o Polvo a arrancar o `claude` numa sessão, passa-lhe o `--session-id`, para dois
+> `claude` na mesma pasta não se confundirem.
 
 ## Open Decisions
 
 | Code | Question | Who decides | Becomes |
 | --- | --- | --- | --- |
-| `AGPRG-D01` | Como o nó sabe o id da conversa do `claude` de uma sessão quando o utilizador o arrancou à mão: o agente reporta-o pela ferramenta, o nó procura a conversa do processo `claude` da sessão, ou o Polvo arranca o `claude` com `--session-id` | o agente, testando as três, e o dono aprova | a fase AGPRG-W03 |
+
+none
 
 ## Definition of Done
 

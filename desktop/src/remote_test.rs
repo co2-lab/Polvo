@@ -125,3 +125,13 @@ scenario!(rmtec_b07_os_ficheiros_de_uma_maquina, "RMTEC-B07: Os ficheiros de uma
     let text = st.read_text(LOCAL, &file).unwrap();
     assert_eq!((entries.len(), entries[0].name.as_str(), entries[0].dir, text.as_str()), (1, "notas.txt", false, "ola"));
 });
+
+scenario!(rmtec_b08_aceitar_as_outras_maquinas, "RMTEC-B08: Aceitar as outras máquinas", {
+    let dir = tempfile::tempdir().unwrap();
+    let st = Station::open(dir.path(), "", "/bin/sh").unwrap();
+    let before = st.status().unwrap().listen;
+    st.set_listen("127.0.0.1:0").unwrap();
+    let during = st.status().unwrap().listen;
+    st.set_listen("").unwrap();
+    assert_eq!((before.as_str(), during.is_empty(), st.status().unwrap().listen.as_str()), ("", false, ""));
+});

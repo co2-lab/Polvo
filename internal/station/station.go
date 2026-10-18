@@ -61,8 +61,11 @@ type Station struct {
 	known    *sshx.KnownHosts
 	sessions *sessions.Manager
 
+	// listenMu keeps the listening apart: Listen changes it while the window runs (STATN-B12)
+	listenMu  sync.Mutex
 	listener  net.Listener
 	listenErr error
+	cfg       node.Config
 	announcer *discovery.Announcer
 	discovery *discovery.Options
 	name      string
@@ -74,7 +77,8 @@ type Station struct {
 
 	// connMu keeps conns apart from mu: the Node holds mu while its own node accepts
 	connMu   sync.Mutex
-	conns    map[net.Conn]struct{}
+	// conns are the connections the node took, true for those of the other machines
+	conns    map[net.Conn]bool
 	shut     bool
 	mu       sync.Mutex
 	machines []string
@@ -115,7 +119,7 @@ func Open(dir string, opt Options) (*Station, error) {
 		name, _ = os.Hostname()
 	}
 	s := &Station{dir: dir, id: id, known: sshx.NewKnownHosts(filepath.Join(dir, "known_hosts")), sessions: m,
-		nodes: map[string]*hub.Node{}, hostKey: host.PublicKey(), conns: map[net.Conn]struct{}{}, discovery: opt.Discovery, name: name}
+		nodes: map[string]*hub.Node{}, hostKey: host.PublicKey(), conns: map[net.Conn]bool{}, discovery: opt.Discovery, name: name}
 	// STATN-B08: the requests shown stay until they end
 	pairer := pairing.NewPairer(filepath.Join(dir, "authorized_keys"), func(r pairing.Request) {
 		s.pairMu.Lock()
@@ -159,26 +163,91 @@ func Open(dir string, opt Options) (*Station, error) {
 	go node.Serve(s.own, cfg)
 	// STATN-B07: an agent in a session reports to this node
 	m.SetEnv([]string{"POLVO_NODE=" + own.Addr().String()})
-	if opt.Listen != "" {
-		l, err := net.Listen("tcp", opt.Listen)
-		if err != nil {
-			// STATN-E01: this machine still works, without the others
-			s.listenErr = fmt.Errorf("station: listening on %s: %w", opt.Listen, err)
-		} else {
-			s.listener = s.track(l)
-			go node.Serve(s.listener, cfg)
-			s.announce(l.Addr())
+	s.cfg = cfg
+	listen := opt.Listen
+	if listen == "" {
+		// STATN-B12: where the user left it
+		if b, err := os.ReadFile(s.acceptFile()); err == nil {
+			var a accepting
+			if json.Unmarshal(b, &a) == nil {
+				listen = a.Listen
+			}
 		}
 	}
+	// STATN-E01: a failure leaves this machine working, without the others
+	s.listen(listen)
 	return s, nil
+}
+
+// accepting is where the user left this machine listening for the others (STATN-B12).
+type accepting struct {
+	Listen string `json:"listen"`
+}
+
+func (s *Station) acceptFile() string { return filepath.Join(s.dir, "accept.json") }
+
+// Listen makes this machine's node listen for the others at addr, or stop with an empty addr, while the
+// window runs, and the installation remembers it for the next Open (STATN-B12): stopping also ends the
+// connections the others had made. A failure is STATN-E01, and is not remembered.
+func (s *Station) Listen(addr string) error {
+	if err := s.listen(addr); err != nil {
+		return err
+	}
+	b, _ := json.Marshal(accepting{Listen: addr})
+	return os.WriteFile(s.acceptFile(), b, 0o600)
+}
+
+func (s *Station) listen(addr string) error {
+	s.listenMu.Lock()
+	defer s.listenMu.Unlock()
+	if s.listener != nil {
+		s.listener.Close()
+		s.listener = nil
+	}
+	if s.announcer != nil {
+		s.announcer.Close()
+		s.announcer = nil
+	}
+	s.listenErr = nil
+	s.connMu.Lock()
+	var outside []net.Conn
+	for c, out := range s.conns {
+		if out {
+			outside = append(outside, c)
+			delete(s.conns, c)
+		}
+	}
+	s.connMu.Unlock()
+	for _, c := range outside {
+		c.Close()
+	}
+	if addr == "" {
+		return nil
+	}
+	l, err := net.Listen("tcp", addr)
+	if err != nil {
+		// STATN-E01
+		s.listenErr = fmt.Errorf("station: listening on %s: %w", addr, err)
+		return s.listenErr
+	}
+	s.listener = s.trackOutside(l)
+	go node.Serve(s.listener, s.cfg)
+	s.announce(l.Addr())
+	return nil
 }
 
 // track keeps the connections l accepts, for the Close to end them.
 func (s *Station) track(l net.Listener) net.Listener { return &tracking{Listener: l, s: s} }
 
+// trackOutside is track for the listener of the other machines, whose connections Listen ends.
+func (s *Station) trackOutside(l net.Listener) net.Listener {
+	return &tracking{Listener: l, s: s, outside: true}
+}
+
 type tracking struct {
 	net.Listener
-	s *Station
+	s       *Station
+	outside bool
 }
 
 func (t *tracking) Accept() (net.Conn, error) {
@@ -192,7 +261,7 @@ func (t *tracking) Accept() (net.Conn, error) {
 		c.Close()
 		return nil, errors.New("station: closed")
 	}
-	t.s.conns[c] = struct{}{}
+	t.s.conns[c] = t.outside
 	return &tracked{Conn: c, s: t.s}, nil
 }
 
@@ -215,6 +284,8 @@ func (s *Station) PublicKey() ssh.PublicKey { return s.id.PublicKey() }
 
 // ListenAddr is where this machine's node listens for the others; empty when it does not (STATN-B02).
 func (s *Station) ListenAddr() string {
+	s.listenMu.Lock()
+	defer s.listenMu.Unlock()
 	if s.listener == nil {
 		return ""
 	}
@@ -222,7 +293,11 @@ func (s *Station) ListenAddr() string {
 }
 
 // ListenError says why the node does not listen (STATN-E01).
-func (s *Station) ListenError() error { return s.listenErr }
+func (s *Station) ListenError() error {
+	s.listenMu.Lock()
+	defer s.listenMu.Unlock()
+	return s.listenErr
+}
 
 // Machines gives this window's machine and then the known ones, in the order they were added (STATN-B03).
 func (s *Station) Machines() []Machine {
@@ -351,18 +426,13 @@ func (s *Station) Close() error {
 	nodes := s.nodes
 	s.nodes = map[string]*hub.Node{}
 	s.mu.Unlock()
-	if s.listener != nil {
-		s.listener.Close()
-	}
-	if s.announcer != nil {
-		s.announcer.Close()
-	}
+	s.listen("")
 	s.own.Close()
 	// the connections the node took: closing the listener leaves them open
 	s.connMu.Lock()
 	s.shut = true
 	conns := s.conns
-	s.conns = map[net.Conn]struct{}{}
+	s.conns = map[net.Conn]bool{}
 	s.connMu.Unlock()
 	for c := range conns {
 		c.Close()
@@ -466,6 +536,7 @@ func (s *Station) Discover(d time.Duration) ([]Discovered, error) {
 // Pair pairs this installation with the machine at addr, by the code the user reads on it, and adds it
 // (STATN-B11).
 func (s *Station) Pair(addr string, typed func() (string, error)) error {
+	// @no-guard: hub.Pair fails on an address that is not a node's (STATN-E02), and Add guards after it
 	cfg := hub.Config{Identity: s.id, KnownHosts: s.known}
 	if err := hub.Pair(addr, cfg, s.name, typed); err != nil {
 		return err

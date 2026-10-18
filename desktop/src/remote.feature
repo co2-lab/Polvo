@@ -55,3 +55,9 @@ Feature: Remote
     Given uma instalação e uma pasta vazia
     When grava "notas.txt" com "ola", lista a pasta e lê o ficheiro
     Then a lista tem "notas.txt", e a leitura dá "ola"
+
+  @RMTEC-B08 @unit-level
+  Scenario: Aceitar as outras máquinas
+    Given uma instalação aberta sem escutar
+    When se pede para escutar num endereço, e depois para deixar de escutar
+    Then escuta só entre os dois pedidos

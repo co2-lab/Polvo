@@ -61,3 +61,21 @@ Feature: Editor
     Given o editor de um ficheiro "notas.md" com "olá", aberto pelo nó de uma máquina
     When se mostra, o utilizador escreve "x" e grava
     Then primeiro diz "a abrir…", depois mostra "olá", e o ficheiro fica com "xolá" e o título sem a marca
+
+  @EDTRS-B06#01 @unit-level
+  Scenario: Descartar as alterações ao fechar
+    Given o editor de "notas.md" com "olá", onde o utilizador escreveu "x"
+    When se pede para o fechar e o utilizador responde "Descartar"
+    Then o editor não fecha logo, pergunta, e depois fecha; o ficheiro continua com "olá"
+
+  @EDTRS-B06#02 @unit-level
+  Scenario: Gravar as alterações ao fechar
+    Given o editor de "notas.md" com "olá", onde o utilizador escreveu "x"
+    When se pede para o fechar e o utilizador responde "Gravar"
+    Then o ficheiro fica com "xolá" e o editor fecha
+
+  @EDTRS-B06#03 @unit-level
+  Scenario: Cancelar o fecho, e fechar sem alterações
+    Given o editor de "notas.md" com alterações, e outro sem alterações
+    When se pede para fechar os dois, e o utilizador responde "Cancelar" ao primeiro
+    Then o primeiro fica aberto com a marca, e o segundo fecha sem perguntar

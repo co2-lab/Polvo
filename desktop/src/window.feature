@@ -241,3 +241,15 @@ Feature: Window
     Given a árvore e o editor de "notas.txt" de uma máquina, com a organização gravada
     When a janela abre outra vez com a mesma instalação
     Then a árvore e o editor voltam ligados a essa máquina, com o texto do ficheiro
+
+  @WNDWI-B26#01 @unit-level
+  Scenario: O atalho de fechar pergunta pelas alterações do editor
+    Given um editor de "notas.txt" com alterações por gravar, com o foco
+    When o utilizador carrega no atalho de fechar, e responde "Descartar"
+    Then a aba fica até à resposta, e depois sai da doca
+
+  @WNDWI-B26#02 @unit-level
+  Scenario: Fechar pela aba também pergunta
+    Given um editor de "notas.txt" com alterações por gravar, com o foco
+    When a doca recebe a ação de fechar a aba, e o utilizador responde "Cancelar"
+    Then a aba fica

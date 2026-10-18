@@ -12,8 +12,8 @@ use gpui_kit::component::ActiveTheme as _;
 use gpui_kit::component::dock::{BasePanel, Panel, PanelEvent, PanelInfo, PanelState};
 use gpui_kit::component::input::{Editor, EditorState, InputEvent};
 use gpui_kit::{
-    App, Context, Entity, EventEmitter, FocusHandle, Focusable, IntoElement, KeyDownEvent, ParentElement as _, Render,
-    Role, Styled as _, Subscription, Window, div, prelude::*, px,
+    App, Context, Entity, EventEmitter, FocusHandle, Focusable, IntoElement, KeyDownEvent, ParentElement as _, PromptLevel,
+    Render, Role, Styled as _, Subscription, Window, div, prelude::*, px,
 };
 
 use crate::files::FileSource; // @dep: FLIMP
@@ -24,6 +24,18 @@ pub const MAX_OPEN: u64 = 16 << 20;
 
 /// The title of an editor with no file (EDTRS-B01).
 const UNTITLED: &str = "Sem título";
+
+/// The answers of the question before closing an editor with unsaved changes (EDTRS-B06).
+const SAVE: &str = "Gravar";
+const DISCARD: &str = "Descartar";
+const CANCEL: &str = "Cancelar";
+
+/// What the editor tells the window.
+#[derive(Clone, Debug, PartialEq)]
+pub enum EditorEvent {
+    /// The user closed it, after deciding about the unsaved changes (EDTRS-B06).
+    Close,
+}
 
 /// The language the editor highlights a file in, by its extension (EDTRS-B02): a name the highlighter
 /// knows, or plain text.
@@ -118,6 +130,8 @@ pub struct EditorPanel {
     error: Option<String>,
     /// Why the file could not be saved (EDTRS-E02).
     message: Option<String>,
+    /// Closing waits for the save the user chose (EDTRS-B06).
+    close_when_saved: bool,
     _heard: Option<Subscription>,
 }
 
@@ -199,6 +213,7 @@ impl EditorPanel {
             modified: false,
             error,
             message: None,
+            close_when_saved: false,
             _heard: heard,
         }
     }
@@ -246,8 +261,11 @@ impl EditorPanel {
         let dir = dirs::home_dir().unwrap_or_else(|| PathBuf::from("."));
         let asked = cx.prompt_for_new_path(&dir, None);
         cx.spawn_in(window, async move |this, cx| {
-            // a cancelled dialog saves nothing
-            let Ok(Ok(Some(path))) = asked.await else { return };
+            // a cancelled dialog saves nothing, and closes nothing
+            let Ok(Ok(Some(path))) = asked.await else {
+                let _ = this.update(cx, |this, _| this.close_when_saved = false);
+                return;
+            };
             let _ = this.update(cx, |this, cx| {
                 if let Some(state) = &this.state {
                     let language = language_for(&path);
@@ -284,9 +302,10 @@ impl EditorPanel {
     fn written(&mut self, path: &Path, written: Result<(), String>, text: &str, cx: &mut Context<Self>) {
         match written {
             Err(e) => {
-                // EDTRS-E02: the mark stays
+                // EDTRS-E02: the mark stays, and the editor stays open
                 eprintln!("polvo: {} was not saved: {e}", path.display());
                 self.tell(format!("{} não foi gravado: {e}", path.display()));
+                self.close_when_saved = false;
             }
             Ok(()) => {
                 // what was typed while the node wrote still has to be saved
@@ -294,9 +313,36 @@ impl EditorPanel {
                     self.modified = false;
                 }
                 self.message = None;
+                if std::mem::take(&mut self.close_when_saved) {
+                    // EDTRS-B06
+                    cx.emit(EditorEvent::Close);
+                }
             }
         }
         cx.notify();
+    }
+
+    /// EDTRS-B06: whether the editor may close now; with unsaved changes it stays open, asks the user,
+    /// and closes itself after (`EditorEvent::Close`).
+    pub fn ask_to_close(&mut self, window: &mut Window, cx: &mut Context<Self>) -> bool {
+        if !self.modified || self.state.is_none() {
+            return true;
+        }
+        let question = format!("Gravar as alterações de {}?", self.title_text().trim_start_matches("● "));
+        let answer = window.prompt(PromptLevel::Warning, &question, Some("Sem gravar, perdem-se."), &[SAVE, DISCARD, CANCEL], cx);
+        cx.spawn_in(window, async move |this, cx| {
+            let Ok(chosen) = answer.await else { return };
+            let _ = this.update_in(cx, |this, window, cx| match chosen {
+                0 => {
+                    this.close_when_saved = true;
+                    this.save(window, cx);
+                }
+                1 => cx.emit(EditorEvent::Close),
+                _ => {}
+            });
+        })
+        .detach();
+        false
     }
 
     /// Shows the user why something they did failed.
@@ -314,6 +360,7 @@ impl EditorPanel {
 }
 
 impl EventEmitter<PanelEvent> for EditorPanel {}
+impl EventEmitter<EditorEvent> for EditorPanel {}
 
 impl Focusable for EditorPanel {
     fn focus_handle(&self, cx: &App) -> FocusHandle {
@@ -340,6 +387,10 @@ impl BasePanel for EditorPanel {
         }
         state.info = PanelInfo::panel(info);
         state
+    }
+
+    fn request_close(&mut self, window: &mut Window, cx: &mut Context<Self>) -> bool {
+        self.ask_to_close(window, cx)
     }
 }
 

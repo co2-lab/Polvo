@@ -87,6 +87,15 @@ func TestBridge_station(t *testing.T) {
 		var l list
 		call(t, h, `{"op":"sessions","machine":"local"}`, &l)
 		call(t, h, `{"op":"close","machine":"local","id":"`+id+`"}`, nil)
+		var listening struct {
+			Listen string `json:"listen"`
+		}
+		call(t, h, `{"op":"listen","addr":"127.0.0.1:0"}`, nil)
+		call(t, h, `{"op":"status"}`, &listening)
+		call(t, h, `{"op":"listen","addr":""}`, nil)
+		if listening.Listen == "" {
+			t.Fatalf("want it listening after the listen, got %+v", listening)
+		}
 		if status.Listen != "" || !strings.HasPrefix(status.Key, "ssh-ed25519 ") || len(machines.Machines) != 1 || !machines.Machines[0].Local || len(l.Sessions) != 1 || !l.Sessions[0].Locked {
 			t.Fatalf("got %+v, %+v, %+v", status, machines, l)
 		}

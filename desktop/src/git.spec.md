@@ -1,6 +1,6 @@
 <!-- @anchors
   code: GITRS
-  updated_at: 2026-10-17
+  updated_at: 2026-10-18
 -->
 # Git — a informação de git de uma pasta, numa aba da doca
 
@@ -41,6 +41,8 @@ Carregar num ficheiro alterado que existe abre-o (`Open`, com o caminho).
 
 | Input | Accepts | Outside the domain | Who guarantees |
 | --- | --- | --- | --- |
+
+none
 | `root` | uma pasta dentro de um repositório git | uma pasta fora de um repositório | este módulo: a mensagem (`GITRS-E01`) |
 | `GIT` | o programa `git` no `PATH` | sem `git`, ou um que falha | este módulo: a mensagem (`GITRS-E02`) |
 
@@ -68,8 +70,14 @@ Carregar num ficheiro alterado que existe abre-o (`Open`, com o caminho).
 | `GITRS-E01` | `root` |
 | `GITRS-E02` | `GIT` |
 
+## Revisions
+
+> **GITRS-R0001:** o dono aprovou a 2026-10-18 que a aba leia do `git` em linha de comandos (era a
+> `GITRS-D01`): a semântica exata do git do utilizador (a configuração, os hooks, as credenciais).
+
 ## Open Decisions
 
 | Code | Question | Who decides | Becomes |
 | --- | --- | --- | --- |
-| `GITRS-D01` | A aba lê do `git` em linha de comandos (a semântica exata do git do utilizador, sem dependências C), e não do libgit2 nem do gitoxide; precisa do `git` instalado. Fica assim? @no-code: decisão do agente por rever pelo dono | dono | a escolha mantém-se, ou uma revisão desta spec |
+
+none

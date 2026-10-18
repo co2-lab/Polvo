@@ -36,6 +36,12 @@ diz "a abrir…" até o nó dar o texto, e grava pelo nó, sem parar a janela; o
 nó grava continua com a marca. O título diz a máquina, e a organização da doca guarda-a com o ficheiro.
 O limite `MAX_OPEN` vale também aqui, contado depois de o nó o ler.
 
+### EDTRS-B06 — Fechar com alterações por gravar
+Fechar um editor com alterações por gravar (o botão da aba, a ação de fechar, ou o atalho da janela) não o
+fecha logo: pergunta pelo diálogo do sistema se as grava. "Gravar" grava (como no `EDTRS-B04`) e fecha
+depois de gravar; se gravar falha (`EDTRS-E02`), fica aberto. "Descartar" fecha sem gravar. "Cancelar"
+deixa-o como estava. Sem alterações, fecha logo. O editor diz à janela que fechou pelo `EditorEvent`.
+
 ## Domain
 
 | Input | Accepts | Outside the domain | Who guarantees |
@@ -65,8 +71,13 @@ O limite `MAX_OPEN` vale também aqui, contado depois de o nó o ler.
 | `EDTRS-E01` | `path`, `MAX_OPEN` |
 | `EDTRS-E02` | `path` |
 | `EDTRS-B05` | `path`, `keystroke`, `MAX_OPEN` |
+| `EDTRS-B06` | `path`, `keystroke` |
 
 ## Revisions
+
+> **EDTRS-R0002:** entra o `EDTRS-B06` (fechar com alterações por gravar): o dono decidiu a 2026-10-18
+> que se pergunta (era a `EDTRS-D01`). A doca do gpui-component não perguntava ao painel antes de o fechar:
+> a cópia em `third_party/` ganha o `request_close`, até o upstream o ter.
 
 > **EDTRS-R0001:** entra o `EDTRS-B05` (o ficheiro de outra máquina), do plano ESRMS, W05.
 
@@ -74,4 +85,5 @@ O limite `MAX_OPEN` vale também aqui, contado depois de o nó o ler.
 
 | Code | Question | Who decides | Becomes |
 | --- | --- | --- | --- |
-| `EDTRS-D01` | Fechar a aba de um editor com alterações por gravar perde-as sem perguntar (a doca fecha a aba sem consultar o painel). Perguntar antes de fechar? @no-code: decisão por tomar pelo dono | dono | uma regra nova do editor e da janela |
+
+none

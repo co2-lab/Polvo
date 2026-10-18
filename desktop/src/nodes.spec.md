@@ -54,6 +54,12 @@ digital e o código, e lê-os outra vez a cada `PAIRINGS_EVERY` enquanto vive.
 ### MQNAS-B10 — Os ficheiros de uma máquina
 O botão "Ficheiros" de uma máquina pede à janela a árvore dos ficheiros dela, a começar na pasta pessoal.
 
+### MQNAS-B11 — Deixar outras máquinas ligarem-se
+Esta máquina só aceita ligações de outras quando o utilizador o liga: o botão "Deixar outras máquinas
+ligarem-se" põe o nó dela a escutar em `ACCEPT_LISTEN` (e a anunciar-se na rede), e o mesmo botão,
+"Deixar de aceitar outras máquinas", desliga-o e corta as ligações delas. A escolha fica para a próxima
+vez que a janela abre.
+
 ## Domain
 
 | Input | Accepts | Outside the domain | Who guarantees |
@@ -72,6 +78,7 @@ O botão "Ficheiros" de uma máquina pede à janela a árvore dos ficheiros dela
 | Constant | Value | Why |
 | --- | --- | --- |
 | `PAIRINGS_EVERY` | 1 s | um pedido aparece logo; ler a lista desta máquina não custa nada |
+| `ACCEPT_LISTEN` | `:2222` | o endereço do `polvo node`: quem já liga a máquina pelo `polvo node` encontra-a no mesmo sítio |
 
 ## Rule uses
 
@@ -89,12 +96,16 @@ O botão "Ficheiros" de uma máquina pede à janela a árvore dos ficheiros dela
 | `MQNAS-B08` | `Station`, `addr` |
 | `MQNAS-B09` | `Station`, `PAIRINGS_EVERY` |
 | `MQNAS-B10` | `Station` |
+| `MQNAS-B11` | `Station`, `ACCEPT_LISTEN` |
 | `MQNAS-E03` | `addr` |
 
 ## Revisions
 
 > **MQNAS-R0001:** entram as máquinas da rede e o emparelhamento (`MQNAS-B07` a `MQNAS-B09`, `MQNAS-E03`),
 > do plano ESRMS, W03.
+
+> **MQNAS-R0003:** entra o `MQNAS-B11` (deixar outras máquinas ligarem-se): o dono decidiu a 2026-10-18
+> que a janela não escuta por omissão.
 
 > **MQNAS-R0002:** entra o `MQNAS-B10` (os ficheiros de uma máquina), do plano ESRMS, W05.
 

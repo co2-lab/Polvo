@@ -67,6 +67,12 @@ O `Discover` dá as máquinas que se anunciam na rede, sem esta instalação, ca
 O `Pair` emparelha esta instalação com a máquina de um endereço, pelo código que o utilizador lê nela, e
 junta-a às máquinas conhecidas.
 
+### STATN-B12 — Aceitar as outras máquinas, e deixar de aceitar
+Com a janela aberta, o `Listen` põe o nó desta máquina a escutar as outras num endereço (e a anunciar-se,
+como no `STATN-B09`), ou deixa de escutar com o endereço vazio; deixar de escutar fecha também as ligações
+que as outras máquinas tinham feito, e as sessões continuam. A instalação lembra-o: o `Open` sem endereço
+escuta onde o utilizador deixou (por omissão, em lado nenhum).
+
 ## Domain
 
 | Input | Accepts | Outside the domain | Who guarantees |
@@ -103,8 +109,13 @@ junta-a às máquinas conhecidas.
 | `STATN-B09` | `Options` |
 | `STATN-B10` | `Options` |
 | `STATN-B11` | `addr` |
+| `STATN-B12` | `Options`, `addr` |
 
 ## Revisions
+
+> **STATN-R0003:** entra o `STATN-B12` (aceitar e deixar de aceitar as outras máquinas com a janela aberta),
+> porque o dono decidiu a 2026-10-18 que a janela não escuta por omissão (era a `STATN-D01`): o utilizador
+> liga-o na aba das máquinas.
 
 > **STATN-R0002:** entram o emparelhamento, o anúncio e a procura na rede (`STATN-B08` a `STATN-B11`), do
 > plano ESRMS, W03.
@@ -116,4 +127,5 @@ junta-a às máquinas conhecidas.
 
 | Code | Question | Who decides | Becomes |
 | --- | --- | --- | --- |
-| `STATN-D01` | A janela escuta por omissão no endereço do `polvo node` (`:2222`), para as outras máquinas a espelharem; só entram as chaves autorizadas. Escutar por omissão, ou só quando o utilizador o liga? @no-code: decisão do agente por rever pelo dono | dono | o endereço por omissão da janela |
+
+none

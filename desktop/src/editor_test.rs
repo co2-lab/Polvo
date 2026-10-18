@@ -170,3 +170,49 @@ scenario!(edtrs_b05_o_ficheiro_de_outra_maquina, "EDTRS-B05: O ficheiro de outra
         (Some("a abrir…".to_string()), Some("olá".to_string()), "xolá".to_string(), "local: notas.md".to_string())
     );
 });
+
+/// Asks the editor to close: whether it closed at once, and the closes it announced after `answer`.
+fn close_with(cx: &mut TestAppContext, o: &Opened, answer: Option<&str>) -> (bool, Vec<EditorEvent>) {
+    let closed: std::rc::Rc<std::cell::RefCell<Vec<EditorEvent>>> = Default::default();
+    {
+        let closed = closed.clone();
+        cx.update(|cx| cx.subscribe(&o.editor, move |_, ev: &EditorEvent, _| closed.borrow_mut().push(ev.clone())).detach());
+    }
+    let editor = o.editor.clone();
+    let at_once = cx.update_window(o.handle, |_, window, cx| editor.update(cx, |e, cx| e.ask_to_close(window, cx))).unwrap();
+    if let Some(answer) = answer {
+        assert!(cx.has_pending_prompt(), "want the question");
+        cx.simulate_prompt_answer(answer);
+        cx.run_until_parked();
+    }
+    let got = closed.borrow().clone();
+    (at_once, got)
+}
+
+scenario!(edtrs_b06_01_descartar_ao_fechar, "EDTRS-B06#01: Descartar as alterações ao fechar", |cx| {
+    let (_dir, path) = file("notas.md", "olá");
+    let o = open_with(cx, Some(path.clone()));
+    type_in(cx, &o, "x");
+    let got = close_with(cx, &o, Some("Descartar"));
+    assert_eq!((got, std::fs::read_to_string(&path).unwrap()), ((false, vec![EditorEvent::Close]), "olá".to_string()));
+});
+
+scenario!(edtrs_b06_02_gravar_ao_fechar, "EDTRS-B06#02: Gravar as alterações ao fechar", |cx| {
+    let (_dir, path) = file("notas.md", "olá");
+    let o = open_with(cx, Some(path.clone()));
+    type_in(cx, &o, "x");
+    let got = close_with(cx, &o, Some("Gravar"));
+    assert_eq!((got, std::fs::read_to_string(&path).unwrap()), ((false, vec![EditorEvent::Close]), "xolá".to_string()));
+});
+
+scenario!(edtrs_b06_03_cancelar_e_fechar_sem_alteracoes, "EDTRS-B06#03: Cancelar o fecho, e fechar sem alterações", |cx| {
+    let (_dir, path) = file("notas.md", "olá");
+    let o = open_with(cx, Some(path.clone()));
+    type_in(cx, &o, "x");
+    let cancelled = close_with(cx, &o, Some("Cancelar"));
+    let marked = title(cx, &o);
+    let (_d2, other) = file("outro.md", "nada");
+    let clean = open_with(cx, Some(other));
+    let at_once = close_with(cx, &clean, None);
+    assert_eq!((cancelled, marked, at_once), ((false, vec![]), "● notas.md".to_string(), (true, vec![])));
+});

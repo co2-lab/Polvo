@@ -85,3 +85,9 @@ Feature: Nodes
     Given a aba das máquinas
     When o utilizador carrega em "Ficheiros" desta máquina
     Then a aba pede a árvore dos ficheiros dela
+
+  @MQNAS-B11 @unit-level
+  Scenario: Deixar outras máquinas ligarem-se
+    Given a aba das máquinas de uma instalação que não escuta
+    When o utilizador carrega em "Deixar outras máquinas ligarem-se", e depois no mesmo botão outra vez
+    Then o nó escuta entre os dois cliques, o botão diz "Deixar de aceitar outras máquinas", e no fim não escuta

@@ -40,6 +40,8 @@ encaminhado chega a tudo o que a máquina alcança na rede dela, mais do que as 
 
 | Input | Accepts | Outside the domain | Who guarantees |
 | --- | --- | --- | --- |
+
+none
 | `node.json` | o objeto com `guest` e `keys`, ou nenhum ficheiro | JSON estragado | este módulo: o erro (`NDCNN-E01`) |
 | `guest` | `view` ou `control` | outro valor | este módulo: o erro (`NDCNN-E02`) |
 | `keys` | impressões digitais `SHA256:…` com `view` ou `control` | outro valor | este módulo: o erro (`NDCNN-E02`) |
@@ -71,13 +73,14 @@ encaminhado chega a tudo o que a máquina alcança na rede dela, mais do que as 
 
 > **NDCNN-R0001:** o `DEFAULT_GUEST` passa de `view` a `control`. Com `view`, a chave do desktop
 > autorizada num nó só via, e o `polvo connect`, os terminais remotos e o `polvo mcp` deixavam de abrir
-> shells; autorizar uma chave já é confiar nela. Decisão do agente, por rever pelo dono.
+> shells; autorizar uma chave já é confiar nela. Decisão do agente, aprovada pelo dono a 2026-10-18.
 
 > **NDCNN-R0002:** entra o `NDCNN-B04` (quem pode encaminhar sockets), do plano ESRMS, W06. Por omissão,
-> só o dono; decisão do agente, por rever pelo dono (`NDCNN-D01`).
+> só o dono; o dono aprovou-o a 2026-10-18 (era a `NDCNN-D01`).
 
 ## Open Decisions
 
 | Code | Question | Who decides | Becomes |
 | --- | --- | --- | --- |
-| `NDCNN-D01` | Por omissão (sem a lista `forward`), só o dono encaminha sockets; as outras chaves, mesmo as que controlam, precisam de ser nomeadas. É o que o agente escolheu, por um socket encaminhado chegar à rede da máquina. Ou as que controlam também encaminham por omissão, como o `AllowTcpForwarding yes` do OpenSSH? @no-code: decisão por tomar pelo dono | dono | o valor por omissão do `NDCNN-B04` |
+
+none

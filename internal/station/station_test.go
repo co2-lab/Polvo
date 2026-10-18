@@ -205,6 +205,41 @@ func TestStation_machines(t *testing.T) {
 			t.Fatalf("want the reopened first's session, got %+v", list)
 		}
 	})
+	t.Run("STATN-B12: Aceitar as outras máquinas, e deixar de aceitar", func(t *testing.T) {
+		first, firstDir, second, _ := pair(t)
+		addr := first.ListenAddr()
+		if err := second.Add(addr); err != nil {
+			t.Fatal(err)
+		}
+		if _, err := nodeOf(t, second, addr).Sessions(); err != nil {
+			t.Fatal(err)
+		}
+		if err := first.Listen(""); err != nil {
+			t.Fatal(err)
+		}
+		stopped := first.ListenAddr()
+		n, _ := second.Node(addr)
+		var cut error
+		end := time.Now().Add(5 * time.Second)
+		for cut == nil && time.Now().Before(end) {
+			if n == nil {
+				break
+			}
+			_, cut = n.Sessions()
+			time.Sleep(20 * time.Millisecond)
+		}
+		if err := first.Listen(addr); err != nil {
+			t.Fatal(err)
+		}
+		if _, err := second.Node(addr); stopped != "" || n != nil && cut == nil || err != nil || first.ListenAddr() != addr {
+			t.Fatalf("want the other cut while stopped and back after, got %q, %v, %v, %q", stopped, cut, err, first.ListenAddr())
+		}
+		first.Close()
+		again := open(t, firstDir, Options{Shell: sh.Shell})
+		if again.ListenAddr() != addr {
+			t.Fatalf("want the reopened one listening where it was left, %s, got %q", addr, again.ListenAddr())
+		}
+	})
 	t.Run("STATN-E01: Um endereço ocupado", func(t *testing.T) {
 		busy, err := net.Listen("tcp", "127.0.0.1:0")
 		if err != nil {

@@ -44,14 +44,11 @@ mod settings; // @dep: STIMS
 mod settings_panel; // @dep: SPIST
 mod window; // @dep: WNIMW
 
-/// Where this machine's node listens for the others, as the `polvo node`'s (STATN-D01).
-const NODE_LISTEN: &str = ":2222";
-
-/// The installation, with this machine's node, in the folder the command line uses; none when it does
-/// not open (the window then runs its terminals in its own ptys, and has no machines tab).
+/// The installation, with this machine's node, in the folder the command line uses, listening for the
+/// others only where the user left it (MQNAS-B10); none when it does not open (the window then runs its terminals in its own ptys, and has no machines tab).
 fn open_station(shell: &str) -> Option<remote::Station> {
     let dir = dirs::config_dir()?.join("polvo");
-    match remote::Station::open(&dir, NODE_LISTEN, shell) {
+    match remote::Station::open(&dir, "", shell) {
         Ok(st) => {
             if let Ok(status) = st.status()
                 && let Some(e) = status.listen_error

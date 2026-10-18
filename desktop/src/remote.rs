@@ -238,6 +238,12 @@ impl Station {
         })
     }
 
+    /// Makes this machine's node listen for the others at `addr`, or stop with it empty; the installation
+    /// remembers it (RMTEC-B08).
+    pub fn set_listen(&self, addr: &str) -> Result<(), RemoteError> {
+        self.call(json!({ "op": "listen", "addr": addr })).map(|_| ())
+    }
+
     /// This window's machine first, then the known ones (RMTEC-B01).
     pub fn machines(&self) -> Result<Vec<Machine>, RemoteError> {
         let v = self.call(json!({ "op": "machines" }))?;

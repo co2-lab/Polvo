@@ -726,3 +726,35 @@ scenario!(wndwi_b25_03_voltam_com_a_maquina, "WNDWI-B25#03: A árvore e o editor
     assert_eq!(trees_on(cx, &again), vec![(Some(LOCAL.to_string()), notes.path().to_path_buf())]);
     assert_eq!((editors_on(cx, &again), text), (vec![(Some(LOCAL.to_string()), Some(path))], Some(std::fs::read_to_string(notes.path().join("notas.txt")).unwrap())));
 });
+
+/// A window with an editor of "notas.txt" where the user typed, with the focus.
+fn with_changed_editor(cx: &mut TestAppContext) -> (tempfile::TempDir, Opened) {
+    let dir = with_notes();
+    let o = open_in(cx, gnome_left(), usize::MAX, None, dir.path().to_path_buf());
+    let (view, path) = (o.view.clone(), dir.path().join("notas.txt"));
+    cx.update_window(o.handle, |_, window, cx| view.update(cx, |v, cx| v.open_file(FileSource::Local, path, window, cx))).unwrap();
+    frame(cx, o.handle);
+    cx.update_window(o.handle, |_, window, cx| window.input("x", cx)).unwrap();
+    cx.run_until_parked();
+    frame(cx, o.handle);
+    (dir, o)
+}
+
+scenario!(wndwi_b26_01_o_atalho_de_fechar_pergunta, "WNDWI-B26#01: O atalho de fechar pergunta pelas alterações do editor", |cx| {
+    let (_dir, o) = with_changed_editor(cx);
+    press(cx, &o, "ctrl-shift-w");
+    let waiting = (cx.has_pending_prompt(), editors(cx, &o).len());
+    cx.simulate_prompt_answer("Descartar");
+    cx.run_until_parked();
+    assert_eq!((waiting, editors(cx, &o).len()), ((true, 1), 0));
+});
+
+scenario!(wndwi_b26_02_fechar_pela_aba_pergunta, "WNDWI-B26#02: Fechar pela aba também pergunta", |cx| {
+    let (_dir, o) = with_changed_editor(cx);
+    cx.update_window(o.handle, |_, window, cx| window.dispatch_action(Box::new(gpui_kit::component::dock::ClosePanel), cx)).unwrap();
+    cx.run_until_parked();
+    let asked = cx.has_pending_prompt();
+    cx.simulate_prompt_answer("Cancelar");
+    cx.run_until_parked();
+    assert_eq!((asked, editors(cx, &o).len()), (true, 1));
+});

@@ -69,8 +69,13 @@ espelhados. Ligar a uma máquina pelo endereço serve as intranets.
 Ligar a um nó noutra rede pela chave pública dele: furar o NAT e, quando não dá, passar por um relay. O
 SSH do Polvo corre por cima, como corre sobre TCP.
 
-- `internal/transport/p2p.spec.md` — nasce: o transporte entre redes; a biblioteca (iroh, libp2p ou
-  tsnet) decide-se nesta fase, com pesquisa
+- `p2p/` (Rust) — nasce: o transporte entre redes sobre o iroh, com a chave ed25519 da instalação como
+  endereço, e uma API C mínima (escutar, ligar-se, aceitar) que o nó em Go liga por cgo e o desktop usa
+  em Rust
+- `internal/transport/p2p.spec.md` — nasce: o lado Go do transporte, que dá ao nó e ao cliente uma
+  `net.Conn` por cima da qual o SSH corre como corre sobre TCP
+- `internal/pairing/pairing.spec.md` — muda: emparelhar pelo P2P, e o pedido num QR code (a chave do nó e
+  o endereço P2P), para um telemóvel que não está na mesma rede
 
 ### ESRMS-W05 — Os ficheiros de qualquer máquina (depends on ESRMS-W02)
 
@@ -102,7 +107,8 @@ valem para os dois.
 
 | Code | Question | Who decides | Becomes |
 | --- | --- | --- | --- |
-| `ESRMS-D01` | A biblioteca do transporte P2P: iroh (Rust, QUIC, relays), libp2p (Go/Rust) ou tsnet (Tailscale em Go). **A proposta do agente, por aprovar:** o pion/ice (o ICE do WebRTC, em Go puro) com o pion/sctp por cima, para o SSH ter uma ligação fiável; uma sinalização própria indexada pela chave ed25519; e o pion/turn, alojado por nós, como relay. É a única via em Go puro, sem cgo nem assembly (o nó tem de correr também no Galaxy), e a identidade é a chave que o SSH já verifica. O iroh exige cgo para Go; o tsnet e o Nebula não endereçam pela chave e trazem o gVisor, com assembly; o go-libp2p fica como segunda escolha (o quic-go usa `go:linkname` para o `crypto/tls`, e o relay dele limita a 2 min e 128 KB). O risco: temos de alojar a sinalização e o TURN | o agente, com pesquisa, e o dono aprova | a fase ESRMS-W04 |
+
+none
 
 ## Revisions
 
@@ -131,6 +137,15 @@ valem para os dois.
 > fez-se no servidor do nó (`SRVRE-B13`), no cliente (`CLNTI-B11`) e no `internal/forward`, e ganhou o
 > `polvo forward` na CLI para se poder usar. Por omissão só o dono encaminha (`NDCNN-D01`, por rever
 > pelo dono). Na janela, o encaminhamento ainda não tem aba: fica para quando o dono o pedir.
+
+> **ESRMS-R0005:** a `ESRMS-D01` resolveu-se pelo iroh (Rust), aprovado pelo dono a 2026-10-18 depois de
+> o agente comparar as bibliotecas de todas as línguas: o iroh 1.0 (estável desde junho de 2026) endereça
+> pela chave ed25519 (a mesma que o SSH já verifica), fura o NAT perto de 9 em 10 vezes, e o relay dele é
+> sem estado e alojável por nós; tem bindings oficiais para Swift e Kotlin, para a versão mobile que o dono
+> quer fazer (controlar as sessões das máquinas pelo telemóvel). O pion/ice pedia uma sinalização e um
+> TURN nossos; o go-libp2p fura menos (70% medido, condicional); o tsnet pede um servidor de coordenação.
+> O nó em Go liga-o por cgo, por uma API C nossa (as bindings Go da comunidade só servem o Linux); o
+> Galaxy ganha o cgo numa caixa do Bavel.
 
 ## Definition of Done
 

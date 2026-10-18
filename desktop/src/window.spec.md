@@ -114,6 +114,10 @@ máquina (`EDTRS`); se essa máquina já o tem aberto num editor, a doca mostra 
 voltam com a organização ligados à máquina deles; sem a instalação, a árvore volta na pasta da janela e
 o editor vazio.
 
+### WNDWI-B26 — Fechar um editor com alterações por gravar
+Fechar a aba de um editor com alterações por gravar, pelo atalho da janela ou pela aba, pergunta primeiro
+(`EDTRS`); a aba só sai da doca quando o editor fecha, depois da resposta.
+
 ## Domain
 
 | Input | Accepts | Outside the domain | Who guarantees |
@@ -170,6 +174,7 @@ o editor vazio.
 | `WNDWI-B23` | `AgentsFeed`, `KINDS` |
 | `WNDWI-B24` | `AgentsFeed` |
 | `WNDWI-B25` | `Station` |
+| `WNDWI-B26` | `Keymap` |
 
 ## Revisions
 
@@ -211,6 +216,9 @@ o editor vazio.
 > sessão dele), do plano AGPRG, W04; o `new` passa a receber o progresso dos agentes.
 
 > **WNDWI-R0010:** entra o `WNDWI-B25` (os ficheiros de outra máquina), do plano ESRMS, W05.
+
+> **WNDWI-R0011:** entra o `WNDWI-B26` (fechar um editor com alterações por gravar), da `EDTRS-D01`
+> decidida pelo dono a 2026-10-18.
 
 ## Open Decisions
 

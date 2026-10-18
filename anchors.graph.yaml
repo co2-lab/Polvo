@@ -198,29 +198,29 @@ nodes:
       line_rev: b09a6835f957
     - id: desktop/src/editor.feature
       kind: feature
-      rev: 7c1f55fdb949
+      rev: 4e8f69cedf53
       updated_at: "2026-10-18"
       code: EDTRS
       file_code: EDFST
       layer: feature
       tags:
         - feature
-      evidence_rev: a80562481c6b
-      line_rev: 469abb9460c8
+      evidence_rev: 6f57fcb24c0e
+      line_rev: 61c0bbb2f9ed
     - id: desktop/src/editor.rs
       kind: code
-      rev: 65edc58ddafc
+      rev: baed88303f5b
       updated_at: "2026-10-18"
       code: EDTRS
       file_code: EDIMP
       layer: desktop
       tags:
         - desktop
-      evidence_rev: 4b48cc77be90
-      line_rev: a2a6e4b97972
+      evidence_rev: 19fc47ed3f3d
+      line_rev: 3facbcca2ca3
     - id: desktop/src/editor.spec.md
       kind: spec
-      rev: c31cc4d3a3a0
+      rev: 72a0461e7248
       updated_at: "2026-10-18"
       code: EDTRS
       file_code: EDTRS
@@ -228,12 +228,12 @@ nodes:
       code_declared: true
       tags:
         - spec
-      evidence_rev: 2578965a77d2
-      rule_revs: {EDTRS-B01: eb80b0db2547, EDTRS-B02: b679d5c67aaa, EDTRS-B03: 6dd3c40fb3a7, EDTRS-B04: 654c9a85c956, EDTRS-B05: a46e2f81cfde, EDTRS-D01: 3e00ebe9695d, EDTRS-E01: c6a3b763a1d3, EDTRS-E02: 532f345da50d}
-      rest_rev: 4805d7ef718f
+      evidence_rev: ac6c925ff1eb
+      rule_revs: {EDTRS-B01: eb80b0db2547, EDTRS-B02: b679d5c67aaa, EDTRS-B03: 6dd3c40fb3a7, EDTRS-B04: 654c9a85c956, EDTRS-B05: a46e2f81cfde, EDTRS-B06: 9d64b1fe6920, EDTRS-E01: c6a3b763a1d3, EDTRS-E02: 532f345da50d}
+      rest_rev: 8083f4c89eaf
     - id: desktop/src/editor_test.rs
       kind: test
-      rev: b49bc61a4873
+      rev: 541d3b1603ab
       updated_at: "2026-10-18"
       code: EDTRS
       file_code: EDTST
@@ -241,8 +241,8 @@ nodes:
       tags:
         - test
         - desktop
-      evidence_rev: 9614a8cefe8f
-      line_rev: 756edc3e9f77
+      evidence_rev: 160eeb5abf88
+      line_rev: c60baaee6f3d
     - id: desktop/src/files.feature
       kind: feature
       rev: 34936fb8df98
@@ -256,15 +256,15 @@ nodes:
       line_rev: 8c46b0f553e4
     - id: desktop/src/files.rs
       kind: code
-      rev: 05417f5b396e
+      rev: 32c10e8a27b0
       updated_at: "2026-10-18"
       code: FLTRE
       file_code: FLIMP
       layer: desktop
       tags:
         - desktop
-      evidence_rev: da5a5a337d10
-      line_rev: 062ded33d977
+      evidence_rev: 2abd7e47fda3
+      line_rev: 40347dab09e3
     - id: desktop/src/files.spec.md
       kind: spec
       rev: fc08debb5603
@@ -314,17 +314,17 @@ nodes:
       line_rev: 323a25439be5
     - id: desktop/src/git.spec.md
       kind: spec
-      rev: 7db655075045
-      updated_at: "2026-10-17"
+      rev: fce27b4da444
+      updated_at: "2026-10-18"
       code: GITRS
       file_code: GITRS
       layer: spec
       code_declared: true
       tags:
         - spec
-      evidence_rev: 029835304f3f
-      rule_revs: {GITRS-B01: 790bfd79e6c8, GITRS-B02: a67fb6a0fdf3, GITRS-B03: 05c8f9c19d1b, GITRS-B04: 1c6a627815b4, GITRS-B05: 32db1e59042f, GITRS-D01: c46ddae1183f, GITRS-E01: 2b39a01c7da5, GITRS-E02: 7a9517f1e3ad}
-      rest_rev: 3e4de67ea7e8
+      evidence_rev: da9a95b81080
+      rule_revs: {GITRS-B01: 790bfd79e6c8, GITRS-B02: a67fb6a0fdf3, GITRS-B03: 05c8f9c19d1b, GITRS-B04: 1c6a627815b4, GITRS-B05: 32db1e59042f, GITRS-E01: 2b39a01c7da5, GITRS-E02: 7a9517f1e3ad}
+      rest_rev: 9694f97d6629
     - id: desktop/src/git_test.rs
       kind: test
       rev: 3e9210d79ca1
@@ -480,15 +480,15 @@ nodes:
       line_rev: de67fd82f66c
     - id: desktop/src/main.rs
       kind: code
-      rev: bf88cfa1cd00
+      rev: 4ee3f4fb69ec
       updated_at: "2026-10-18"
       code: JNNTJ
       file_code: DSMND
       layer: desktop
       tags:
         - desktop
-      evidence_rev: 205c64ea279d
-      line_rev: d88435050c47
+      evidence_rev: 835b6a8ed8e8
+      line_rev: 1a2b597404c3
     - id: desktop/src/new_tab.feature
       kind: feature
       rev: 2192b45c35f2
@@ -538,29 +538,29 @@ nodes:
       line_rev: bd24ba14d33f
     - id: desktop/src/nodes.feature
       kind: feature
-      rev: a9cf8d726146
+      rev: 37b7661ccf8b
       updated_at: "2026-10-18"
       code: MQNAS
       file_code: MQFST
       layer: feature
       tags:
         - feature
-      evidence_rev: 99bdfee86283
-      line_rev: ebefb1a6b792
+      evidence_rev: d76078d473a4
+      line_rev: e2c5ddde4205
     - id: desktop/src/nodes.rs
       kind: code
-      rev: 15a87468b80c
+      rev: d35f2fe21b44
       updated_at: "2026-10-18"
       code: MQNAS
       file_code: MQIMP
       layer: desktop
       tags:
         - desktop
-      evidence_rev: 108c311416ea
-      line_rev: 6f81e4774d15
+      evidence_rev: 520523677d4d
+      line_rev: 399fc1552558
     - id: desktop/src/nodes.spec.md
       kind: spec
-      rev: 35b9e42edd75
+      rev: bbd62cd18896
       updated_at: "2026-10-18"
       code: MQNAS
       file_code: MQNAS
@@ -568,12 +568,12 @@ nodes:
       code_declared: true
       tags:
         - spec
-      evidence_rev: 3812c68d1202
-      rule_revs: {MQNAS-B01: fba8b0327b4c, MQNAS-B02: a8289c7379b4, MQNAS-B03: dfd583a31dc4, MQNAS-B04: a7d3319d1d7a, MQNAS-B05: e9089ca69aa7, MQNAS-B06: 9ab2e05da2e1, MQNAS-B07: a14327c1df0b, MQNAS-B08: 774e19f93430, MQNAS-B09: 9d94ed44db89, MQNAS-B10: f8310e78adc8, MQNAS-E01: 9b21e5a4f322, MQNAS-E02: 409d0673ff96, MQNAS-E03: 69bbbe62e41c}
-      rest_rev: 9f493bf415d9
+      evidence_rev: 23ff52db5f5b
+      rule_revs: {MQNAS-B01: fba8b0327b4c, MQNAS-B02: a8289c7379b4, MQNAS-B03: dfd583a31dc4, MQNAS-B04: a7d3319d1d7a, MQNAS-B05: e9089ca69aa7, MQNAS-B06: 9ab2e05da2e1, MQNAS-B07: a14327c1df0b, MQNAS-B08: 774e19f93430, MQNAS-B09: 9d94ed44db89, MQNAS-B10: f8310e78adc8, MQNAS-B11: 556b92aadfe1, MQNAS-E01: 9b21e5a4f322, MQNAS-E02: 409d0673ff96, MQNAS-E03: 69bbbe62e41c}
+      rest_rev: 38a485674cab
     - id: desktop/src/nodes_test.rs
       kind: test
-      rev: cb2b5d574b62
+      rev: 4765fb9a0a57
       updated_at: "2026-10-18"
       code: MQNAS
       file_code: MQTST
@@ -581,8 +581,8 @@ nodes:
       tags:
         - test
         - desktop
-      evidence_rev: 39f5d7c3ea82
-      line_rev: f37c15e692ae
+      evidence_rev: d2794ad6ab60
+      line_rev: b9b95fdcb08c
     - id: desktop/src/panel.feature
       kind: feature
       rev: c5d178d18015
@@ -679,29 +679,29 @@ nodes:
       line_rev: c1c6cf951c28
     - id: desktop/src/remote.feature
       kind: feature
-      rev: e560ee58438e
+      rev: 3875a847e12c
       updated_at: "2026-10-18"
       code: RMTEC
       file_code: RMFST
       layer: feature
       tags:
         - feature
-      evidence_rev: f2f900b82943
-      line_rev: 251ba1c95cf9
+      evidence_rev: 10b81d51d1a5
+      line_rev: 94863ffdbe4d
     - id: desktop/src/remote.rs
       kind: code
-      rev: fb6d03a9c106
+      rev: e3289b685a15
       updated_at: "2026-10-18"
       code: RMTEC
       file_code: RMIMP
       layer: desktop
       tags:
         - desktop
-      evidence_rev: fbf35a2cfedd
-      line_rev: 6e0df1d4e815
+      evidence_rev: 9648b8d79140
+      line_rev: 8a7dc62ab9f1
     - id: desktop/src/remote.spec.md
       kind: spec
-      rev: 28c5870b341f
+      rev: c50b9739de7f
       updated_at: "2026-10-18"
       code: RMTEC
       file_code: RMTEC
@@ -709,12 +709,12 @@ nodes:
       code_declared: true
       tags:
         - spec
-      evidence_rev: fe92d94226fc
-      rule_revs: {RMTEC-B01: 0c9e2dbb329b, RMTEC-B02: ef4270b4bb2c, RMTEC-B03: 4d9b4756a207, RMTEC-B04: 9cff6ca73d46, RMTEC-B05: d2988f9d536e, RMTEC-B06: ec427eb44710, RMTEC-B07: 0490a5e02dc5, RMTEC-E01: d09abd1cb2f7}
-      rest_rev: 1e7274b24540
+      evidence_rev: 5da53d4b2d8d
+      rule_revs: {RMTEC-B01: 0c9e2dbb329b, RMTEC-B02: ef4270b4bb2c, RMTEC-B03: 4d9b4756a207, RMTEC-B04: 9cff6ca73d46, RMTEC-B05: d2988f9d536e, RMTEC-B06: ec427eb44710, RMTEC-B07: 0490a5e02dc5, RMTEC-B08: a6cb9a6500dd, RMTEC-E01: d09abd1cb2f7}
+      rest_rev: 7007585cf163
     - id: desktop/src/remote_test.rs
       kind: test
-      rev: bbcd5dc90131
+      rev: de4afd7d194a
       updated_at: "2026-10-18"
       code: RMTEC
       file_code: RMTST
@@ -722,8 +722,8 @@ nodes:
       tags:
         - test
         - desktop
-      evidence_rev: c692c4852ba3
-      line_rev: 47ce8915c3db
+      evidence_rev: f6f94d553dbc
+      line_rev: d47a3953bba5
     - id: desktop/src/screen.feature
       kind: feature
       rev: 44a278e68a78
@@ -867,29 +867,29 @@ nodes:
       line_rev: 9b1a1a858376
     - id: desktop/src/window.feature
       kind: feature
-      rev: eb0def097101
+      rev: c00bb4d29afd
       updated_at: "2026-10-18"
       code: WNDWI
       file_code: WNFTW
       layer: feature
       tags:
         - feature
-      evidence_rev: 2383ea870f0c
-      line_rev: b569da8c7e7d
+      evidence_rev: d8246a10c8f2
+      line_rev: bd45589c4838
     - id: desktop/src/window.rs
       kind: code
-      rev: dbb2daa67cd8
+      rev: 699c3dfe2daf
       updated_at: "2026-10-18"
       code: WNDWI
       file_code: WNIMW
       layer: desktop
       tags:
         - desktop
-      evidence_rev: fc7ba4994794
-      line_rev: a2d3c5e21b47
+      evidence_rev: 712a6389c511
+      line_rev: c124eb8bd8a6
     - id: desktop/src/window.spec.md
       kind: spec
-      rev: 3f92e4405ae4
+      rev: 530d22323cf0
       updated_at: "2026-10-18"
       code: WNDWI
       file_code: WNDWI
@@ -897,12 +897,12 @@ nodes:
       code_declared: true
       tags:
         - spec
-      evidence_rev: f0769fc27747
-      rule_revs: {WNDWI-B01: 4c62dcb1d9ea, WNDWI-B02: f7dfd0b60818, WNDWI-B07: e122155a7b62, WNDWI-B09: c97c49daafa5, WNDWI-B10: da082eb6cdfd, WNDWI-B11: 0c51029a4147, WNDWI-B12: "614657924637", WNDWI-B13: 28ce5a0ade4b, WNDWI-B14: 42e72468cbee, WNDWI-B15: 5a1cdba6247a, WNDWI-B16: a5a656bcee6b, WNDWI-B17: 0d70ae52af3b, WNDWI-B18: d04bbd9d5e13, WNDWI-B19: b63aeda01c68, WNDWI-B20: bb6bcafacc87, WNDWI-B21: 5473da622be8, WNDWI-B22: 79a66b35419d, WNDWI-B23: 8fc033618ec7, WNDWI-B24: 4a09e3a11c3a, WNDWI-B25: f5804032059e, WNDWI-E01: 126da7c5fce0, WNDWI-E02: 7d38d95ced5c, WNDWI-E03: c8077768ad0c, WNDWI-E04: a2872a652add}
-      rest_rev: 1203c4418f85
+      evidence_rev: 6479b9e70e5d
+      rule_revs: {WNDWI-B01: 4c62dcb1d9ea, WNDWI-B02: f7dfd0b60818, WNDWI-B07: e122155a7b62, WNDWI-B09: c97c49daafa5, WNDWI-B10: da082eb6cdfd, WNDWI-B11: 0c51029a4147, WNDWI-B12: "614657924637", WNDWI-B13: 28ce5a0ade4b, WNDWI-B14: 42e72468cbee, WNDWI-B15: 5a1cdba6247a, WNDWI-B16: a5a656bcee6b, WNDWI-B17: 0d70ae52af3b, WNDWI-B18: d04bbd9d5e13, WNDWI-B19: b63aeda01c68, WNDWI-B20: bb6bcafacc87, WNDWI-B21: 5473da622be8, WNDWI-B22: 79a66b35419d, WNDWI-B23: 8fc033618ec7, WNDWI-B24: 4a09e3a11c3a, WNDWI-B25: f5804032059e, WNDWI-B26: c92e4b777518, WNDWI-E01: 126da7c5fce0, WNDWI-E02: 7d38d95ced5c, WNDWI-E03: c8077768ad0c, WNDWI-E04: a2872a652add}
+      rest_rev: 7a8c58635d95
     - id: desktop/src/window_test.rs
       kind: test
-      rev: ae181d043001
+      rev: 441f447b7b88
       updated_at: "2026-10-18"
       code: WNDWI
       file_code: WNTSW
@@ -910,8 +910,8 @@ nodes:
       tags:
         - test
         - desktop
-      evidence_rev: 6daa44d48710
-      line_rev: d3aa4bb65116
+      evidence_rev: 1d9bbb03eda1
+      line_rev: de31eb768e52
     - id: internal/agents/claude.feature
       kind: feature
       rev: 71dc2d6e32d1
@@ -971,18 +971,18 @@ nodes:
       line_rev: 1289c75749ca
     - id: internal/bridge/bridge.go
       kind: code
-      rev: 6ed6124aef25
+      rev: 02c68ac7d42e
       updated_at: "2026-10-18"
       code: BRDGE
       file_code: BRIMP
       layer: bridge
       tags:
         - bridge
-      evidence_rev: d97d897df937
-      line_rev: e442397aefe2
+      evidence_rev: 3b33915f151e
+      line_rev: e2a223eb045a
     - id: internal/bridge/bridge.spec.md
       kind: spec
-      rev: ebff4a8f4d63
+      rev: a6b37acebefa
       updated_at: "2026-10-18"
       code: BRDGE
       file_code: BRDGE
@@ -990,20 +990,20 @@ nodes:
       code_declared: true
       tags:
         - spec
-      evidence_rev: e7f109db8bfb
+      evidence_rev: c0f574ef5729
       rule_revs: {BRDGE-B01: 1441a21b2af2, BRDGE-B02: bb24f9df7af9, BRDGE-B03: 71c3330ad6c4, BRDGE-B04: b80286260339, BRDGE-B05: 244c7e6310c3, BRDGE-B06: df61acdc6f8c, BRDGE-E01: 8a82cf80eba3, BRDGE-E02: 21eb295abb65, BRDGE-E03: 5583ed46b1f9}
-      rest_rev: 5c9af5685625
+      rest_rev: c213a56cf928
     - id: internal/bridge/bridge_test.go
       kind: test
-      rev: 1789f4088c4e
+      rev: a964070d2af2
       updated_at: "2026-10-18"
       code: BRDGE
       file_code: BRTST
       layer: test
       tags:
         - test
-      evidence_rev: a65c20616339
-      line_rev: 3ab724f96167
+      evidence_rev: c1331944a2b1
+      line_rev: 4feffa728710
     - id: internal/discovery/discovery.feature
       kind: feature
       rev: e439f7b75176
@@ -1453,7 +1453,7 @@ nodes:
       line_rev: 0898993c17fd
     - id: internal/nodeconf/nodeconf.spec.md
       kind: spec
-      rev: 5fc3c305f7d9
+      rev: 0be5269fd3a2
       updated_at: "2026-10-18"
       code: NDCNN
       file_code: NDCNN
@@ -1461,9 +1461,9 @@ nodes:
       code_declared: true
       tags:
         - spec
-      evidence_rev: 2d8f11ab9070
-      rule_revs: {NDCNN-B01: 7b9728f24e6c, NDCNN-B02: b5b0a0f5a161, NDCNN-B03: 840ab8ec780a, NDCNN-B04: 315a9b908a04, NDCNN-D01: 2f4856f96e77, NDCNN-E01: c5a1e4b6adec, NDCNN-E02: b44848c22801}
-      rest_rev: 9541c202db0b
+      evidence_rev: b3ab8acb52c4
+      rule_revs: {NDCNN-B01: 7b9728f24e6c, NDCNN-B02: b5b0a0f5a161, NDCNN-B03: 840ab8ec780a, NDCNN-B04: 315a9b908a04, NDCNN-E01: c5a1e4b6adec, NDCNN-E02: b44848c22801}
+      rest_rev: 2c28e619dea8
     - id: internal/nodeconf/nodeconf_test.go
       kind: test
       rev: bb74f4f1f23e
@@ -1876,29 +1876,29 @@ nodes:
       line_rev: 82b4778df5ca
     - id: internal/station/station.feature
       kind: feature
-      rev: 4a8bc045e0ba
+      rev: 1a620d1575cf
       updated_at: "2026-10-18"
       code: STATN
       file_code: STFST
       layer: feature
       tags:
         - feature
-      evidence_rev: 4bc755c666c8
-      line_rev: 39d8122c1792
+      evidence_rev: 00d854f72bf4
+      line_rev: ecb9a6d85c03
     - id: internal/station/station.go
       kind: code
-      rev: b09eb3d64b74
+      rev: bef5499b2740
       updated_at: "2026-10-18"
       code: STATN
       file_code: STIMP
       layer: station
       tags:
         - station
-      evidence_rev: 62b65ebc99f2
-      line_rev: fe386589e34a
+      evidence_rev: 4cef3c9ea90b
+      line_rev: 54d045b4197f
     - id: internal/station/station.spec.md
       kind: spec
-      rev: 009096ad52c4
+      rev: 26b72edc44fa
       updated_at: "2026-10-18"
       code: STATN
       file_code: STATN
@@ -1906,20 +1906,20 @@ nodes:
       code_declared: true
       tags:
         - spec
-      evidence_rev: ecb5c29c2137
-      rule_revs: {STATN-B01: 3feb54060a1f, STATN-B02: ab6cb230641f, STATN-B03: 5c2e9869920b, STATN-B04: d629aabb7957, STATN-B05: 256656c8259e, STATN-B06: 7d2b0c3b0944, STATN-B07: 8cddd36aaf2d, STATN-B08: 95483604a4c8, STATN-B09: ca4af386886d, STATN-B10: c25b62f91b0f, STATN-B11: 92827112d154, STATN-D01: 726c38e183a8, STATN-E01: 3a154fb24d61, STATN-E02: 6775eb8dd39b}
-      rest_rev: a9ff3cc8faa2
+      evidence_rev: 2f6dc78b2b0d
+      rule_revs: {STATN-B01: 3feb54060a1f, STATN-B02: ab6cb230641f, STATN-B03: 5c2e9869920b, STATN-B04: d629aabb7957, STATN-B05: 256656c8259e, STATN-B06: 7d2b0c3b0944, STATN-B07: 8cddd36aaf2d, STATN-B08: 95483604a4c8, STATN-B09: ca4af386886d, STATN-B10: c25b62f91b0f, STATN-B11: 92827112d154, STATN-B12: c4f1d36f4d23, STATN-E01: 3a154fb24d61, STATN-E02: 6775eb8dd39b}
+      rest_rev: 463b5de8ed4c
     - id: internal/station/station_test.go
       kind: test
-      rev: 4e24eb265024
+      rev: 94854027ce5b
       updated_at: "2026-10-18"
       code: STATN
       file_code: STTST
       layer: test
       tags:
         - test
-      evidence_rev: 624974293c61
-      line_rev: 99b6d5df70d9
+      evidence_rev: 553ba89e3dd1
+      line_rev: b26708c5553c
     - id: internal/web/server.feature
       kind: feature
       rev: fe0b35e9322c
@@ -1992,7 +1992,7 @@ nodes:
       line_rev: ac6693b41ce0
     - id: plans/agentes.plan.md
       kind: plan
-      rev: 2b041953bf16
+      rev: 2906b6a46d1a
       updated_at: "2026-10-18"
       code: AGPRG
       file_code: AGPRG
@@ -2000,8 +2000,8 @@ nodes:
       code_declared: true
       tags:
         - plan
-      evidence_rev: 09e7bd035503
-      line_rev: 7d4629da3614
+      evidence_rev: 2acd4df9b392
+      line_rev: 18e685417e96
     - id: plans/desktop.plan.md
       kind: plan
       rev: 8ceec0ebc810
@@ -2016,7 +2016,7 @@ nodes:
       line_rev: 4443f8d9c69a
     - id: plans/espelho.plan.md
       kind: plan
-      rev: ce2e298d4131
+      rev: f0ba2cddda6b
       updated_at: "2026-10-18"
       code: ESRMS
       file_code: ESRMS
@@ -2024,8 +2024,8 @@ nodes:
       code_declared: true
       tags:
         - plan
-      evidence_rev: 091da25e400e
-      line_rev: e5fff1734461
+      evidence_rev: f015e2173ba7
+      line_rev: 8692fc34d47d
     - id: plans/janela.plan.md
       kind: plan
       rev: e9b93aec7b68
@@ -2184,7 +2184,7 @@ edges:
       origin: declared
       stamp:
         validated_from_rev: 868e719960ec
-        validated_to_rev: fb6d03a9c106
+        validated_to_rev: e3289b685a15
         changed_at: "2026-10-18"
         verdict: ok
     - from: desktop/src/agents.spec.md
@@ -2211,7 +2211,7 @@ edges:
       origin: declared
       stamp:
         validated_from_rev: 1913f717dd62
-        validated_to_rev: fb6d03a9c106
+        validated_to_rev: e3289b685a15
         changed_at: "2026-10-18"
         verdict: ok
     - from: desktop/src/editor.feature
@@ -2219,8 +2219,8 @@ edges:
       type: tested-by
       origin: convention
       stamp:
-        validated_from_rev: 7c1f55fdb949
-        validated_to_rev: b49bc61a4873
+        validated_from_rev: 4e8f69cedf53
+        validated_to_rev: 541d3b1603ab
         changed_at: "2026-10-18"
         verdict: ok
     - from: desktop/src/editor.rs
@@ -2228,8 +2228,8 @@ edges:
       type: depends-on
       origin: declared
       stamp:
-        validated_from_rev: 65edc58ddafc
-        validated_to_rev: 05417f5b396e
+        validated_from_rev: baed88303f5b
+        validated_to_rev: 32c10e8a27b0
         changed_at: "2026-10-18"
         verdict: ok
     - from: desktop/src/editor.rs
@@ -2237,7 +2237,7 @@ edges:
       type: depends-on
       origin: declared
       stamp:
-        validated_from_rev: 65edc58ddafc
+        validated_from_rev: baed88303f5b
         validated_to_rev: 5e29a7c824be
         changed_at: "2026-10-18"
         verdict: ok
@@ -2246,8 +2246,8 @@ edges:
       type: covered-by
       origin: convention
       stamp:
-        validated_from_rev: c31cc4d3a3a0
-        validated_to_rev: 7c1f55fdb949
+        validated_from_rev: 72a0461e7248
+        validated_to_rev: 4e8f69cedf53
         changed_at: "2026-10-18"
         verdict: ok
     - from: desktop/src/editor.spec.md
@@ -2255,8 +2255,8 @@ edges:
       type: specifies
       origin: convention
       stamp:
-        validated_from_rev: c31cc4d3a3a0
-        validated_to_rev: 65edc58ddafc
+        validated_from_rev: 72a0461e7248
+        validated_to_rev: baed88303f5b
         changed_at: "2026-10-18"
         verdict: ok
     - from: desktop/src/files.feature
@@ -2273,8 +2273,8 @@ edges:
       type: depends-on
       origin: declared
       stamp:
-        validated_from_rev: 05417f5b396e
-        validated_to_rev: fb6d03a9c106
+        validated_from_rev: 32c10e8a27b0
+        validated_to_rev: e3289b685a15
         changed_at: "2026-10-18"
         verdict: ok
     - from: desktop/src/files.spec.md
@@ -2292,7 +2292,7 @@ edges:
       origin: convention
       stamp:
         validated_from_rev: fc08debb5603
-        validated_to_rev: 05417f5b396e
+        validated_to_rev: 32c10e8a27b0
         changed_at: "2026-10-18"
         verdict: ok
     - from: desktop/src/git.feature
@@ -2309,18 +2309,18 @@ edges:
       type: covered-by
       origin: convention
       stamp:
-        validated_from_rev: 7db655075045
+        validated_from_rev: fce27b4da444
         validated_to_rev: fe220755f708
-        changed_at: "2026-10-17"
+        changed_at: "2026-10-18"
         verdict: ok
     - from: desktop/src/git.spec.md
       to: desktop/src/git.rs
       type: specifies
       origin: convention
       stamp:
-        validated_from_rev: 7db655075045
+        validated_from_rev: fce27b4da444
         validated_to_rev: d7c5bea359eb
-        changed_at: "2026-10-17"
+        changed_at: "2026-10-18"
         verdict: ok
     - from: desktop/src/keymap.feature
       to: desktop/src/keymap_test.rs
@@ -2408,7 +2408,7 @@ edges:
       type: depends-on
       origin: declared
       stamp:
-        validated_from_rev: bf88cfa1cd00
+        validated_from_rev: 4ee3f4fb69ec
         validated_to_rev: 868e719960ec
         changed_at: "2026-10-18"
         verdict: ok
@@ -2417,8 +2417,8 @@ edges:
       type: depends-on
       origin: declared
       stamp:
-        validated_from_rev: bf88cfa1cd00
-        validated_to_rev: 65edc58ddafc
+        validated_from_rev: 4ee3f4fb69ec
+        validated_to_rev: baed88303f5b
         changed_at: "2026-10-18"
         verdict: ok
     - from: desktop/src/main.rs
@@ -2426,8 +2426,8 @@ edges:
       type: depends-on
       origin: declared
       stamp:
-        validated_from_rev: bf88cfa1cd00
-        validated_to_rev: 05417f5b396e
+        validated_from_rev: 4ee3f4fb69ec
+        validated_to_rev: 32c10e8a27b0
         changed_at: "2026-10-18"
         verdict: ok
     - from: desktop/src/main.rs
@@ -2435,7 +2435,7 @@ edges:
       type: depends-on
       origin: declared
       stamp:
-        validated_from_rev: bf88cfa1cd00
+        validated_from_rev: 4ee3f4fb69ec
         validated_to_rev: d7c5bea359eb
         changed_at: "2026-10-18"
         verdict: ok
@@ -2444,7 +2444,7 @@ edges:
       type: depends-on
       origin: declared
       stamp:
-        validated_from_rev: bf88cfa1cd00
+        validated_from_rev: 4ee3f4fb69ec
         validated_to_rev: 5e29a7c824be
         changed_at: "2026-10-18"
         verdict: ok
@@ -2453,7 +2453,7 @@ edges:
       type: depends-on
       origin: declared
       stamp:
-        validated_from_rev: bf88cfa1cd00
+        validated_from_rev: 4ee3f4fb69ec
         validated_to_rev: c5c7c7b3eeec
         changed_at: "2026-10-18"
         verdict: ok
@@ -2462,7 +2462,7 @@ edges:
       type: depends-on
       origin: declared
       stamp:
-        validated_from_rev: bf88cfa1cd00
+        validated_from_rev: 4ee3f4fb69ec
         validated_to_rev: f245e24b4416
         changed_at: "2026-10-18"
         verdict: ok
@@ -2471,7 +2471,7 @@ edges:
       type: depends-on
       origin: declared
       stamp:
-        validated_from_rev: bf88cfa1cd00
+        validated_from_rev: 4ee3f4fb69ec
         validated_to_rev: 37e65e5daba4
         changed_at: "2026-10-18"
         verdict: ok
@@ -2480,8 +2480,8 @@ edges:
       type: depends-on
       origin: declared
       stamp:
-        validated_from_rev: bf88cfa1cd00
-        validated_to_rev: 15a87468b80c
+        validated_from_rev: 4ee3f4fb69ec
+        validated_to_rev: d35f2fe21b44
         changed_at: "2026-10-18"
         verdict: ok
     - from: desktop/src/main.rs
@@ -2489,7 +2489,7 @@ edges:
       type: depends-on
       origin: declared
       stamp:
-        validated_from_rev: bf88cfa1cd00
+        validated_from_rev: 4ee3f4fb69ec
         validated_to_rev: e64d28137183
         changed_at: "2026-10-18"
         verdict: ok
@@ -2498,7 +2498,7 @@ edges:
       type: depends-on
       origin: declared
       stamp:
-        validated_from_rev: bf88cfa1cd00
+        validated_from_rev: 4ee3f4fb69ec
         validated_to_rev: cd5b1ba68a40
         changed_at: "2026-10-18"
         verdict: ok
@@ -2507,8 +2507,8 @@ edges:
       type: depends-on
       origin: declared
       stamp:
-        validated_from_rev: bf88cfa1cd00
-        validated_to_rev: fb6d03a9c106
+        validated_from_rev: 4ee3f4fb69ec
+        validated_to_rev: e3289b685a15
         changed_at: "2026-10-18"
         verdict: ok
     - from: desktop/src/main.rs
@@ -2516,7 +2516,7 @@ edges:
       type: depends-on
       origin: declared
       stamp:
-        validated_from_rev: bf88cfa1cd00
+        validated_from_rev: 4ee3f4fb69ec
         validated_to_rev: 98c0618ec1e1
         changed_at: "2026-10-18"
         verdict: ok
@@ -2525,7 +2525,7 @@ edges:
       type: depends-on
       origin: declared
       stamp:
-        validated_from_rev: bf88cfa1cd00
+        validated_from_rev: 4ee3f4fb69ec
         validated_to_rev: 5f44619f809d
         changed_at: "2026-10-18"
         verdict: ok
@@ -2534,7 +2534,7 @@ edges:
       type: depends-on
       origin: declared
       stamp:
-        validated_from_rev: bf88cfa1cd00
+        validated_from_rev: 4ee3f4fb69ec
         validated_to_rev: f01261553e81
         changed_at: "2026-10-18"
         verdict: ok
@@ -2543,8 +2543,8 @@ edges:
       type: depends-on
       origin: declared
       stamp:
-        validated_from_rev: bf88cfa1cd00
-        validated_to_rev: dbb2daa67cd8
+        validated_from_rev: 4ee3f4fb69ec
+        validated_to_rev: 699c3dfe2daf
         changed_at: "2026-10-18"
         verdict: ok
     - from: desktop/src/new_tab.feature
@@ -2579,8 +2579,8 @@ edges:
       type: tested-by
       origin: convention
       stamp:
-        validated_from_rev: a9cf8d726146
-        validated_to_rev: cb2b5d574b62
+        validated_from_rev: 37b7661ccf8b
+        validated_to_rev: 4765fb9a0a57
         changed_at: "2026-10-18"
         verdict: ok
     - from: desktop/src/nodes.rs
@@ -2588,7 +2588,7 @@ edges:
       type: depends-on
       origin: declared
       stamp:
-        validated_from_rev: 15a87468b80c
+        validated_from_rev: d35f2fe21b44
         validated_to_rev: e64d28137183
         changed_at: "2026-10-18"
         verdict: ok
@@ -2597,8 +2597,8 @@ edges:
       type: depends-on
       origin: declared
       stamp:
-        validated_from_rev: 15a87468b80c
-        validated_to_rev: fb6d03a9c106
+        validated_from_rev: d35f2fe21b44
+        validated_to_rev: e3289b685a15
         changed_at: "2026-10-18"
         verdict: ok
     - from: desktop/src/nodes.spec.md
@@ -2606,8 +2606,8 @@ edges:
       type: covered-by
       origin: convention
       stamp:
-        validated_from_rev: 35b9e42edd75
-        validated_to_rev: a9cf8d726146
+        validated_from_rev: bbd62cd18896
+        validated_to_rev: 37b7661ccf8b
         changed_at: "2026-10-18"
         verdict: ok
     - from: desktop/src/nodes.spec.md
@@ -2615,8 +2615,8 @@ edges:
       type: specifies
       origin: convention
       stamp:
-        validated_from_rev: 35b9e42edd75
-        validated_to_rev: 15a87468b80c
+        validated_from_rev: bbd62cd18896
+        validated_to_rev: d35f2fe21b44
         changed_at: "2026-10-18"
         verdict: ok
     - from: desktop/src/nodes_test.rs
@@ -2624,8 +2624,8 @@ edges:
       type: depends-on
       origin: declared
       stamp:
-        validated_from_rev: cb2b5d574b62
-        validated_to_rev: fb6d03a9c106
+        validated_from_rev: 4765fb9a0a57
+        validated_to_rev: e3289b685a15
         changed_at: "2026-10-18"
         verdict: ok
     - from: desktop/src/panel.feature
@@ -2679,7 +2679,7 @@ edges:
       origin: declared
       stamp:
         validated_from_rev: e64d28137183
-        validated_to_rev: fb6d03a9c106
+        validated_to_rev: e3289b685a15
         changed_at: "2026-10-18"
         verdict: ok
     - from: desktop/src/panel.rs
@@ -2742,7 +2742,7 @@ edges:
       origin: declared
       stamp:
         validated_from_rev: 7406100c7585
-        validated_to_rev: fb6d03a9c106
+        validated_to_rev: e3289b685a15
         changed_at: "2026-10-18"
         verdict: ok
     - from: desktop/src/panel_test.rs
@@ -2786,8 +2786,8 @@ edges:
       type: tested-by
       origin: convention
       stamp:
-        validated_from_rev: e560ee58438e
-        validated_to_rev: bbcd5dc90131
+        validated_from_rev: 3875a847e12c
+        validated_to_rev: de4afd7d194a
         changed_at: "2026-10-18"
         verdict: ok
     - from: desktop/src/remote.spec.md
@@ -2795,8 +2795,8 @@ edges:
       type: covered-by
       origin: convention
       stamp:
-        validated_from_rev: 28c5870b341f
-        validated_to_rev: e560ee58438e
+        validated_from_rev: c50b9739de7f
+        validated_to_rev: 3875a847e12c
         changed_at: "2026-10-18"
         verdict: ok
     - from: desktop/src/remote.spec.md
@@ -2804,8 +2804,8 @@ edges:
       type: specifies
       origin: convention
       stamp:
-        validated_from_rev: 28c5870b341f
-        validated_to_rev: fb6d03a9c106
+        validated_from_rev: c50b9739de7f
+        validated_to_rev: e3289b685a15
         changed_at: "2026-10-18"
         verdict: ok
     - from: desktop/src/screen.feature
@@ -2832,7 +2832,7 @@ edges:
       origin: declared
       stamp:
         validated_from_rev: 98c0618ec1e1
-        validated_to_rev: fb6d03a9c106
+        validated_to_rev: e3289b685a15
         changed_at: "2026-10-18"
         verdict: ok
     - from: desktop/src/screen.spec.md
@@ -2868,7 +2868,7 @@ edges:
       origin: declared
       stamp:
         validated_from_rev: 3150b37f4ca3
-        validated_to_rev: fb6d03a9c106
+        validated_to_rev: e3289b685a15
         changed_at: "2026-10-18"
         verdict: ok
     - from: desktop/src/settings.feature
@@ -2975,8 +2975,8 @@ edges:
       type: tested-by
       origin: convention
       stamp:
-        validated_from_rev: eb0def097101
-        validated_to_rev: ae181d043001
+        validated_from_rev: c00bb4d29afd
+        validated_to_rev: 441f447b7b88
         changed_at: "2026-10-18"
         verdict: ok
     - from: desktop/src/window.rs
@@ -2984,7 +2984,7 @@ edges:
       type: depends-on
       origin: declared
       stamp:
-        validated_from_rev: dbb2daa67cd8
+        validated_from_rev: 699c3dfe2daf
         validated_to_rev: 868e719960ec
         changed_at: "2026-10-18"
         verdict: ok
@@ -2993,8 +2993,8 @@ edges:
       type: depends-on
       origin: declared
       stamp:
-        validated_from_rev: dbb2daa67cd8
-        validated_to_rev: 65edc58ddafc
+        validated_from_rev: 699c3dfe2daf
+        validated_to_rev: baed88303f5b
         changed_at: "2026-10-18"
         verdict: ok
     - from: desktop/src/window.rs
@@ -3002,8 +3002,8 @@ edges:
       type: depends-on
       origin: declared
       stamp:
-        validated_from_rev: dbb2daa67cd8
-        validated_to_rev: 05417f5b396e
+        validated_from_rev: 699c3dfe2daf
+        validated_to_rev: 32c10e8a27b0
         changed_at: "2026-10-18"
         verdict: ok
     - from: desktop/src/window.rs
@@ -3011,7 +3011,7 @@ edges:
       type: depends-on
       origin: declared
       stamp:
-        validated_from_rev: dbb2daa67cd8
+        validated_from_rev: 699c3dfe2daf
         validated_to_rev: d7c5bea359eb
         changed_at: "2026-10-18"
         verdict: ok
@@ -3020,7 +3020,7 @@ edges:
       type: depends-on
       origin: declared
       stamp:
-        validated_from_rev: dbb2daa67cd8
+        validated_from_rev: 699c3dfe2daf
         validated_to_rev: 5e29a7c824be
         changed_at: "2026-10-18"
         verdict: ok
@@ -3029,7 +3029,7 @@ edges:
       type: depends-on
       origin: declared
       stamp:
-        validated_from_rev: dbb2daa67cd8
+        validated_from_rev: 699c3dfe2daf
         validated_to_rev: f245e24b4416
         changed_at: "2026-10-18"
         verdict: ok
@@ -3038,7 +3038,7 @@ edges:
       type: depends-on
       origin: declared
       stamp:
-        validated_from_rev: dbb2daa67cd8
+        validated_from_rev: 699c3dfe2daf
         validated_to_rev: 37e65e5daba4
         changed_at: "2026-10-18"
         verdict: ok
@@ -3047,8 +3047,8 @@ edges:
       type: depends-on
       origin: declared
       stamp:
-        validated_from_rev: dbb2daa67cd8
-        validated_to_rev: 15a87468b80c
+        validated_from_rev: 699c3dfe2daf
+        validated_to_rev: d35f2fe21b44
         changed_at: "2026-10-18"
         verdict: ok
     - from: desktop/src/window.rs
@@ -3056,7 +3056,7 @@ edges:
       type: depends-on
       origin: declared
       stamp:
-        validated_from_rev: dbb2daa67cd8
+        validated_from_rev: 699c3dfe2daf
         validated_to_rev: e64d28137183
         changed_at: "2026-10-18"
         verdict: ok
@@ -3065,7 +3065,7 @@ edges:
       type: depends-on
       origin: declared
       stamp:
-        validated_from_rev: dbb2daa67cd8
+        validated_from_rev: 699c3dfe2daf
         validated_to_rev: cd5b1ba68a40
         changed_at: "2026-10-18"
         verdict: ok
@@ -3074,8 +3074,8 @@ edges:
       type: depends-on
       origin: declared
       stamp:
-        validated_from_rev: dbb2daa67cd8
-        validated_to_rev: fb6d03a9c106
+        validated_from_rev: 699c3dfe2daf
+        validated_to_rev: e3289b685a15
         changed_at: "2026-10-18"
         verdict: ok
     - from: desktop/src/window.rs
@@ -3083,7 +3083,7 @@ edges:
       type: depends-on
       origin: declared
       stamp:
-        validated_from_rev: dbb2daa67cd8
+        validated_from_rev: 699c3dfe2daf
         validated_to_rev: 5f44619f809d
         changed_at: "2026-10-18"
         verdict: ok
@@ -3092,7 +3092,7 @@ edges:
       type: depends-on
       origin: declared
       stamp:
-        validated_from_rev: dbb2daa67cd8
+        validated_from_rev: 699c3dfe2daf
         validated_to_rev: f01261553e81
         changed_at: "2026-10-18"
         verdict: ok
@@ -3101,8 +3101,8 @@ edges:
       type: covered-by
       origin: convention
       stamp:
-        validated_from_rev: 3f92e4405ae4
-        validated_to_rev: eb0def097101
+        validated_from_rev: 530d22323cf0
+        validated_to_rev: c00bb4d29afd
         changed_at: "2026-10-18"
         verdict: ok
     - from: desktop/src/window.spec.md
@@ -3110,8 +3110,8 @@ edges:
       type: specifies
       origin: convention
       stamp:
-        validated_from_rev: 3f92e4405ae4
-        validated_to_rev: dbb2daa67cd8
+        validated_from_rev: 530d22323cf0
+        validated_to_rev: 699c3dfe2daf
         changed_at: "2026-10-18"
         verdict: ok
     - from: desktop/src/window_test.rs
@@ -3119,7 +3119,7 @@ edges:
       type: depends-on
       origin: declared
       stamp:
-        validated_from_rev: ae181d043001
+        validated_from_rev: 441f447b7b88
         validated_to_rev: 868e719960ec
         changed_at: "2026-10-18"
         verdict: ok
@@ -3128,7 +3128,7 @@ edges:
       type: depends-on
       origin: declared
       stamp:
-        validated_from_rev: ae181d043001
+        validated_from_rev: 441f447b7b88
         validated_to_rev: 5e29a7c824be
         changed_at: "2026-10-18"
         verdict: ok
@@ -3137,7 +3137,7 @@ edges:
       type: depends-on
       origin: declared
       stamp:
-        validated_from_rev: ae181d043001
+        validated_from_rev: 441f447b7b88
         validated_to_rev: f245e24b4416
         changed_at: "2026-10-18"
         verdict: ok
@@ -3146,7 +3146,7 @@ edges:
       type: depends-on
       origin: declared
       stamp:
-        validated_from_rev: ae181d043001
+        validated_from_rev: 441f447b7b88
         validated_to_rev: e64d28137183
         changed_at: "2026-10-18"
         verdict: ok
@@ -3155,7 +3155,7 @@ edges:
       type: depends-on
       origin: declared
       stamp:
-        validated_from_rev: ae181d043001
+        validated_from_rev: 441f447b7b88
         validated_to_rev: cd5b1ba68a40
         changed_at: "2026-10-18"
         verdict: ok
@@ -3164,8 +3164,8 @@ edges:
       type: depends-on
       origin: declared
       stamp:
-        validated_from_rev: ae181d043001
-        validated_to_rev: fb6d03a9c106
+        validated_from_rev: 441f447b7b88
+        validated_to_rev: e3289b685a15
         changed_at: "2026-10-18"
         verdict: ok
     - from: desktop/src/window_test.rs
@@ -3173,7 +3173,7 @@ edges:
       type: depends-on
       origin: declared
       stamp:
-        validated_from_rev: ae181d043001
+        validated_from_rev: 441f447b7b88
         validated_to_rev: 98c0618ec1e1
         changed_at: "2026-10-18"
         verdict: ok
@@ -3210,7 +3210,7 @@ edges:
       origin: convention
       stamp:
         validated_from_rev: bd34813bfb0b
-        validated_to_rev: 1789f4088c4e
+        validated_to_rev: a964070d2af2
         changed_at: "2026-10-18"
         verdict: ok
     - from: internal/bridge/bridge.spec.md
@@ -3218,7 +3218,7 @@ edges:
       type: covered-by
       origin: convention
       stamp:
-        validated_from_rev: ebff4a8f4d63
+        validated_from_rev: a6b37acebefa
         validated_to_rev: bd34813bfb0b
         changed_at: "2026-10-18"
         verdict: ok
@@ -3227,8 +3227,8 @@ edges:
       type: specifies
       origin: convention
       stamp:
-        validated_from_rev: ebff4a8f4d63
-        validated_to_rev: 6ed6124aef25
+        validated_from_rev: a6b37acebefa
+        validated_to_rev: 02c68ac7d42e
         changed_at: "2026-10-18"
         verdict: ok
     - from: internal/discovery/discovery.feature
@@ -3476,7 +3476,7 @@ edges:
       type: covered-by
       origin: convention
       stamp:
-        validated_from_rev: 5fc3c305f7d9
+        validated_from_rev: 0be5269fd3a2
         validated_to_rev: 0bac96f8f1cf
         changed_at: "2026-10-18"
         verdict: ok
@@ -3485,7 +3485,7 @@ edges:
       type: specifies
       origin: convention
       stamp:
-        validated_from_rev: 5fc3c305f7d9
+        validated_from_rev: 0be5269fd3a2
         validated_to_rev: 7c13939e3d07
         changed_at: "2026-10-18"
         verdict: ok
@@ -3698,8 +3698,8 @@ edges:
       type: tested-by
       origin: convention
       stamp:
-        validated_from_rev: 4a8bc045e0ba
-        validated_to_rev: 4e24eb265024
+        validated_from_rev: 1a620d1575cf
+        validated_to_rev: 94854027ce5b
         changed_at: "2026-10-18"
         verdict: ok
     - from: internal/station/station.spec.md
@@ -3707,8 +3707,8 @@ edges:
       type: covered-by
       origin: convention
       stamp:
-        validated_from_rev: 009096ad52c4
-        validated_to_rev: 4a8bc045e0ba
+        validated_from_rev: 26b72edc44fa
+        validated_to_rev: 1a620d1575cf
         changed_at: "2026-10-18"
         verdict: ok
     - from: internal/station/station.spec.md
@@ -3716,8 +3716,8 @@ edges:
       type: specifies
       origin: convention
       stamp:
-        validated_from_rev: 009096ad52c4
-        validated_to_rev: b09eb3d64b74
+        validated_from_rev: 26b72edc44fa
+        validated_to_rev: bef5499b2740
         changed_at: "2026-10-18"
         verdict: ok
     - from: internal/web/server.feature
@@ -3767,7 +3767,7 @@ edges:
       origin: declared
       stamp:
         validated_from_rev: 669c28de36d4
-        validated_to_rev: c31cc4d3a3a0
+        validated_to_rev: 72a0461e7248
         changed_at: "2026-10-18"
         verdict: ok
     - from: plans/abas.plan.md
@@ -3785,8 +3785,8 @@ edges:
       origin: declared
       stamp:
         validated_from_rev: 669c28de36d4
-        validated_to_rev: 7db655075045
-        changed_at: "2026-10-17"
+        validated_to_rev: fce27b4da444
+        changed_at: "2026-10-18"
         verdict: ok
     - from: plans/abas.plan.md
       to: desktop/src/keymap.spec.md
@@ -3830,7 +3830,7 @@ edges:
       origin: declared
       stamp:
         validated_from_rev: 669c28de36d4
-        validated_to_rev: 3f92e4405ae4
+        validated_to_rev: 530d22323cf0
         changed_at: "2026-10-18"
         verdict: ok
     - from: plans/agente-local.plan.md
@@ -3879,7 +3879,7 @@ edges:
       type: seeds
       origin: declared
       stamp:
-        validated_from_rev: 2b041953bf16
+        validated_from_rev: 2906b6a46d1a
         validated_to_rev: f39d7bf8cec3
         changed_at: "2026-10-18"
         verdict: ok
@@ -3888,7 +3888,7 @@ edges:
       type: seeds
       origin: declared
       stamp:
-        validated_from_rev: 2b041953bf16
+        validated_from_rev: 2906b6a46d1a
         validated_to_rev: 50d9cab21ff5
         changed_at: "2026-10-18"
         verdict: ok
@@ -3897,7 +3897,7 @@ edges:
       type: seeds
       origin: declared
       stamp:
-        validated_from_rev: 2b041953bf16
+        validated_from_rev: 2906b6a46d1a
         validated_to_rev: e6b6cfbc325f
         changed_at: "2026-10-18"
         verdict: ok
@@ -3906,7 +3906,7 @@ edges:
       type: seeds
       origin: declared
       stamp:
-        validated_from_rev: 2b041953bf16
+        validated_from_rev: 2906b6a46d1a
         validated_to_rev: 45ce81dcc51c
         changed_at: "2026-10-18"
         verdict: ok
@@ -3915,7 +3915,7 @@ edges:
       type: seeds
       origin: declared
       stamp:
-        validated_from_rev: 2b041953bf16
+        validated_from_rev: 2906b6a46d1a
         validated_to_rev: 4e727eec381f
         changed_at: "2026-10-18"
         verdict: ok
@@ -3972,8 +3972,8 @@ edges:
       type: seeds
       origin: declared
       stamp:
-        validated_from_rev: 7f1b91c1fde7
-        validated_to_rev: c31cc4d3a3a0
+        validated_from_rev: f0ba2cddda6b
+        validated_to_rev: 72a0461e7248
         changed_at: "2026-10-18"
         verdict: ok
     - from: plans/espelho.plan.md
@@ -3981,7 +3981,7 @@ edges:
       type: seeds
       origin: declared
       stamp:
-        validated_from_rev: 7f1b91c1fde7
+        validated_from_rev: f0ba2cddda6b
         validated_to_rev: fc08debb5603
         changed_at: "2026-10-18"
         verdict: ok
@@ -3990,8 +3990,8 @@ edges:
       type: seeds
       origin: declared
       stamp:
-        validated_from_rev: 7f1b91c1fde7
-        validated_to_rev: 35b9e42edd75
+        validated_from_rev: f0ba2cddda6b
+        validated_to_rev: bbd62cd18896
         changed_at: "2026-10-18"
         verdict: ok
     - from: plans/espelho.plan.md
@@ -3999,8 +3999,8 @@ edges:
       type: seeds
       origin: declared
       stamp:
-        validated_from_rev: 7f1b91c1fde7
-        validated_to_rev: 28c5870b341f
+        validated_from_rev: f0ba2cddda6b
+        validated_to_rev: c50b9739de7f
         changed_at: "2026-10-18"
         verdict: ok
     - from: plans/espelho.plan.md
@@ -4008,7 +4008,7 @@ edges:
       type: seeds
       origin: declared
       stamp:
-        validated_from_rev: 7f1b91c1fde7
+        validated_from_rev: f0ba2cddda6b
         validated_to_rev: 4cb0732a1b6f
         changed_at: "2026-10-18"
         verdict: ok
@@ -4017,7 +4017,7 @@ edges:
       type: seeds
       origin: declared
       stamp:
-        validated_from_rev: 7f1b91c1fde7
+        validated_from_rev: f0ba2cddda6b
         validated_to_rev: 7517ad7f1e46
         changed_at: "2026-10-18"
         verdict: ok
@@ -4026,7 +4026,7 @@ edges:
       type: seeds
       origin: declared
       stamp:
-        validated_from_rev: 7f1b91c1fde7
+        validated_from_rev: f0ba2cddda6b
         validated_to_rev: 6a2f41537d61
         changed_at: "2026-10-18"
         verdict: ok
@@ -4035,7 +4035,7 @@ edges:
       type: seeds
       origin: declared
       stamp:
-        validated_from_rev: 7f1b91c1fde7
+        validated_from_rev: f0ba2cddda6b
         validated_to_rev: e7bc20744baf
         changed_at: "2026-10-18"
         verdict: ok
@@ -4044,7 +4044,7 @@ edges:
       type: seeds
       origin: declared
       stamp:
-        validated_from_rev: 7f1b91c1fde7
+        validated_from_rev: f0ba2cddda6b
         validated_to_rev: e6b6cfbc325f
         changed_at: "2026-10-18"
         verdict: ok
@@ -4053,7 +4053,7 @@ edges:
       type: seeds
       origin: declared
       stamp:
-        validated_from_rev: 7f1b91c1fde7
+        validated_from_rev: f0ba2cddda6b
         validated_to_rev: 45ce81dcc51c
         changed_at: "2026-10-18"
         verdict: ok
@@ -4062,7 +4062,7 @@ edges:
       type: seeds
       origin: declared
       stamp:
-        validated_from_rev: 7f1b91c1fde7
+        validated_from_rev: f0ba2cddda6b
         validated_to_rev: 529ff5390d8b
         changed_at: "2026-10-18"
         verdict: ok
@@ -4071,8 +4071,8 @@ edges:
       type: seeds
       origin: declared
       stamp:
-        validated_from_rev: 7f1b91c1fde7
-        validated_to_rev: 5fc3c305f7d9
+        validated_from_rev: f0ba2cddda6b
+        validated_to_rev: 0be5269fd3a2
         changed_at: "2026-10-18"
         verdict: ok
     - from: plans/espelho.plan.md
@@ -4080,7 +4080,7 @@ edges:
       type: seeds
       origin: declared
       stamp:
-        validated_from_rev: 7f1b91c1fde7
+        validated_from_rev: f0ba2cddda6b
         validated_to_rev: f2e7bdf62420
         changed_at: "2026-10-18"
         verdict: ok
@@ -4089,7 +4089,7 @@ edges:
       type: seeds
       origin: declared
       stamp:
-        validated_from_rev: 7f1b91c1fde7
+        validated_from_rev: f0ba2cddda6b
         validated_to_rev: 47bdd70b9aa6
         changed_at: "2026-10-18"
         verdict: ok
@@ -4144,7 +4144,7 @@ edges:
       origin: declared
       stamp:
         validated_from_rev: e9b93aec7b68
-        validated_to_rev: 3f92e4405ae4
+        validated_to_rev: 530d22323cf0
         changed_at: "2026-10-18"
         verdict: ok
     - from: plans/terminal-remoto.plan.md

@@ -17,6 +17,8 @@ estação e os terminais dela.
 O `Call` recebe `{"op": …}` e devolve o resultado em JSON:
 - `status`: onde o nó desta máquina escuta (`listen`) e, se não escuta, porquê (`listen_error`), e a
   chave desta instalação como a linha que as outras máquinas juntam ao `authorized_keys` (`key`);
+- `listen` (`addr`): o nó desta máquina passa a escutar as outras nesse endereço, ou deixa de escutar com
+  ele vazio, e a instalação lembra-o;
 - `machines`: as máquinas (`name`, `local`);
 - `add` (`addr`) e `remove` (`name`): juntar e esquecer uma máquina;
 - `sessions` (`machine`): as sessões dela, como o `hub.Session`;
@@ -93,6 +95,9 @@ ficheiro que não é texto em UTF-8 dá o erro.
 | `BRDGE-B06` | `Handle`, `request` |
 
 ## Revisions
+
+> **BRDGE-R0004:** entra o pedido `listen`, para a janela aceitar as outras máquinas só quando o utilizador
+> o liga (o dono decidiu-o a 2026-10-18).
 
 > **BRDGE-R0003:** entram os ficheiros de uma máquina (`fs_list`, `fs_read`, `fs_write`, e o `BRDGE-B06`),
 > do plano ESRMS, W05.

@@ -260,3 +260,19 @@ scenario!(mqnas_b10_os_ficheiros_de_uma_maquina, "MQNAS-B10: Os ficheiros de uma
     click(cx, &o, format!("files-{LOCAL}"));
     assert_eq!(*o.files.borrow(), vec![LOCAL.to_string()]);
 });
+
+scenario!(mqnas_b11_deixar_outras_maquinas_ligarem_se, "MQNAS-B11: Deixar outras máquinas ligarem-se", |cx| {
+    let (_d, me) = installation("");
+    let o = open(cx, &me);
+    o._panel.update(cx, |p, _| p.accept_at("127.0.0.1:0"));
+    let off = shown(cx, &o, "accept-machines".into());
+    click(cx, &o, "accept-machines".into());
+    let listening = me.status().unwrap().listen;
+    let on = shown(cx, &o, "accept-machines".into());
+    click(cx, &o, "accept-machines".into());
+    assert!(!listening.is_empty(), "want it listening after the first click");
+    assert_eq!(
+        (off.as_deref(), on.as_deref(), me.status().unwrap().listen.as_str()),
+        (Some("Deixar outras máquinas ligarem-se"), Some("Deixar de aceitar outras máquinas"), "")
+    );
+});

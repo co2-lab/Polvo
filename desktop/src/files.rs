@@ -125,6 +125,7 @@ pub struct FileTree {
 
 impl FileTree {
     /// The tree of `root` of this machine, with its content shown (FLTRE-B01).
+    #[cfg(test)]
     pub fn new(root: PathBuf, window: &mut Window, cx: &mut Context<Self>) -> Self {
         Self::on(FileSource::Local, root, window, cx)
     }

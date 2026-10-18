@@ -25,7 +25,7 @@ use gpui_kit::{
 };
 
 use crate::agents::{AgentsFeed, AgentsPanel, FeedEvent}; // @dep: AGIMP
-use crate::editor::EditorPanel; // @dep: EDIMP
+use crate::editor::{EditorEvent, EditorPanel}; // @dep: EDIMP
 use crate::files::{FileSource, FileTree, FileTreeEvent}; // @dep: FLIMP
 use crate::git::{GitEvent, GitPanel}; // @dep: GTIMP
 use crate::keymap::{Action, Keymap}; // @dep: KYIMA
@@ -399,7 +399,9 @@ impl PolvoWindow {
         for tab in restored_gits.borrow_mut().drain(..) {
             this.watch_git(tab, window, cx);
         }
-        this.editors.extend(restored_editors.borrow_mut().drain(..));
+        for editor in restored_editors.borrow_mut().drain(..) {
+            this.watch_editor(editor, window, cx);
+        }
         if this.terminals.is_empty() {
             match (this.new_terminal)(&this.prefs, window, cx) {
                 Ok(first) => {
@@ -720,8 +722,21 @@ impl PolvoWindow {
         self.dock.update(cx, |dock, cx| dock.add_panel(editor.clone(), DockPlacement::Center, None, window, cx));
         let focus = editor.read(cx).focus_handle(cx);
         window.focus(&focus, cx);
-        self.editors.push(editor);
+        self.watch_editor(editor, window, cx);
         cx.notify();
+    }
+
+    /// Hears the editor close itself, after the user decided about its unsaved changes (WNDWI-B26).
+    fn watch_editor(&mut self, editor: Entity<EditorPanel>, window: &mut Window, cx: &mut Context<Self>) {
+        let sub = cx.subscribe_in(&editor, window, |this, editor, ev: &EditorEvent, window, cx| match ev {
+            EditorEvent::Close => {
+                let panel = editor.clone();
+                this.dock.update(cx, |dock, cx| dock.remove_panel(panel, window, cx));
+                this.layout_changed(window, cx);
+            }
+        });
+        self.heard.insert(editor.entity_id(), sub);
+        self.editors.push(editor);
     }
 
     /// Opens a new terminal in the dock, with the focus (WNDWI-B10).
@@ -778,6 +793,10 @@ impl PolvoWindow {
         } else if let Some(panel) = self.gits.iter().find(|g| focused(g.read(cx).focus_handle(cx))).cloned() {
             self.dock.update(cx, |dock, cx| dock.remove_panel(panel, window, cx));
         } else if let Some(panel) = self.editors.iter().find(|e| focused(e.read(cx).focus_handle(cx))).cloned() {
+            // WNDWI-B26: an editor with unsaved changes asks first
+            if !panel.update(cx, |e, cx| e.ask_to_close(window, cx)) {
+                return;
+            }
             self.dock.update(cx, |dock, cx| dock.remove_panel(panel, window, cx));
         } else {
             return;
