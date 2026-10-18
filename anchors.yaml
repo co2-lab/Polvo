@@ -124,6 +124,16 @@ layers:
         pattern: 'desktop/src/*_test.rs'
         kind: test
         tags: [test, desktop]
+    # O transporte entre redes sobre o iroh (Rust, plano ESRMS, W04).
+    p2p:
+        pattern: 'p2p/src/*.rs'
+        kind: code
+        tags: [p2p]
+        exclude: ['p2p/src/*_test.rs']
+    p2ptest:
+        pattern: 'p2p/src/*_test.rs'
+        kind: test
+        tags: [test, p2p]
     feature:
         pattern: '**/*.feature'
         kind: feature
@@ -186,6 +196,12 @@ dialect:
           relative: true
         - re: '(?m)^\s*use\s+crate::(?P<path>\w+)'
           files: 'desktop/**/*.rs'
+          relative: true
+        - re: '(?m)^\s*(?:pub\s+)?mod\s+(?P<path>\w+)\s*;'
+          files: 'p2p/**/*.rs'
+          relative: true
+        - re: '(?m)^\s*use\s+crate::(?P<path>\w+)'
+          files: 'p2p/**/*.rs'
           relative: true
     import_names:
         - within: '^[ \t]*(?:import|export)\b[^{''"]*\{(?P<within>[^}]*)\}'

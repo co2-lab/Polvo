@@ -8,3 +8,5 @@
 .anchors/cover.out
 .anchors/junit-ui.xml
 .anchors/junit-desktop.xml
+.anchors/junit-p2p.xml
+p2p/target/

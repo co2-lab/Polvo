@@ -1,0 +1,7 @@
+# A test that hangs (a read waiting on a session that never answers) is ended and fails, instead of
+# holding the whole suite.
+[profile.default]
+slow-timeout = { period = "30s", terminate-after = 4 }
+
+[profile.default.junit]
+path = "junit.xml"

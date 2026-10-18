@@ -3,9 +3,9 @@ GALAXY ?= galaxy
 GALAXY_MEM ?= 6G
 PKGS ?= ./...
 
-.PHONY: test test-go test-galaxy test-ui test-desktop vet ui desktop
+.PHONY: test test-go test-galaxy test-ui test-desktop test-p2p vet ui desktop
 
-test: vet test-go test-galaxy test-ui test-desktop
+test: vet test-go test-galaxy test-ui test-desktop test-p2p
 
 # A janela nativa (desktop/, Rust): a libghostty-vt compila a Ghostty com o Zig 0.15 (ZIG), e o
 # target fica fora da arvore (CARGO_TARGET_DIR), que e' grande.
@@ -18,6 +18,19 @@ desktop:
 
 test-desktop:
 	cd desktop && $(CARGO) test
+
+# O transporte entre redes (p2p/, Rust, sobre o iroh), com o target dele fora da arvore.
+P2P_TARGET_DIR ?= $(HOME)/.cache/polvo-p2p-target
+P2P_CARGO = PATH="$(HOME)/.cargo/bin:$$PATH" CARGO_TARGET_DIR="$(P2P_TARGET_DIR)" cargo
+
+test-p2p:
+	cd p2p && $(P2P_CARGO) test
+
+.PHONY: report-p2p
+report-p2p:
+	@mkdir -p .anchors
+	cd p2p && $(P2P_CARGO) nextest run --profile default --no-fail-fast; \
+	  cp target/nextest/default/junit.xml ../.anchors/junit-p2p.xml
 
 # A UI (ui/): o bundle vai para internal/web/dist, embutido no executavel.
 ui:
