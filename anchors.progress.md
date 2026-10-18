@@ -1,5 +1,5 @@
 <!-- anchors:progress v1 — written by `anchors progress`; never edit by hand -->
-# Progress — 100% (57/57 points)
+# Progress — 100% (64/64 points)
 
 ## D01 — AgenteLocal (plan: plans/agente-local.plan.md) — 100% (6/6)
 ### D01.S1 — AGLCG-W01 — A ponte MCP — 100% (2/2)
@@ -70,7 +70,7 @@
 ### D05.S4 — ESRMS-W04 — P2P através de NAT (depends on ESRMS-W03) — — (0/0)
 ### D05.S5 — ESRMS-W05 — Os ficheiros de qualquer máquina (depends on ESRMS-W02) — — (0/0)
 
-## D06 — Agentes (plan: plans/agentes.plan.md) — 100% (5/5)
+## D06 — Agentes (plan: plans/agentes.plan.md) — 100% (12/12)
 ### D06.S1 — AGPRG-W01 — O progresso no nó — 100% (3/3)
 - [x] D06.T1 — `internal/progress/progress.spec.md` · 1 · done 2026-10-18 by OK-BR-PE0EF71F/polvo-main
 - [x] D06.T2 — `internal/node/control.spec.md` (muda: os pedidos do progresso, com a espera longa em vez das notificações) · 1 · done 2026-10-18 by OK-BR-PE0EF71F/polvo-main
@@ -78,7 +78,15 @@
 ### D06.S2 — AGPRG-W02 — As ferramentas do agente (depends on AGPRG-W01) — 100% (2/2)
 - [x] D06.T4 — `internal/mcp/tools.spec.md` (muda: as ferramentas do progresso; a de responder passa à W03) · 1 · done 2026-10-18 by OK-BR-PE0EF71F/polvo-main
 - [x] D06.T5 — `internal/sessions/sessions.spec.md` e `station.spec.md` (mudam: o ambiente das sessões) · 1 · done 2026-10-18 by OK-BR-PE0EF71F/polvo-main
-### D06.S3 — AGPRG-W03 — O painel dos agentes (depends on AGPRG-W02) — — (0/0)
+### D06.S3 — AGPRG-W03 — Perguntar ao agente (depends on AGPRG-W02) — 100% (4/4)
+- [x] D06.T6 — `internal/progress/progress.spec.md` (muda: as perguntas e a conversa do agente) · 1 · done 2026-10-18 by OK-BR-PE0EF71F/polvo-main
+- [x] D06.T7 — `internal/node/control.spec.md` (muda: o progress.ask, pelo claude ou pela sessão) · 1 · done 2026-10-18 by OK-BR-PE0EF71F/polvo-main
+- [x] D06.T8 — `internal/agents/claude.spec.md` · 1 · done 2026-10-18 by OK-BR-PE0EF71F/polvo-main
+- [x] D06.T9 — `internal/mcp/tools.spec.md` (muda: responder, e a conversa do Claude Code) · 1 · done 2026-10-18 by OK-BR-PE0EF71F/polvo-main
+### D06.S4 — AGPRG-W04 — O painel dos agentes (depends on AGPRG-W03) — 100% (3/3)
+- [x] D06.T10 — `desktop/src/agents.spec.md` · 1 · done 2026-10-18 by OK-BR-PE0EF71F/polvo-main
+- [x] D06.T11 — `internal/bridge/bridge.spec.md` e `desktop/src/remote.spec.md` (mudam: o progresso de todas as máquinas) · 1 · done 2026-10-18 by OK-BR-PE0EF71F/polvo-main
+- [x] D06.T12 — `desktop/src/panel.spec.md` e `window.spec.md` (mudam: a aba dos agentes e a marca na aba da sessão) · 1 · done 2026-10-18 by OK-BR-PE0EF71F/polvo-main
 
 ## D07 — Configuracao e tipos de aba (plan: plans/abas.plan.md) — 100% (11/11)
 ### D07.S1 — CEACN-W01 — A configuração e os atalhos — 100% (4/4)
@@ -97,4 +105,4 @@
 - [x] D07.T10 — `desktop/src/git.spec.md` · 1 · done 2026-10-17 by OK-BR-PE0EF71F/polvo-main
 - [x] D07.T11 — `desktop/src/window.spec.md` (muda: o tipo de aba do git) · 1 · done 2026-10-17 by OK-BR-PE0EF71F/polvo-main
 
-<!-- anchors:progress sum=7db572271327 -->
+<!-- anchors:progress sum=78b13b9e4fc0 -->
