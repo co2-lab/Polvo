@@ -36,6 +36,7 @@ mod layout; // @dep: DLIDC
 mod new_tab; // @dep: NTIMP
 mod panel; // @dep: TPITR
 mod prefs; // @dep: PRIMP
+mod remote; // @dep: RMIMP
 mod screen; // @dep: SCIMS
 mod settings; // @dep: STIMS
 mod settings_panel; // @dep: SPIST

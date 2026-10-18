@@ -52,6 +52,12 @@ layers:
         kind: code
         tags: [station]
         exclude: ['**/*_test.go']
+    # A API que a biblioteca C da' 'a janela (plano ESRMS, W02).
+    bridge:
+        pattern: 'internal/bridge/*.go'
+        kind: code
+        tags: [bridge]
+        exclude: ['**/*_test.go']
     web:
         pattern: 'internal/web/*.go'
         kind: code
