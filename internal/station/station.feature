@@ -97,3 +97,21 @@ Feature: Station
     Given duas instalações, a segunda com a primeira junta
     When a primeira deixa de escutar, e depois volta a escutar no mesmo endereço
     Then a ligação da segunda é cortada enquanto não escuta, volta a chegar depois, e a primeira aberta outra vez sem endereço escuta no mesmo
+
+  @STATN-B13 @STATN-B14 @unit-level
+  Scenario: As máquinas de outras redes, pela chave
+    Given duas instalações com o transporte, a primeira a aceitar as outras e a autorizar a segunda
+    When a segunda junta a primeira pelo endereço que ela deu, e pede-lhe as sessões
+    Then o nome é "p2p:" e a chave da primeira, e as sessões vêm; com a primeira a não aceitar, a ligação falha
+
+  @STATN-B15 @unit-level
+  Scenario: O histórico dos endereços de cada máquina
+    Given a segunda instalação já se ligou à primeira pela chave
+    When a segunda abre outra vez e liga-se à primeira só pelo histórico
+    Then as sessões vêm
+
+  @STATN-E03 @unit-level
+  Scenario: Uma máquina pela chave, sem o transporte
+    Given uma instalação num executável sem o transporte
+    When junta uma máquina pelo endereço dela
+    Then é o erro que diz que esta instalação não tem o transporte, e a máquina não se junta

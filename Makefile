@@ -29,7 +29,7 @@ p2p-lib:
 
 test-p2p: p2p-lib
 	cd p2p && $(P2P_CARGO) test
-	CGO_LDFLAGS="-L$(P2P_TARGET_DIR)/release" go test -tags polvo_p2p ./internal/transport/...
+	CGO_LDFLAGS="-L$(P2P_TARGET_DIR)/release" go test -tags polvo_p2p ./internal/transport/... ./internal/station/... ./internal/node/...
 
 .PHONY: report-p2p
 report-p2p:

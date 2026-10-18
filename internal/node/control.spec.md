@@ -26,6 +26,11 @@ ou substituindo o que lá estava. A pasta tem de existir. A resposta é vazia.
 O pedido `fs.list` com o caminho de uma pasta devolve as entradas dela por ordem de nome, cada uma com
 o nome, se é pasta e o tamanho.
 
+### CNTRL-B12 — Onde a instalação do nó se alcança entre redes
+O `p2p.addr` dá onde a instalação do nó se alcança agora entre redes (`addr`: a chave, os endereços
+diretos e o relay, como o transporte os dá), para quem se liga guardar o histórico; um nó sem o
+transporte responde com o erro de operação.
+
 ### CNTRL-B11 — O `~` é a pasta pessoal
 Nos pedidos de ficheiros (`fs.read`, `fs.write`, `fs.list`), um caminho que é `~`, ou que começa por `~/`,
 é o da pasta pessoal do utilizador do nó: quem pede de outra máquina não sabe qual é.
@@ -94,6 +99,7 @@ O pedido sem a permissão é recusado com o erro de permissão (`CNTRL-E06`), se
 | `argv` | o programa e os argumentos | uma lista vazia | este módulo: responde com parâmetros inválidos (`CNTRL-E02`) |
 | `data` | texto em base64 | texto que não é base64 | este módulo: responde com parâmetros inválidos (`CNTRL-E02`) |
 | `op` | `start`, `step`, `note`, `finish`, `answer` | outro | este módulo: responde com parâmetros inválidos (`CNTRL-E02`) |
+| `P2P` | onde a instalação do nó se alcança entre redes, ou nenhum | — | este módulo: sem ele, o erro de operação (`CNTRL-E03`) |
 
 ## Errors / Failures
 | Rule | Condition | Failure |
@@ -134,6 +140,7 @@ O pedido sem a permissão é recusado com o erro de permissão (`CNTRL-E06`), se
 | `CNTRL-E03` | `path`, `argv`, `CodeOperation` |
 | `CNTRL-E04` | `path`, `MaxFile` |
 | `CNTRL-E05` | `path` |
+| `CNTRL-B12` | `P2P` |
 
 ## Revisions
 
@@ -146,6 +153,9 @@ O pedido sem a permissão é recusado com o erro de permissão (`CNTRL-E06`), se
 
 > **CNTRL-R0003:** o `session.list` diz a cada ligação se pode escrever em cada sessão, para a janela mostrar
 > as que só se veem (plano ESRMS, W02).
+
+> **CNTRL-R0007:** entra o `CNTRL-B12` (o `p2p.addr`), do plano ESRMS, W04: o histórico dos endereços de
+> cada máquina.
 
 > **CNTRL-R0006:** o `CNTRL-B07` ganha o `session.screen` e o `session.type`, para o agente trabalhar nas
 > sessões de qualquer máquina pelo `polvo mcp` (plano ESRMS, W06); o `CNTRL-B08` diz quem os pode pedir.

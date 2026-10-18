@@ -48,6 +48,9 @@ type Controller struct {
 	Progress *progress.Board
 	// AskClaude asks the claude of a conversation, by its CLI (CNTRL-B10); nil is agents.Ask.
 	AskClaude func(progress.Conversation, string) (string, error)
+	// P2P gives where the node's installation is reached between networks now (CNTRL-B12); nil answers
+	// with an error.
+	P2P func() string
 }
 
 type opError struct{ error }
@@ -99,6 +102,7 @@ var need = map[string]sessions.Perm{
 	"fs.write": sessions.Control, "proc.run": sessions.Control, "session.new": sessions.Control,
 	"session.close": sessions.Control, "session.lock": sessions.Owner,
 	"session.screen": sessions.View, "session.type": sessions.Control,
+	"p2p.addr": sessions.View,
 	"progress.report": sessions.Control, "progress.list": sessions.View, "progress.get": sessions.View,
 	"progress.wait": sessions.View, "progress.ask": sessions.Control,
 }
@@ -154,6 +158,12 @@ func (c Controller) dispatch(m *proto.Message, perm sessions.Perm) (any, error) 
 		return c.session(m, perm)
 	case "progress.report", "progress.list", "progress.get", "progress.wait", "progress.ask":
 		return c.progress(m)
+	case "p2p.addr":
+		// CNTRL-B12
+		if c.P2P == nil || c.P2P() == "" {
+			return nil, opError{errors.New("this node is not reached between networks")}
+		}
+		return map[string]string{"addr": c.P2P()}, nil
 	}
 	return nil, errUnknownMethod
 }

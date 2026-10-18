@@ -7,6 +7,7 @@ package station
 import (
 	"bytes"
 	"context"
+	"encoding/json"
 	"errors"
 	"golang.org/x/crypto/ssh"
 	"io"
@@ -429,6 +430,79 @@ func TestStation_discovery(t *testing.T) {
 		found, err := second.Discover(500 * time.Millisecond)
 		if err != nil || len(found) != 1 || found[0].Name != "primeira" || !found[0].Known {
 			t.Fatalf("want only the first, known; got %+v %v", found, err)
+		}
+	})
+}
+
+// p2pPair is pair, with both reaching each other between networks; skipped without the transport.
+func p2pPair(t *testing.T) (first *Station, firstDir string, second *Station, secondDir string) {
+	t.Helper()
+	first, firstDir, second, secondDir = pair(t)
+	if first.P2PAddr() == "" {
+		t.Skip("built without the transport (make test-p2p runs these)")
+	}
+	return
+}
+
+func TestStation_p2p(t *testing.T) {
+	t.Run("STATN-B13: As máquinas de outras redes, pela chave", func(t *testing.T) {
+		first, _, second, _ := p2pPair(t)
+		id := first.mustID(t)
+		name, err := second.AddP2P(first.P2PAddr())
+		if err != nil {
+			t.Fatal(err)
+		}
+		if _, err := nodeOf(t, second, name).Sessions(); err != nil {
+			t.Fatal(err)
+		}
+		first.Listen("")
+		cut := false
+		for end := time.Now().Add(10 * time.Second); !cut && time.Now().Before(end); time.Sleep(50 * time.Millisecond) {
+			if n, err := second.Node(name); err != nil {
+				cut = true
+			} else if _, err := n.Sessions(); err != nil {
+				cut = true
+			}
+		}
+		if name != P2P_PREFIX+id || !cut {
+			t.Fatalf("want %s and the connection refused while not accepting, got %s and %v", P2P_PREFIX+id, name, cut)
+		}
+	})
+	t.Run("STATN-B15: O histórico dos endereços de cada máquina", func(t *testing.T) {
+		first, _, second, secondDir := p2pPair(t)
+		name, err := second.AddP2P(first.P2PAddr())
+		if err != nil {
+			t.Fatal(err)
+		}
+		second.Close()
+		again := open(t, secondDir, sh)
+		history := again.addrOf(strings.TrimPrefix(name, P2P_PREFIX))
+		if _, err := nodeOf(t, again, name).Sessions(); err != nil || !strings.Contains(history, "Ip") {
+			t.Fatalf("want the sessions by the history %s, got %v", history, err)
+		}
+	})
+}
+
+// mustID is the key in this installation's p2p address.
+func (s *Station) mustID(t *testing.T) string {
+	t.Helper()
+	var e endpoint
+	if err := json.Unmarshal([]byte(s.P2PAddr()), &e); err != nil || e.ID == "" {
+		t.Fatalf("no p2p address: %q", s.P2PAddr())
+	}
+	return e.ID
+}
+
+func TestStation_noP2P(t *testing.T) {
+	t.Run("STATN-E03: Uma máquina pela chave, sem o transporte", func(t *testing.T) {
+		s := open(t, t.TempDir(), sh)
+		if s.P2PAddr() != "" {
+			t.Skip("built with the transport")
+		}
+		addr := `{"id":"` + strings.Repeat("ab", 32) + `","addrs":[{"Ip":"127.0.0.1:1"}]}`
+		_, err := s.AddP2P(addr)
+		if err == nil || !strings.Contains(err.Error(), "no transport") || len(s.Machines()) != 1 {
+			t.Fatalf("want the error and no machine joined, got %v and %v", err, s.Machines())
 		}
 	})
 }

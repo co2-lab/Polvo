@@ -525,3 +525,15 @@ func collectViewer(v *sessions.Viewer) func() string {
 		return b.String()
 	}
 }
+
+func TestControl_p2p(t *testing.T) {
+	t.Run("CNTRL-B12: Onde a instalação do nó se alcança entre redes", func(t *testing.T) {
+		with := controlWith(t, Controller{P2P: func() string { return "ADDR" }}.Serve, sessions.View)
+		var got struct{ Addr string }
+		result(t, with.call(t, 1, "p2p.addr", struct{}{}), &got)
+		wantError(t, controlWith(t, Controller{}.Serve, sessions.View).call(t, 1, "p2p.addr", struct{}{}), CodeOperation, "networks")
+		if got.Addr != "ADDR" {
+			t.Fatalf("want ADDR, got %+v", got)
+		}
+	})
+}

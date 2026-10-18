@@ -73,24 +73,44 @@ como no `STATN-B09`), ou deixa de escutar com o endereço vazio; deixar de escut
 que as outras máquinas tinham feito, e as sessões continuam. A instalação lembra-o: o `Open` sem endereço
 escuta onde o utilizador deixou (por omissão, em lado nenhum).
 
+### STATN-B13 — As máquinas de outras redes, pela chave
+O `AddP2P` junta a máquina do endereço que a instalação dela deu (o do transport), e chama-a pela chave:
+`P2P_PREFIX` e a chave. Ligar-se a ela é pelo transporte entre redes, e o nó dela só é aceite se a chave do
+SSH for essa mesma, que o transporte já provou.
+
+### STATN-B14 — Esta máquina entre redes
+A instalação abre o endpoint do transporte com a chave do nó desta máquina (o relay e a porta das
+`Options`), e o `P2PAddr` diz onde se alcança. As outras instalações entram por ele só enquanto esta
+máquina as aceita (`STATN-B12`): o mesmo interruptor serve a rede e as outras redes. Sem o transporte no
+executável, tudo o resto funciona.
+
+### STATN-B15 — O histórico dos endereços de cada máquina
+Cada vez que se liga a uma máquina pela chave, a instalação guarda onde ela está agora (o `p2p.addr` do
+nó dela) no histórico: os endereços, quando e quantas vezes cada um respondeu, até `MAX_HISTORY`, os mais
+recentes primeiro. Ligar-se a ela dá ao transporte todos os do histórico de uma vez, e ele tenta-os todos:
+uma máquina que alterna entre duas redes volta a ser achada num endereço onde já esteve.
+
 ## Domain
 
 | Input | Accepts | Outside the domain | Who guarantees |
 | --- | --- | --- | --- |
 | `dir` | a pasta da instalação (criada se não existe) | uma que não se pode criar | este módulo: o `Open` devolve o erro |
 | `Options` | o endereço onde escutar (vazio: não escuta), a shell, o nome da máquina e onde se anuncia (o `discovery.Options`) | um endereço ocupado | este módulo: a `Station` abre sem escutar (`STATN-E01`) |
-| `addr` | máquina e porta de um nó | um nó que não responde ou recusa a chave | este módulo: o erro (`STATN-E02`) |
+| `addr` | máquina e porta de um nó, ou o endereço do transport de uma instalação | um nó que não responde ou recusa a chave | este módulo: o erro (`STATN-E02`) |
 
 ## Errors / Failures
 | Rule | Condition | Failure |
 | --- | --- | --- |
 | `STATN-E01` | o endereço para escutar não se abre (ocupado, sem permissão) | a `Station` abre sem escutar, a máquina desta janela funciona, e o `ListenError` diz porquê |
 | `STATN-E02` | a máquina não responde, ou recusa a chave desta instalação | o `Add` e o `Node` devolvem o erro com o endereço; o `Add` não a junta |
+| `STATN-E03` | o transporte não abre, ou o executável não o tem, e uma máquina é pela chave | o `P2PError` diz porquê; ligar-se a essa máquina dá o erro, e o resto funciona |
 
 ## Business Constants
 | Constant | Value | Why |
 | --- | --- | --- |
 | `LOCAL` | `local` | o nome da máquina desta janela, que não tem endereço |
+| `P2P_PREFIX` | `p2p:` | o nome de uma máquina pela chave: não se confunde com um endereço máquina:porta |
+| `MAX_HISTORY` | 16 | as redes por onde uma máquina costuma andar cabem com folga, e tentar todas ao mesmo tempo não pesa |
 
 ## Rule uses
 
@@ -110,8 +130,15 @@ escuta onde o utilizador deixou (por omissão, em lado nenhum).
 | `STATN-B10` | `Options` |
 | `STATN-B11` | `addr` |
 | `STATN-B12` | `Options`, `addr` |
+| `STATN-B13` | `addr`, `P2P_PREFIX` |
+| `STATN-B14` | `Options` |
+| `STATN-B15` | `addr`, `MAX_HISTORY` |
+| `STATN-E03` | `Options`, `addr` |
 
 ## Revisions
+
+> **STATN-R0004:** entram as máquinas de outras redes pela chave (`STATN-B13` a `STATN-B15`, `STATN-E03`),
+> do plano ESRMS, W04.
 
 > **STATN-R0003:** entra o `STATN-B12` (aceitar e deixar de aceitar as outras máquinas com a janela aberta),
 > porque o dono decidiu a 2026-10-18 que a janela não escuta por omissão (era a `STATN-D01`): o utilizador

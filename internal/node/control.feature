@@ -164,3 +164,9 @@ Feature: Control
     Given uma sessão travada, e as ligações de quem vê, de quem controla e do dono
     When cada uma pede "session.type"
     Then quem vê e quem controla são recusados com o erro de permissão, e o dono escreve
+
+  @CNTRL-B12 @unit-level
+  Scenario: Onde a instalação do nó se alcança entre redes
+    Given um nó cuja instalação se alcança em "ADDR", e outro sem o transporte
+    When se pede "p2p.addr" a cada um
+    Then o primeiro dá "ADDR", e o segundo o erro de operação
