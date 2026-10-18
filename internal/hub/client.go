@@ -504,20 +504,36 @@ func Pair(addr string, cfg Config, name string, typed func() (string, error)) er
 	if err := cfg.check(); err != nil {
 		return err
 	}
+	conn, err := net.Dial("tcp", addr)
+	if err != nil {
+		return fmt.Errorf("hub: connecting to %s: %w", addr, err)
+	}
+	return PairConn(conn, addr, cfg, name, typed)
+}
+
+// PairConn pairs over a connection already open to addr, as Pair does (CLNTI-B09): the one of the
+// transport between networks, too.
+func PairConn(conn net.Conn, addr string, cfg Config, name string, typed func() (string, error)) error {
+	if err := cfg.check(); err != nil {
+		conn.Close()
+		return err
+	}
 	var host ssh.PublicKey
 	user := cfg.User
 	if user == "" {
 		user = "polvo"
 	}
-	client, err := ssh.Dial("tcp", addr, &ssh.ClientConfig{
+	cc, chans, reqs, err := ssh.NewClientConn(conn, addr, &ssh.ClientConfig{
 		User: user,
 		Auth: []ssh.AuthMethod{ssh.PublicKeys(cfg.Identity)},
-		// the code proves the node's key; it is checked against the known hosts after it
+		// the code proves the node's key; it is checked against the known hosts, or the key given, after it
 		HostKeyCallback: func(_ string, _ net.Addr, key ssh.PublicKey) error { host = key; return nil },
 	})
 	if err != nil {
+		conn.Close()
 		return fmt.Errorf("hub: connecting to %s: %w", addr, err)
 	}
+	client := ssh.NewClient(cc, chans, reqs)
 	defer client.Close()
 	s, err := client.NewSession()
 	if err != nil {
@@ -541,6 +557,10 @@ func Pair(addr string, cfg Config, name string, typed func() (string, error)) er
 	}{out, in}
 	if err := pairing.Pair(rw, name, host, cfg.Identity.PublicKey(), typed); err != nil {
 		return err
+	}
+	if cfg.HostKey != nil {
+		// the node had to have the key given (the one of the transport)
+		return cfg.hostKeyCallback()(addr, client.RemoteAddr(), host)
 	}
 	if cfg.KnownHosts != nil {
 		if err := cfg.KnownHosts.Check(addr, client.RemoteAddr(), host); err != nil {

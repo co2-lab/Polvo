@@ -70,7 +70,8 @@ sessão viva.
 O `Pair` liga-se a um nó que ainda não conhece esta instalação e corre o emparelhamento (`pairing.Pair`)
 com o nome dela, pedindo o código pelo `typed`. Com o código certo, a chave do nó entra na lista de nós
 conhecidos, e daí em diante o `Dial` entra como qualquer chave autorizada. A chave do nó só se grava
-depois do código: é o código que a prova.
+depois do código: é o código que a prova. O `PairConn` faz o mesmo por uma ligação já aberta (a do
+transporte entre redes); com a chave do nó dada (`HostKey`), o nó tem de ter essa, em vez de se gravar.
 
 ## Domain
 
@@ -109,6 +110,9 @@ depois do código: é o código que a prova.
 | `CLNTI-B11` | `addr` |
 
 ## Revisions
+
+> **CLNTI-R0004:** entra o `PairConn` no `CLNTI-B09`, para emparelhar pelo transporte entre redes (plano
+> ESRMS, W04).
 
 > **CLNTI-R0003:** entram o `CLNTI-B10` (o ecrã de uma sessão e escrever nela) e o `CLNTI-B11` (os
 > sockets da máquina do nó), do plano ESRMS, W06.

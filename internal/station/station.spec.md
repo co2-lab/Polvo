@@ -103,6 +103,11 @@ dar à outra máquina); o `Hint` recebe o endereço novo de uma máquina pela ch
 a porta do transporte, ou o endereço que a janela dela copiou), põe-no no histórico, e a ligação seguinte
 tenta-o.
 
+### STATN-B18 — Emparelhar com uma máquina de outra rede
+O `Pair` emparelha também pelo transporte entre redes: com o endereço que a instalação da outra máquina deu,
+ou com o nome dela pela chave quando o histórico a tem. O nó dela tem de ter essa chave, e com o código
+certo ela junta-se pela chave.
+
 ## Domain
 
 | Input | Accepts | Outside the domain | Who guarantees |
@@ -154,9 +159,12 @@ tenta-o.
 | `STATN-B16` | `addr`, `ADDR_EVERY` |
 | `STATN-E04` | `addr`, `MAX_ADDR` |
 | `STATN-B17` | `addr`, `P2P_PREFIX` |
+| `STATN-B18` | `addr`, `P2P_PREFIX` |
 | `STATN-E05` | `addr` |
 
 ## Revisions
+
+> **STATN-R0007:** entra o `STATN-B18` (emparelhar com uma máquina de outra rede), do plano ESRMS, W04.
 
 > **STATN-R0006:** entram o `STATN-B17` e o `STATN-E05` (o endereço novo de uma máquina, à mão), a parte
 > manual do `ESRMS-R0006`.

@@ -447,6 +447,13 @@ impl NodesPanel {
                         .text_color(danger)
                         .child(why.clone()),
                 );
+                if !m.local {
+                    // MQNAS-B14: a machine that does not know this installation yet only pairs
+                    let machine = NetMachine { name: m.name.clone(), addr: m.name.clone(), fingerprint: String::new(), known: true };
+                    body = body.child(Self::button(format!("pair-machine-{}", m.name), "Emparelhar", hover, cx.listener(
+                        move |this, _, window, cx| this.pair(machine.clone(), window, cx),
+                    )));
+                }
                 // MQNAS-B13: the addresses to give it by hand, and where to write its new one
                 if let (Some(input), Some(status)) = (self.hints.get(&m.name), &self.snap.status) {
                     body = body.child(div().text_color(muted).child("Os endereços desta máquina agora:"));

@@ -580,3 +580,21 @@ func TestStation_handAddress(t *testing.T) {
 		}
 	})
 }
+
+func TestStation_pairP2P(t *testing.T) {
+	t.Run("STATN-B18: Emparelhar com uma máquina de outra rede", func(t *testing.T) {
+		first := open(t, t.TempDir(), Options{Listen: "127.0.0.1:0", Shell: sh.Shell})
+		if first.P2PAddr() == "" {
+			t.Skip("built without the transport (make test-p2p runs these)")
+		}
+		other := open(t, t.TempDir(), sh)
+		if err := other.Pair(first.P2PAddr(), codeShownBy(first)); err != nil {
+			t.Fatal(err)
+		}
+		name := P2P_PREFIX + first.mustID(t)
+		names := names(other.Machines())
+		if _, err := nodeOf(t, other, name).Sessions(); err != nil || len(names) != 2 || names[1] != name {
+			t.Fatalf("want the first among the machines by its key, its sessions listed; got %v %v", names, err)
+		}
+	})
+}

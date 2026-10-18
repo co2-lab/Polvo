@@ -316,3 +316,19 @@ scenario!(mqnas_b13_o_endereco_novo_a_mao, "MQNAS-B13: O endereço novo de uma m
     let back = shown(cx, &o, format!("machine-error-{name}")).is_none();
     assert_eq!((lost, copy, back), (true, true, true));
 });
+
+scenario!(mqnas_b14_emparelhar_com_uma_maquina_que_nao_responde, "MQNAS-B14: Emparelhar com uma máquina que não responde", |cx| {
+    let (_d, me) = installation("");
+    let (_od, other) = installation("127.0.0.1:0");
+    let name = me.add_p2p(&other.status().unwrap().p2p).unwrap();
+    let o = open(cx, &me);
+    let lost = shown(cx, &o, format!("machine-error-{name}")).is_some();
+    click(cx, &o, format!("pair-machine-{name}"));
+    let code = code_of(&other);
+    click(cx, &o, "pair-code".into());
+    cx.update_window(o.handle, |_, window, cx| window.input(&code, cx)).unwrap();
+    click(cx, &o, "pair-confirm".into());
+    click(cx, &o, "nodes-refresh".into());
+    let back = shown(cx, &o, format!("machine-error-{name}")).is_none();
+    assert_eq!((lost, back, me.sessions(&name).is_ok()), (true, true, true));
+});

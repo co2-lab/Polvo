@@ -569,10 +569,14 @@ func (s *Station) Discover(d time.Duration) ([]Discovered, error) {
 // (STATN-B11).
 func (s *Station) Pair(addr string, typed func() (string, error)) error {
 	// @no-guard: hub.Pair fails on an address that is not a node's (STATN-E02), and Add guards after it
+	if strings.HasPrefix(addr, "{") || isP2P(addr) {
+		return s.pairP2P(addr, typed)
+	}
 	cfg := hub.Config{Identity: s.id, KnownHosts: s.known}
 	if err := hub.Pair(addr, cfg, s.name, typed); err != nil {
 		return err
 	}
+	s.redial(addr)
 	return s.Add(addr)
 }
 
@@ -971,11 +975,47 @@ func (s *Station) Hint(name, addr string) error {
 		return err
 	}
 	// the next Node dials again, with the new address
+	s.redial(name)
+	return nil
+}
+
+// redial drops the connection kept to a machine: the next Node makes a new one.
+func (s *Station) redial(name string) {
 	s.mu.Lock()
+	defer s.mu.Unlock()
 	if n := s.nodes[name]; n != nil {
 		n.Close()
 		delete(s.nodes, name)
 	}
-	s.mu.Unlock()
-	return nil
+}
+
+// pairP2P pairs with a machine of another network (STATN-B18): by the address its installation gave, or by
+// its name when the history has it; the node has to have the key of the name.
+func (s *Station) pairP2P(addr string, typed func() (string, error)) error {
+	name := addr
+	if strings.HasPrefix(addr, "{") {
+		var err error
+		if name, err = s.remember(addr); err != nil {
+			return err
+		}
+	}
+	if s.p2p == nil {
+		// STATN-E03
+		return fmt.Errorf("station: %s is reached between networks, and this installation has no transport", name)
+	}
+	key, err := keyOf(name)
+	if err != nil {
+		return err
+	}
+	conn, err := s.p2p.Dial(s.addrOf(strings.TrimPrefix(name, P2P_PREFIX)))
+	if err != nil {
+		// STATN-E02
+		return fmt.Errorf("station: %s: %w", name, err)
+	}
+	if err := hub.PairConn(conn, name, hub.Config{Identity: s.id, HostKey: key}, s.name, typed); err != nil {
+		return err
+	}
+	// a connection made before the pairing could only pair
+	s.redial(name)
+	return s.Add(name)
 }

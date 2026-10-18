@@ -70,6 +70,11 @@ Uma máquina de outra rede que deixou de responder mostra, debaixo do motivo, os
 agora (cada um com a rede e o botão de copiar, para os dar à outra), e o campo onde se escreve o endereço
 novo dela; carregar em "Ligar" dá-o à instalação (`RMTEC`) e lê tudo outra vez.
 
+### MQNAS-B14 — Emparelhar com uma máquina que não responde
+Uma máquina juntada que não responde (porque ainda não conhece esta instalação, por exemplo) tem o botão
+"Emparelhar", que emparelha com ela como no `MQNAS-B08`: pelo endereço, ou pela chave quando é de outra
+rede.
+
 ## Domain
 
 | Input | Accepts | Outside the domain | Who guarantees |
@@ -109,12 +114,16 @@ novo dela; carregar em "Ligar" dá-o à instalação (`RMTEC`) e lê tudo outra 
 | `MQNAS-B11` | `Station`, `ACCEPT_LISTEN` |
 | `MQNAS-B12` | `Station`, `addr` |
 | `MQNAS-B13` | `Station`, `addr` |
+| `MQNAS-B14` | `Station`, `addr` |
 | `MQNAS-E03` | `addr` |
 
 ## Revisions
 
 > **MQNAS-R0001:** entram as máquinas da rede e o emparelhamento (`MQNAS-B07` a `MQNAS-B09`, `MQNAS-E03`),
 > do plano ESRMS, W03.
+
+> **MQNAS-R0006:** entra o `MQNAS-B14` (emparelhar com uma máquina que não responde), para emparelhar com
+> uma máquina de outra rede (plano ESRMS, W04).
 
 > **MQNAS-R0005:** entra o `MQNAS-B13` (o endereço novo de uma máquina, à mão), da parte manual do
 > `ESRMS-R0006`.

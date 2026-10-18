@@ -165,6 +165,13 @@ none
 > O nó em Go liga-o por cgo, por uma API C nossa (as bindings Go da comunidade só servem o Linux); o
 > Galaxy ganha o cgo numa caixa do Bavel.
 
+> **ESRMS-R0007:** a W04 fez-se assim: o transporte é o `p2p/` (o iroh) com a API C, o lado Go é o
+> `internal/transport` (a etiqueta `polvo_p2p`), e a estação liga-se às máquinas pela chave; o endereço que
+> muda (`ESRMS-R0006`) ficou na estação (`STATN-B15` a `STATN-B17`), e não num `addresses.spec.md`
+> próprio. Emparelhar pelo P2P é o mesmo emparelhamento por outra ligação (`STATN-B18`); o QR code sai
+> desta fase: não há ainda quem o leia (é para o telemóvel), e as formas de passar um convite, com o QR,
+> são do plano da identidade (`IDNTD`, os convites).
+
 > **ESRMS-R0006:** o dono pediu a 2026-10-18 que as máquinas não se percam quando os IPs mudam: a que
 > mudou e ainda conhece a outra manda-lhe os endereços novos sozinha; e, quando isso não chega, os
 > utilizadores mudam-nos à mão, com a janela a mostrar os endereços novos, sobretudo no aviso de que a

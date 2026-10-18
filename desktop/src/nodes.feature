@@ -103,3 +103,9 @@ Feature: Nodes
     Given esta instalação juntou outra pela chave, e a outra deixou de aceitar
     When a aba mostra que ela não responde, a outra volta a aceitar, e o utilizador escreve um dos endereços dela e carrega em "Ligar"
     Then a aba mostrava os endereços desta máquina para copiar, e depois a outra responde outra vez
+
+  @MQNAS-B14 @unit-level
+  Scenario: Emparelhar com uma máquina que não responde
+    Given esta instalação juntou pela chave uma de outra rede que ainda não a conhece
+    When o utilizador carrega em "Emparelhar" nessa máquina e escreve o código que ela mostra
+    Then a máquina passa a responder

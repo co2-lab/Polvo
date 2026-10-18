@@ -139,3 +139,9 @@ Feature: Station
     Given uma máquina pela chave
     When o utilizador dá "não é ip", ou dá um endereço a esta máquina
     Then são erros
+
+  @STATN-B18 @unit-level
+  Scenario: Emparelhar com uma máquina de outra rede
+    Given uma instalação com o transporte, a aceitar as outras, e outra que ela não conhece
+    When a outra emparelha pelo endereço entre redes dela, com o código que ela mostra
+    Then a primeira junta-se à outra pela chave, e as sessões dela vêm
