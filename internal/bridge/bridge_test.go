@@ -382,6 +382,15 @@ func TestBridge_p2p(t *testing.T) {
 		call(t, h2, string(req), &added)
 		var l list
 		call(t, h2, `{"op":"sessions","machine":"`+added.Name+`"}`, &l)
+		var mine struct {
+			Addrs []struct {
+				Addr string `json:"addr"`
+			} `json:"addrs"`
+		}
+		call(t, h1, `{"op":"status"}`, &mine)
+		hint, _ := json.Marshal(map[string]string{"op": "p2p_hint", "name": added.Name, "addr": mine.Addrs[0].Addr})
+		call(t, h2, string(hint), nil)
+		call(t, h2, `{"op":"sessions","machine":"`+added.Name+`"}`, &l)
 		if !strings.HasPrefix(added.Name, "p2p:") {
 			t.Fatalf("want a p2p name, got %q", added.Name)
 		}

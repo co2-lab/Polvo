@@ -91,6 +91,8 @@ pub struct NodesPanel {
     _pairing_task: Option<Task<()>>,
     /// Where the node listens when the user accepts the others (MQNAS-B11).
     accept_at: String,
+    /// Where the user writes the new address of each machine that stopped answering (MQNAS-B13).
+    hints: std::collections::HashMap<String, Entity<InputState>>,
 }
 
 impl NodesPanel {
@@ -113,6 +115,7 @@ impl NodesPanel {
             _polling: None,
             _pairing_task: None,
             accept_at: ACCEPT_LISTEN.to_string(),
+            hints: Default::default(),
         };
         this.refresh(cx);
         this.poll_pairings(cx);
@@ -311,6 +314,19 @@ impl NodesPanel {
         self.accept_at = addr.to_string();
     }
 
+    /// MQNAS-B13: the new address of a machine, given by hand.
+    fn hint(&mut self, machine: String, cx: &mut Context<Self>) {
+        let Some(input) = self.hints.get(&machine) else { return };
+        let addr = input.read(cx).value().trim().to_string();
+        if addr.is_empty() {
+            return;
+        }
+        self.run(cx, move |st| st.hint(&machine, &addr), |this, done, _| match done {
+            Ok(()) => this.join_message = None,
+            Err(e) => this.tell(e.0),
+        });
+    }
+
     /// Shows the user why something they did failed.
     fn tell(&mut self, message: String) {
         self.join_message = Some(message);
@@ -430,7 +446,43 @@ impl NodesPanel {
                         .test_support()
                         .text_color(danger)
                         .child(why.clone()),
-                )
+                );
+                // MQNAS-B13: the addresses to give it by hand, and where to write its new one
+                if let (Some(input), Some(status)) = (self.hints.get(&m.name), &self.snap.status) {
+                    body = body.child(div().text_color(muted).child("Os endereços desta máquina agora:"));
+                    for r in &status.addrs {
+                        let (addr, label) = (r.addr.clone(), format!("{}: {}", if r.network.is_empty() { "rede" } else { &r.network }, r.addr));
+                        body = body.child(
+                            div()
+                                .flex()
+                                .items_center()
+                                .gap(px(8.))
+                                .child(div().flex_1().font_family("monospace").text_color(muted).child(label))
+                                .child(Self::button(format!("copy-addr-{addr}"), "Copiar", hover, move |_, _, cx| {
+                                    cx.write_to_clipboard(ClipboardItem::new_string(addr.clone()));
+                                })),
+                        );
+                    }
+                    let name = m.name.clone();
+                    let field = input.clone();
+                    body = body.child(
+                        div()
+                            .flex()
+                            .items_center()
+                            .gap(px(8.))
+                            .child(
+                                div()
+                                    .id(SharedString::from(format!("hint-addr-{}", m.name)))
+                                    .test_support()
+                                    .flex_1()
+                                    .on_click(move |_, window, cx| field.update(cx, |s, cx| s.focus(window, cx)))
+                                    .child(Input::new(input)),
+                            )
+                            .child(Self::button(format!("hint-{}", m.name), "Ligar", hover, cx.listener(move |this, _, _, cx| {
+                                this.hint(name.clone(), cx)
+                            }))),
+                    );
+                }
             }
             Ok(list) if list.is_empty() => body = body.child(div().text_color(muted).child("Sem sessões.")),
             Ok(list) => {
@@ -601,7 +653,15 @@ impl Panel for NodesPanel {
 }
 
 impl Render for NodesPanel {
-    fn render(&mut self, _: &mut Window, cx: &mut Context<Self>) -> impl IntoElement {
+    fn render(&mut self, window: &mut Window, cx: &mut Context<Self>) -> impl IntoElement {
+        // MQNAS-B13: a field for each machine by its key that stopped answering
+        let lost: Vec<String> =
+            self.snap.machines.iter().filter(|m| m.sessions.is_err() && m.name.starts_with("p2p:")).map(|m| m.name.clone()).collect();
+        for name in lost {
+            self.hints
+                .entry(name)
+                .or_insert_with(|| cx.new(|cx| InputState::new(window, cx).placeholder("o endereço novo dela: IP, ou IP:porta")));
+        }
         let machines: Vec<_> = self.snap.machines.clone().iter().map(|m| self.machine(m, cx).into_any_element()).collect();
         let theme = cx.theme();
         let (bg, fg, danger, hover) = (theme.background, theme.foreground, theme.danger, theme.list_hover);

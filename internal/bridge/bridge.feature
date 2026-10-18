@@ -83,5 +83,5 @@ Feature: Bridge
   @BRDGE-B02#02 @unit-level
   Scenario: Juntar uma máquina de outra rede
     Given duas estações com o transporte, a primeira a aceitar as outras e a autorizar a segunda
-    When a segunda pede "add_p2p" com o "p2p" do "status" da primeira, e depois as sessões dela
-    Then o nome começa por "p2p:", e as sessões vêm
+    When a segunda pede "add_p2p" com o "p2p" do "status" da primeira, as sessões dela, e dá-lhe à mão um dos "addrs" da primeira
+    Then o nome começa por "p2p:", e as sessões vêm antes e depois

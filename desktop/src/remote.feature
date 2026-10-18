@@ -67,3 +67,9 @@ Feature: Remote
     Given duas instalações abertas com o transporte, a primeira a aceitar e a autorizar a segunda
     When a segunda junta a primeira pelo "p2p" do estado dela
     Then o nome começa por "p2p:", e as sessões da primeira vêm
+
+  @RMTEC-B10 @unit-level
+  Scenario: O endereço novo de uma máquina, à mão
+    Given a segunda instalação juntou a primeira pela chave
+    When se dá à segunda um dos endereços que a primeira diz, e um que não é IP
+    Then o primeiro é aceite e as sessões vêm, e o segundo é um erro

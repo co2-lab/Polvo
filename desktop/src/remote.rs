@@ -96,6 +96,15 @@ pub struct Status {
     pub p2p: String,
     /// Why the transport did not open.
     pub p2p_error: Option<String>,
+    /// Where this installation is reached now, an address a network (RMTEC-B10).
+    pub addrs: Vec<Reach>,
+}
+
+/// An address of this installation, and the network it is on (RMTEC-B10).
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct Reach {
+    pub addr: String,
+    pub network: String,
 }
 
 fn c(s: &str) -> CString {
@@ -279,6 +288,7 @@ impl Station {
             key: v["key"].as_str().unwrap_or_default().to_string(),
             p2p: v["p2p"].as_str().unwrap_or_default().to_string(),
             p2p_error: v["p2p_error"].as_str().map(str::to_string),
+            addrs: items(&v["addrs"]).map(|a| Reach { addr: text(a, "addr"), network: text(a, "network") }).collect(),
         })
     }
 
@@ -302,6 +312,12 @@ impl Station {
     /// Connects to the machine at `addr` and keeps it (RMTEC-B04).
     pub fn add(&self, addr: &str) -> Result<(), RemoteError> {
         self.call(json!({ "op": "add", "addr": addr })).map(|_| ())
+    }
+
+    /// The new address of a machine reached by its key, given by hand: an IP, with the port or not, or the
+    /// address its window copied (RMTEC-B10).
+    pub fn hint(&self, machine: &str, addr: &str) -> Result<(), RemoteError> {
+        self.call(json!({ "op": "p2p_hint", "name": machine, "addr": addr })).map(|_| ())
     }
 
     /// Joins a machine of another network by the address its installation gave, and gives its name

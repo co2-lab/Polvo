@@ -70,6 +70,10 @@ O `open_with` abre a instalação com o relay e a porta UDP (`P2P_PORT`) do tran
 `add_p2p` junta uma máquina pelo endereço que a instalação dela deu, e dá o nome dela. O executável leva a
 API C do transporte (`p2p/`), que a biblioteca chama.
 
+### RMTEC-B10 — O endereço novo de uma máquina, à mão
+O `status` diz os endereços desta instalação agora (`addrs`, cada um um `Reach` com a rede), e o `hint` dá
+à instalação o endereço novo de uma máquina pela chave.
+
 ## Domain
 
 | Input | Accepts | Outside the domain | Who guarantees |
@@ -103,8 +107,11 @@ API C do transporte (`p2p/`), que a biblioteca chama.
 | `RMTEC-B07` | `machine` |
 | `RMTEC-B08` | `listen` |
 | `RMTEC-B09` | `listen`, `P2P_PORT` |
+| `RMTEC-B10` | `machine` |
 
 ## Revisions
+
+> **RMTEC-R0007:** entra o `RMTEC-B10` (o endereço novo de uma máquina, à mão).
 
 > **RMTEC-R0006:** entra o `RMTEC-B09` (as máquinas de outras redes), do plano ESRMS, W04.
 

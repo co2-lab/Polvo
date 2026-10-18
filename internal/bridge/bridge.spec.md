@@ -17,11 +17,13 @@ estação e os terminais dela.
 O `Call` recebe `{"op": …}` e devolve o resultado em JSON:
 - `status`: onde o nó desta máquina escuta (`listen`) e, se não escuta, porquê (`listen_error`), a
   chave desta instalação como a linha que as outras máquinas juntam ao `authorized_keys` (`key`), e onde
-  ela se alcança entre redes (`p2p`; e `p2p_error`, quando o transporte não abriu);
+  ela se alcança entre redes (`p2p`; e `p2p_error`, quando o transporte não abriu), e os endereços dela
+  agora, cada um com a rede (`addrs`: `addr` e `network`);
 - `listen` (`addr`): o nó desta máquina passa a escutar as outras nesse endereço, ou deixa de escutar com
   ele vazio, e a instalação lembra-o;
 - `machines`: as máquinas (`name`, `local`);
 - `add` (`addr`) e `remove` (`name`): juntar e esquecer uma máquina;
+- `p2p_hint` (`name`, `addr`): o endereço novo de uma máquina pela chave, dado à mão;
 - `add_p2p` (`addr`): juntar uma máquina de outra rede pelo endereço que a instalação dela deu, e dá o
   nome dela (`name`);
 - `sessions` (`machine`): as sessões dela, como o `hub.Session`;
@@ -99,6 +101,9 @@ ficheiro que não é texto em UTF-8 dá o erro.
 | `BRDGE-B06` | `Handle`, `request` |
 
 ## Revisions
+
+> **BRDGE-R0006:** o `status` diz os endereços desta máquina, e entra o `p2p_hint` (o endereço novo de uma
+> máquina, à mão), da parte manual do `ESRMS-R0006`.
 
 > **BRDGE-R0005:** o `Open` recebe o relay e a porta do transporte, o `status` diz o endereço entre redes, e
 > entra o `add_p2p`, do plano ESRMS, W04.

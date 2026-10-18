@@ -15,6 +15,7 @@ import (
 	"net"
 	"os"
 	"path/filepath"
+	"strconv"
 	"strings"
 	"sync"
 	"time"
@@ -908,4 +909,73 @@ func (s *Station) receiveAddr(c *transport.Conn) {
 		return
 	}
 	s.remember(string(b))
+}
+
+// Reach is an address of this installation, with the network it is on (STATN-B17).
+type Reach struct {
+	Addr    string `json:"addr"`
+	Network string `json:"network"`
+}
+
+// Addrs is where this installation is reached now, an address a network, for the user to give another
+// machine by hand (STATN-B17); none without the transport.
+func (s *Station) Addrs() []Reach {
+	ips := strings.Fields(direct(s.P2PAddr()))
+	names := map[string]string{}
+	if ifaces, err := net.Interfaces(); err == nil {
+		for _, i := range ifaces {
+			addrs, _ := i.Addrs()
+			for _, a := range addrs {
+				if n, ok := a.(*net.IPNet); ok {
+					names[n.IP.String()] = i.Name
+				}
+			}
+		}
+	}
+	out := []Reach{}
+	for _, ip := range ips {
+		host, _, _ := net.SplitHostPort(ip)
+		out = append(out, Reach{Addr: ip, Network: names[host]})
+	}
+	return out
+}
+
+// Hint is where the user says a machine reached by its key is now (STATN-B17): an IP, with the port or
+// with transport.DEFAULT_PORT, or the address its window copied; the next connection tries it.
+func (s *Station) Hint(name, addr string) error {
+	if !isP2P(name) {
+		return fmt.Errorf("station: %s is not reached by its key", name)
+	}
+	// @no-guard: the address is checked below, as an IP or as the address of this machine (STATN-E05)
+	id := strings.TrimPrefix(name, P2P_PREFIX)
+	addr = strings.TrimSpace(addr)
+	if !strings.HasPrefix(addr, "{") {
+		if _, _, err := net.SplitHostPort(addr); err != nil {
+			addr = net.JoinHostPort(addr, strconv.Itoa(transport.DEFAULT_PORT))
+		}
+		host, _, _ := net.SplitHostPort(addr)
+		if net.ParseIP(host) == nil {
+			// STATN-E05
+			return fmt.Errorf("station: %q is not an IP address", addr)
+		}
+		ip, _ := json.Marshal(path{IP: addr})
+		b, _ := json.Marshal(endpoint{ID: id, Addrs: []json.RawMessage{ip}})
+		addr = string(b)
+	}
+	var e endpoint
+	if json.Unmarshal([]byte(addr), &e) != nil || e.ID != id {
+		// STATN-E05
+		return fmt.Errorf("station: the address is not of %s", name)
+	}
+	if _, err := s.remember(addr); err != nil {
+		return err
+	}
+	// the next Node dials again, with the new address
+	s.mu.Lock()
+	if n := s.nodes[name]; n != nil {
+		n.Close()
+		delete(s.nodes, name)
+	}
+	s.mu.Unlock()
+	return nil
 }

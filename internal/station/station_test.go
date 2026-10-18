@@ -547,3 +547,36 @@ func TestStation_newAddress(t *testing.T) {
 		}
 	})
 }
+
+func TestStation_handAddress(t *testing.T) {
+	t.Run("STATN-B17: O endereço novo de uma máquina, à mão", func(t *testing.T) {
+		first, _, second, secondDir := p2pPair(t)
+		name, err := second.AddP2P(first.P2PAddr())
+		if err != nil {
+			t.Fatal(err)
+		}
+		id := strings.TrimPrefix(name, P2P_PREFIX)
+		os.WriteFile(filepath.Join(secondDir, "addresses.json"), []byte(`{"`+id+`":{"addrs":[]}}`), 0o600)
+		mine := first.Addrs()
+		named := false
+		for _, r := range mine {
+			named = named || r.Network != ""
+		}
+		if len(mine) == 0 {
+			t.Fatal("want the first's addresses")
+		}
+		if err := second.Hint(name, mine[0].Addr); err != nil {
+			t.Fatal(err)
+		}
+		if _, err := nodeOf(t, second, name).Sessions(); err != nil || !named {
+			t.Fatalf("want the sessions by the address given by hand, and the networks named, got %v and %v", err, mine)
+		}
+	})
+	t.Run("STATN-E05: Um endereço à mão que não serve", func(t *testing.T) {
+		s := open(t, t.TempDir(), sh)
+		name := P2P_PREFIX + strings.Repeat("ab", 32)
+		if s.Hint(name, "não é ip") == nil || s.Hint(LOCAL, "127.0.0.1") == nil {
+			t.Fatal("want both refused")
+		}
+	})
+}

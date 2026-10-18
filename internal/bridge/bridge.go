@@ -152,7 +152,8 @@ func Call(h Handle, req []byte) ([]byte, error) {
 func answer(s *station.Station, r request) (any, error) {
 	switch r.Op {
 	case "status":
-		out := map[string]string{"listen": s.ListenAddr(), "key": sshx.AuthorizedLine(s.PublicKey(), "polvo"), "p2p": s.P2PAddr()}
+		out := map[string]any{"listen": s.ListenAddr(), "key": sshx.AuthorizedLine(s.PublicKey(), "polvo"), "p2p": s.P2PAddr(),
+			"addrs": s.Addrs()}
 		if err := s.ListenError(); err != nil {
 			out["listen_error"] = err.Error()
 		}
@@ -160,6 +161,9 @@ func answer(s *station.Station, r request) (any, error) {
 			out["p2p_error"] = err.Error()
 		}
 		return out, nil
+	case "p2p_hint":
+		// BRDGE-B02: the new address of a machine, given by hand
+		return struct{}{}, s.Hint(r.Name, r.Addr)
 	case "machines":
 		type m struct {
 			Name  string `json:"name"`

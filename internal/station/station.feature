@@ -127,3 +127,15 @@ Feature: Station
     Given uma instalação que outra nunca viu
     When ela lhe manda o seu endereço
     Then a outra não o guarda
+
+  @STATN-B17 @unit-level
+  Scenario: O endereço novo de uma máquina, à mão
+    Given a segunda instalação juntou a primeira pela chave, e o histórico da segunda perdeu os endereços dela
+    When o utilizador dá à segunda um dos endereços que a primeira diz ter agora
+    Then a segunda volta a ligar-se à primeira, e cada endereço da primeira diz a rede dele
+
+  @STATN-E05 @unit-level
+  Scenario: Um endereço à mão que não serve
+    Given uma máquina pela chave
+    When o utilizador dá "não é ip", ou dá um endereço a esta máquina
+    Then são erros

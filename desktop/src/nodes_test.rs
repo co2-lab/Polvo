@@ -290,3 +290,29 @@ scenario!(mqnas_b12_as_maquinas_de_outras_redes, "MQNAS-B12: As máquinas de out
     assert_eq!(reach.as_deref(), Some("Alcança-se de outras redes"));
     assert!(names.len() == 2 && names[1].starts_with("p2p:"), "want the other joined by its key, got {names:?}");
 });
+
+scenario!(mqnas_b13_o_endereco_novo_a_mao, "MQNAS-B13: O endereço novo de uma máquina, à mão", |cx| {
+    let (_d, me) = installation("");
+    let (_od, other, _addr) = other_for(&me);
+    let name = me.add_p2p(&other.status().unwrap().p2p).unwrap();
+    other.set_listen("").unwrap();
+    let o = open(cx, &me);
+    let lost = shown(cx, &o, format!("machine-error-{name}")).is_some();
+    let mine = me.status().unwrap().addrs;
+    // the endpoint gathers its addresses just after it opens: the tab shows them on a later read
+    let mut copy = false;
+    for _ in 0..20 {
+        copy = shown(cx, &o, format!("copy-addr-{}", mine[0].addr)).is_some();
+        if copy {
+            break;
+        }
+        click(cx, &o, "nodes-refresh".into());
+    }
+    other.set_listen("127.0.0.1:0").unwrap();
+    let theirs = other.status().unwrap().addrs[0].addr.clone();
+    click(cx, &o, format!("hint-addr-{name}"));
+    cx.update_window(o.handle, |_, window, cx| window.input(&theirs, cx)).unwrap();
+    click(cx, &o, format!("hint-{name}"));
+    let back = shown(cx, &o, format!("machine-error-{name}")).is_none();
+    assert_eq!((lost, copy, back), (true, true, true));
+});

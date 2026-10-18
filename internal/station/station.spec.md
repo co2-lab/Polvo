@@ -96,6 +96,13 @@ histórico. A cada `ADDR_EVERY`, cada instalação vê os seus endereços direto
 endereço novo a todas as do histórico (uma ligação do transporte que só o leva), porque a que mudou ainda
 sabe o endereço das outras. Quem o recebe guarda-o no histórico, aceite ou não as outras máquinas.
 
+### STATN-B17 — O endereço novo de uma máquina, à mão
+Quando nada do resto chega (as duas máquinas mudaram, e não há relay), o utilizador passa os endereços à
+mão. O `Addrs` dá onde esta instalação se alcança agora, um endereço por rede (`Reach`), com o nome da rede (para os
+dar à outra máquina); o `Hint` recebe o endereço novo de uma máquina pela chave (um IP, com a porta ou com
+a porta do transporte, ou o endereço que a janela dela copiou), põe-no no histórico, e a ligação seguinte
+tenta-o.
+
 ## Domain
 
 | Input | Accepts | Outside the domain | Who guarantees |
@@ -110,6 +117,7 @@ sabe o endereço das outras. Quem o recebe guarda-o no histórico, aceite ou nã
 | `STATN-E01` | o endereço para escutar não se abre (ocupado, sem permissão) | a `Station` abre sem escutar, a máquina desta janela funciona, e o `ListenError` diz porquê |
 | `STATN-E02` | a máquina não responde, ou recusa a chave desta instalação | o `Add` e o `Node` devolvem o erro com o endereço; o `Add` não a junta |
 | `STATN-E04` | o endereço que chega não é de quem o mandou, ou vem de uma instalação que esta não conhece, ou passa de `MAX_ADDR` | é ignorado, e o histórico fica como estava |
+| `STATN-E05` | o endereço do `Hint` não é um IP nem um endereço dessa máquina, ou a máquina não é pela chave | o `Hint` devolve o erro, e o histórico fica como estava |
 | `STATN-E03` | o transporte não abre, ou o executável não o tem, e uma máquina é pela chave | o `P2PError` diz porquê; ligar-se a essa máquina dá o erro, e o resto funciona |
 
 ## Business Constants
@@ -145,8 +153,13 @@ sabe o endereço das outras. Quem o recebe guarda-o no histórico, aceite ou nã
 | `STATN-E03` | `Options`, `addr` |
 | `STATN-B16` | `addr`, `ADDR_EVERY` |
 | `STATN-E04` | `addr`, `MAX_ADDR` |
+| `STATN-B17` | `addr`, `P2P_PREFIX` |
+| `STATN-E05` | `addr` |
 
 ## Revisions
+
+> **STATN-R0006:** entram o `STATN-B17` e o `STATN-E05` (o endereço novo de uma máquina, à mão), a parte
+> manual do `ESRMS-R0006`.
 
 > **STATN-R0005:** entram o `STATN-B16` e o `STATN-E04` (o endereço novo chega a quem conhece esta máquina),
 > a parte automática do `ESRMS-R0006`, pedida pelo dono. O plano dizia que nasceria um

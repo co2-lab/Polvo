@@ -145,3 +145,15 @@ scenario!(rmtec_b09_as_maquinas_de_outras_redes, "RMTEC-B09: As máquinas de out
     let sessions = second.sessions(&name);
     assert!(name.starts_with("p2p:") && sessions.is_ok(), "{name} {sessions:?}");
 });
+
+scenario!(rmtec_b10_o_endereco_novo_a_mao, "RMTEC-B10: O endereço novo de uma máquina, à mão", {
+    let (d1, d2) = (tempfile::tempdir().unwrap(), tempfile::tempdir().unwrap());
+    let first = Station::open_with(d1.path(), "127.0.0.1:0", "/bin/sh", "", 0).unwrap();
+    let second = Station::open_with(d2.path(), "", "/bin/sh", "", 0).unwrap();
+    std::fs::write(d1.path().join("authorized_keys"), second.status().unwrap().key + "\n").unwrap();
+    let name = second.add_p2p(&first.status().unwrap().p2p).unwrap();
+    let addrs = first.status().unwrap().addrs;
+    let given = second.hint(&name, &addrs[0].addr);
+    let bad = second.hint(&name, "não é ip");
+    assert!(given.is_ok() && second.sessions(&name).is_ok() && bad.is_err(), "{given:?} {bad:?}");
+});

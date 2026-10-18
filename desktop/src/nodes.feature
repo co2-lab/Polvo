@@ -97,3 +97,9 @@ Feature: Nodes
     Given duas instalações com o transporte, a outra a aceitar e a autorizar esta
     When o utilizador escreve no campo de juntar o endereço entre redes da outra e carrega em juntar
     Then a aba diz que esta máquina se alcança de outras redes, e a outra junta-se com o nome "p2p:" e a chave
+
+  @MQNAS-B13 @unit-level
+  Scenario: O endereço novo de uma máquina, à mão
+    Given esta instalação juntou outra pela chave, e a outra deixou de aceitar
+    When a aba mostra que ela não responde, a outra volta a aceitar, e o utilizador escreve um dos endereços dela e carrega em "Ligar"
+    Then a aba mostrava os endereços desta máquina para copiar, e depois a outra responde outra vez

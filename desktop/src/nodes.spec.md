@@ -65,6 +65,11 @@ A aba diz se esta máquina se alcança de outras redes (ou porque não), com o b
 entre redes. Escrever no campo de juntar o endereço que a janela de outra máquina copiou junta-a pela
 chave, como no `MQNAS-B06`.
 
+### MQNAS-B13 — O endereço novo de uma máquina, à mão
+Uma máquina de outra rede que deixou de responder mostra, debaixo do motivo, os endereços desta máquina
+agora (cada um com a rede e o botão de copiar, para os dar à outra), e o campo onde se escreve o endereço
+novo dela; carregar em "Ligar" dá-o à instalação (`RMTEC`) e lê tudo outra vez.
+
 ## Domain
 
 | Input | Accepts | Outside the domain | Who guarantees |
@@ -103,12 +108,16 @@ chave, como no `MQNAS-B06`.
 | `MQNAS-B10` | `Station` |
 | `MQNAS-B11` | `Station`, `ACCEPT_LISTEN` |
 | `MQNAS-B12` | `Station`, `addr` |
+| `MQNAS-B13` | `Station`, `addr` |
 | `MQNAS-E03` | `addr` |
 
 ## Revisions
 
 > **MQNAS-R0001:** entram as máquinas da rede e o emparelhamento (`MQNAS-B07` a `MQNAS-B09`, `MQNAS-E03`),
 > do plano ESRMS, W03.
+
+> **MQNAS-R0005:** entra o `MQNAS-B13` (o endereço novo de uma máquina, à mão), da parte manual do
+> `ESRMS-R0006`.
 
 > **MQNAS-R0004:** entra o `MQNAS-B12` (as máquinas de outras redes), do plano ESRMS, W04.
 
