@@ -12,17 +12,18 @@ use std::time::Instant;
 
 use futures::StreamExt;
 use gpui_kit::base::TestSupportExt as _;
-use gpui_kit::component::dock::{BasePanel, Panel, PanelEvent};
+use gpui_kit::component::dock::{BasePanel, Panel, PanelEvent, PanelInfo, PanelState};
 use gpui_kit::{
     App, AppContext as _, Bounds, ClipboardItem, Context, Entity, EventEmitter, Focusable, Font, FocusHandle, FontWeight,
     Hsla, IntoElement, KeyDownEvent, MouseButton, MouseDownEvent, MouseMoveEvent, MouseUpEvent, ParentElement as _,
-    Pixels, Point, Render, Rgba, ScrollDelta, ScrollWheelEvent, SharedString, Styled as _, Task, Window, canvas, div,
+    Pixels, Point, Render, Rgba, Role, ScrollDelta, ScrollWheelEvent, SharedString, Styled as _, Task, Window, canvas, div,
     prelude::*, px,
 };
 
 use crate::keymap::{Action, Keymap}; // @dep: KYIMA
 use crate::keys::{Modifiers, translate}; // @dep: KYIMK
 use crate::prefs::Prefs; // @dep: PRIMP
+use crate::remote::{RemoteError, Station}; // @dep: RMIMP
 use crate::screen::{Event, Events, Frame, Rgb, Screen, Size}; // @dep: SCIMS
 
 /// The margin around the terminal (TRPNT-B04).
@@ -40,6 +41,17 @@ pub enum TerminalEvent {
 }
 
 /// A terminal in the dock.
+/// A session a panel shows (TRPNT-B10): the installation, the machine and the id, whether the window
+/// made it for this panel, and whether the window may type in it (TRPNT-B11).
+#[derive(Clone)]
+pub struct SessionTab {
+    pub station: Station,
+    pub machine: String,
+    pub id: String,
+    pub owned: bool,
+    pub writable: bool,
+}
+
 pub struct TerminalPanel {
     screen: Screen,
     shell: String,
@@ -53,7 +65,23 @@ pub struct TerminalPanel {
     born: Instant,
     selecting: bool,
     scroll_acc: f32,
+    /// The session the panel shows, when it is not a pty of the window (TRPNT-B10).
+    session: Option<SessionTab>,
     _listening: Option<Task<()>>,
+}
+
+impl Drop for TerminalPanel {
+    /// TRPNT-B10: the session the window made for this panel ends with it; another one goes on.
+    fn drop(&mut self) {
+        if let Some(tab) = self.session.take().filter(|t| t.owned) {
+            // away from the window's thread: another machine may answer late
+            std::thread::spawn(move || {
+                if let Err(e) = tab.station.close_session(&tab.machine, &tab.id) {
+                    eprintln!("polvo: the session {} of {} did not end: {e}", tab.id, tab.machine);
+                }
+            });
+        }
+    }
 }
 
 impl TerminalPanel {
@@ -109,6 +137,7 @@ impl TerminalPanel {
             born: Instant::now(),
             selecting: false,
             scroll_acc: 0.,
+            session: None,
             _listening: listening,
         }
     }
@@ -129,6 +158,34 @@ impl TerminalPanel {
             Err(e) => return Err(e),
         };
         Ok(cx.new(|cx| TerminalPanel::new(screen, Some(events), shell, prefs, window, cx)))
+    }
+
+    /// The panel of a session of a machine (TRPNT-B10).
+    pub fn session(tab: SessionTab, prefs: &Prefs, window: &mut Window, cx: &mut App) -> Result<Entity<TerminalPanel>, RemoteError> {
+        let size = Size { rows: 24, cols: 80, cell_w: 9, cell_h: 20 };
+        let term = tab.station.attach(&tab.machine, &tab.id)?;
+        let (screen, events) = Screen::attach(term, size).map_err(RemoteError)?;
+        Ok(cx.new(|cx| TerminalPanel::with_session(screen, Some(events), tab, prefs, window, cx)))
+    }
+
+    /// The panel of `screen`, the terminal of the session of `tab` (TRPNT-B10).
+    pub fn with_session(
+        screen: Screen,
+        events: Option<Events>,
+        tab: SessionTab,
+        prefs: &Prefs,
+        window: &mut Window,
+        cx: &mut Context<Self>,
+    ) -> Self {
+        let label = format!("{}@{}", tab.id, tab.machine);
+        let mut panel = TerminalPanel::new(screen, events, &label, prefs, window, cx);
+        panel.session = Some(tab);
+        panel
+    }
+
+    /// Whether the window may not type in the session the panel shows (TRPNT-B11).
+    fn read_only(&self) -> bool {
+        self.session.as_ref().is_some_and(|t| !t.writable)
     }
 
     /// A panel with no shell that shows why `shell` did not start (TRPNT-B09).
@@ -193,6 +250,8 @@ impl TerminalPanel {
                     cx.write_to_clipboard(ClipboardItem::new_string(text));
                 }
             }
+            // TRPNT-B11: who only watches does not paste
+            Some(Action::Paste) if self.read_only() => {}
             Some(Action::Paste) => {
                 if let Some(text) = cx.read_from_clipboard().and_then(|i| i.text()) {
                     self.screen.paste(&text);
@@ -201,6 +260,8 @@ impl TerminalPanel {
             // TRPNT-B01: the window's actions go on to the window
             Some(Action::NewTab | Action::CloseTab | Action::Settings) => return,
             // TRPNT-B01: saving is the editor's; here the keys are the shell's
+            // TRPNT-B11: nor type
+            Some(Action::Save) | None if self.read_only() => {}
             Some(Action::Save) | None => {
                 let mods = Modifiers { control: m.control, alt: m.alt, shift: m.shift };
                 self.screen.key(&translate(&ks.key, ks.key_char.as_deref(), mods));
@@ -247,7 +308,9 @@ impl TerminalPanel {
     fn middle_down(&mut self, _: &MouseDownEvent, window: &mut Window, cx: &mut Context<Self>) {
         window.focus(&self.focus, cx);
         #[cfg(any(target_os = "linux", target_os = "freebsd"))]
-        if let Some(text) = cx.read_from_primary().and_then(|i| i.text()) {
+        if !self.read_only()
+            && let Some(text) = cx.read_from_primary().and_then(|i| i.text())
+        {
             self.screen.paste(&text);
         }
         cx.notify();
@@ -303,8 +366,20 @@ impl Focusable for TerminalPanel {
 }
 
 impl BasePanel for TerminalPanel {
+    /// A session the panel joined comes back as itself; the others, as a new terminal (TRPNT-B10).
     fn panel_name(&self) -> &'static str {
-        "terminal"
+        match &self.session {
+            Some(tab) if !tab.owned => "session",
+            _ => "terminal",
+        }
+    }
+
+    fn dump(&self, _: &App) -> PanelState {
+        let mut state = PanelState::new(self.panel_name());
+        if let Some(tab) = self.session.as_ref().filter(|t| !t.owned) {
+            state.info = PanelInfo::panel(serde_json::json!({ "machine": tab.machine, "id": tab.id }));
+        }
+        state
     }
 }
 
@@ -340,6 +415,22 @@ impl Render for TerminalPanel {
             .on_scroll_wheel(cx.listener(Self::wheel))
             .child(canvas(move |bounds, _, _| area.set(bounds), |_, _, _, _| {}).absolute().top_0().left_0().size_full())
             .children(self.lines(&frame))
+            // TRPNT-B11
+            .children(self.read_only().then(|| {
+                div()
+                    .id("read-only")
+                    .role(Role::Status)
+                    .aria_label("Só ver")
+                    .test_support()
+                    .absolute()
+                    .top(px(4.))
+                    .right(px(8.))
+                    .px(px(8.))
+                    .py(px(2.))
+                    .rounded(px(4.))
+                    .bg(gpui_kit::hsla(0., 0., 0.5, 0.35))
+                    .child("Só ver")
+            }))
     }
 }
 

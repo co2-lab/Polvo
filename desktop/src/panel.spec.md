@@ -56,6 +56,16 @@ O `failed` faz um painel sem shell que mostra no ecrã o motivo de a shell não 
 usa-o quando um terminal restaurado não arranca, e a aba fica com o motivo à vista até o utilizador a
 fechar.
 
+### TRPNT-B10 — O terminal de uma sessão
+O `session` faz o painel de uma sessão de uma máquina (`SessionTab`): o ecrã é o dela, e o que se escreve
+vai para ela. Quando a janela fez a sessão para esta aba (a dona), fechar a aba termina-a, como a shell
+de um terminal local. Quando a aba se ligou a uma sessão que já existia, fechar a aba só a larga, e a
+organização da doca guarda a máquina e a sessão, para a aba voltar ligada a ela.
+
+### TRPNT-B11 — Só ver
+O painel de uma sessão onde a janela não pode escrever mostra "Só ver", e as teclas e o colar não vão
+para a sessão; copiar e os atalhos da janela continuam.
+
 ## Domain
 
 | Input | Accepts | Outside the domain | Who guarantees |
@@ -63,6 +73,7 @@ fechar.
 | `Prefs` | as preferências do `prefs::read` | — | o `Prefs`: nunca falta nenhum valor (os de omissão) |
 | `key` | qualquer tecla que o painel recebe | — | o `Keys`: uma tecla desconhecida passa o carácter |
 | `ClipboardItem` | o texto da área de transferência ou da seleção primária | vazia, ou sem texto | esta unidade: colar não manda nada |
+| `SessionTab` | uma sessão viva de uma máquina juntada, e se a janela é dona dela e pode escrever | uma que acabou ou não existe | o `Station`: o erro dele volta a quem pediu o painel |
 
 ## Errors / Failures
 | Rule | Condition | Failure |
@@ -90,6 +101,8 @@ fechar.
 | `TRPNT-B08` | `key` |
 | `TRPNT-B09` | `Prefs` |
 | `TRPNT-E01` | `SHELL_FALLBACK` |
+| `TRPNT-B10` | `SessionTab` |
+| `TRPNT-B11` | `SessionTab`, `key` |
 
 ## Revisions
 
@@ -101,6 +114,9 @@ fechar.
 > utilizador muda; os atalhos das ações da janela deixam de ir para a shell.
 
 > **TRPNT-R0003:** o atalho de gravar do mapa (o Ctrl+S, do editor) vai para a shell (plano CEACN, W03).
+
+> **TRPNT-R0004:** entram o `TRPNT-B10` (o terminal de uma sessão, dona ou não) e o `TRPNT-B11` (só ver),
+> para as abas das sessões desta máquina e das outras (plano ESRMS, W02).
 
 ## Open Decisions
 

@@ -4,6 +4,7 @@
 
 use super::*;
 use crate::keymap::{Action, Keymap}; // @dep: KYIMA
+use crate::remote::{LOCAL, Station}; // @dep: RMIMP
 use crate::prefs::{Button, Prefs}; // @dep: PRIMP
 use crate::screen::tests::Sink; // @dep: SCIMS
 use crate::screen::{Event, Screen, Size}; // @dep: SCIMS
@@ -262,3 +263,92 @@ impl gpui_kit::Render for Blank {
         gpui_kit::div()
     }
 }
+
+/// A session of the shell on a new installation's machine, and the installation.
+fn local_session() -> (tempfile::TempDir, Station, String) {
+    let dir = tempfile::tempdir().unwrap();
+    let st = Station::open(dir.path(), "", "/bin/sh").unwrap();
+    let id = st.new_session(LOCAL, 24, 80).unwrap();
+    (dir, st, id)
+}
+
+fn open_session(cx: &mut TestAppContext, tab: SessionTab) -> (AnyWindowHandle, Entity<TerminalPanel>) {
+    cx.update(gpui_kit::init);
+    let (handle, panel) = cx
+        .update(|cx| {
+            // the session's screen with no channel: the output comes from a thread the test
+            // scheduler does not run
+            let term = tab.station.attach(&tab.machine, &tab.id).unwrap();
+            let (screen, _events) = Screen::attach(term, Size { rows: 24, cols: 80, cell_w: 9, cell_h: 20 }).unwrap();
+            gpui_kit::open_window(options(), cx, |window, cx| {
+                cx.new(|cx| TerminalPanel::with_session(screen, None, tab, &prefs(), window, cx))
+            })
+        })
+        .unwrap();
+    frame(cx, handle);
+    (handle, panel)
+}
+
+fn close(cx: &mut TestAppContext, handle: AnyWindowHandle) {
+    cx.update_window(handle, |_, window, _| window.remove_window()).unwrap();
+    cx.run_until_parked();
+}
+
+/// Waits a while for the machine to have `n` sessions.
+fn sessions_become(st: &Station, n: usize) -> usize {
+    let end = std::time::Instant::now() + std::time::Duration::from_secs(5);
+    let mut got = st.sessions(LOCAL).unwrap().len();
+    while got != n && std::time::Instant::now() < end {
+        std::thread::sleep(std::time::Duration::from_millis(20));
+        got = st.sessions(LOCAL).unwrap().len();
+    }
+    got
+}
+
+scenario!(trpnt_b10_01_fechar_a_aba_dona_termina_a_sessao, "TRPNT-B10#01: Fechar a aba dona termina a sessão", |cx| {
+    let (_dir, st, id) = local_session();
+    let (handle, panel) = open_session(cx, SessionTab { station: st.clone(), machine: LOCAL.into(), id, owned: true, writable: true });
+    drop(panel);
+    close(cx, handle);
+    assert_eq!(sessions_become(&st, 0), 0);
+});
+
+scenario!(trpnt_b10_02_fechar_a_aba_alheia_so_a_larga, "TRPNT-B10#02: Fechar a aba de uma sessão alheia só a larga, e a organização guarda-a", |cx| {
+    let (_dir, st, id) = local_session();
+    let (handle, panel) = open_session(cx, SessionTab { station: st.clone(), machine: LOCAL.into(), id: id.clone(), owned: false, writable: true });
+    let kept = cx.update(|cx| panel.read(cx).dump(cx));
+    drop(panel);
+    close(cx, handle);
+    let info = match kept.info {
+        gpui_kit::component::dock::PanelInfo::Panel(v) => v,
+        other => panic!("want the session kept, got {other:?}"),
+    };
+    assert_eq!((kept.panel_name.as_str(), info["machine"].as_str(), info["id"].as_str()), ("session", Some(LOCAL), Some(id.as_str())));
+    std::thread::sleep(std::time::Duration::from_millis(300));
+    assert_eq!(st.sessions(LOCAL).unwrap().len(), 1);
+});
+
+scenario!(trpnt_b11_so_ver, "TRPNT-B11: Só ver", |cx| {
+    // a session the node would let this window type in: only the panel keeps the keys from it
+    let (_dir, st, id) = local_session();
+    let watcher = std::sync::Arc::new(st.attach(LOCAL, &id).unwrap());
+    let reader = {
+        let watcher = watcher.clone();
+        std::thread::spawn(move || {
+            let (mut seen, mut buf) = (Vec::new(), [0u8; 4096]);
+            while let Ok(n @ 1..) = watcher.read(&mut buf) {
+                seen.extend_from_slice(&buf[..n]);
+            }
+            String::from_utf8_lossy(&seen).into_owned()
+        })
+    };
+    let (handle, _panel) = open_session(cx, SessionTab { station: st.clone(), machine: LOCAL.into(), id, owned: false, writable: false });
+    let banner = cx.update_window(handle, |_, window, _| window.try_find("read-only").and_then(|b| b.label().map(str::to_string))).unwrap();
+    cx.update_window(handle, |_, window, cx| window.input("echo marca-$((2+3))", cx)).unwrap();
+    cx.update_window(handle, |_, window, cx| window.press("enter", cx)).unwrap();
+    std::thread::sleep(std::time::Duration::from_secs(1));
+    watcher.detach();
+    let got = reader.join().unwrap();
+    assert_eq!(banner.as_deref(), Some("Só ver"));
+    assert!(!got.contains("marca-5"), "the session ran it: {got:?}");
+});

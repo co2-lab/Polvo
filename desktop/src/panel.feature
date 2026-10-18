@@ -79,3 +79,21 @@ Feature: Panel
     Given o SHELL "/nao/existe/shell"
     When a janela pede um terminal
     Then o pedido dá o erro com "/nao/existe/shell"
+
+  @TRPNT-B10#01 @unit-level
+  Scenario: Fechar a aba dona termina a sessão
+    Given o painel de uma sessão local que a janela fez para ele
+    When o painel deixa de existir
+    Then a sessão acaba
+
+  @TRPNT-B10#02 @unit-level
+  Scenario: Fechar a aba de uma sessão alheia só a larga, e a organização guarda-a
+    Given o painel ligado a uma sessão local que já existia
+    When a doca guarda a aba, e o painel deixa de existir
+    Then a aba guardada é a sessão, com a máquina e o id, e a sessão continua
+
+  @TRPNT-B11 @unit-level
+  Scenario: Só ver
+    Given o painel de uma sessão onde a janela não pode escrever
+    When o utilizador escreve "echo marca-$((2+3))" e Enter
+    Then o painel mostra "Só ver", e a sessão não corre o comando
