@@ -77,13 +77,18 @@ SSH do Polvo corre por cima, como corre sobre TCP.
 - `internal/pairing/pairing.spec.md` — muda: emparelhar pelo P2P, e o pedido num QR code (a chave do nó e
   o endereço P2P), para um telemóvel que não está na mesma rede
 - `internal/transport/addresses.spec.md` — nasce: quando os IPs mudam, as duas máquinas não se perdem.
-  Cada uma guarda os últimos endereços de cada máquina com que falou, e dá-lhe os seus sempre que mudam.
+  Cada uma guarda o histórico dos endereços de cada máquina com que falou (não só o último: quando e quantas
+  vezes respondeu em cada um, até um limite), e dá-lhe os seus sempre que mudam.
   Por ordem:
   1. com a ligação viva, o iroh passa-a para o endereço novo sem a cortar;
   2. a máquina cujo IP mudou ainda tem o endereço da outra: liga-se a ela e manda-lhe os seus novos,
      assinados pela chave dela (o automático, pedido pelo dono; funciona sem servidor nenhum);
-  3. com um relay ou o DNS do iroh, cada uma acha a outra pela chave, mesmo que as duas tenham mudado;
-  4. quando nada disto chega (as duas mudaram, e não há servidor), o manual: a janela avisa que perdeu
+  3. ao perder a ligação, tenta também os endereços antigos do histórico, os mais recentes e os mais
+     usados primeiro, alguns de cada vez: uma máquina que alterna entre duas redes (casa e escritório,
+     Wi-Fi e dados) volta a ser achada num endereço onde já esteve (pedido pelo dono). Só vale a máquina
+     que provar a chave no handshake: um IP antigo que agora é de outra máquina só falha;
+  4. com um relay ou o DNS do iroh, cada uma acha a outra pela chave, mesmo que as duas tenham mudado;
+  5. quando nada disto chega (as duas mudaram, e não há servidor), o manual: a janela avisa que perdeu
      a ligação com a máquina e mostra, nesse aviso, os endereços desta máquina agora (de cada rede) e o
      último que conhecia da outra, com onde escrever o novo; como a chave da outra já é conhecida, não é
      preciso outro convite
@@ -163,7 +168,9 @@ none
 > **ESRMS-R0006:** o dono pediu a 2026-10-18 que as máquinas não se percam quando os IPs mudam: a que
 > mudou e ainda conhece a outra manda-lhe os endereços novos sozinha; e, quando isso não chega, os
 > utilizadores mudam-nos à mão, com a janela a mostrar os endereços novos, sobretudo no aviso de que a
-> ligação se perdeu. Entra na W04 (`internal/transport/addresses.spec.md`).
+> ligação se perdeu. Entra na W04 (`internal/transport/addresses.spec.md`). Pediu também que se guarde o
+> histórico dos endereços da outra máquina e que, ao perder a ligação, se tentem os antigos com um
+> handshake: uma máquina que alterna entre duas redes volta a ser achada.
 
 ## Definition of Done
 
