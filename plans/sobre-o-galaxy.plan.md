@@ -80,11 +80,17 @@ caminhos quentes. Sai daqui a lista de caixas do Bavel e a ordem delas.
 
 ### GLXPV-W02 — A fronteira Go↔Rust, sem ABI C (depends on GLXPV-W01)
 
-A ponte da janela (`desktop/src/remote.rs` e o `internal/bridge`) passa a ser uma chamada entre línguas
+Pede ao Bavel, por esta ordem (`bavel/docs/PLANO-POLVO.md` §3): o Rust estável atual (o parser aceita
+99,7 % das crates do Polvo, e as recusas são sintaxe posterior ao Rust 1.75 que o Galaxy segue); o cargo
+no Galaxy (o grafo, as features, os `cfg`, os 116 build scripts e as 51 macros procedurais); as fases P1 e
+P2 do Rust; e a chamada entre línguas. A ponte da janela (`desktop/src/remote.rs` e o `internal/bridge`) passa a ser uma chamada entre línguas
 no mesmo processo do Galaxy: o Rust da ponte e o `serde_json` a correr no Galaxy (as fases do Rust que o
 pedem), e o mecanismo de chamar uma função de outra língua com os valores crus.
 
 ### GLXPV-W03 — As primitivas nativas das línguas (depends on GLXPV-W01)
+
+O `extern "C"` está em 72 crates (o `libc`, o `wgpu`, o `ring`, o `freetype-sys`, o `wayland-*`, o `dlib`),
+e o `asm!` em 24, quase todas com uma variante sem assembly escolhida por `cfg`.
 
 O `extern "C"` do Rust, o cgo do Go e a interoperabilidade C do Zig no Galaxy, para as bibliotecas do
 sistema e as chamadas do sistema que o Polvo usa (o pty, os sockets UDP e TCP, o freetype, o fontconfig, o
@@ -92,10 +98,16 @@ wayland, o x11, o Vulkan).
 
 ### GLXPV-W04 — O transporte entre redes no Galaxy (depends on GLXPV-W02, GLXPV-W03)
 
+Pede ao Bavel as fases P3 a P7 do Rust (o `unsafe` está em 322 crates), o `async` e o tokio (em 93 crates;
+o `PLANO-RUST.md` do Bavel ainda não tem esta fase), e o C do `ring` pelo frontend de C.
+
 O `p2p/` sobre o iroh, com o tokio, o rustls e a criptografia, a correr no Galaxy, e o nó em Go a usá-lo
 pela fronteira (sai o `ffi.rs` e o cgo do `internal/transport`).
 
 ### GLXPV-W05 — O núcleo do terminal em Zig (depends on GLXPV-W03)
+
+O Ghostty tem 275 mil linhas de Zig (123 mil no núcleo do terminal), compiladas pelo `build.zig` com o Zig
+0.15.2; o frontend de Zig do Galaxy é um embrião.
 
 A `libghostty-vt` a correr no Galaxy, chamada pela janela pela fronteira.
 
@@ -116,6 +128,11 @@ Windows; os testes de todo o Polvo passam no Galaxy como passam nos compiladores
 - Trocar a língua de uma camada para caber no que o Galaxy já corre (a opção B, que o dono não escolheu).
 
 ## Revisions
+
+> **GLXPV-R0002:** a W01 fez-se (o `bavel/docs/PLANO-POLVO.md`, com a sonda `tools/sondas/polvo/mede.sh`
+> do Bavel): as fases W02 a W05 ganham as caixas do Bavel de que dependem, e duas que o plano não previa
+> vêm antes de todas: o Rust estável atual (o Galaxy segue o 1.75, e as crates do Polvo pedem o 1.91) e o
+> cargo no Galaxy (os build scripts e as macros procedurais correm Rust e C ao compilar).
 
 > **GLXPV-R0001:** o dono aprovou o plano a 2026-10-18, com as duas propostas do agente: o C das crates
 > corre pelo frontend de C do Galaxy e o assembly dá lugar à variante em Rust ou C de cada crate, e as

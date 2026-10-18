@@ -2164,7 +2164,7 @@ nodes:
       line_rev: 5001eb6d0b4b
     - id: plans/sobre-o-galaxy.plan.md
       kind: plan
-      rev: 4dd958783650
+      rev: 6c68dfe8038e
       updated_at: "2026-10-18"
       code: GLXPV
       file_code: GLXPV
@@ -2172,8 +2172,8 @@ nodes:
       code_declared: true
       tags:
         - plan
-      evidence_rev: fc7f171dc537
-      line_rev: f37613cce88d
+      evidence_rev: 013eeef49c4f
+      line_rev: b3bd503ed915
     - id: plans/terminal-remoto.plan.md
       kind: plan
       rev: 03470fc704da

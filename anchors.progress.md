@@ -1,5 +1,5 @@
 <!-- anchors:progress v1 — written by `anchors progress`; never edit by hand -->
-# Progress — 100% (86/86 points)
+# Progress — 100% (87/87 points)
 
 ## D01 — AgenteLocal (plan: plans/agente-local.plan.md) — 100% (6/6)
 ### D01.S1 — AGLCG-W01 — A ponte MCP — 100% (2/2)
@@ -128,13 +128,21 @@
 - [x] D07.T10 — `desktop/src/git.spec.md` · 1 · done 2026-10-17 by OK-BR-PE0EF71F/polvo-main
 - [x] D07.T11 — `desktop/src/window.spec.md` (muda: o tipo de aba do git) · 1 · done 2026-10-17 by OK-BR-PE0EF71F/polvo-main
 
-## D08 — Polvo sobre o Galaxy (plan: plans/sobre-o-galaxy.plan.md) — — (0/0)
-### D08.S1 — GLXPV-W01 — A medição de cada língua contra o Polvo — — (0/0)
+## D08 — Polvo sobre o Galaxy (plan: plans/sobre-o-galaxy.plan.md) — 100% (1/1)
+### D08.S1 — GLXPV-W01 — A medição de cada língua contra o Polvo — 100% (1/1)
+- [x] D08.T1 — `bavel/docs/PLANO-POLVO.md` (nasce: a medição e a ordem das caixas) · 1 · done 2026-10-18 by OK-BR-PE0EF71F/polvo-main
 ### D08.S2 — GLXPV-W02 — A fronteira Go↔Rust, sem ABI C (depends on GLXPV-W01) — — (0/0)
 ### D08.S3 — GLXPV-W03 — As primitivas nativas das línguas (depends on GLXPV-W01) — — (0/0)
 ### D08.S4 — GLXPV-W04 — O transporte entre redes no Galaxy (depends on GLXPV-W02, GLXPV-W03) — — (0/0)
 ### D08.S5 — GLXPV-W05 — O núcleo do terminal em Zig (depends on GLXPV-W03) — — (0/0)
 ### D08.S6 — GLXPV-W06 — A janela (depends on GLXPV-W02, GLXPV-W03, GLXPV-W05) — — (0/0)
 ### D08.S7 — GLXPV-W07 — O executável do Polvo (depends on GLXPV-W04, GLXPV-W06) — — (0/0)
+### D08.S8 — GLXPV-W01 — A medição de cada língua contra o Polvo — — (0/0)
+### D08.S9 — GLXPV-W02 — A fronteira Go↔Rust, sem ABI C — — (0/0)
+### D08.S10 — GLXPV-W03 — As primitivas nativas das línguas — — (0/0)
+### D08.S11 — GLXPV-W04 — O transporte entre redes no Galaxy — — (0/0)
+### D08.S12 — GLXPV-W05 — O núcleo do terminal em Zig — — (0/0)
+### D08.S13 — GLXPV-W06 — A janela — — (0/0)
+### D08.S14 — GLXPV-W07 — O executável do Polvo — — (0/0)
 
-<!-- anchors:progress sum=ae6084d94b8c -->
+<!-- anchors:progress sum=389dc2652f55 -->
