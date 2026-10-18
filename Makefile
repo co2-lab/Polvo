@@ -3,7 +3,7 @@ GALAXY ?= galaxy
 GALAXY_MEM ?= 6G
 PKGS ?= ./...
 
-.PHONY: test test-go test-galaxy test-ui test-desktop test-p2p vet ui desktop
+.PHONY: test test-go test-galaxy test-ui test-desktop test-p2p p2p-lib vet ui desktop
 
 test: vet test-go test-galaxy test-ui test-desktop test-p2p
 
@@ -23,8 +23,13 @@ test-desktop:
 P2P_TARGET_DIR ?= $(HOME)/.cache/polvo-p2p-target
 P2P_CARGO = PATH="$(HOME)/.cargo/bin:$$PATH" CARGO_TARGET_DIR="$(P2P_TARGET_DIR)" cargo
 
-test-p2p:
+# A libpolvo_p2p.a (a API C) e os testes do lado Go com o transporte (a etiqueta polvo_p2p e o cgo).
+p2p-lib:
+	cd p2p && $(P2P_CARGO) build --release
+
+test-p2p: p2p-lib
 	cd p2p && $(P2P_CARGO) test
+	CGO_LDFLAGS="-L$(P2P_TARGET_DIR)/release" go test -tags polvo_p2p ./internal/transport/...
 
 .PHONY: report-p2p
 report-p2p:

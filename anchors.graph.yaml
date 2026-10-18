@@ -2,7 +2,7 @@
 # Material e versionado. Fonte de verdade do grafo; índices em memória são cache.
 version: 8
 generated_by: 0.1.353
-config_rev: da3900615e89
+config_rev: 77a4765be970
 nodes:
     - id: AGENTS.md
       kind: doc
@@ -1920,6 +1920,74 @@ nodes:
         - test
       evidence_rev: 553ba89e3dd1
       line_rev: b26708c5553c
+    - id: internal/transport/p2p_cgo.go
+      kind: code
+      rev: 6bf10e715157
+      updated_at: "2026-10-18"
+      code: TRNSP
+      file_code: TRCGO
+      layer: transport
+      tags:
+        - transport
+      evidence_rev: 32d081fa5be1
+      line_rev: c7bffcaedc70
+    - id: internal/transport/p2p_none.go
+      kind: code
+      rev: ffa7ac8d0075
+      updated_at: "2026-10-18"
+      code: TRNSP
+      file_code: TRNON
+      layer: transport
+      tags:
+        - transport
+      evidence_rev: d88cc728a1f0
+      line_rev: 8ccdafbef0a8
+    - id: internal/transport/transport.feature
+      kind: feature
+      rev: c2d845582d62
+      updated_at: "2026-10-18"
+      code: TRNSP
+      file_code: TRFTR
+      layer: feature
+      tags:
+        - feature
+      evidence_rev: 1883e98412a4
+      line_rev: ffb4fbfa014b
+    - id: internal/transport/transport.go
+      kind: code
+      rev: 97bd3ab95aac
+      updated_at: "2026-10-18"
+      code: TRNSP
+      file_code: TRIMP
+      layer: transport
+      tags:
+        - transport
+      evidence_rev: 352d3b87db91
+      line_rev: ecd978ba779c
+    - id: internal/transport/transport.spec.md
+      kind: spec
+      rev: 17e712d1c28c
+      updated_at: "2026-10-18"
+      code: TRNSP
+      file_code: TRNSP
+      layer: spec
+      code_declared: true
+      tags:
+        - spec
+      evidence_rev: bc130205a645
+      rule_revs: {TRNSP-B01: a586436d397b, TRNSP-B02: 8ee89d08aa16, TRNSP-B03: a5911e51e9f7, TRNSP-B04: 76739dbc7399, TRNSP-E01: 1ac333ff802d, TRNSP-E02: a3f3ba57f5fc, TRNSP-E03: 2322b371c2d2}
+      rest_rev: 0634f20fb7f7
+    - id: internal/transport/transport_test.go
+      kind: test
+      rev: 70cc42e2a742
+      updated_at: "2026-10-18"
+      code: TRNSP
+      file_code: TRTST
+      layer: test
+      tags:
+        - test
+      evidence_rev: 2239892d90b0
+      line_rev: bf4e72e80200
     - id: internal/web/server.feature
       kind: feature
       rev: fe0b35e9322c
@@ -3814,6 +3882,33 @@ edges:
         validated_to_rev: bef5499b2740
         changed_at: "2026-10-18"
         verdict: ok
+    - from: internal/transport/transport.feature
+      to: internal/transport/transport_test.go
+      type: tested-by
+      origin: convention
+      stamp:
+        validated_from_rev: c2d845582d62
+        validated_to_rev: 70cc42e2a742
+        changed_at: "2026-10-18"
+        verdict: ok
+    - from: internal/transport/transport.spec.md
+      to: internal/transport/transport.feature
+      type: covered-by
+      origin: convention
+      stamp:
+        validated_from_rev: 17e712d1c28c
+        validated_to_rev: c2d845582d62
+        changed_at: "2026-10-18"
+        verdict: ok
+    - from: internal/transport/transport.spec.md
+      to: internal/transport/transport.go
+      type: specifies
+      origin: convention
+      stamp:
+        validated_from_rev: 17e712d1c28c
+        validated_to_rev: 97bd3ab95aac
+        changed_at: "2026-10-18"
+        verdict: ok
     - from: internal/web/server.feature
       to: internal/web/server_test.go
       type: tested-by
@@ -4375,7 +4470,7 @@ edges:
       stamp:
         validated_from_rev: 03470fc704da
         validated_to_rev: 733b595adb02
-        changed_at: "2026-10-17"
+        changed_at: "2026-10-18"
         verdict: ok
     - from: plans/terminal-remoto.plan.md
       to: internal/pty/pty.spec.md
@@ -4391,7 +4486,7 @@ edges:
       stamp:
         validated_from_rev: 03470fc704da
         validated_to_rev: 9dbbdf04184c
-        changed_at: "2026-10-17"
+        changed_at: "2026-10-18"
         verdict: ok
     - from: plans/terminal-remoto.plan.md
       to: internal/sshx/keys.spec.md
@@ -4407,7 +4502,7 @@ edges:
       stamp:
         validated_from_rev: 03470fc704da
         validated_to_rev: 2ac58c3b7694
-        changed_at: "2026-10-17"
+        changed_at: "2026-10-18"
         verdict: ok
     - from: ui/app.feature
       to: ui/app.test.ts
