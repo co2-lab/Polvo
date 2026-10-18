@@ -360,7 +360,7 @@ func TestControl_progress(t *testing.T) {
 	})
 	t.Run("CNTRL-B09#02: Esperar pelo progresso", func(t *testing.T) {
 		b := newBoard(t)
-		b.Start("a", "g", nil)
+		b.Start("a", "g", nil, nil)
 		p := controlWith(t, Controller{Progress: b}.Serve, sessions.View)
 		go func() {
 			time.Sleep(100 * time.Millisecond)

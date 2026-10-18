@@ -359,15 +359,16 @@ func procRun(raw json.RawMessage) (any, error) {
 }
 
 type progressParams struct {
-	Agent     string   `json:"agent"`
-	Op        string   `json:"op"`
-	Goal      string   `json:"goal"`
-	Steps     []string `json:"steps"`
-	Step      string   `json:"step"`
-	State     string   `json:"state"`
-	Text      string   `json:"text"`
-	Since     uint64   `json:"since"`
-	TimeoutMS int64    `json:"timeout_ms"`
+	Agent        string                 `json:"agent"`
+	Op           string                 `json:"op"`
+	Goal         string                 `json:"goal"`
+	Steps        []string               `json:"steps"`
+	Step         string                 `json:"step"`
+	State        string                 `json:"state"`
+	Text         string                 `json:"text"`
+	Conversation *progress.Conversation `json:"conversation"`
+	Since        uint64                 `json:"since"`
+	TimeoutMS    int64                  `json:"timeout_ms"`
 }
 
 // progress answers the progress requests (CNTRL-B09).
@@ -403,7 +404,7 @@ func (c Controller) progress(m *proto.Message) (any, error) {
 	var err error
 	switch p.Op {
 	case "start":
-		_, err = board.Start(p.Agent, p.Goal, p.Steps)
+		_, err = board.Start(p.Agent, p.Goal, p.Steps, p.Conversation)
 	case "step":
 		err = board.Step(p.Agent, p.Step, progress.State(p.State), p.Text)
 	case "note":

@@ -8,7 +8,7 @@
 @PRGRS
 Feature: Progress
 
-  @PRGRS-B01 @unit-level
+  @PRGRS-B01#01 @unit-level
   Scenario: Começar um trabalho
     Given um quadro onde o agente "claude-1" já tinha um trabalho
     When começa outro com o objetivo "migrar" e os passos "ler" e "escrever"
@@ -103,3 +103,33 @@ Feature: Progress
     Given uma pasta com um trabalho e um ficheiro estragado
     When um quadro abre nela
     Then tem o trabalho, e não o estragado
+
+  @PRGRS-B09 @unit-level
+  Scenario: Perguntar ao agente
+    Given o trabalho do agente
+    When o Polvo lhe pergunta "onde vais?" duas vezes
+    Then as duas perguntas estão por responder, com ids diferentes
+
+  @PRGRS-B10#01 @unit-level
+  Scenario: A resposta
+    Given uma pergunta por responder
+    When o agente responde "a meio"
+    Then a pergunta está respondida com "a meio"
+
+  @PRGRS-B10#02 @unit-level
+  Scenario: Uma pergunta que não se pôde fazer
+    Given uma pergunta por responder
+    When falha com o motivo "sem sessão"
+    Then a pergunta está falhada com o motivo
+
+  @PRGRS-B01#02 @unit-level
+  Scenario: A conversa do agente fica com o trabalho
+    Given um quadro
+    When o agente começa um trabalho com a conversa "abc" do claude, na pasta "/p"
+    Then o trabalho tem a conversa
+
+  @PRGRS-E07 @unit-level
+  Scenario: Uma pergunta que não está por responder
+    Given uma pergunta já respondida
+    When o agente responde outra vez, e responde à pergunta "q-9"
+    Then as duas dão ErrNoQuestion

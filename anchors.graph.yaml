@@ -1140,15 +1140,15 @@ nodes:
       line_rev: f9077a50e292
     - id: internal/node/control.go
       kind: code
-      rev: b1ebd2be90f5
+      rev: 5732ec56f9da
       updated_at: "2026-10-18"
       code: CNTRL
       file_code: CNIMP
       layer: node
       tags:
         - node
-      evidence_rev: fd2ad4b93c44
-      line_rev: 76969957993d
+      evidence_rev: 63ce62b2ebe3
+      line_rev: 12e664b59afa
     - id: internal/node/control.spec.md
       kind: spec
       rev: 41309977db3f
@@ -1164,15 +1164,15 @@ nodes:
       rest_rev: 8cec3b6312f8
     - id: internal/node/control_test.go
       kind: test
-      rev: 9c504cf15c55
+      rev: 04a9e33d9d81
       updated_at: "2026-10-18"
       code: CNTRL
       file_code: CNTST
       layer: test
       tags:
         - test
-      evidence_rev: ce6de8387e84
-      line_rev: 8db2312967b8
+      evidence_rev: ad277be4f597
+      line_rev: e97334cafba7
     - id: internal/node/server.feature
       kind: feature
       rev: f38249b36c38
@@ -1281,29 +1281,29 @@ nodes:
       line_rev: c5dad1e732a5
     - id: internal/progress/progress.feature
       kind: feature
-      rev: 3209bdf695ec
+      rev: 184a6e4054eb
       updated_at: "2026-10-18"
       code: PRGRS
       file_code: PRFST
       layer: feature
       tags:
         - feature
-      evidence_rev: 1b1505aa1215
-      line_rev: 741cf6ea1b75
+      evidence_rev: ab07f5cb385f
+      line_rev: 2c5df0844bbe
     - id: internal/progress/progress.go
       kind: code
-      rev: 552c5b2b02f2
+      rev: 710360654b07
       updated_at: "2026-10-18"
       code: PRGRS
       file_code: PRIMQ
       layer: progress
       tags:
         - progress
-      evidence_rev: 245916c96f56
-      line_rev: 8a9f417b5895
+      evidence_rev: 7b7ec9352ca8
+      line_rev: 15bdfa370211
     - id: internal/progress/progress.spec.md
       kind: spec
-      rev: aa5e7fd8c44c
+      rev: 4e727eec381f
       updated_at: "2026-10-18"
       code: PRGRS
       file_code: PRGRS
@@ -1311,20 +1311,20 @@ nodes:
       code_declared: true
       tags:
         - spec
-      evidence_rev: ab993d0a115c
-      rule_revs: {PRGRS-B01: b161c60d827d, PRGRS-B02: 973674484a50, PRGRS-B03: a7ef78bbdeaa, PRGRS-B04: 868c50db2fad, PRGRS-B05: 052b730071ef, PRGRS-B06: d6959d37f23f, PRGRS-B07: fbb292073cfa, PRGRS-B08: c8f93228a5e7, PRGRS-E01: 4b84721cd7f6, PRGRS-E02: d9616c6baa21, PRGRS-E03: 683b24d6ce69, PRGRS-E04: b000780d266a, PRGRS-E05: bd8ad5c1ad04, PRGRS-E06: bbe85082ed18}
-      rest_rev: b697f7b00a35
+      evidence_rev: ae59794227c6
+      rule_revs: {PRGRS-B01: 8ce0074f672b, PRGRS-B02: 973674484a50, PRGRS-B03: a7ef78bbdeaa, PRGRS-B04: 868c50db2fad, PRGRS-B05: 052b730071ef, PRGRS-B06: d6959d37f23f, PRGRS-B07: fbb292073cfa, PRGRS-B08: c8f93228a5e7, PRGRS-B09: 7b465bf465bf, PRGRS-B10: af146ef54a78, PRGRS-E01: 4b84721cd7f6, PRGRS-E02: d9616c6baa21, PRGRS-E03: 683b24d6ce69, PRGRS-E04: b000780d266a, PRGRS-E05: bd8ad5c1ad04, PRGRS-E06: bbe85082ed18, PRGRS-E07: ea7426e65d00}
+      rest_rev: 61a2e1840401
     - id: internal/progress/progress_test.go
       kind: test
-      rev: a79b49f35ba6
+      rev: 92eea615151b
       updated_at: "2026-10-18"
       code: PRGRS
       file_code: PRTST
       layer: test
       tags:
         - test
-      evidence_rev: fb8030f19073
-      line_rev: 64d12b2855e4
+      evidence_rev: f7cd31c04995
+      line_rev: 78bbb8b05bd2
     - id: internal/proto/codec.feature
       kind: feature
       rev: 6be08d1e69b3
@@ -2969,7 +2969,7 @@ edges:
       origin: convention
       stamp:
         validated_from_rev: 1805b240f7b6
-        validated_to_rev: 9c504cf15c55
+        validated_to_rev: 04a9e33d9d81
         changed_at: "2026-10-18"
         verdict: ok
     - from: internal/node/control.spec.md
@@ -2987,7 +2987,7 @@ edges:
       origin: convention
       stamp:
         validated_from_rev: 41309977db3f
-        validated_to_rev: b1ebd2be90f5
+        validated_to_rev: 5732ec56f9da
         changed_at: "2026-10-18"
         verdict: ok
     - from: internal/node/server.feature
@@ -3063,8 +3063,8 @@ edges:
       type: tested-by
       origin: convention
       stamp:
-        validated_from_rev: 3209bdf695ec
-        validated_to_rev: a79b49f35ba6
+        validated_from_rev: 184a6e4054eb
+        validated_to_rev: 92eea615151b
         changed_at: "2026-10-18"
         verdict: ok
     - from: internal/progress/progress.spec.md
@@ -3072,8 +3072,8 @@ edges:
       type: covered-by
       origin: convention
       stamp:
-        validated_from_rev: aa5e7fd8c44c
-        validated_to_rev: 3209bdf695ec
+        validated_from_rev: 4e727eec381f
+        validated_to_rev: 184a6e4054eb
         changed_at: "2026-10-18"
         verdict: ok
     - from: internal/progress/progress.spec.md
@@ -3081,8 +3081,8 @@ edges:
       type: specifies
       origin: convention
       stamp:
-        validated_from_rev: aa5e7fd8c44c
-        validated_to_rev: 552c5b2b02f2
+        validated_from_rev: 4e727eec381f
+        validated_to_rev: 710360654b07
         changed_at: "2026-10-18"
         verdict: ok
     - from: internal/proto/codec.feature
@@ -3440,7 +3440,7 @@ edges:
       origin: declared
       stamp:
         validated_from_rev: 7df534e19535
-        validated_to_rev: aa5e7fd8c44c
+        validated_to_rev: 4e727eec381f
         changed_at: "2026-10-18"
         verdict: ok
     - from: plans/desktop.plan.md

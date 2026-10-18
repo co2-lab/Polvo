@@ -26,7 +26,7 @@ func board(t *testing.T) (*Board, string) {
 
 func start(t *testing.T, b *Board, agent string, steps ...string) {
 	t.Helper()
-	if _, err := b.Start(agent, "migrar", steps); err != nil {
+	if _, err := b.Start(agent, "migrar", steps, nil); err != nil {
 		t.Fatal(err)
 	}
 }
@@ -43,7 +43,7 @@ func get(t *testing.T, b *Board, agent string) Progress {
 func last(p Progress) Entry { return p.Log[len(p.Log)-1] }
 
 func TestBoard_report(t *testing.T) {
-	t.Run("PRGRS-B01: Começar um trabalho", func(t *testing.T) {
+	t.Run("PRGRS-B01#01: Começar um trabalho", func(t *testing.T) {
 		b, _ := board(t)
 		start(t, b, "claude-1", "antigo")
 		b.Note("claude-1", "velha")
@@ -163,7 +163,7 @@ func TestBoard_errors(t *testing.T) {
 	t.Run("PRGRS-E01: Um nome de agente que não é aceite", func(t *testing.T) {
 		b, _ := board(t)
 		for _, agent := range []string{"a/b", "", strings.Repeat("x", AGENT_MAX+1)} {
-			if _, err := b.Start(agent, "g", nil); err == nil {
+			if _, err := b.Start(agent, "g", nil, nil); err == nil {
 				t.Fatalf("want %q refused", agent)
 			}
 		}
@@ -196,7 +196,7 @@ func TestBoard_errors(t *testing.T) {
 		b, dir := board(t)
 		os.RemoveAll(dir)
 		os.WriteFile(dir, []byte("not a folder"), 0o600)
-		_, err := b.Start("a", "g", []string{"x"})
+		_, err := b.Start("a", "g", []string{"x"}, nil)
 		if err == nil {
 			t.Fatal("want the write error")
 		}
@@ -214,6 +214,69 @@ func TestBoard_errors(t *testing.T) {
 		}
 		if _, list := again.List(); len(list) != 1 || list[0].Agent != "a" {
 			t.Fatalf("want only a, got %+v", list)
+		}
+	})
+}
+
+func TestBoard_questions(t *testing.T) {
+	asked := func(t *testing.T) (*Board, Question) {
+		b, _ := board(t)
+		start(t, b, "a", "x")
+		q, err := b.Ask("a", "onde vais?")
+		if err != nil {
+			t.Fatal(err)
+		}
+		return b, q
+	}
+	t.Run("PRGRS-B09: Perguntar ao agente", func(t *testing.T) {
+		b, q1 := asked(t)
+		q2, err := b.Ask("a", "onde vais?")
+		if err != nil {
+			t.Fatal(err)
+		}
+		qs := get(t, b, "a").Questions
+		if q1.ID == q2.ID || len(qs) != 2 || qs[0].State != Pending || qs[1].State != Pending || qs[0].Text != "onde vais?" {
+			t.Fatalf("got %+v", qs)
+		}
+	})
+	t.Run("PRGRS-B10#01: A resposta", func(t *testing.T) {
+		b, q := asked(t)
+		if err := b.Answer("a", q.ID, "a meio"); err != nil {
+			t.Fatal(err)
+		}
+		got := get(t, b, "a").Questions[0]
+		if got.State != Answered || got.Answer != "a meio" {
+			t.Fatalf("got %+v", got)
+		}
+	})
+	t.Run("PRGRS-B10#02: Uma pergunta que não se pôde fazer", func(t *testing.T) {
+		b, q := asked(t)
+		if err := b.Fail("a", q.ID, "sem sessão"); err != nil {
+			t.Fatal(err)
+		}
+		got := get(t, b, "a").Questions[0]
+		if got.State != Failed || got.Answer != "sem sessão" {
+			t.Fatalf("got %+v", got)
+		}
+	})
+	t.Run("PRGRS-B01#02: A conversa do agente fica com o trabalho", func(t *testing.T) {
+		b, _ := board(t)
+		conv := &Conversation{Kind: "claude", ID: "abc", Dir: "/p", Model: "claude-opus-5-5"}
+		if _, err := b.Start("a", "g", nil, conv); err != nil {
+			t.Fatal(err)
+		}
+		got := get(t, b, "a").Conversation
+		if got == nil || *got != *conv {
+			t.Fatalf("got %+v", got)
+		}
+	})
+	t.Run("PRGRS-E07: Uma pergunta que não está por responder", func(t *testing.T) {
+		b, q := asked(t)
+		b.Answer("a", q.ID, "sim")
+		again := b.Answer("a", q.ID, "outra vez")
+		unknown := b.Answer("a", "q-9", "?")
+		if !errors.Is(again, ErrNoQuestion) || !errors.Is(unknown, ErrNoQuestion) || get(t, b, "a").Questions[0].Answer != "sim" {
+			t.Fatalf("got %v and %v", again, unknown)
 		}
 	})
 }

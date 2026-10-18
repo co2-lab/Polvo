@@ -42,6 +42,37 @@ func (s State) valid() bool { return s == Todo || s == Doing || s == Done || s =
 // ErrNoJob is the report of an agent with no job (PRGRS-E02).
 var ErrNoJob = errors.New("progress: the agent has no job; start one first")
 
+// ErrNoQuestion names a question the job does not have waiting for its answer (PRGRS-E07).
+var ErrNoQuestion = errors.New("progress: no such question waiting for an answer")
+
+// QuestionState is where a question is.
+type QuestionState string
+
+const (
+	Pending  QuestionState = "pending"
+	Answered QuestionState = "answered"
+	Failed   QuestionState = "failed"
+)
+
+// Question is a question Polvo asked the agent, and its answer (PRGRS-B09, PRGRS-B10).
+type Question struct {
+	ID       string        `json:"id"`
+	Text     string        `json:"text"`
+	Asked    time.Time     `json:"asked"`
+	State    QuestionState `json:"state"`
+	Answer   string        `json:"answer,omitempty"`
+	Answered time.Time     `json:"answered,omitempty"`
+}
+
+// Conversation is the agent's conversation, for Polvo to ask it things: the agent's kind (claude), the
+// conversation's id, the folder it runs in, and its model.
+type Conversation struct {
+	Kind  string `json:"kind"`
+	ID    string `json:"id"`
+	Dir   string `json:"dir"`
+	Model string `json:"model,omitempty"`
+}
+
 // ErrNoStep names a step the job does not have (PRGRS-E03).
 var ErrNoStep = errors.New("progress: no such step")
 
@@ -63,18 +94,26 @@ type Entry struct {
 
 // Progress is an agent's job.
 type Progress struct {
-	Agent    string    `json:"agent"`
-	Goal     string    `json:"goal"`
-	Steps    []Step    `json:"steps"`
-	Log      []Entry   `json:"log"`
-	Finished bool      `json:"finished"`
-	Started  time.Time `json:"started"`
-	Updated  time.Time `json:"updated"`
+	Agent    string  `json:"agent"`
+	Goal     string  `json:"goal"`
+	Steps    []Step  `json:"steps"`
+	Log      []Entry `json:"log"`
+	Finished bool    `json:"finished"`
+	// Conversation is the agent's, when it gave it at the start.
+	Conversation *Conversation `json:"conversation,omitempty"`
+	Questions    []Question    `json:"questions,omitempty"`
+	Started      time.Time     `json:"started"`
+	Updated      time.Time     `json:"updated"`
 }
 
 func (p Progress) clone() Progress {
 	p.Steps = append([]Step(nil), p.Steps...)
 	p.Log = append([]Entry(nil), p.Log...)
+	p.Questions = append([]Question(nil), p.Questions...)
+	if p.Conversation != nil {
+		c := *p.Conversation
+		p.Conversation = &c
+	}
 	return p
 }
 
@@ -193,14 +232,19 @@ func (b *Board) save(p Progress) error {
 	return nil
 }
 
-// Start gives the agent a new job, with all its steps to do (PRGRS-B01).
-func (b *Board) Start(agent, goal string, steps []string) (Progress, error) {
+// Start gives the agent a new job, with all its steps to do and its conversation, when it has one
+// (PRGRS-B01).
+func (b *Board) Start(agent, goal string, steps []string, conv *Conversation) (Progress, error) {
 	if err := check(agent); err != nil {
 		// PRGRS-E01
 		return Progress{}, err
 	}
 	now := time.Now()
 	p := &Progress{Agent: agent, Goal: goal, Started: now, Log: []Entry{{At: now, Kind: "start", Text: goal}}}
+	if conv != nil {
+		c := *conv
+		p.Conversation = &c
+	}
 	for i, title := range steps {
 		p.Steps = append(p.Steps, Step{ID: strconv.Itoa(i + 1), Title: title, State: Todo})
 	}
@@ -306,4 +350,38 @@ func (b *Board) Wait(ctx context.Context, since uint64, d time.Duration) (uint64
 	case <-ctx.Done():
 	}
 	return b.List()
+}
+
+// Ask records a question to the agent, waiting for its answer (PRGRS-B09).
+func (b *Board) Ask(agent, text string) (Question, error) {
+	var q Question
+	err := b.change(agent, func(p *Progress) error {
+		q = Question{ID: "q-" + strconv.Itoa(len(p.Questions)+1), Text: text, Asked: time.Now(), State: Pending}
+		p.Questions = append(p.Questions, q)
+		return nil
+	})
+	return q, err
+}
+
+// Answer gives the answer to a question waiting for it (PRGRS-B10).
+func (b *Board) Answer(agent, question, answer string) error {
+	return b.settle(agent, question, Answered, answer)
+}
+
+// Fail marks a question that could not be asked, with the reason (PRGRS-B10).
+func (b *Board) Fail(agent, question, reason string) error {
+	return b.settle(agent, question, Failed, reason)
+}
+
+func (b *Board) settle(agent, question string, state QuestionState, text string) error {
+	return b.change(agent, func(p *Progress) error {
+		for i := range p.Questions {
+			if p.Questions[i].ID == question && p.Questions[i].State == Pending {
+				p.Questions[i].State, p.Questions[i].Answer, p.Questions[i].Answered = state, text, time.Now()
+				return nil
+			}
+		}
+		// PRGRS-E07
+		return fmt.Errorf("%w: %q", ErrNoQuestion, question)
+	})
 }
