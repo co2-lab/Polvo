@@ -2,7 +2,7 @@
 # @anchors
 #   code: SSFTS
 #   ref: SSSNS
-#   updated_at: 2026-10-17
+#   updated_at: 2026-10-18
 #   layer: feature
 
 @SSSNS
@@ -83,5 +83,11 @@ Feature: Sessions
   @SSSNS-E04 @unit-level
   Scenario: Um espectador que fica para trás é desligado
     Given uma sessão com o limite de 4 KiB por ler, com um espectador que lê e outro que não lê
-    When o programa escreve 10 KB
+    When o programa escreve 9 KB em três rajadas de 3 KB, com pausas
     Then o que lê recebe tudo, e o outro é desligado por ficar para trás
+
+  @SSSNS-B11 @unit-level
+  Scenario: O ambiente de uma sessão
+    Given um Manager com o ambiente comum POLVO_NODE=127.0.0.1:2222
+    When cria uma sessão que escreve o POLVO_SESSION e o POLVO_NODE
+    Then a sessão escreve o id dela e 127.0.0.1:2222

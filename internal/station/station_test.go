@@ -257,3 +257,46 @@ func TestStation_progress(t *testing.T) {
 		}
 	})
 }
+
+func TestStation_env(t *testing.T) {
+	t.Run("STATN-B07: As sessões sabem onde está o nó", func(t *testing.T) {
+		dir := t.TempDir()
+		s := open(t, dir, sh)
+		n := nodeOf(t, s, LOCAL)
+		id, err := n.NewSession([]string{"/bin/sh", "-c", "echo no=$POLVO_NODE.; sleep 30"}, "", size)
+		if err != nil {
+			t.Fatal(err)
+		}
+		term, err := n.Attach(id)
+		if err != nil {
+			t.Fatal(err)
+		}
+		defer term.Close()
+		var got bytes.Buffer
+		buf := make([]byte, 4096)
+		end := time.Now().Add(10 * time.Second)
+		for !strings.Contains(got.String(), ".") || !strings.Contains(got.String(), "no=") {
+			if time.Now().After(end) {
+				t.Fatalf("no address, got %q", got.String())
+			}
+			k, err := term.Read(buf)
+			got.Write(buf[:k])
+			if err != nil {
+				break
+			}
+		}
+		addr := strings.TrimSuffix(strings.SplitN(strings.SplitN(got.String(), "no=", 2)[1], ".\r", 2)[0], ".")
+		identity, _, err := sshx.LoadOrCreateIdentity(filepath.Join(dir, "id_ed25519"))
+		if err != nil {
+			t.Fatal(err)
+		}
+		agent, err := hub.Dial(addr, hub.Config{Identity: identity, KnownHosts: sshx.NewKnownHosts(filepath.Join(t.TempDir(), "known_hosts"))})
+		if err != nil {
+			t.Fatalf("connecting to %q: %v", addr, err)
+		}
+		defer agent.Close()
+		if list, err := agent.Sessions(); err != nil || len(list) != 1 || list[0].ID != id {
+			t.Fatalf("want the session, got %+v %v", list, err)
+		}
+	})
+}

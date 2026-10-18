@@ -2,7 +2,7 @@
 # @anchors
 #   code: CLFEA
 #   ref: CLIXX
-#   updated_at: 2026-10-17
+#   updated_at: 2026-10-18
 #   layer: feature
 
 @CLIXX
@@ -19,6 +19,12 @@ Feature: Cli
     Given uma pasta de configuração do nó com a chave do desktop autorizada
     When o polvo node corre com --listen 127.0.0.1:0
     Then a saída tem uma linha com o endereço em que escuta e a impressão digital "SHA256:" da chave do nó
+
+  @CLIXX-B02 @unit-level
+  Scenario: as sessões do node sabem onde ele está por dentro da máquina
+    Given o node a escutar em todas as interfaces, ou num endereço
+    When se pede o endereço para as sessões
+    Then é o 127.0.0.1 com a porta, ou o próprio endereço
 
   @CLIXX-B02 @unit-level
   Scenario: node não arranca com um node.json estragado
@@ -45,7 +51,7 @@ Feature: Cli
     Then a saída contém "33 99" e depois "44 111"
 
   @CLIXX-B06 @unit-level
-  Scenario: mcp inicializa, lista as quatro ferramentas e corre um comando num nó
+  Scenario: mcp inicializa, lista as oito ferramentas e corre um comando num nó
     Given um nó a correr que autoriza a identidade da pasta de configuração
     When o polvo mcp recebe a inicialização, a lista das ferramentas e a chamada polvo_run de "echo do-agente" no nó, e o stdin acaba
     Then o servidor é "polvo", a lista tem polvo_run, polvo_read_file, polvo_write_file e polvo_list, o resultado tem "do-agente", e o código de saída é 0

@@ -1,6 +1,6 @@
 <!-- @anchors
   code: AGPRG
-  updated_at: 2026-10-17
+  updated_at: 2026-10-18
 -->
 # Agentes
 
@@ -82,6 +82,12 @@ Depende da janela como cliente dos nós (ESRMS-W02).
 > **AGPRG-R0002:** o dono propôs perguntar ao `claude` pelo CLI dele com o id da sessão: o `--resume` com
 > o `--fork-session` responde com o contexto todo sem interromper o agente. Passa a ser o caminho do
 > `claude`; escrever no terminal fica para os outros agentes.
+
+> **AGPRG-R0003:** a ferramenta de responder a uma pergunta do Polvo passa da W02 para a W03, onde nascem
+> as perguntas: na W02 não haveria pergunta a que responder. A W02 trouxe também o ambiente das sessões
+> (`POLVO_SESSION` e `POLVO_NODE`), para o agente reportar ao nó da máquina dele com o nome da sessão onde
+> corre, sem argumentos; e o `progress.wait` do nó é uma espera longa em vez de notificações, para não
+> mudar o protocolo do controlo.
 
 ## Open Decisions
 

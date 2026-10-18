@@ -1,6 +1,6 @@
 <!-- @anchors
   code: MCPTL
-  updated_at: 2026-10-17
+  updated_at: 2026-10-18
 -->
 # Tools — as ferramentas do Polvo para o agente local: comandos, ficheiros e pastas dos nós
 
@@ -11,6 +11,10 @@ As ferramentas que o `polvo mcp` oferece ao agente local, sobre o cliente dos n�
 recebe o endereço do nó e os argumentos dela, e devolve texto para o agente ler. As ligações aos nós
 ficam num conjunto (`Pool`, criado pelo `NewPool` com a configuração do cliente), reutilizadas entre
 chamadas e fechadas no fim (`Close`). O conjunto dá as ferramentas pelo `Tools`.
+
+As ferramentas do progresso (`polvo_progress_*`) reportam o trabalho do agente ao nó da máquina onde ele
+corre. O conjunto sabe onde isso é (`SetHere`, com o `Here`): o nó e a sessão onde o agente corre, que o
+`polvo mcp` lê do ambiente (`POLVO_NODE` e `POLVO_SESSION`, que a sessão do Polvo lhe dá).
 
 ## Rules
 
@@ -37,6 +41,24 @@ Duas chamadas ao mesmo nó usam a mesma ligação. O conjunto dá a ligação a 
 ### MCPTL-B06 — Uma ligação caída é refeita
 Quando a ligação a um nó cai, a chamada seguinte a esse nó liga-se outra vez.
 
+### MCPTL-B07 — `polvo_progress_start` começa um trabalho
+A ferramenta `polvo_progress_start` começa o trabalho do agente no nó, com o objetivo e os passos, e
+devolve os passos com o id de cada um, para o agente os nomear depois.
+
+### MCPTL-B08 — `polvo_progress_step` muda o estado de um passo
+A ferramenta `polvo_progress_step` muda o estado de um passo (pelo id ou pelo título: `todo`, `doing`,
+`done` ou `blocked`), com uma nota opcional.
+
+### MCPTL-B09 — `polvo_progress_note` deixa uma nota
+A ferramenta `polvo_progress_note` deixa uma nota no registo do trabalho.
+
+### MCPTL-B10 — `polvo_progress_finish` termina o trabalho
+A ferramenta `polvo_progress_finish` termina o trabalho, com o resumo.
+
+### MCPTL-B11 — O agente e o nó por omissão
+Sem o argumento `agent`, o agente é o da sessão onde corre (`session-` e o id da sessão); sem o `node`, o
+nó é o da máquina onde corre (o do `Here`, ou `DEFAULT_NODE`).
+
 ## Domain
 
 | Input | Accepts | Outside the domain | Who guarantees |
@@ -45,6 +67,7 @@ Quando a ligação a um nó cai, a chamada seguinte a esse nó liga-se outra vez
 | `command` | um comando para a shell do nó | vazio | esta unidade: a falha da ferramenta (`MCPTL-E01`) |
 | `path` | um caminho no nó | vazio | esta unidade: a falha da ferramenta (`MCPTL-E01`) |
 | `content` | o texto a escrever | nenhum (o vazio cria um ficheiro vazio) | quem chama |
+| `agent` | o nome do agente, ou nenhum dentro de uma sessão do Polvo | nenhum fora de uma sessão | esta unidade: a falha da ferramenta (`MCPTL-E04`) |
 
 ## Errors / Failures
 | Rule | Condition | Failure |
@@ -52,6 +75,12 @@ Quando a ligação a um nó cai, a chamada seguinte a esse nó liga-se outra vez
 | `MCPTL-E01` | falta um argumento obrigatório, ou os argumentos não têm a forma | a falha da ferramenta, com o argumento em falta |
 | `MCPTL-E02` | o nó não responde ou recusa a identidade | a falha da ferramenta, com o endereço |
 | `MCPTL-E03` | o nó recusa a operação (o ficheiro não existe, sem permissão, o programa não arranca) | a falha da ferramenta, com a mensagem do nó |
+| `MCPTL-E04` | uma ferramenta do progresso sem `agent`, fora de uma sessão do Polvo | a falha da ferramenta, que pede o nome do agente |
+
+## Business Constants
+| Constant | Value | Why |
+| --- | --- | --- |
+| `DEFAULT_NODE` | `127.0.0.1:2222` | o nó desta máquina, onde o `polvo node` e a janela escutam por omissão |
 
 ## Rule uses
 
@@ -66,6 +95,12 @@ Quando a ligação a um nó cai, a chamada seguinte a esse nó liga-se outra vez
 | `MCPTL-E01` | `node`, `command`, `path` |
 | `MCPTL-E02` | `node` |
 | `MCPTL-E03` | `node`, `path` |
+| `MCPTL-B07` | `node`, `agent` |
+| `MCPTL-B08` | `node`, `agent` |
+| `MCPTL-B09` | `node`, `agent` |
+| `MCPTL-B10` | `node`, `agent` |
+| `MCPTL-B11` | `node`, `agent`, `DEFAULT_NODE` |
+| `MCPTL-E04` | `agent` |
 
 ## Implementation Notes
 
@@ -76,6 +111,9 @@ Quando a ligação a um nó cai, a chamada seguinte a esse nó liga-se outra vez
 
 > **MCPTL-R0001:** o `With` passa a ser público: o servidor da UI (`WEBSR`, plano DSKTP) reutiliza o
 > conjunto das ligações em vez de o repetir. As regras não mudam.
+
+> **MCPTL-R0002:** entram as ferramentas do progresso (`MCPTL-B07` a `MCPTL-B11`, `MCPTL-E04`), do plano
+> AGPRG, W02.
 
 ## Open Decisions
 

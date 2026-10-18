@@ -2,7 +2,7 @@
 # @anchors
 #   code: MCFTT
 #   ref: MCPTL
-#   updated_at: 2026-10-17
+#   updated_at: 2026-10-18
 #   layer: feature
 
 @MCPTL
@@ -67,3 +67,39 @@ Feature: Tools
     Given um nó a correr
     When o agente lê "/nao/existe"
     Then o resultado é uma falha que contém "/nao/existe"
+
+  @MCPTL-B07 @unit-level
+  Scenario: polvo_progress_start começa um trabalho
+    Given o agente na sessão "abc" de um nó com o quadro do progresso
+    When começa o trabalho "migrar" com os passos "ler" e "escrever"
+    Then o resultado diz os passos com o id, e o nó tem o trabalho de "session-abc"
+
+  @MCPTL-B08 @unit-level
+  Scenario: polvo_progress_step muda o estado de um passo
+    Given o trabalho do agente com o passo "ler"
+    When o passo "ler" passa a done
+    Then o passo está feito no nó
+
+  @MCPTL-B09 @unit-level
+  Scenario: polvo_progress_note deixa uma nota
+    Given o trabalho do agente
+    When deixa a nota "a meio"
+    Then o registo do nó tem a nota
+
+  @MCPTL-B10 @unit-level
+  Scenario: polvo_progress_finish termina o trabalho
+    Given o trabalho do agente
+    When termina com "feito"
+    Then o trabalho está terminado no nó
+
+  @MCPTL-B11 @unit-level
+  Scenario: O agente e o nó dados
+    Given um conjunto sem sessão nem nó por omissão
+    When começa um trabalho com o agente "outro" e o endereço do nó
+    Then o nó tem o trabalho de "outro"
+
+  @MCPTL-E04 @unit-level
+  Scenario: Sem agente fora de uma sessão
+    Given um conjunto sem sessão
+    When começa um trabalho sem o agente
+    Then a ferramenta falha a pedir o nome do agente

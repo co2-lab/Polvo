@@ -143,6 +143,13 @@ func TestSessions_create(t *testing.T) {
 			t.Fatalf("want /bin/sh, %v, 1 viewer, unlocked; got %+v", size, second)
 		}
 	})
+	t.Run("SSSNS-B11: O ambiente de uma sessão", func(t *testing.T) {
+		m := NewManager()
+		m.SetEnv([]string{"POLVO_NODE=127.0.0.1:2222"})
+		s := create(t, m, sh("echo sessao=$POLVO_SESSION no=$POLVO_NODE; sleep 5"))
+		_, w := attach(t, m, s.ID, View)
+		w.waitFor(t, "sessao="+s.ID+" no=127.0.0.1:2222")
+	})
 	t.Run("SSSNS-E01: Um programa que não arranca não faz sessão", func(t *testing.T) {
 		m := NewManager()
 		_, err := m.Create([]string{"/nao/existe/shell"}, t.TempDir(), size)
@@ -165,8 +172,9 @@ func TestSessions_viewers(t *testing.T) {
 		m := NewManager()
 		s := create(t, m, []string{"/bin/sh"})
 		first, w1 := attach(t, m, s.ID, Control)
-		first.Write([]byte("echo marca-1\n"))
-		w1.waitFor(t, "\nmarca-1")
+		// a mark only the result has: the echo of the line and the prompt do not make it
+		first.Write([]byte("echo marca-$((0+1))\n"))
+		w1.waitFor(t, "marca-1")
 		_, w2 := attach(t, m, s.ID, View)
 		w2.waitFor(t, "marca-1")
 		first.Write([]byte("echo $((40+2))\n"))
@@ -244,7 +252,9 @@ func TestSessions_viewers(t *testing.T) {
 	t.Run("SSSNS-E04: Um espectador que fica para trás é desligado", func(t *testing.T) {
 		m := NewManager()
 		m.SetBacklog(4 << 10)
-		s := create(t, m, sh("sleep 0.5; head -c 10000 /dev/zero | tr '\\0' x; echo; echo acabou; sleep 5"))
+		// bursts that each fit in the backlog of a viewer that reads, and together pass that of one that
+		// does not: a single burst larger than the backlog could leave behind even a viewer that reads
+		s := create(t, m, sh("sleep 0.5; for i in 1 2 3; do head -c 3000 /dev/zero | tr '\\0' x; sleep 0.3; done; echo; echo acabou; sleep 5"))
 		slow, err := m.Attach(s.ID, View)
 		if err != nil {
 			t.Fatal(err)

@@ -118,6 +118,8 @@ func Open(dir string, opt Options) (*Station, error) {
 	}
 	s.own = s.track(own)
 	go node.Serve(s.own, cfg)
+	// STATN-B07: an agent in a session reports to this node
+	m.SetEnv([]string{"POLVO_NODE=" + own.Addr().String()})
 	if opt.Listen != "" {
 		l, err := net.Listen("tcp", opt.Listen)
 		if err != nil {

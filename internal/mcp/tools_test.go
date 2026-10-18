@@ -17,6 +17,7 @@ import (
 
 	"github.com/co2-lab/polvo/internal/hub"
 	"github.com/co2-lab/polvo/internal/node"
+	"github.com/co2-lab/polvo/internal/progress"
 	"github.com/co2-lab/polvo/internal/sshx"
 	"golang.org/x/crypto/ssh"
 )
@@ -150,6 +151,91 @@ func TestTools_pool(t *testing.T) {
 		}
 		if p.nodes[addr] == first {
 			t.Fatal("want a new connection")
+		}
+	})
+}
+
+// progressNode serves a node with a progress board, and gives its address, the board and a pool that
+// knows where it runs: in the session "abc" of that node.
+func progressNode(t *testing.T) (string, *progress.Board, *Pool) {
+	t.Helper()
+	id := newSigner(t)
+	ak := filepath.Join(t.TempDir(), "authorized_keys")
+	os.WriteFile(ak, []byte(sshx.AuthorizedLine(id.PublicKey(), "")), 0o600)
+	l, err := net.Listen("tcp", "127.0.0.1:0")
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Cleanup(func() { l.Close() })
+	board, err := progress.NewBoard(t.TempDir())
+	if err != nil {
+		t.Fatal(err)
+	}
+	go node.Serve(l, node.Config{HostKey: newSigner(t), Authorized: sshx.NewAuthorizedKeys(ak), Control: node.Controller{Progress: board}.Serve})
+	p := NewPool(hub.Config{Identity: id, KnownHosts: sshx.NewKnownHosts(filepath.Join(t.TempDir(), "known_hosts"))})
+	t.Cleanup(p.Close)
+	p.SetHere(Here{Node: l.Addr().String(), Session: "abc"})
+	return l.Addr().String(), board, p
+}
+
+func job(t *testing.T, b *progress.Board, agent string) progress.Progress {
+	t.Helper()
+	got, err := b.Get(agent)
+	if err != nil {
+		t.Fatalf("no job of %s: %v", agent, err)
+	}
+	return got
+}
+
+func TestTools_progress(t *testing.T) {
+	start := map[string]any{"goal": "migrar", "steps": []string{"ler", "escrever"}}
+	t.Run("MCPTL-B07: polvo_progress_start começa um trabalho", func(t *testing.T) {
+		_, b, p := progressNode(t)
+		r := callTool(t, p, "polvo_progress_start", start)
+		got := job(t, b, "session-abc")
+		if r.IsError || !strings.Contains(r.Text, "1. ler") || !strings.Contains(r.Text, "2. escrever") || got.Goal != "migrar" {
+			t.Fatalf("got %+v and %+v", r, got)
+		}
+	})
+	t.Run("MCPTL-B08: polvo_progress_step muda o estado de um passo", func(t *testing.T) {
+		_, b, p := progressNode(t)
+		callTool(t, p, "polvo_progress_start", start)
+		r := callTool(t, p, "polvo_progress_step", map[string]any{"step": "ler", "state": "done"})
+		if r.IsError || job(t, b, "session-abc").Steps[0].State != progress.Done {
+			t.Fatalf("got %+v", r)
+		}
+	})
+	t.Run("MCPTL-B09: polvo_progress_note deixa uma nota", func(t *testing.T) {
+		_, b, p := progressNode(t)
+		callTool(t, p, "polvo_progress_start", start)
+		r := callTool(t, p, "polvo_progress_note", map[string]any{"text": "a meio"})
+		log := job(t, b, "session-abc").Log
+		if r.IsError || log[len(log)-1].Text != "a meio" {
+			t.Fatalf("got %+v", r)
+		}
+	})
+	t.Run("MCPTL-B10: polvo_progress_finish termina o trabalho", func(t *testing.T) {
+		_, b, p := progressNode(t)
+		callTool(t, p, "polvo_progress_start", start)
+		r := callTool(t, p, "polvo_progress_finish", map[string]any{"summary": "feito"})
+		if r.IsError || !job(t, b, "session-abc").Finished {
+			t.Fatalf("got %+v", r)
+		}
+	})
+	t.Run("MCPTL-B11: O agente e o nó dados", func(t *testing.T) {
+		addr, b, p := progressNode(t)
+		p.SetHere(Here{})
+		r := callTool(t, p, "polvo_progress_start", map[string]any{"goal": "g", "agent": "outro", "node": addr})
+		if r.IsError || job(t, b, "outro").Goal != "g" {
+			t.Fatalf("got %+v", r)
+		}
+	})
+	t.Run("MCPTL-E04: Sem agente fora de uma sessão", func(t *testing.T) {
+		_, _, p := progressNode(t)
+		p.SetHere(Here{})
+		r := callTool(t, p, "polvo_progress_start", start)
+		if !r.IsError || !strings.Contains(r.Text, "agent") {
+			t.Fatalf("want the tool to ask for the agent, got %+v", r)
 		}
 	})
 }

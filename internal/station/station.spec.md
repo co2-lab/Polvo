@@ -45,6 +45,10 @@ enquanto está viva; depois de a ligação cair, o pedido seguinte liga outra ve
 O nó desta máquina guarda o progresso dos agentes dela (`progress`) na pasta `progress` da instalação: o
 que um agente reporta pelo controlo fica lá, e volta no `Open` seguinte.
 
+### STATN-B07 — As sessões sabem onde está o nó
+Cada sessão desta máquina recebe no ambiente o endereço onde o nó dela a serve de dentro da máquina
+(`POLVO_NODE`), para um agente que corre nela reportar o progresso a este nó com a chave da instalação.
+
 ## Domain
 
 | Input | Accepts | Outside the domain | Who guarantees |
@@ -76,10 +80,12 @@ que um agente reporta pelo controlo fica lá, e volta no `Open` seguinte.
 | `STATN-E01` | `Options` |
 | `STATN-E02` | `addr` |
 | `STATN-B06` | `dir` |
+| `STATN-B07` | `dir` |
 
 ## Revisions
 
-> **STATN-R0001:** entra o `STATN-B06` (o progresso dos agentes desta máquina), do plano AGPRG, W01.
+> **STATN-R0001:** entra o `STATN-B06` (o progresso dos agentes desta máquina), do plano AGPRG, W01, e o
+> `STATN-B07` (as sessões sabem onde está o nó), da W02.
 
 ## Open Decisions
 

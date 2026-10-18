@@ -22,10 +22,61 @@ type Pool struct {
 
 	mu    sync.Mutex
 	nodes map[string]*hub.Node
+	here  Here
 }
 
 // NewPool connects with the installation's identity and known hosts.
 func NewPool(cfg hub.Config) *Pool { return &Pool{cfg: cfg, nodes: map[string]*hub.Node{}} }
+
+// DEFAULT_NODE is this machine's node, where the polvo node and the window listen by default
+// (MCPTL-B11).
+const DEFAULT_NODE = "127.0.0.1:2222"
+
+// Here is where the agent runs: the node of its machine and its session, empty when it runs outside
+// Polvo (MCPTL-B11).
+type Here struct {
+	Node    string
+	Session string
+}
+
+// SetHere tells the pool where the agent runs (MCPTL-B11).
+func (p *Pool) SetHere(h Here) {
+	p.mu.Lock()
+	p.here = h
+	p.mu.Unlock()
+}
+
+// whereAndWho is MCPTL-B11: the node and the agent a progress tool reports to; the failure of
+// MCPTL-E04 when there is no agent.
+func (p *Pool) whereAndWho(node, agent string) (string, string, error) {
+	p.mu.Lock()
+	h := p.here
+	p.mu.Unlock()
+	if node == "" {
+		node = h.Node
+	}
+	if node == "" {
+		node = DEFAULT_NODE
+	}
+	if agent == "" && h.Session != "" {
+		agent = "session-" + h.Session
+	}
+	if agent == "" {
+		// MCPTL-E04
+		return "", "", fmt.Errorf("missing argument: agent (this agent runs outside a Polvo session; give it a name)")
+	}
+	return node, agent, nil
+}
+
+// report sends a progress report of the agent to its node.
+func (p *Pool) report(node, agent string, params map[string]any) error {
+	node, agent, err := p.whereAndWho(node, agent)
+	if err != nil {
+		return err
+	}
+	params["agent"] = agent
+	return p.With(node, func(n *hub.Node) error { return n.Call("progress.report", params, &struct{}{}) })
+}
 
 // Close ends every connection.
 func (p *Pool) Close() {
@@ -124,7 +175,90 @@ func (p *Pool) Tools() []Tool {
 			InputSchema: objectSchema(nodeProp+`,"path":{"type":"string"}`, "node", "path"),
 			Call:        p.list,
 		},
+		{
+			Name:        "polvo_progress_start",
+			Description: "Start reporting a job to Polvo: its goal and its steps. Polvo shows your progress to the user. Returns the steps with their ids.",
+			InputSchema: objectSchema(progressProps+`,"goal":{"type":"string"},"steps":{"type":"array","items":{"type":"string"}}`, "goal"),
+			Call:        p.progressStart,
+		},
+		{
+			Name:        "polvo_progress_step",
+			Description: "Move a step of your job (by its id or title) to todo, doing, done or blocked, with an optional note.",
+			InputSchema: objectSchema(progressProps+`,"step":{"type":"string"},"state":{"type":"string","enum":["todo","doing","done","blocked"]},"note":{"type":"string"}`, "step", "state"),
+			Call:        p.progressStep,
+		},
+		{
+			Name:        "polvo_progress_note",
+			Description: "Leave a note in the log of your job.",
+			InputSchema: objectSchema(progressProps+`,"text":{"type":"string"}`, "text"),
+			Call:        p.progressNote,
+		},
+		{
+			Name:        "polvo_progress_finish",
+			Description: "Finish your job, with a summary.",
+			InputSchema: objectSchema(progressProps+`,"summary":{"type":"string"}`, "summary"),
+			Call:        p.progressFinish,
+		},
 	}
+}
+
+const progressProps = `"agent":{"type":"string","description":"your name; inside a Polvo session it is the session's"},` +
+	`"node":{"type":"string","description":"the node's address, host:port; by default this machine's"}`
+
+// progressStart is MCPTL-B07.
+func (p *Pool) progressStart(raw json.RawMessage) (Result, error) {
+	var a struct {
+		Node, Agent, Goal string
+		Steps             []string
+	}
+	if err := args(raw, &a, map[string]*string{"goal": &a.Goal}); err != nil {
+		return Result{}, err
+	}
+	if err := p.report(a.Node, a.Agent, map[string]any{"op": "start", "goal": a.Goal, "steps": a.Steps}); err != nil {
+		return Result{}, err
+	}
+	var b strings.Builder
+	fmt.Fprintf(&b, "started: %s\n", a.Goal)
+	for i, s := range a.Steps {
+		fmt.Fprintf(&b, "%d. %s\n", i+1, s)
+	}
+	return Result{Text: b.String()}, nil
+}
+
+// progressStep is MCPTL-B08.
+func (p *Pool) progressStep(raw json.RawMessage) (Result, error) {
+	var a struct{ Node, Agent, Step, State, Note string }
+	if err := args(raw, &a, map[string]*string{"step": &a.Step, "state": &a.State}); err != nil {
+		return Result{}, err
+	}
+	if err := p.report(a.Node, a.Agent, map[string]any{"op": "step", "step": a.Step, "state": a.State, "text": a.Note}); err != nil {
+		return Result{}, err
+	}
+	return Result{Text: fmt.Sprintf("step %s: %s", a.Step, a.State)}, nil
+}
+
+// progressNote is MCPTL-B09.
+func (p *Pool) progressNote(raw json.RawMessage) (Result, error) {
+	var a struct{ Node, Agent, Text string }
+	if err := args(raw, &a, map[string]*string{"text": &a.Text}); err != nil {
+		return Result{}, err
+	}
+	if err := p.report(a.Node, a.Agent, map[string]any{"op": "note", "text": a.Text}); err != nil {
+		return Result{}, err
+	}
+	return Result{Text: "noted"}, nil
+}
+
+// progressFinish is MCPTL-B10.
+func (p *Pool) progressFinish(raw json.RawMessage) (Result, error) {
+	var a struct{ Node, Agent, Summary string }
+	if err := args(raw, &a, map[string]*string{"summary": &a.Summary}); err != nil {
+		return Result{}, err
+	}
+	if err := p.report(a.Node, a.Agent, map[string]any{"op": "finish", "text": a.Summary}); err != nil {
+		return Result{}, err
+	}
+	return Result{Text: "finished: " + a.Summary}, nil
 }
 
 // run is MCPTL-B01: a non-zero exit code is part of the result, not a failure of the tool.

@@ -1,6 +1,6 @@
 <!-- @anchors
   code: SSSNS
-  updated_at: 2026-10-17
+  updated_at: 2026-10-18
 -->
 # Sessions — as sessões de terminal de um nó, com os seus espectadores
 
@@ -54,6 +54,10 @@ Quando o programa termina, cada espectador lê o resto da saída e depois o fim,
 ### SSSNS-B09 — Terminar uma sessão
 O `Close` termina o programa da sessão, e a sessão acaba como no `SSSNS-B08`.
 
+### SSSNS-B11 — O ambiente de uma sessão
+O programa de uma sessão recebe no ambiente o id dela (`POLVO_SESSION`) e o ambiente comum do `Manager`
+(o `SetEnv`: por exemplo, onde está o nó, `POLVO_NODE`), para um agente que corre nela saber onde está.
+
 ### SSSNS-B10 — As respostas do ecrã do nó não chegam ao programa
 O emulador do nó responde às perguntas que o programa faz ao terminal; essas respostas descartam-se,
 porque quem responde ao programa é o terminal de cada espectador.
@@ -94,10 +98,16 @@ porque quem responde ao programa é o terminal de cada espectador.
 | `SSSNS-B08` | `id` |
 | `SSSNS-B09` | `id` |
 | `SSSNS-B10` | `argv` |
+| `SSSNS-B11` | `argv`, `id` |
 | `SSSNS-E01` | `argv` |
 | `SSSNS-E02` | `id` |
 | `SSSNS-E03` | `Perm` |
 | `SSSNS-E04` | `VIEWER_BACKLOG` |
+
+## Revisions
+
+> **SSSNS-R0001:** entra o `SSSNS-B11` (o ambiente de uma sessão), para o agente que corre numa sessão
+> reportar o progresso dele com o nome da sessão (plano AGPRG, W02).
 
 ## Open Decisions
 

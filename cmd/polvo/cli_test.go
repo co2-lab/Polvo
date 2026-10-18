@@ -12,6 +12,7 @@ import (
 	"encoding/binary"
 	"encoding/json"
 	"io"
+	"net"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -107,6 +108,19 @@ func TestCli_node(t *testing.T) {
 			t.Fatalf("want the real address, got %q", addr)
 		}
 	})
+	t.Run("CLIXX-B02: as sessões do node sabem onde ele está por dentro da máquina", func(t *testing.T) {
+		var got []string
+		for _, a := range []string{"[::]:2222", "0.0.0.0:2222", "10.0.0.5:2222"} {
+			addr, err := net.ResolveTCPAddr("tcp", a)
+			if err != nil {
+				t.Fatal(err)
+			}
+			got = append(got, loopback(addr))
+		}
+		if strings.Join(got, " ") != "127.0.0.1:2222 127.0.0.1:2222 10.0.0.5:2222" {
+			t.Fatalf("got %v", got)
+		}
+	})
 	t.Run("CLIXX-B02: node não arranca com um node.json estragado", func(t *testing.T) {
 		d := t.TempDir()
 		os.WriteFile(filepath.Join(d, "node.json"), []byte("isto não é json"), 0o600)
@@ -174,7 +188,7 @@ func TestCli_connect(t *testing.T) {
 }
 
 func TestCli_mcp(t *testing.T) {
-	t.Run("CLIXX-B06: mcp inicializa, lista as quatro ferramentas e corre um comando num nó", func(t *testing.T) {
+	t.Run("CLIXX-B06: mcp inicializa, lista as oito ferramentas e corre um comando num nó", func(t *testing.T) {
 		d := t.TempDir()
 		addr := startNode(t, d)
 		in := strings.Join([]string{
@@ -204,8 +218,10 @@ func TestCli_mcp(t *testing.T) {
 		for _, tl := range answers[2]["tools"].([]any) {
 			names = append(names, tl.(map[string]any)["name"].(string))
 		}
-		if strings.Join(names, ",") != "polvo_run,polvo_read_file,polvo_write_file,polvo_list" {
-			t.Fatalf("want the four tools, got %v", names)
+		want := "polvo_run,polvo_read_file,polvo_write_file,polvo_list," +
+			"polvo_progress_start,polvo_progress_step,polvo_progress_note,polvo_progress_finish"
+		if strings.Join(names, ",") != want {
+			t.Fatalf("want the eight tools, got %v", names)
 		}
 		text := answers[3]["content"].([]any)[0].(map[string]any)["text"].(string)
 		if !strings.Contains(text, "do-agente") || answers[3]["isError"] != false {

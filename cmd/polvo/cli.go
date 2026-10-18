@@ -169,6 +169,8 @@ func serveNode(args []string, std Stdio) error {
 		return err
 	}
 	cfg.Control = node.Controller{Sessions: cfg.Sessions, Shell: cfg.Shell, Progress: board}.Serve
+	// an agent in a session reports to this node, from inside the machine
+	cfg.Sessions.SetEnv([]string{"POLVO_NODE=" + loopback(l.Addr())})
 	return node.Serve(l, cfg)
 }
 
@@ -244,6 +246,8 @@ func serveMCP(args []string, std Stdio) error {
 	}
 	pool := mcp.NewPool(hub.Config{Identity: id, KnownHosts: sshx.NewKnownHosts(filepath.Join(dir, "known_hosts"))})
 	defer pool.Close()
+	// the session of Polvo the agent runs in tells it where its node is
+	pool.SetHere(mcp.Here{Node: os.Getenv("POLVO_NODE"), Session: os.Getenv("POLVO_SESSION")})
 	s := &mcp.Server{Name: "polvo", Version: version, Tools: pool.Tools()}
 	return s.Serve(std.Stdin, std.Stdout)
 }
@@ -310,4 +314,17 @@ func serveUI(args []string, std Stdio) error {
 		}
 	}
 	return http.Serve(l, s.Handler())
+}
+
+// loopback is where the node at addr answers from inside the machine: an address that listens on every
+// interface is reached at the loopback.
+func loopback(addr net.Addr) string {
+	host, port, err := net.SplitHostPort(addr.String())
+	if err != nil {
+		return addr.String()
+	}
+	if ip := net.ParseIP(host); ip == nil || ip.IsUnspecified() {
+		host = "127.0.0.1"
+	}
+	return net.JoinHostPort(host, port)
 }

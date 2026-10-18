@@ -1,6 +1,6 @@
 <!-- @anchors
   code: CLIXX
-  updated_at: 2026-10-17
+  updated_at: 2026-10-18
 -->
 # Cli — os subcomandos do `polvo`: a identidade, o nó e a ligação
 
@@ -28,7 +28,10 @@ saída uma linha com o endereço em que ficou a escutar e a impressão digital d
 
 As shells do nó são sessões que vivem sem quem as vê, e o que cada chave pode fazer nelas vem do
 `node.json` da pasta de configuração; a chave da própria instalação (a identidade `id_ed25519`) é a
-dona. Um `node.json` estragado não deixa o nó arrancar (`CLIXX-E02`).
+dona. Um `node.json` estragado não deixa o nó arrancar (`CLIXX-E02`). Cada sessão recebe no ambiente o
+endereço do nó por dentro da máquina (`POLVO_NODE`: o de `--listen`, com `127.0.0.1` quando escuta em
+todas as interfaces), para um agente que corre nela lhe reportar o progresso; o nó guarda o progresso na
+pasta `progress` da pasta de configuração.
 
 ### CLIXX-B03 — `connect` liga o terminal local a uma shell do nó
 O `polvo connect ENDEREÇO` abre uma shell no nó com o tamanho do terminal local (24 por 80 se a
@@ -59,6 +62,8 @@ recusado (o erro e o código 1): a UI dá shells nos nós, e só a própria máq
 | Variable | Type | Required | Default | Values | Deprecated | Description |
 | --- | --- | --- | --- | --- | --- | --- |
 | SHELL | string | no | /bin/sh | o caminho de uma shell | no | a shell que o `polvo node` dá às sessões, e a do terminal local da UI |
+| POLVO_NODE | string | no | 127.0.0.1:2222 | máquina:porta | no | onde o `polvo mcp` reporta o progresso do agente: o nó da sessão onde ele corre, que a sessão lhe dá |
+| POLVO_SESSION | string | no | — | o id de uma sessão do nó | no | a sessão onde o agente corre: o `polvo mcp` reporta com o nome dela quando o agente não dá outro |
 
 ## Domain
 

@@ -55,3 +55,9 @@ Feature: Station
     Given uma Station onde um agente começou um trabalho pelo controlo do nó local
     When a Station fecha e abre outra vez na mesma pasta
     Then a lista do progresso tem o trabalho do agente
+
+  @STATN-B07 @unit-level
+  Scenario: As sessões sabem onde está o nó
+    Given uma Station sem escutar
+    When uma sessão local escreve o POLVO_NODE, e a instalação se liga a esse endereço
+    Then a ligação entra e lista a sessão

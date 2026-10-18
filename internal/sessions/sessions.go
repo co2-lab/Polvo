@@ -62,6 +62,7 @@ type Manager struct {
 	sessions map[string]*session
 	order    []string
 	backlog  int
+	env      []string
 }
 
 // NewManager makes a manager with no sessions, whose viewers may fall VIEWER_BACKLOG behind.
@@ -74,14 +75,38 @@ func (m *Manager) SetBacklog(n int) {
 	m.mu.Unlock()
 }
 
-// Create runs argv in a pty of size, in dir, and keeps it as a session (SSSNS-B01).
+// SetEnv sets what every new session gets in its environment, as NAME=value (SSSNS-B11).
+func (m *Manager) SetEnv(env []string) {
+	m.mu.Lock()
+	m.env = append([]string(nil), env...)
+	m.mu.Unlock()
+}
+
+// Create runs argv in a pty of size, in dir, and keeps it as a session (SSSNS-B01), with its id and
+// the manager's environment (SSSNS-B11).
 func (m *Manager) Create(argv []string, dir string, size pty.Size) (Info, error) {
-	t, err := pty.StartIn(argv, dir, []string{"TERM=xterm-256color"}, size)
+	m.mu.Lock()
+	var id string
+	for {
+		id = newID()
+		if _, taken := m.sessions[id]; !taken {
+			break
+		}
+	}
+	// the id is kept while the program starts, for no other session to take it
+	m.sessions[id] = nil
+	env := append([]string{"TERM=xterm-256color", "POLVO_SESSION=" + id}, m.env...)
+	m.mu.Unlock()
+	t, err := pty.StartIn(argv, dir, env, size)
 	if err != nil {
+		m.mu.Lock()
+		delete(m.sessions, id)
+		m.mu.Unlock()
 		// SSSNS-E01: the pty's error names the program.
 		return Info{}, fmt.Errorf("sessions: %w", err)
 	}
 	s := &session{
+		id:      id,
 		argv:    append([]string(nil), argv...),
 		created: time.Now(),
 		t:       t,
@@ -91,14 +116,8 @@ func (m *Manager) Create(argv []string, dir string, size pty.Size) (Info, error)
 		m:       m,
 	}
 	m.mu.Lock()
-	for {
-		s.id = newID()
-		if _, taken := m.sessions[s.id]; !taken {
-			break
-		}
-	}
-	m.sessions[s.id] = s
-	m.order = append(m.order, s.id)
+	m.sessions[id] = s
+	m.order = append(m.order, id)
 	m.mu.Unlock()
 	go s.pump()
 	return s.info(), nil
@@ -122,9 +141,9 @@ func (m *Manager) List() []Info {
 func (m *Manager) get(id string) (*session, error) {
 	m.mu.Lock()
 	defer m.mu.Unlock()
-	s, ok := m.sessions[id]
-	if !ok {
-		// SSSNS-E02
+	s := m.sessions[id]
+	if s == nil {
+		// SSSNS-E02: no session, or one whose program is still starting
 		return nil, ErrNoSession
 	}
 	return s, nil
