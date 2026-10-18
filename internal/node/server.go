@@ -7,6 +7,7 @@
 package node
 
 import (
+	"bytes"
 	"errors"
 	"fmt"
 	"io"
@@ -40,6 +41,8 @@ type Config struct {
 	Sessions *sessions.Manager
 	// Perms gives each key its permission (SRVRE-B10); nil makes every key the owner.
 	Perms func(ssh.PublicKey) sessions.Perm
+	// Owner is the installation's own key (SRVRE-B11).
+	Owner ssh.PublicKey
 }
 
 func (c Config) shell() []string {
@@ -61,6 +64,10 @@ func (c Config) server() (*ssh.ServerConfig, error) {
 		// SRVRE-B01: only a public key in the list enters; no password nor keyboard-interactive
 		// callback is set, so those methods are refused.
 		PublicKeyCallback: func(_ ssh.ConnMetadata, key ssh.PublicKey) (*ssh.Permissions, error) {
+			if c.Owner != nil && bytes.Equal(key.Marshal(), c.Owner.Marshal()) {
+				// SRVRE-B11
+				return &ssh.Permissions{Extensions: map[string]string{permKey: strconv.Itoa(int(sessions.Owner))}}, nil
+			}
 			ok, err := c.Authorized.Allows(key)
 			if err != nil {
 				return nil, err

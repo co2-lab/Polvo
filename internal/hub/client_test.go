@@ -190,7 +190,19 @@ func TestClient_sessions(t *testing.T) {
 }
 
 func TestClient_dial(t *testing.T) {
-	t.Run("CLNTI-B01: O primeiro contacto regista o nó, a segunda ligação entra, e um nó com outra chave é recusado", func(t *testing.T) {
+	t.Run("CLNTI-B01#02: Com a chave do nó já sabida", func(t *testing.T) {
+		id, host := signer(t), signer(t)
+		w := serve(t, host, id, id, filepath.Join(t.TempDir(), "known_hosts"))
+		n, err := Dial(w.addr, Config{Identity: id, HostKey: host.PublicKey()})
+		if err != nil {
+			t.Fatalf("want in with the node's key, got %v", err)
+		}
+		n.Close()
+		if _, err := Dial(w.addr, Config{Identity: id, HostKey: signer(t).PublicKey()}); err == nil {
+			t.Fatal("want another node's key refused")
+		}
+	})
+	t.Run("CLNTI-B01#01: O primeiro contacto regista o nó, a segunda ligação entra, e um nó com outra chave é recusado", func(t *testing.T) {
 		id, host := signer(t), signer(t)
 		known := filepath.Join(t.TempDir(), "known_hosts")
 		w := serve(t, host, id, id, known)
@@ -364,6 +376,11 @@ func TestClient_control(t *testing.T) {
 			}
 		case <-time.After(4 * time.Second):
 			t.Fatal("the call did not end")
+		}
+		select {
+		case <-n.Done():
+		case <-time.After(4 * time.Second):
+			t.Fatal("want Done closed when the connection fell")
 		}
 	})
 }

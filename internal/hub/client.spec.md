@@ -19,7 +19,9 @@ da instalação e confere a chave do nó na lista de nós conhecidos. A configur
 ### CLNTI-B01 — A ligação usa a identidade e confere a chave do nó
 A ligação apresenta-se com a identidade da instalação. A chave do nó é conferida na lista de nós
 conhecidos: o primeiro contacto regista-a, a mesma chave entra, e uma chave mudada recusa a ligação com
-o erro de chave mudada. O `DialConn` faz a mesma ligação sobre uma ligação de rede já aberta.
+o erro de chave mudada. Com a chave do nó já sabida (`HostKey`, a do nó da própria máquina), a ligação
+confere-a contra essa, sem a lista, e recusa outra. O `DialConn` faz a mesma ligação sobre uma ligação de
+rede já aberta.
 
 ### CLNTI-B02 — O terminal interativo tem tamanho, entrada, saída e fim
 O `Shell` abre uma shell num terminal do nó com o tamanho pedido. O que se escreve no `Terminal` chega à
@@ -41,7 +43,7 @@ entradas de uma pasta (`Entry`), e o `Run` devolve o código, a saída e o erro 
 
 ### CLNTI-B06 — Fechar a ligação acaba as chamadas pendentes
 O `Close` fecha a ligação ao nó. Uma chamada que ainda esperava resposta termina com erro, e uma chamada
-nova também.
+nova também. O `Done` fecha-se quando a ligação acaba, fechada ou caída.
 
 ### CLNTI-B07 — As sessões do nó
 O `Sessions` dá as sessões vivas do nó, cada uma com o id, o programa, o tamanho, os espectadores, se
@@ -59,7 +61,7 @@ sessão viva.
 | --- | --- | --- | --- |
 | `addr` | máquina e porta do nó | um endereço sem porta | o `Dial`: devolve o erro de endereço (`CLNTI-E01`) |
 | `Identity` | a identidade da instalação | nenhuma | quem liga: o `Dial` recusa sem ela (`CLNTI-E02`) |
-| `KnownHosts` | a lista de nós conhecidos | nenhuma | quem liga: o `Dial` recusa sem ela (`CLNTI-E02`) |
+| `KnownHosts` | a lista de nós conhecidos, ou a chave do nó (`HostKey`) | nenhuma das duas | quem liga: o `Dial` recusa sem elas (`CLNTI-E02`) |
 
 ## Errors / Failures
 | Rule | Condition | Failure |
@@ -89,7 +91,9 @@ sessão viva.
 ## Revisions
 
 > **CLNTI-R0001:** entram as sessões do nó (`CLNTI-B07`, `CLNTI-B08`, `CLNTI-E04`), para a janela as
-> mostrar e espelhar (plano ESRMS, W02).
+> mostrar e espelhar (plano ESRMS, W02), o `Done` no `CLNTI-B06`, para quem guarda a ligação saber
+> quando ligar outra vez, e a `HostKey` no `CLNTI-B01`, para a janela chegar ao nó da sua máquina, que
+> não tem endereço para a lista.
 
 ## Open Decisions
 

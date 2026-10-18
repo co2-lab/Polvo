@@ -28,6 +28,8 @@ type Config struct {
 	Identity ssh.Signer
 	// KnownHosts is the list of the nodes met before.
 	KnownHosts *sshx.KnownHosts
+	// HostKey is the node's key when it is already known, checked instead of the list (CLNTI-B01).
+	HostKey ssh.PublicKey
 	// User is the SSH user name; empty is "polvo".
 	User string
 }
@@ -42,6 +44,7 @@ type Node struct {
 	mu     sync.Mutex
 	ctrl   *control
 	closed bool
+	done   chan struct{}
 }
 
 // Dial connects to the node at addr (CLNTI-B01).
@@ -71,14 +74,27 @@ func DialConn(conn net.Conn, addr string, cfg Config) (*Node, error) {
 	cc, chans, reqs, err := ssh.NewClientConn(conn, addr, &ssh.ClientConfig{
 		User:            user,
 		Auth:            []ssh.AuthMethod{ssh.PublicKeys(cfg.Identity)},
-		HostKeyCallback: cfg.KnownHosts.Check,
+		HostKeyCallback: cfg.hostKeyCallback(),
 	})
 	if err != nil {
 		conn.Close()
 		// CLNTI-E02: a refused identity, and the changed key of CLNTI-B01, come back here.
 		return nil, fmt.Errorf("hub: connecting to %s: %w", addr, err)
 	}
-	return &Node{client: ssh.NewClient(cc, chans, reqs)}, nil
+	n := &Node{client: ssh.NewClient(cc, chans, reqs), done: make(chan struct{})}
+	go func() {
+		n.client.Wait()
+		close(n.done)
+	}()
+	return n, nil
+}
+
+// hostKeyCallback checks the node's key against the key given, or else the known hosts (CLNTI-B01).
+func (c Config) hostKeyCallback() ssh.HostKeyCallback {
+	if c.HostKey != nil {
+		return ssh.FixedHostKey(c.HostKey)
+	}
+	return c.KnownHosts.Check
 }
 
 // check is CLNTI-E02: the identity and the known hosts are required.
@@ -86,7 +102,7 @@ func (c Config) check() error {
 	if c.Identity == nil {
 		return errors.New("hub: no identity")
 	}
-	if c.KnownHosts == nil {
+	if c.KnownHosts == nil && c.HostKey == nil {
 		return errors.New("hub: no known hosts")
 	}
 	return nil
@@ -104,6 +120,9 @@ func (n *Node) Close() error {
 	}
 	return err
 }
+
+// Done is closed when the connection ends, closed or fallen (CLNTI-B06).
+func (n *Node) Done() <-chan struct{} { return n.done }
 
 // Terminal is an interactive shell on the node (CLNTI-B02).
 type Terminal struct {

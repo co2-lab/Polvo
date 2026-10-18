@@ -158,6 +158,7 @@ func serveNode(args []string, std Stdio) error {
 		Authorized: sshx.NewAuthorizedKeys(filepath.Join(dir, "authorized_keys")),
 		Sessions:   sessions.NewManager(),
 		Perms:      perms.PermFor,
+		Owner:      own.PublicKey(),
 	}
 	if sh := os.Getenv("SHELL"); sh != "" {
 		cfg.Shell = []string{sh}

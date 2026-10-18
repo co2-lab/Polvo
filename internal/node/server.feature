@@ -97,3 +97,9 @@ Feature: Server
     Given um nó
     When uma ligação se liga à sessão "nenhuma"
     Then o pedido é recusado e a ligação continua
+
+  @SRVRE-B11 @unit-level
+  Scenario: A chave da instalação entra sempre, como dona
+    Given um nó cuja lista não tem a chave da instalação, e que só deixa ver as outras chaves
+    When a instalação se liga e pede uma shell
+    Then entra, e a shell abre

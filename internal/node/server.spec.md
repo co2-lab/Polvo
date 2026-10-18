@@ -58,6 +58,10 @@ A permissão de uma ligação é a que o nó dá à chave dela (`Perms`, sem ela
 só vê não cria sessões nem corre comandos (a shell e o comando avulso são recusados), e numa sessão a
 que se ligou o que escreve não chega à shell.
 
+### SRVRE-B11 — A chave da instalação entra sempre, como dona
+A chave da própria instalação (`Owner`) entra sem estar na lista de chaves autorizadas, e com a
+permissão de dono, seja qual for a que o `Perms` daria. É como a janela usa as sessões da sua máquina.
+
 ## Domain
 
 | Input | Accepts | Outside the domain | Who guarantees |
@@ -67,6 +71,7 @@ que se ligou o que escreve não chega à shell.
 | `Shell` | o programa e os argumentos da shell | uma lista vazia | este módulo: a lista vazia passa a "/bin/sh" |
 | `Sessions` | as sessões do nó | nenhumas | este módulo: o nó faz as suas |
 | `Perms` | a permissão de cada chave | nenhuma | este módulo: sem ela, todas são donas |
+| `Owner` | a chave da instalação | nenhuma | este módulo: sem ela, só entram as chaves da lista |
 | `id` | o id de uma sessão viva do nó | outro | este módulo: o pedido é recusado (`SRVRE-E03`) |
 
 ## Errors / Failures
@@ -91,6 +96,7 @@ que se ligou o que escreve não chega à shell.
 | `SRVRE-E01` | `HostKey`, `Authorized` |
 | `SRVRE-B09` | `Sessions`, `id` |
 | `SRVRE-B10` | `Perms` |
+| `SRVRE-B11` | `Owner`, `Perms` |
 | `SRVRE-E02` | `Shell` |
 | `SRVRE-E03` | `id` |
 
@@ -99,6 +105,9 @@ que se ligou o que escreve não chega à shell.
 > **SRVRE-R0001:** as shells do nó passam a ser sessões que vivem sem quem as vê, com vários
 > espectadores e a permissão de cada chave (plano ESRMS, W01): o `SRVRE-B02` muda, e entram o
 > `SRVRE-B09` (ligar-se a uma sessão), o `SRVRE-B10` (a permissão) e o `SRVRE-E03`.
+
+> **SRVRE-R0002:** entra o `SRVRE-B11` (a chave da instalação entra como dona), para a janela chegar às
+> sessões da sua máquina pelo mesmo caminho que às das outras (plano ESRMS, W02).
 
 ## Open Decisions
 

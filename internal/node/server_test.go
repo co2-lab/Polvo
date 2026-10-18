@@ -126,6 +126,29 @@ func TestServer_auth(t *testing.T) {
 	})
 }
 
+func TestServer_owner(t *testing.T) {
+	t.Run("SRVRE-B11: A chave da instalação entra sempre, como dona", func(t *testing.T) {
+		own := signer(t)
+		f := startNode(t, func(c *Config) {
+			c.Owner = own.PublicKey()
+			c.Perms = func(ssh.PublicKey) sessions.Perm { return sessions.View }
+		})
+		c, err := f.dial(t, ssh.PublicKeys(own))
+		if err != nil {
+			t.Fatalf("want the installation's key in, got %v", err)
+		}
+		defer c.Close()
+		s, err := c.NewSession()
+		if err != nil {
+			t.Fatal(err)
+		}
+		out := shell(t, s, 24, 80, nil, "echo dona-$((2+2)); exit\n")
+		if !strings.Contains(out, "dona-4") {
+			t.Fatalf("want the owner's shell, got %q", out)
+		}
+	})
+}
+
 func TestServer_terminal(t *testing.T) {
 	t.Run("SRVRE-B02: A shell interativa corre num terminal de 30 por 100", func(t *testing.T) {
 		f := startNode(t, nil)

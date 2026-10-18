@@ -8,7 +8,7 @@
 @CLNTI
 Feature: Client
 
-  @CLNTI-B01 @unit-level
+  @CLNTI-B01#01 @unit-level
   Scenario: O primeiro contacto regista o nó, a segunda ligação entra, e um nó com outra chave é recusado
     Given um nó com a chave N e uma lista de nós conhecidos vazia
     When o desktop se liga duas vezes ao nó e depois a outro nó com a chave M no mesmo endereço
@@ -60,7 +60,7 @@ Feature: Client
   Scenario: O nó que cai durante a chamada termina-a com erro
     Given uma ligação a um nó e uma chamada que corre "sleep 5"
     When o nó deixa de servir e a ligação cai
-    Then a chamada termina com erro antes do fim do sleep
+    Then a chamada termina com erro antes do fim do sleep, e o Done fecha-se
 
   @CLNTI-B07 @unit-level
   Scenario: As sessões do nó
@@ -79,3 +79,9 @@ Feature: Client
     Given um cliente ligado a um nó com sessões
     When se liga à sessão "nenhuma"
     Then recebe ErrNoSession
+
+  @CLNTI-B01#02 @unit-level
+  Scenario: Com a chave do nó já sabida
+    Given um nó, e a sua chave dada ao cliente sem lista de nós conhecidos
+    When o cliente se liga, e depois liga-se com a chave de outro nó
+    Then a primeira ligação entra e a segunda é recusada

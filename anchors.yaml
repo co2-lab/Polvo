@@ -46,6 +46,12 @@ layers:
         kind: code
         tags: [hub]
         exclude: ['**/*_test.go']
+    # A instalacao vista pela janela: o no' desta maquina no processo e as outras (plano ESRMS, W02).
+    station:
+        pattern: 'internal/station/*.go'
+        kind: code
+        tags: [station]
+        exclude: ['**/*_test.go']
     web:
         pattern: 'internal/web/*.go'
         kind: code
