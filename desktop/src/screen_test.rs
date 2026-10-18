@@ -4,6 +4,7 @@
 
 use super::*;
 use crate::keys::{Modifiers, translate}; // @dep: KYIMK
+use crate::remote::{LOCAL, Station}; // @dep: RMIMP
 use futures::channel::mpsc::TryRecvError;
 use std::sync::{Arc, Mutex};
 use std::time::{Duration, Instant};
@@ -202,6 +203,51 @@ scenario!(scrne_b11_largar_o_terminal_termina_a_shell, "SCRNE-B11: Largar o term
         }
     }
     assert!(exited, "the shell is still running");
+});
+
+/// A session of the shell on this machine, in a new installation.
+fn session() -> (tempfile::TempDir, Station, String) {
+    let dir = tempfile::tempdir().unwrap();
+    let st = Station::open(dir.path(), "", "/bin/sh").unwrap();
+    let id = st.new_session(LOCAL, 24, 80).unwrap();
+    (dir, st, id)
+}
+
+scenario!(scrne_b12_01_o_terminal_de_uma_sessao, "SCRNE-B12#01: O terminal de uma sessão mostra-a e escreve nela", {
+    let (_dir, st, id) = session();
+    let (mut s, mut rx) = Screen::attach(st.attach(LOCAL, &id).unwrap(), size(24, 80)).unwrap();
+    s.paste("echo marca-$((40+2))\r");
+    assert!(wait_for(&mut s, &mut rx, "marca-42"), "{}", s.text());
+});
+
+scenario!(scrne_b12_02_o_tamanho_e_o_da_sessao, "SCRNE-B12#02: O tamanho do terminal é o da sessão", {
+    let (_dir, st, id) = session();
+    let (mut s, _rx) = Screen::attach(st.attach(LOCAL, &id).unwrap(), size(24, 80)).unwrap();
+    s.resize(size(30, 100));
+    let end = Instant::now() + Duration::from_secs(5);
+    let mut cols = 0;
+    while cols != 100 && Instant::now() < end {
+        cols = st.sessions(LOCAL).unwrap()[0].cols;
+        std::thread::sleep(Duration::from_millis(20));
+    }
+    assert_eq!(cols, 100);
+});
+
+scenario!(scrne_b12_03_largar_o_terminal_deixa_a_sessao, "SCRNE-B12#03: Largar o terminal deixa a sessão", {
+    let (_dir, st, id) = session();
+    let (s, mut rx) = Screen::attach(st.attach(LOCAL, &id).unwrap(), size(24, 80)).unwrap();
+    drop(s);
+    let end = Instant::now() + Duration::from_secs(5);
+    let mut ended = false;
+    while Instant::now() < end && !ended {
+        match rx.try_recv() {
+            Ok(Event::Exit) | Err(TryRecvError::Closed) => ended = true,
+            Ok(Event::Output(_)) => {}
+            Err(TryRecvError::Empty) => std::thread::sleep(Duration::from_millis(10)),
+        }
+    }
+    assert!(ended, "the channel did not end");
+    assert_eq!(st.sessions(LOCAL).unwrap().len(), 1);
 });
 
 scenario!(scrne_e01_uma_shell_que_nao_arranca_da_o_erro, "SCRNE-E01: Uma shell que não arranca dá o erro", {

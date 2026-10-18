@@ -85,3 +85,21 @@ Feature: Screen
     Given o programa "/nao/existe/shell"
     When o terminal o arranca
     Then o erro diz "/nao/existe/shell"
+
+  @SCRNE-B12#01 @unit-level
+  Scenario: O terminal de uma sessão mostra-a e escreve nela
+    Given uma sessão da shell na máquina local
+    When um terminal se liga a ela e cola "echo marca-$((40+2))" com um Enter
+    Then o ecrã mostra "marca-42"
+
+  @SCRNE-B12#02 @unit-level
+  Scenario: O tamanho do terminal é o da sessão
+    Given o terminal de uma sessão de 24 por 80
+    When muda para 30 por 100
+    Then a sessão passa a ter 100 colunas
+
+  @SCRNE-B12#03 @unit-level
+  Scenario: Largar o terminal deixa a sessão
+    Given o terminal de uma sessão
+    When o terminal deixa de existir
+    Then o canal dá o fim, e a sessão continua na lista

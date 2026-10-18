@@ -8,6 +8,7 @@ use std::cell::RefCell;
 use std::io::{Read, Write};
 use std::path::Path;
 use std::rc::Rc;
+use std::sync::Arc;
 use std::time::Duration;
 
 use futures::channel::mpsc;
@@ -23,6 +24,7 @@ use libghostty_vt::{RenderState, Terminal, TerminalOptions};
 use portable_pty::{ChildKiller, CommandBuilder, MasterPty, PtySize, native_pty_system};
 
 use crate::keys::{self, Input}; // @dep: KYIMK
+use crate::remote::RemoteTerm; // @dep: RMIMP
 
 /// A colour, red, green and blue.
 pub type Rgb = (u8, u8, u8);
@@ -73,6 +75,19 @@ pub struct Frame {
     pub palette: Vec<Rgb>,
 }
 
+/// What the terminal sends, to the session it shows (SCRNE-B12).
+struct SessionWriter(Arc<RemoteTerm>);
+
+impl Write for SessionWriter {
+    fn write(&mut self, buf: &[u8]) -> std::io::Result<usize> {
+        self.0.write(buf).map_err(|e| std::io::Error::other(e.0))
+    }
+
+    fn flush(&mut self) -> std::io::Result<()> {
+        Ok(())
+    }
+}
+
 /// The terminal.
 pub struct Screen {
     term: Terminal<'static, 'static>,
@@ -84,6 +99,8 @@ pub struct Screen {
     writer: Rc<RefCell<Box<dyn Write>>>,
     pty: Option<Box<dyn MasterPty + Send>>,
     killer: Option<Box<dyn ChildKiller + Send + Sync>>,
+    /// The session this terminal shows, when it is not a pty of the window (SCRNE-B12).
+    remote: Option<Arc<RemoteTerm>>,
     size: Size,
 }
 
@@ -92,6 +109,10 @@ impl Drop for Screen {
     fn drop(&mut self) {
         if let Some(mut killer) = self.killer.take() {
             let _ = killer.kill();
+        }
+        // SCRNE-B12: the session goes on; the reader gets the end
+        if let Some(remote) = self.remote.take() {
+            remote.detach();
         }
     }
 }
@@ -121,6 +142,7 @@ impl Screen {
             writer,
             pty: None,
             killer: None,
+            remote: None,
             size,
         })
     }
@@ -171,6 +193,32 @@ impl Screen {
         Ok((screen, rx))
     }
 
+    /// The terminal of a session of a machine (SCRNE-B12).
+    pub fn attach(term: RemoteTerm, size: Size) -> Result<(Screen, Events), String> {
+        let size = size.at_least_one();
+        let term = Arc::new(term);
+        let (tx, rx) = mpsc::unbounded();
+        let reader = term.clone();
+        std::thread::spawn(move || {
+            let mut buf = vec![0u8; 64 * 1024];
+            loop {
+                match reader.read(&mut buf) {
+                    Ok(0) | Err(_) => break,
+                    Ok(n) => {
+                        if tx.unbounded_send(Event::Output(buf[..n].to_vec())).is_err() {
+                            return;
+                        }
+                    }
+                }
+            }
+            let _ = tx.unbounded_send(Event::Exit);
+        });
+        let mut screen = Screen::new(size, Box::new(SessionWriter(term.clone())))?;
+        let _ = term.resize(size.rows, size.cols);
+        screen.remote = Some(term);
+        Ok((screen, rx))
+    }
+
     /// Passes the shell's output to the terminal (SCRNE-B02).
     pub fn feed(&mut self, data: &[u8]) {
         self.term.vt_write(data);
@@ -217,6 +265,9 @@ impl Screen {
         let _ = self.term.resize(size.cols, size.rows, size.cell_w, size.cell_h);
         if let Some(pty) = &self.pty {
             let _ = pty.resize(size.pty());
+        }
+        if let Some(remote) = &self.remote {
+            let _ = remote.resize(size.rows, size.cols);
         }
     }
 

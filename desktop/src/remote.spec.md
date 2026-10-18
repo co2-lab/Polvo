@@ -36,7 +36,8 @@ o `close_session` termina-a.
 
 ### RMTEC-B03 — Um terminal de uma sessão
 O `attach` dá um terminal da sessão: o `read` dá o que a sessão mostra, primeiro o ecrã atual; o `write`
-escreve nela; o `resize` muda-lhe o tamanho. Largar o terminal deixa a sessão viva.
+escreve nela; o `resize` muda-lhe o tamanho. Largar o terminal (o `detach`, ou deixá-lo cair) deixa a
+sessão viva, e um `read` à espera dá o fim.
 
 ### RMTEC-B04 — Juntar e esquecer uma máquina
 O estado dá a chave desta instalação, como a linha que a outra máquina junta ao `authorized_keys`. Com
@@ -69,6 +70,11 @@ nome (o endereço); o `remove` esquece-a.
 | `RMTEC-B03` | `machine`, `id` |
 | `RMTEC-E01` | `machine`, `id` |
 | `RMTEC-B04` | `machine` |
+
+## Revisions
+
+> **RMTEC-R0001:** o `RMTEC-B03` passa a ter o `detach`, para o ecrã de uma sessão a largar enquanto a
+> leitura dela ainda está à espera (o `Screen::attach`, plano ESRMS, W02).
 
 ## Open Decisions
 

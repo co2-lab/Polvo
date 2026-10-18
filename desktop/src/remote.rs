@@ -204,7 +204,7 @@ impl Station {
         if t == 0 {
             return Err(RemoteError(unsafe { take(err) }));
         }
-        Ok(RemoteTerm { t, _station: self.clone() })
+        Ok(RemoteTerm { t, detached: false.into(), _station: self.clone() })
     }
 }
 
@@ -212,6 +212,7 @@ impl Station {
 /// alive (RMTEC-B03). Its calls may come from any thread.
 pub struct RemoteTerm {
     t: i64,
+    detached: std::sync::atomic::AtomicBool,
     _station: Station,
 }
 
@@ -251,10 +252,19 @@ impl RemoteTerm {
     }
 }
 
+impl RemoteTerm {
+    /// Lets go of the session, which goes on (RMTEC-B03); a read waiting gets the end. Once is enough.
+    pub fn detach(&self) {
+        if !self.detached.swap(true, std::sync::atomic::Ordering::SeqCst) {
+            // SAFETY: the number is the library's, let go once.
+            unsafe { polvo_detach(self.t) }
+        }
+    }
+}
+
 impl Drop for RemoteTerm {
     fn drop(&mut self) {
-        // SAFETY: the number is the library's, let go once.
-        unsafe { polvo_detach(self.t) }
+        self.detach();
     }
 }
 

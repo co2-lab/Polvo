@@ -77,6 +77,12 @@ O `title` é o título que a shell pôs no terminal (a sequência `OSC 0` ou `OS
 Quando o `Screen` deixa de existir (a aba do terminal fechou), a shell dele é terminada, e o canal dá
 o fim. Nenhuma shell fica a correr sem terminal.
 
+### SCRNE-B12 — O terminal de uma sessão
+O `attach` faz o terminal de uma sessão de uma máquina (`RemoteTerm`), em vez de um pty da janela: a
+saída da sessão é o ecrã (primeiro o ecrã atual dela), o que o terminal envia (as teclas, o que se cola,
+as respostas) vai para a sessão, o tamanho muda o da sessão, e o fim dela chega pelo canal. Largar o
+terminal larga a sessão, que continua (quem a termina é quem a fez), e o canal dá o fim.
+
 ## Domain
 
 | Input | Accepts | Outside the domain | Who guarantees |
@@ -84,6 +90,7 @@ o fim. Nenhuma shell fica a correr sem terminal.
 | `argv` | o programa e os argumentos | vazio, ou um programa que não arranca | este módulo: o erro do `spawn` (`SCRNE-E01`) |
 | `Size` | linhas e colunas maiores que zero | zero | este módulo: o mínimo é uma linha e uma coluna |
 | `data` | qualquer sequência de bytes da shell | — | a libghostty-vt: o que não entende ignora, sem estragar o estado |
+| `RemoteTerm` | o terminal de uma sessão viva | uma sessão que acabou | este módulo: o canal dá o fim |
 
 ## Errors / Failures
 | Rule | Condition | Failure |
@@ -111,6 +118,7 @@ o fim. Nenhuma shell fica a correr sem terminal.
 | `SCRNE-B09` | `argv` |
 | `SCRNE-B10` | `data` |
 | `SCRNE-B11` | `argv` |
+| `SCRNE-B12` | `RemoteTerm`, `Size`, `data` |
 | `SCRNE-E01` | `argv` |
 
 ## Revisions
@@ -118,6 +126,9 @@ o fim. Nenhuma shell fica a correr sem terminal.
 > **SCRNE-R0001:** entram o `SCRNE-B10` (o título) e o `SCRNE-B11` (largar o terminal termina a shell),
 > para o painel do terminal na doca (plano JNNTJ, fase W02): a aba mostra o título, e fechá-la não
 > deixa a shell órfã. As outras regras não mudam.
+
+> **SCRNE-R0002:** entra o `SCRNE-B12` (o terminal de uma sessão), para a janela mostrar as sessões desta
+> máquina e das outras pelo nó (plano ESRMS, W02).
 
 ## Open Decisions
 

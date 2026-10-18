@@ -92,13 +92,14 @@ func TestBridge_station(t *testing.T) {
 		if err != nil {
 			t.Fatal(err)
 		}
-		if _, err := Write(term, []byte("echo $((40+2))\n")); err != nil {
+		// a mark only the result has: the echo of the line and the prompt do not make it
+		if _, err := Write(term, []byte("echo marca-$((40+2))\n")); err != nil {
 			t.Fatal(err)
 		}
 		var got strings.Builder
 		end := time.Now().Add(10 * time.Second)
 		buf := make([]byte, 4096)
-		for !strings.Contains(got.String(), "\n42") && time.Now().Before(end) {
+		for !strings.Contains(got.String(), "marca-42") && time.Now().Before(end) {
 			n, err := Read(term, buf)
 			got.Write(buf[:n])
 			if err != nil || n == 0 {
@@ -111,7 +112,7 @@ func TestBridge_station(t *testing.T) {
 		Detach(term)
 		var l list
 		call(t, h, `{"op":"sessions","machine":"local"}`, &l)
-		if !strings.Contains(got.String(), "\n42") || len(l.Sessions) != 1 {
+		if !strings.Contains(got.String(), "marca-42") || len(l.Sessions) != 1 {
 			t.Fatalf("want 42 and the session alive, got %q and %+v", got.String(), l)
 		}
 	})

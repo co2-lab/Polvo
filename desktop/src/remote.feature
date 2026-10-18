@@ -23,8 +23,8 @@ Feature: Remote
   @RMTEC-B03 @unit-level
   Scenario: Um terminal de uma sessão
     Given uma sessão local da shell
-    When um terminal se liga, escreve "echo $((40+2))", muda o tamanho e é largado
-    Then lê "42", e a sessão continua na lista
+    When um terminal se liga, escreve "echo marca-$((40+2))", muda o tamanho e é largado
+    Then lê "marca-42", e a sessão continua na lista
 
   @RMTEC-E01 @unit-level
   Scenario: O erro da biblioteca

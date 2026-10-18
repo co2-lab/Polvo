@@ -51,11 +51,12 @@ scenario!(rmtec_b03_um_terminal_de_uma_sessao, "RMTEC-B03: Um terminal de uma se
     let (_dir, st) = open();
     let id = st.new_session(LOCAL, 24, 80).unwrap();
     let term = st.attach(LOCAL, &id).unwrap();
-    term.write(b"echo $((40+2))\n").unwrap();
-    let got = read_for(&term, "\n42");
+    // a mark only the result has: the echo of the line and the prompt do not make it
+    term.write(b"echo marca-$((40+2))\n").unwrap();
+    let got = read_for(&term, "marca-42");
     term.resize(30, 100).unwrap();
     drop(term);
-    assert!(got.contains("\n42"), "{got:?}");
+    assert!(got.contains("marca-42"), "{got:?}");
     assert_eq!(st.sessions(LOCAL).unwrap().len(), 1);
 });
 

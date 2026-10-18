@@ -23,8 +23,8 @@ Feature: Bridge
   @BRDGE-B03 @unit-level
   Scenario: Um terminal ligado a uma sessão
     Given uma sessão local de uma shell
-    When um terminal se liga, escreve "echo $((40+2))", muda o tamanho e larga
-    Then lê "42", e a sessão continua na lista
+    When um terminal se liga, escreve "echo marca-$((40+2))", muda o tamanho e larga
+    Then lê "marca-42", e a sessão continua na lista
 
   @BRDGE-E01 @unit-level
   Scenario: Um número que não vale
