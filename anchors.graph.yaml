@@ -162,15 +162,15 @@ nodes:
       line_rev: adcd330e119e
     - id: desktop/src/editor.rs
       kind: code
-      rev: 8a3dbc9a6204
+      rev: 4b328f8f6df3
       updated_at: "2026-10-17"
       code: EDTRS
       file_code: EDIMP
       layer: desktop
       tags:
         - desktop
-      evidence_rev: 5caaed74a1e5
-      line_rev: 9ec0a24850b3
+      evidence_rev: 00d874ec5a41
+      line_rev: 5cbb9476d0ea
     - id: desktop/src/editor.spec.md
       kind: spec
       rev: e2fdde419e1a
@@ -209,15 +209,15 @@ nodes:
       line_rev: f1009a04d654
     - id: desktop/src/files.rs
       kind: code
-      rev: c68bebe47212
+      rev: "001587884706"
       updated_at: "2026-10-17"
       code: FLTRE
       file_code: FLIMP
       layer: desktop
       tags:
         - desktop
-      evidence_rev: fc1b0d6dd439
-      line_rev: 6878d622875e
+      evidence_rev: 957df4a8e3c4
+      line_rev: 30a2f5394fe7
     - id: desktop/src/files.spec.md
       kind: spec
       rev: c752be48af37
@@ -256,15 +256,15 @@ nodes:
       line_rev: a09beb7eeb0d
     - id: desktop/src/git.rs
       kind: code
-      rev: 48b1f2565b86
+      rev: d7c5bea359eb
       updated_at: "2026-10-17"
       code: GITRS
       file_code: GTIMP
       layer: desktop
       tags:
         - desktop
-      evidence_rev: daafdd3bce83
-      line_rev: f8db9388b1e8
+      evidence_rev: bcb3fd73cb77
+      line_rev: 323a25439be5
     - id: desktop/src/git.spec.md
       kind: spec
       rev: 7db655075045
@@ -502,15 +502,15 @@ nodes:
       line_rev: e2506cdfa380
     - id: desktop/src/nodes.rs
       kind: code
-      rev: 51fe785b6c91
+      rev: 97a213b30a0d
       updated_at: "2026-10-17"
       code: MQNAS
       file_code: MQIMP
       layer: desktop
       tags:
         - desktop
-      evidence_rev: 99ff8b5ff61e
-      line_rev: a3df575f1e3d
+      evidence_rev: 95e7e4d78169
+      line_rev: 9a7c22e00152
     - id: desktop/src/nodes.spec.md
       kind: spec
       rev: 04ed9c2446f0
@@ -1932,7 +1932,7 @@ edges:
       type: depends-on
       origin: declared
       stamp:
-        validated_from_rev: 8a3dbc9a6204
+        validated_from_rev: 4b328f8f6df3
         validated_to_rev: 5e29a7c824be
         changed_at: "2026-10-17"
         verdict: ok
@@ -1951,7 +1951,7 @@ edges:
       origin: convention
       stamp:
         validated_from_rev: e2fdde419e1a
-        validated_to_rev: 8a3dbc9a6204
+        validated_to_rev: 4b328f8f6df3
         changed_at: "2026-10-17"
         verdict: ok
     - from: desktop/src/files.feature
@@ -1978,7 +1978,7 @@ edges:
       origin: convention
       stamp:
         validated_from_rev: c752be48af37
-        validated_to_rev: c68bebe47212
+        validated_to_rev: "001587884706"
         changed_at: "2026-10-17"
         verdict: ok
     - from: desktop/src/git.feature
@@ -2005,7 +2005,7 @@ edges:
       origin: convention
       stamp:
         validated_from_rev: 7db655075045
-        validated_to_rev: 48b1f2565b86
+        validated_to_rev: d7c5bea359eb
         changed_at: "2026-10-17"
         verdict: ok
     - from: desktop/src/keymap.feature
@@ -2095,7 +2095,7 @@ edges:
       origin: declared
       stamp:
         validated_from_rev: 7d6e5285a063
-        validated_to_rev: 8a3dbc9a6204
+        validated_to_rev: 4b328f8f6df3
         changed_at: "2026-10-17"
         verdict: ok
     - from: desktop/src/main.rs
@@ -2104,7 +2104,7 @@ edges:
       origin: declared
       stamp:
         validated_from_rev: 7d6e5285a063
-        validated_to_rev: c68bebe47212
+        validated_to_rev: "001587884706"
         changed_at: "2026-10-17"
         verdict: ok
     - from: desktop/src/main.rs
@@ -2113,7 +2113,7 @@ edges:
       origin: declared
       stamp:
         validated_from_rev: 7d6e5285a063
-        validated_to_rev: 48b1f2565b86
+        validated_to_rev: d7c5bea359eb
         changed_at: "2026-10-17"
         verdict: ok
     - from: desktop/src/main.rs
@@ -2158,7 +2158,7 @@ edges:
       origin: declared
       stamp:
         validated_from_rev: 7d6e5285a063
-        validated_to_rev: 51fe785b6c91
+        validated_to_rev: 97a213b30a0d
         changed_at: "2026-10-17"
         verdict: ok
     - from: desktop/src/main.rs
@@ -2265,7 +2265,7 @@ edges:
       type: depends-on
       origin: declared
       stamp:
-        validated_from_rev: 51fe785b6c91
+        validated_from_rev: 97a213b30a0d
         validated_to_rev: b602c9c45fca
         changed_at: "2026-10-17"
         verdict: ok
@@ -2274,7 +2274,7 @@ edges:
       type: depends-on
       origin: declared
       stamp:
-        validated_from_rev: 51fe785b6c91
+        validated_from_rev: 97a213b30a0d
         validated_to_rev: 67b0f2c9a21d
         changed_at: "2026-10-17"
         verdict: ok
@@ -2293,7 +2293,7 @@ edges:
       origin: convention
       stamp:
         validated_from_rev: 04ed9c2446f0
-        validated_to_rev: 51fe785b6c91
+        validated_to_rev: 97a213b30a0d
         changed_at: "2026-10-17"
         verdict: ok
     - from: desktop/src/nodes_test.rs
@@ -2644,7 +2644,7 @@ edges:
       origin: declared
       stamp:
         validated_from_rev: f1023645d5ec
-        validated_to_rev: 8a3dbc9a6204
+        validated_to_rev: 4b328f8f6df3
         changed_at: "2026-10-17"
         verdict: ok
     - from: desktop/src/window.rs
@@ -2653,7 +2653,7 @@ edges:
       origin: declared
       stamp:
         validated_from_rev: f1023645d5ec
-        validated_to_rev: c68bebe47212
+        validated_to_rev: "001587884706"
         changed_at: "2026-10-17"
         verdict: ok
     - from: desktop/src/window.rs
@@ -2662,7 +2662,7 @@ edges:
       origin: declared
       stamp:
         validated_from_rev: f1023645d5ec
-        validated_to_rev: 48b1f2565b86
+        validated_to_rev: d7c5bea359eb
         changed_at: "2026-10-17"
         verdict: ok
     - from: desktop/src/window.rs
@@ -2698,7 +2698,7 @@ edges:
       origin: declared
       stamp:
         validated_from_rev: f1023645d5ec
-        validated_to_rev: 51fe785b6c91
+        validated_to_rev: 97a213b30a0d
         changed_at: "2026-10-17"
         verdict: ok
     - from: desktop/src/window.rs

@@ -6,12 +6,11 @@
 //! window's thread, for a machine may answer late.
 
 use gpui_kit::base::TestSupportExt as _;
-use gpui_kit::base::test_support::Observed;
 use gpui_kit::component::ActiveTheme as _;
 use gpui_kit::component::dock::{BasePanel, Panel, PanelEvent};
 use gpui_kit::component::input::{Input, InputState};
 use gpui_kit::{
-    App, AppContext as _, ClipboardItem, Context, Entity, EventEmitter, FocusHandle, Focusable, FontWeight, Hsla,
+    App, AppContext as _, ClickEvent, ClipboardItem, Context, Entity, EventEmitter, FocusHandle, Focusable, FontWeight, Hsla,
     IntoElement, ParentElement as _, Render, Role, SharedString, Styled as _, Task, Window, div, prelude::*, px,
 };
 
@@ -161,11 +160,17 @@ impl NodesPanel {
         self.join_message = Some(message);
     }
 
-    fn button(id: String, label: &'static str, hover: Hsla) -> Observed<gpui_kit::Stateful<gpui_kit::Div>> {
+    fn button(
+        id: String,
+        label: &'static str,
+        hover: Hsla,
+        on_click: impl Fn(&ClickEvent, &mut Window, &mut App) + 'static,
+    ) -> impl IntoElement {
         div()
             .id(SharedString::from(id))
             .role(Role::Button)
             .aria_label(label)
+            .on_click(on_click)
             .test_support()
             .px(px(8.))
             .py(px(2.))
@@ -190,12 +195,12 @@ impl NodesPanel {
             .gap(px(8.))
             .pt(px(12.))
             .child(div().flex_1().font_weight(FontWeight::BOLD).child(title))
-            .child(Self::button(format!("new-{}", m.name), "Sessão nova", hover).on_click(cx.listener({
+            .child(Self::button(format!("new-{}", m.name), "Sessão nova", hover, cx.listener({
                 let name = name.clone();
                 move |this, _, _, cx| this.new_session(name.clone(), cx)
             })));
         if !m.local {
-            head = head.child(Self::button(format!("remove-{}", m.name), "Esquecer", hover).on_click(cx.listener({
+            head = head.child(Self::button(format!("remove-{}", m.name), "Esquecer", hover, cx.listener({
                 let name = name.clone();
                 move |this, _, _, cx| this.remove(name.clone(), cx)
             })));
@@ -228,7 +233,7 @@ impl NodesPanel {
                             .font_family("monospace")
                             .child(key.clone()),
                     )
-                    .child(Self::button("copy-key".into(), "Copiar a chave", hover).on_click(move |_, _, cx| {
+                    .child(Self::button("copy-key".into(), "Copiar a chave", hover, move |_, _, cx| {
                         cx.write_to_clipboard(ClipboardItem::new_string(key.clone()));
                     })),
             );
@@ -277,7 +282,7 @@ impl NodesPanel {
                     if m.local {
                         let (id, locked) = (s.id.clone(), s.locked);
                         let label = if locked { "Destravar" } else { "Travar" };
-                        row = row.child(Self::button(format!("lock-{}", s.id), label, hover).on_click(cx.listener(
+                        row = row.child(Self::button(format!("lock-{}", s.id), label, hover, cx.listener(
                             move |this, _, _, cx| {
                                 cx.stop_propagation();
                                 this.lock(id.clone(), !locked, cx);
@@ -345,8 +350,8 @@ impl Render for NodesPanel {
                             .on_click(move |_, window, cx| addr.update(cx, |s, cx| s.focus(window, cx)))
                             .child(Input::new(&self.addr)),
                     )
-                    .child(Self::button("join".into(), "Juntar", hover).on_click(cx.listener(|this, _, window, cx| this.join(window, cx))))
-                    .child(Self::button("nodes-refresh".into(), "Atualizar", hover).on_click(cx.listener(|this, _, _, cx| this.refresh(cx)))),
+                    .child(Self::button("join".into(), "Juntar", hover, cx.listener(|this, _, window, cx| this.join(window, cx))))
+                    .child(Self::button("nodes-refresh".into(), "Atualizar", hover, cx.listener(|this, _, _, cx| this.refresh(cx)))),
             )
             .children(message)
             .child(div().id("machines-list").flex_1().min_h_0().overflow_y_scroll().px(px(12.)).children(machines))

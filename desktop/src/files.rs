@@ -30,8 +30,8 @@ const INDENT: f32 = 16.;
 enum Kind {
     Folder { expanded: bool },
     File,
-    /// Why the folder above could not be read (FLTRE-E01).
-    Error(String),
+    /// Why the folder above could not be read (FLTRE-E01), in the row's name.
+    Error,
 }
 
 /// A line of the tree.
@@ -50,7 +50,7 @@ fn read_folder(path: &Path, depth: usize) -> Vec<Row> {
         Ok(entries) => entries,
         Err(e) => {
             // FLTRE-E01
-            return vec![Row { path: path.to_path_buf(), name: e.to_string(), depth, kind: Kind::Error(e.to_string()) }];
+            return vec![Row { path: path.to_path_buf(), name: e.to_string(), depth, kind: Kind::Error }];
         }
     };
     let mut rows: Vec<Row> = entries
@@ -87,10 +87,12 @@ impl FileTree {
     }
 
     /// The folder of the tree.
+    #[cfg(test)]
     pub fn root(&self) -> &Path {
         &self.root
     }
 
+    #[cfg(test)]
     /// The lines of the tree as text: two spaces a level, folders with "/", and "! " before a reason.
     pub fn listing(&self) -> Vec<String> {
         self.rows
@@ -100,13 +102,14 @@ impl FileTree {
                 match &r.kind {
                     Kind::Folder { .. } => format!("{indent}{}/", r.name),
                     Kind::File => format!("{indent}{}", r.name),
-                    Kind::Error(reason) => format!("{indent}! {reason}"),
+                    Kind::Error => format!("{indent}! {}", r.name),
                 }
             })
             .collect()
     }
 
     /// The name of the chosen line.
+    #[cfg(test)]
     pub fn chosen(&self) -> String {
         self.rows.get(self.selected).map(|r| r.name.clone()).unwrap_or_default()
     }
@@ -150,7 +153,7 @@ impl FileTree {
             Kind::Folder { expanded: true } => self.collapse(i),
             // FLTRE-B03
             Kind::File => cx.emit(FileTreeEvent::Open(row.path.clone())),
-            Kind::Error(_) => {}
+            Kind::Error => {}
         }
     }
 
@@ -198,10 +201,10 @@ impl FileTree {
                 let (icon, expanded) = match row.kind {
                     Kind::Folder { expanded } => (Some(if expanded { IconName::FolderOpen } else { IconName::Folder }), Some(expanded)),
                     Kind::File => (Some(IconName::File), None),
-                    Kind::Error(_) => (None, None),
+                    Kind::Error => (None, None),
                 };
                 let id = match row.kind {
-                    Kind::Error(_) => SharedString::from(format!("error-{rel}")),
+                    Kind::Error => SharedString::from(format!("error-{rel}")),
                     _ => SharedString::from(format!("entry-{rel}")),
                 };
                 div()
@@ -221,7 +224,7 @@ impl FileTree {
                     .whitespace_nowrap()
                     .cursor_pointer()
                     .when(selected, |d| d.bg(active))
-                    .when(matches!(row.kind, Kind::Error(_)), |d| d.text_color(danger))
+                    .when(matches!(row.kind, Kind::Error), |d| d.text_color(danger))
                     .on_click(cx.listener(move |this, _, window, cx| {
                         window.focus(&this.focus, cx);
                         this.selected = i;

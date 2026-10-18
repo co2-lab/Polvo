@@ -145,6 +145,7 @@ impl EditorPanel {
     }
 
     /// The language the editor highlights in.
+    #[cfg(test)]
     pub fn language(&self, cx: &App) -> Option<String> {
         self.state.as_ref().map(|s| s.read(cx).language_name().to_string())
     }

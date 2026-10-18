@@ -210,6 +210,7 @@ impl GitPanel {
     }
 
     /// The folder of the tab.
+    #[cfg(test)]
     pub fn root(&self) -> &Path {
         &self.root
     }
