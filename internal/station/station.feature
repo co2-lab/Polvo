@@ -61,3 +61,33 @@ Feature: Station
     Given uma Station sem escutar
     When uma sessão local escreve o POLVO_NODE, e a instalação se liga a esse endereço
     Then a ligação entra e lista a sessão
+
+  @STATN-B08 @unit-level
+  Scenario: O nó desta máquina emparelha
+    Given uma Station a escutar, e outra instalação que ela não conhece
+    When a outra começa a emparelhar
+    Then a primeira mostra o pedido com o código, e depois de emparelhar já não
+
+  @STATN-B09#01 @unit-level
+  Scenario: Anunciar-se na rede
+    Given uma Station a escutar, anunciada no grupo de teste
+    When se procura no grupo
+    Then encontra-a, com a porta onde escuta e a impressão digital da chave do nó
+
+  @STATN-B10 @unit-level
+  Scenario: Procurar as máquinas da rede
+    Given duas Stations a escutar no grupo de teste, a segunda já com a primeira conhecida
+    When a segunda procura
+    Then encontra a primeira, conhecida, e não se encontra a si
+
+  @STATN-B11 @unit-level
+  Scenario: Emparelhar com uma máquina
+    Given uma Station a escutar, e outra instalação que ela não conhece
+    When a outra emparelha com o código que a primeira mostra
+    Then a outra tem a primeira nas máquinas, e lista as sessões dela
+
+  @STATN-B09#02 @unit-level
+  Scenario: No loopback não se anuncia
+    Given uma Station a escutar no loopback, com o grupo de teste
+    When se procura no grupo
+    Then não encontra nada

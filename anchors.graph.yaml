@@ -538,51 +538,51 @@ nodes:
       line_rev: bd24ba14d33f
     - id: desktop/src/nodes.feature
       kind: feature
-      rev: f93c24ec9ad5
-      updated_at: "2026-10-17"
+      rev: 1280b1b56a53
+      updated_at: "2026-10-18"
       code: MQNAS
       file_code: MQFST
       layer: feature
       tags:
         - feature
-      evidence_rev: 43e1ea62f179
-      line_rev: e2506cdfa380
+      evidence_rev: e8e0a988b5a1
+      line_rev: 857d95065296
     - id: desktop/src/nodes.rs
       kind: code
-      rev: 97a213b30a0d
-      updated_at: "2026-10-17"
+      rev: 6cc3f59fa06f
+      updated_at: "2026-10-18"
       code: MQNAS
       file_code: MQIMP
       layer: desktop
       tags:
         - desktop
-      evidence_rev: 95e7e4d78169
-      line_rev: 9a7c22e00152
+      evidence_rev: 864c78efa191
+      line_rev: 7a929f2dae62
     - id: desktop/src/nodes.spec.md
       kind: spec
-      rev: 04ed9c2446f0
-      updated_at: "2026-10-17"
+      rev: 846f8d88d2b1
+      updated_at: "2026-10-18"
       code: MQNAS
       file_code: MQNAS
       layer: spec
       code_declared: true
       tags:
         - spec
-      evidence_rev: 18a28b2d5e3c
-      rule_revs: {MQNAS-B01: fba8b0327b4c, MQNAS-B02: a8289c7379b4, MQNAS-B03: dfd583a31dc4, MQNAS-B04: a7d3319d1d7a, MQNAS-B05: e9089ca69aa7, MQNAS-B06: 9ab2e05da2e1, MQNAS-E01: 9b21e5a4f322, MQNAS-E02: 409d0673ff96}
-      rest_rev: f0cd9a83e671
+      evidence_rev: c6b012a119e3
+      rule_revs: {MQNAS-B01: fba8b0327b4c, MQNAS-B02: a8289c7379b4, MQNAS-B03: dfd583a31dc4, MQNAS-B04: a7d3319d1d7a, MQNAS-B05: e9089ca69aa7, MQNAS-B06: 9ab2e05da2e1, MQNAS-B07: a14327c1df0b, MQNAS-B08: 774e19f93430, MQNAS-B09: 9d94ed44db89, MQNAS-E01: 9b21e5a4f322, MQNAS-E02: 409d0673ff96, MQNAS-E03: 69bbbe62e41c}
+      rest_rev: d92d7b14341d
     - id: desktop/src/nodes_test.rs
       kind: test
-      rev: c62be971eb7c
-      updated_at: "2026-10-17"
+      rev: cfa68fef9fe3
+      updated_at: "2026-10-18"
       code: MQNAS
       file_code: MQTST
       layer: desktoptest
       tags:
         - test
         - desktop
-      evidence_rev: 320cc2318a9c
-      line_rev: df9e1bd085e4
+      evidence_rev: b1e3f0260234
+      line_rev: a22ceb47f6a4
     - id: desktop/src/panel.feature
       kind: feature
       rev: c5d178d18015
@@ -679,29 +679,29 @@ nodes:
       line_rev: c1c6cf951c28
     - id: desktop/src/remote.feature
       kind: feature
-      rev: f54deaf9de64
+      rev: 849ffa73dc7c
       updated_at: "2026-10-18"
       code: RMTEC
       file_code: RMFST
       layer: feature
       tags:
         - feature
-      evidence_rev: 006f3fa4c455
-      line_rev: 8f207bfc7843
+      evidence_rev: aa143a28e89a
+      line_rev: 0f3e95fe2fe7
     - id: desktop/src/remote.rs
       kind: code
-      rev: cc178e893cc4
+      rev: 58a7769ee811
       updated_at: "2026-10-18"
       code: RMTEC
       file_code: RMIMP
       layer: desktop
       tags:
         - desktop
-      evidence_rev: 2d742f5f3cc4
-      line_rev: 3bd8e009ee06
+      evidence_rev: 945c8d333b28
+      line_rev: 7b1a2bff5ed7
     - id: desktop/src/remote.spec.md
       kind: spec
-      rev: 819d67e1fa0e
+      rev: 01010c0edeae
       updated_at: "2026-10-18"
       code: RMTEC
       file_code: RMTEC
@@ -709,12 +709,12 @@ nodes:
       code_declared: true
       tags:
         - spec
-      evidence_rev: deddb6ee4e28
-      rule_revs: {RMTEC-B01: 0c9e2dbb329b, RMTEC-B02: ef4270b4bb2c, RMTEC-B03: 4d9b4756a207, RMTEC-B04: 9cff6ca73d46, RMTEC-B05: d2988f9d536e, RMTEC-E01: d09abd1cb2f7}
-      rest_rev: acb8448c0ed0
+      evidence_rev: b965f4262c3e
+      rule_revs: {RMTEC-B01: 0c9e2dbb329b, RMTEC-B02: ef4270b4bb2c, RMTEC-B03: 4d9b4756a207, RMTEC-B04: 9cff6ca73d46, RMTEC-B05: d2988f9d536e, RMTEC-B06: ec427eb44710, RMTEC-E01: d09abd1cb2f7}
+      rest_rev: 752985608cf0
     - id: desktop/src/remote_test.rs
       kind: test
-      rev: 448a33a2ebf3
+      rev: c19ded2fa79b
       updated_at: "2026-10-18"
       code: RMTEC
       file_code: RMTST
@@ -722,8 +722,8 @@ nodes:
       tags:
         - test
         - desktop
-      evidence_rev: 2581ca26a4e6
-      line_rev: 3514b057e1b7
+      evidence_rev: 5a8687ffe13f
+      line_rev: 1f49e21c1f11
     - id: desktop/src/screen.feature
       kind: feature
       rev: 44a278e68a78
@@ -960,29 +960,29 @@ nodes:
       line_rev: 6cc4d594a272
     - id: internal/bridge/bridge.feature
       kind: feature
-      rev: 68ae535d9f37
+      rev: 832af713c208
       updated_at: "2026-10-18"
       code: BRDGE
       file_code: BRFST
       layer: feature
       tags:
         - feature
-      evidence_rev: a388dd12926b
-      line_rev: aed5874d766e
+      evidence_rev: 5506f05b555c
+      line_rev: 40a185dbc2f2
     - id: internal/bridge/bridge.go
       kind: code
-      rev: 46bfc1014abe
+      rev: e1f1d37692d4
       updated_at: "2026-10-18"
       code: BRDGE
       file_code: BRIMP
       layer: bridge
       tags:
         - bridge
-      evidence_rev: 7d7a1b8c225a
-      line_rev: 0fe0df2851ae
+      evidence_rev: b764353d0cec
+      line_rev: ce0b02dbaf14
     - id: internal/bridge/bridge.spec.md
       kind: spec
-      rev: c2618b362725
+      rev: e0a62a180155
       updated_at: "2026-10-18"
       code: BRDGE
       file_code: BRDGE
@@ -990,20 +990,20 @@ nodes:
       code_declared: true
       tags:
         - spec
-      evidence_rev: 1aaf4aa4d6b5
-      rule_revs: {BRDGE-B01: 1441a21b2af2, BRDGE-B02: bb24f9df7af9, BRDGE-B03: 71c3330ad6c4, BRDGE-B04: b80286260339, BRDGE-E01: 8a82cf80eba3, BRDGE-E02: 21eb295abb65, BRDGE-E03: 5583ed46b1f9}
-      rest_rev: bf5291d035ce
+      evidence_rev: cb53df108c63
+      rule_revs: {BRDGE-B01: 1441a21b2af2, BRDGE-B02: bb24f9df7af9, BRDGE-B03: 71c3330ad6c4, BRDGE-B04: b80286260339, BRDGE-B05: 244c7e6310c3, BRDGE-E01: 8a82cf80eba3, BRDGE-E02: 21eb295abb65, BRDGE-E03: 5583ed46b1f9}
+      rest_rev: 76306f8df3c8
     - id: internal/bridge/bridge_test.go
       kind: test
-      rev: 697d3cc51e17
+      rev: 28a93cd208d6
       updated_at: "2026-10-18"
       code: BRDGE
       file_code: BRTST
       layer: test
       tags:
         - test
-      evidence_rev: 9e8d97d0621a
-      line_rev: ccaf86f88d1b
+      evidence_rev: 31157df18f59
+      line_rev: c2ec0c3b5eab
     - id: internal/discovery/discovery.feature
       kind: feature
       rev: e439f7b75176
@@ -1819,29 +1819,29 @@ nodes:
       line_rev: 82b4778df5ca
     - id: internal/station/station.feature
       kind: feature
-      rev: 75546bf3502d
+      rev: 4a8bc045e0ba
       updated_at: "2026-10-18"
       code: STATN
       file_code: STFST
       layer: feature
       tags:
         - feature
-      evidence_rev: 6b59bfcc751f
-      line_rev: b342b91c57d2
+      evidence_rev: 4bc755c666c8
+      line_rev: 39d8122c1792
     - id: internal/station/station.go
       kind: code
-      rev: 23f72f25a0d9
+      rev: de37945ea4c6
       updated_at: "2026-10-18"
       code: STATN
       file_code: STIMP
       layer: station
       tags:
         - station
-      evidence_rev: b86ecc1dc61e
-      line_rev: 83e344911cce
+      evidence_rev: 8353184a7748
+      line_rev: 370fe002c10a
     - id: internal/station/station.spec.md
       kind: spec
-      rev: e059d1636338
+      rev: 501495cdaa91
       updated_at: "2026-10-18"
       code: STATN
       file_code: STATN
@@ -1849,20 +1849,20 @@ nodes:
       code_declared: true
       tags:
         - spec
-      evidence_rev: 3f6081e5683d
-      rule_revs: {STATN-B01: 3feb54060a1f, STATN-B02: f7f33f97f434, STATN-B03: 5c2e9869920b, STATN-B04: d629aabb7957, STATN-B05: 256656c8259e, STATN-B06: 7d2b0c3b0944, STATN-B07: 8cddd36aaf2d, STATN-D01: 726c38e183a8, STATN-E01: 3a154fb24d61, STATN-E02: 6775eb8dd39b}
-      rest_rev: b7e9ec446983
+      evidence_rev: baabcb2d45bb
+      rule_revs: {STATN-B01: 3feb54060a1f, STATN-B02: f7f33f97f434, STATN-B03: 5c2e9869920b, STATN-B04: d629aabb7957, STATN-B05: 256656c8259e, STATN-B06: 7d2b0c3b0944, STATN-B07: 8cddd36aaf2d, STATN-B08: 95483604a4c8, STATN-B09: ca4af386886d, STATN-B10: c25b62f91b0f, STATN-B11: 92827112d154, STATN-D01: 726c38e183a8, STATN-E01: 3a154fb24d61, STATN-E02: 6775eb8dd39b}
+      rest_rev: a9ff3cc8faa2
     - id: internal/station/station_test.go
       kind: test
-      rev: 6babfd51b097
+      rev: 4e24eb265024
       updated_at: "2026-10-18"
       code: STATN
       file_code: STTST
       layer: test
       tags:
         - test
-      evidence_rev: 8dd107b16c72
-      line_rev: 6e1fea477c17
+      evidence_rev: 624974293c61
+      line_rev: 99b6d5df70d9
     - id: internal/web/server.feature
       kind: feature
       rev: fe0b35e9322c

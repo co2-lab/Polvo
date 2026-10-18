@@ -43,3 +43,9 @@ Feature: Remote
     Given uma instalação onde o agente "a" tem o trabalho "migrar" com o passo "ler" em curso
     When a janela pede o progresso sem versões, e pergunta ao agente "onde vais?"
     Then esta máquina tem o agente com o trabalho e o passo, e a pergunta tem um id
+
+  @RMTEC-B06 @unit-level
+  Scenario: A rede e o emparelhamento
+    Given duas instalações, a primeira a escutar, que não se conhecem
+    When a segunda procura na rede, começa a emparelhar com a primeira, e dá o código que a primeira mostra
+    Then a procura responde, a primeira mostra o pedido, e a segunda passa a ter a primeira nas máquinas

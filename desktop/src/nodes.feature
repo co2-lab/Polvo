@@ -2,7 +2,7 @@
 # @anchors
 #   code: MQFST
 #   ref: MQNAS
-#   updated_at: 2026-10-17
+#   updated_at: 2026-10-18
 #   layer: feature
 
 @MQNAS
@@ -55,3 +55,27 @@ Feature: Nodes
     Given a aba
     When o utilizador junta um endereço onde ninguém escuta
     Then a mensagem diz porquê, e só há esta máquina
+
+  @MQNAS-B07 @unit-level
+  Scenario: As máquinas da rede
+    Given a aba, e a procura deu uma máquina desconhecida e uma conhecida que não está nas máquinas
+    When a aba se mostra
+    Then a primeira tem o botão de emparelhar, e a segunda o de juntar
+
+  @MQNAS-B08 @unit-level
+  Scenario: Emparelhar
+    Given a aba, e a procura deu outra instalação que não conhece esta
+    When o utilizador carrega em emparelhar, escreve o código que a outra mostra, e confirma
+    Then a outra passa a estar nas máquinas
+
+  @MQNAS-B09 @unit-level
+  Scenario: Os pedidos de emparelhamento desta máquina
+    Given a aba de uma instalação a escutar
+    When outra instalação começa a emparelhar com ela, e passa um segundo
+    Then a aba mostra o pedido com o código
+
+  @MQNAS-E03 @unit-level
+  Scenario: Um código errado
+    Given a aba a emparelhar com outra instalação
+    When o utilizador confirma um código errado
+    Then a mensagem diz porquê, e as máquinas ficam como estavam

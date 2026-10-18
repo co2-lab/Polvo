@@ -50,6 +50,12 @@ O `progress_all` dá o progresso dos agentes de todas as máquinas (`MachineProg
 um), assim que alguma mudou desde as versões que
 a janela tem, ou quando passa o prazo; o `ask` pergunta a um agente de uma máquina e dá o id da pergunta.
 
+### RMTEC-B06 — A rede e o emparelhamento
+O `discover` dá as máquinas que se anunciam na rede (`NetMachine`, com se já são conhecidas); o `pairings`
+dá os pedidos de emparelhamento que esta máquina mostra (`PairingRequest`, com o código); o `pair_start`
+começa a emparelhar com a máquina de um endereço, o `pair_code` dá-lhe o código lido nela e espera pelo
+fim, e o `pair_cancel` desiste.
+
 ## Domain
 
 | Input | Accepts | Outside the domain | Who guarantees |
@@ -77,8 +83,11 @@ a janela tem, ou quando passa o prazo; o `ask` pergunta a um agente de uma máqu
 | `RMTEC-E01` | `machine`, `id` |
 | `RMTEC-B04` | `machine` |
 | `RMTEC-B05` | `machine` |
+| `RMTEC-B06` | `machine` |
 
 ## Revisions
+
+> **RMTEC-R0003:** entra o `RMTEC-B06` (a rede e o emparelhamento), do plano ESRMS, W03.
 
 > **RMTEC-R0002:** entra o `RMTEC-B05` (o progresso dos agentes), do plano AGPRG, W04.
 

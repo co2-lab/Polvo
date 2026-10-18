@@ -3,7 +3,7 @@
 //   ref: MQNAS
 
 use super::*;
-use crate::remote::LOCAL; // @dep: RMIMP
+use crate::remote::{LOCAL, NetMachine}; // @dep: RMIMP
 use gpui_kit::test::TestWindowExt as _;
 use gpui_kit::{AnyWindowHandle, Bounds, Entity, SharedString, TestAppContext, WindowBounds, WindowOptions, point, px, size};
 use std::cell::RefCell;
@@ -170,5 +170,83 @@ scenario!(mqnas_e02_juntar_uma_maquina_que_nao_responde, "MQNAS-E02: Juntar uma 
     click(cx, &o, "join".into());
     let message = shown(cx, &o, "join-message".into()).unwrap_or_default();
     assert!(message.contains(&addr), "{message}");
+    assert_eq!(me.machines().unwrap().len(), 1);
+});
+
+/// Another installation that listens on the loopback and does not know `me`, as the network gave it.
+fn stranger() -> (tempfile::TempDir, Station, NetMachine) {
+    let (dir, st) = installation("127.0.0.1:0");
+    let addr = st.status().unwrap().listen;
+    let m = NetMachine { name: "outra".into(), addr, fingerprint: "SHA256:x".into(), known: false };
+    (dir, st, m)
+}
+
+fn found(cx: &mut TestAppContext, o: &Opened, machines: Vec<NetMachine>) {
+    o._panel.update(cx, |p, cx| p.found(machines, cx));
+    settle(cx, o);
+}
+
+/// Waits for the code a station shows.
+fn code_of(st: &Station) -> String {
+    let end = std::time::Instant::now() + std::time::Duration::from_secs(5);
+    loop {
+        if let Some(r) = st.pairings().unwrap().first() {
+            return r.code.clone();
+        }
+        assert!(std::time::Instant::now() < end, "no code shown");
+        std::thread::sleep(std::time::Duration::from_millis(20));
+    }
+}
+
+scenario!(mqnas_b07_as_maquinas_da_rede, "MQNAS-B07: As máquinas da rede", |cx| {
+    let (_d, me) = installation("");
+    let o = open(cx, &me);
+    let unknown = NetMachine { name: "nova".into(), addr: "10.0.0.1:2222".into(), fingerprint: "SHA256:n".into(), known: false };
+    let known = NetMachine { name: "velha".into(), addr: "10.0.0.2:2222".into(), fingerprint: "SHA256:v".into(), known: true };
+    found(cx, &o, vec![unknown, known]);
+    let pair = shown(cx, &o, "pair-10.0.0.1:2222".into());
+    let join = shown(cx, &o, "join-10.0.0.2:2222".into());
+    assert_eq!((pair.as_deref(), join.as_deref()), (Some("Emparelhar"), Some("Juntar")));
+});
+
+scenario!(mqnas_b08_emparelhar, "MQNAS-B08: Emparelhar", |cx| {
+    let (_d, me) = installation("");
+    let (_od, other, m) = stranger();
+    let o = open(cx, &me);
+    found(cx, &o, vec![m.clone()]);
+    click(cx, &o, format!("pair-{}", m.addr));
+    let code = code_of(&other);
+    click(cx, &o, "pair-code".into());
+    cx.update_window(o.handle, |_, window, cx| window.input(&code, cx)).unwrap();
+    click(cx, &o, "pair-confirm".into());
+    let names: Vec<String> = me.machines().unwrap().into_iter().map(|x| x.name).collect();
+    assert_eq!(names, vec![LOCAL.to_string(), m.addr]);
+});
+
+scenario!(mqnas_b09_os_pedidos_desta_maquina, "MQNAS-B09: Os pedidos de emparelhamento desta máquina", |cx| {
+    let (_d, me) = installation("127.0.0.1:0");
+    let (_od, other) = installation("");
+    let o = open(cx, &me);
+    let id = other.pair_start(&me.status().unwrap().listen).unwrap();
+    let code = code_of(&me);
+    cx.executor().advance_clock(PAIRINGS_EVERY + std::time::Duration::from_millis(100));
+    settle(cx, &o);
+    let request = shown(cx, &o, format!("request-{code}"));
+    other.pair_cancel(&id).unwrap();
+    assert!(request.is_some_and(|r| r.contains(&code)));
+});
+
+scenario!(mqnas_e03_um_codigo_errado, "MQNAS-E03: Um código errado", |cx| {
+    let (_d, me) = installation("");
+    let (_od, other, m) = stranger();
+    let o = open(cx, &me);
+    found(cx, &o, vec![m.clone()]);
+    click(cx, &o, format!("pair-{}", m.addr));
+    code_of(&other);
+    click(cx, &o, "pair-code".into());
+    cx.update_window(o.handle, |_, window, cx| window.input("000000", cx)).unwrap();
+    click(cx, &o, "pair-confirm".into());
+    let message = shown(cx, &o, "pair-message".into()).unwrap_or_default();
+    assert!(!message.is_empty());
     assert_eq!(me.machines().unwrap().len(), 1);
 });

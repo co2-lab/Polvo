@@ -25,7 +25,12 @@ O `Call` recebe `{"op": …}` e devolve o resultado em JSON:
 - `progress` (`machine`): o progresso dos agentes dela, com a versão;
 - `ask` (`machine`, `agent`, `text`): pergunta a um agente dela, e dá o id da pergunta;
 - `progress_all` (`since`, a versão que a janela tem de cada máquina, e `timeout_ms`): o progresso de
-  todas as máquinas, quando alguma mudou desde a versão dada, ou quando passa o prazo.
+  todas as máquinas, quando alguma mudou desde a versão dada, ou quando passa o prazo;
+- `discover` (`timeout_ms`): as máquinas que se anunciam na rede, cada uma com se já é conhecida;
+- `pairings`: os pedidos de emparelhamento que esta máquina mostra, com o código;
+- `pair_start` (`addr`), `pair_code` (`id`, `code`) e `pair_cancel` (`id`): emparelhar com uma máquina.
+
+A estação abre-se a anunciar-se e a procurar no mDNS da rede (o `Open`).
 
 ## Rules
 
@@ -46,6 +51,11 @@ continua.
 O `progress_all` volta logo quando alguma máquina já mudou desde a versão dada (uma que a janela ainda não
 conhece mudou sempre), e senão espera pela primeira mudança de qualquer uma, ou pelo prazo; dá todas as
 máquinas, cada uma com a versão e os agentes, ou o erro dela.
+
+### BRDGE-B05 — Emparelhar em dois passos
+O `pair_start` começa a emparelhar com a máquina do endereço e dá o id do emparelhamento logo; o
+`pair_code` dá-lhe o código que o utilizador leu na outra máquina e espera pelo fim: nada, quando emparelhou
+e a máquina se juntou, ou o erro. O `pair_cancel` desiste.
 
 ## Domain
 
@@ -72,8 +82,12 @@ máquinas, cada uma com a versão e os agentes, ou o erro dela.
 | `BRDGE-E02` | `request` |
 | `BRDGE-E03` | `request` |
 | `BRDGE-B04` | `Handle`, `request` |
+| `BRDGE-B05` | `Handle`, `request` |
 
 ## Revisions
+
+> **BRDGE-R0002:** entram a descoberta e o emparelhamento (`discover`, `pairings`, `pair_*`, e o
+> `BRDGE-B05`), do plano ESRMS, W03.
 
 > **BRDGE-R0001:** entram os pedidos do progresso dos agentes (`progress`, `ask`, `progress_all`, e o
 > `BRDGE-B04`), do plano AGPRG, W04.

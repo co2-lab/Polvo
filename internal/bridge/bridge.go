@@ -14,6 +14,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/co2-lab/polvo/internal/discovery"
 	"github.com/co2-lab/polvo/internal/hub"
 	"github.com/co2-lab/polvo/internal/pty"
 	"github.com/co2-lab/polvo/internal/sshx"
@@ -43,7 +44,12 @@ func next() Handle {
 // Open opens the station of dir, listening on listen (empty: not) with shell for new sessions, and
 // gives its number (BRDGE-B01).
 func Open(dir, listen, shell string) (Handle, error) {
-	opt := station.Options{Listen: listen}
+	return openWith(dir, listen, shell, &discovery.Options{})
+}
+
+// openWith opens the station announcing itself, and asking, where disc says.
+func openWith(dir, listen, shell string, disc *discovery.Options) (Handle, error) {
+	opt := station.Options{Listen: listen, Discovery: disc}
 	if shell != "" {
 		opt.Shell = []string{shell}
 	}
@@ -115,6 +121,7 @@ type request struct {
 	Cols    uint16   `json:"cols"`
 	Locked  bool     `json:"locked"`
 	Agent   string   `json:"agent"`
+	Code    string   `json:"code"`
 	Text    string   `json:"text"`
 	// Since is the version the window has of each machine's progress (BRDGE-B04).
 	Since     map[string]uint64 `json:"since"`
@@ -164,6 +171,26 @@ func answer(s *station.Station, r request) (any, error) {
 		return struct{}{}, s.Remove(r.Name)
 	case "progress_all":
 		return progressAll(s, r.Since, time.Duration(r.TimeoutMS)*time.Millisecond), nil
+	case "discover":
+		return discover(s, time.Duration(r.TimeoutMS)*time.Millisecond)
+	case "pairings":
+		type req struct {
+			Name        string `json:"name"`
+			Fingerprint string `json:"fingerprint"`
+			Code        string `json:"code"`
+		}
+		out := []req{}
+		for _, p := range s.Pairings() {
+			out = append(out, req{p.Name, p.Fingerprint, p.Code})
+		}
+		return map[string]any{"requests": out}, nil
+	case "pair_start":
+		return map[string]string{"id": pairStart(s, r.Addr)}, nil
+	case "pair_code":
+		return struct{}{}, pairCode(r.ID, r.Code)
+	case "pair_cancel":
+		pairCancel(r.ID)
+		return struct{}{}, nil
 	}
 	switch r.Op {
 	case "sessions", "new", "close", "lock", "progress", "ask":
@@ -352,4 +379,95 @@ func progressAll(s *station.Station, since map[string]uint64, d time.Duration) m
 	case <-time.After(d):
 	}
 	return map[string]any{"machines": readAll(s)}
+}
+
+func discover(s *station.Station, d time.Duration) (any, error) {
+	found, err := s.Discover(d)
+	if err != nil {
+		return nil, err
+	}
+	type m struct {
+		Instance    string `json:"instance"`
+		Name        string `json:"name"`
+		Addr        string `json:"addr"`
+		Fingerprint string `json:"fingerprint"`
+		Known       bool   `json:"known"`
+	}
+	out := []m{}
+	for _, f := range found {
+		out = append(out, m{f.Instance, f.Name, f.Addr, f.Fingerprint, f.Known})
+	}
+	return map[string]any{"machines": out}, nil
+}
+
+// pairingRun is a pairing waiting for the code the user reads on the other machine (BRDGE-B05).
+type pairingRun struct {
+	code   chan string
+	cancel chan struct{}
+	done   chan error
+}
+
+var (
+	pairMu   sync.Mutex
+	pairLast int
+	pairs    = map[string]*pairingRun{}
+)
+
+// pairStart begins pairing with the machine at addr, and gives the pairing's id (BRDGE-B05).
+func pairStart(s *station.Station, addr string) string {
+	p := &pairingRun{code: make(chan string, 1), cancel: make(chan struct{}), done: make(chan error, 1)}
+	pairMu.Lock()
+	pairLast++
+	id := fmt.Sprintf("pair-%d", pairLast)
+	pairs[id] = p
+	pairMu.Unlock()
+	go func() {
+		p.done <- s.Pair(addr, func() (string, error) {
+			select {
+			case c := <-p.code:
+				return c, nil
+			case <-p.cancel:
+				return "", errors.New("bridge: the pairing was cancelled")
+			}
+		})
+	}()
+	return id
+}
+
+func pairingOf(id string) (*pairingRun, error) {
+	pairMu.Lock()
+	defer pairMu.Unlock()
+	p := pairs[id]
+	if p == nil {
+		return nil, fmt.Errorf("bridge: no pairing %s", id)
+	}
+	return p, nil
+}
+
+// pairCode gives the pairing the code and waits for its end (BRDGE-B05).
+func pairCode(id, code string) error {
+	p, err := pairingOf(id)
+	if err != nil {
+		return err
+	}
+	select {
+	case p.code <- code:
+	default:
+	}
+	err = <-p.done
+	pairMu.Lock()
+	delete(pairs, id)
+	pairMu.Unlock()
+	return err
+}
+
+// pairCancel gives the pairing up (BRDGE-B05).
+func pairCancel(id string) {
+	pairMu.Lock()
+	p := pairs[id]
+	delete(pairs, id)
+	pairMu.Unlock()
+	if p != nil {
+		close(p.cancel)
+	}
 }

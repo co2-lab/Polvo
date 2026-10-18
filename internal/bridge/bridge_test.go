@@ -5,8 +5,11 @@
 package bridge
 
 import (
+	"github.com/co2-lab/polvo/internal/discovery"
+
 	"encoding/json"
 	"fmt"
+	"net"
 	"strings"
 	"testing"
 	"time"
@@ -208,6 +211,105 @@ func TestBridge_progress(t *testing.T) {
 		call(t, h, `{"op":"progress_all","timeout_ms":20000}`, &got)
 		if time.Since(began) > 10*time.Second || len(got.Machines) != 1 || got.Machines[0].Name != "local" {
 			t.Fatalf("want local at once, got %+v in %v", got, time.Since(began))
+		}
+	})
+}
+
+// openIn opens a station that listens, announced in a test group of the loopback.
+func openIn(t *testing.T, g *discovery.Options) Handle {
+	t.Helper()
+	h, err := openWith(t.TempDir(), ":0", "/bin/sh", g)
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Cleanup(func() { Close(h) })
+	return h
+}
+
+func testGroup(t *testing.T) *discovery.Options {
+	t.Helper()
+	lo, err := net.InterfaceByName("lo")
+	if err != nil {
+		t.Skip("no loopback interface")
+	}
+	free, _ := net.ListenUDP("udp4", &net.UDPAddr{IP: net.IPv4(127, 0, 0, 1)})
+	port := free.LocalAddr().(*net.UDPAddr).Port
+	free.Close()
+	return &discovery.Options{Group: &net.UDPAddr{IP: net.IPv4(224, 0, 0, 251), Port: port}, Interface: lo}
+}
+
+type shownCode struct {
+	Requests []struct {
+		Name string `json:"name"`
+		Code string `json:"code"`
+	} `json:"requests"`
+}
+
+// codeOf waits for the code the station shows.
+func codeOf(t *testing.T, h Handle) string {
+	t.Helper()
+	end := time.Now().Add(5 * time.Second)
+	for time.Now().Before(end) {
+		var s shownCode
+		call(t, h, `{"op":"pairings"}`, &s)
+		if len(s.Requests) > 0 {
+			return s.Requests[0].Code
+		}
+		time.Sleep(20 * time.Millisecond)
+	}
+	t.Fatal("no code shown")
+	return ""
+}
+
+func TestBridge_pairing(t *testing.T) {
+	t.Run("BRDGE-B05#01: Emparelhar em dois passos", func(t *testing.T) {
+		g := testGroup(t)
+		first, second := openIn(t, g), openIn(t, g)
+		var found struct {
+			Machines []struct {
+				Addr  string `json:"addr"`
+				Known bool   `json:"known"`
+			} `json:"machines"`
+		}
+		call(t, second, `{"op":"discover","timeout_ms":500}`, &found)
+		if len(found.Machines) != 1 || found.Machines[0].Known {
+			t.Fatalf("want the first, unknown; got %+v", found)
+		}
+		addr := found.Machines[0].Addr
+		var started struct {
+			ID string `json:"id"`
+		}
+		call(t, second, `{"op":"pair_start","addr":"`+addr+`"}`, &started)
+		code := codeOf(t, first)
+		call(t, second, fmt.Sprintf(`{"op":"pair_code","id":"%s","code":"%s"}`, started.ID, code), nil)
+		var ms struct {
+			Machines []struct {
+				Name string `json:"name"`
+			} `json:"machines"`
+		}
+		call(t, second, `{"op":"machines"}`, &ms)
+		if len(ms.Machines) != 2 || ms.Machines[1].Name != addr {
+			t.Fatalf("want the first among the machines, got %+v", ms)
+		}
+	})
+	t.Run("BRDGE-B05#02: Um código errado, e desistir", func(t *testing.T) {
+		g := testGroup(t)
+		first, second := openIn(t, g), openIn(t, g)
+		s, _ := stationOf(first)
+		var started struct {
+			ID string `json:"id"`
+		}
+		call(t, second, `{"op":"pair_start","addr":"`+s.ListenAddr()+`"}`, &started)
+		codeOf(t, first)
+		_, wrong := Call(second, []byte(fmt.Sprintf(`{"op":"pair_code","id":"%s","code":"000000"}`, started.ID)))
+		var again struct {
+			ID string `json:"id"`
+		}
+		call(t, second, `{"op":"pair_start","addr":"`+s.ListenAddr()+`"}`, &again)
+		call(t, second, fmt.Sprintf(`{"op":"pair_cancel","id":"%s"}`, again.ID), nil)
+		_, gone := Call(second, []byte(fmt.Sprintf(`{"op":"pair_code","id":"%s","code":"1"}`, again.ID)))
+		if wrong == nil || gone == nil {
+			t.Fatalf("want the wrong code refused and the cancelled pairing gone, got %v and %v", wrong, gone)
 		}
 	})
 }

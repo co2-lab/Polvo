@@ -1,6 +1,6 @@
 <!-- @anchors
   code: MQNAS
-  updated_at: 2026-10-17
+  updated_at: 2026-10-18
 -->
 # Nodes — a aba das máquinas e das sessões delas
 
@@ -38,6 +38,19 @@ Cada sessão desta máquina tem o botão de travar (só ver para quem se liga de
 Escrever o endereço de uma máquina e carregar em juntar junta-a; cada máquina juntada tem o botão de a
 esquecer.
 
+### MQNAS-B07 — As máquinas da rede
+O botão de procurar procura as máquinas que se anunciam na rede (`found`), e a aba mostra-as: uma que esta
+instalação não conhece tem o botão de emparelhar; uma conhecida que não está nas máquinas, o de juntar; as
+outras não têm botão.
+
+### MQNAS-B08 — Emparelhar
+Emparelhar com uma máquina começa o emparelhamento e pede o código que aparece nela; confirmar dá-lho, e
+quando acaba bem a máquina passa a estar nas máquinas; cancelar desiste.
+
+### MQNAS-B09 — Os pedidos de emparelhamento desta máquina
+A aba mostra os pedidos de emparelhamento que esta máquina recebe, com o nome de quem pede, a impressão
+digital e o código, e lê-os outra vez a cada `PAIRINGS_EVERY` enquanto vive.
+
 ## Domain
 
 | Input | Accepts | Outside the domain | Who guarantees |
@@ -50,6 +63,12 @@ esquecer.
 | --- | --- | --- |
 | `MQNAS-E01` | uma máquina juntada não responde | a máquina mostra porquê no lugar das sessões, e as outras continuam |
 | `MQNAS-E02` | juntar falha (não responde, recusa a chave) | a mensagem com o motivo, e as máquinas ficam como estavam |
+| `MQNAS-E03` | emparelhar falha (o código errado, a máquina) | a mensagem com o motivo, e as máquinas ficam como estavam |
+
+## Business Constants
+| Constant | Value | Why |
+| --- | --- | --- |
+| `PAIRINGS_EVERY` | 1 s | um pedido aparece logo; ler a lista desta máquina não custa nada |
 
 ## Rule uses
 
@@ -63,6 +82,15 @@ esquecer.
 | `MQNAS-B06` | `Station`, `addr` |
 | `MQNAS-E01` | `Station` |
 | `MQNAS-E02` | `addr` |
+| `MQNAS-B07` | `Station`, `addr` |
+| `MQNAS-B08` | `Station`, `addr` |
+| `MQNAS-B09` | `Station`, `PAIRINGS_EVERY` |
+| `MQNAS-E03` | `addr` |
+
+## Revisions
+
+> **MQNAS-R0001:** entram as máquinas da rede e o emparelhamento (`MQNAS-B07` a `MQNAS-B09`, `MQNAS-E03`),
+> do plano ESRMS, W03.
 
 ## Open Decisions
 

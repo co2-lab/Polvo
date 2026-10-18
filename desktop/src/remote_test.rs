@@ -95,3 +95,23 @@ scenario!(rmtec_b05_o_progresso_dos_agentes, "RMTEC-B05: O progresso dos agentes
     assert_eq!((agent.steps[0].title.as_str(), agent.steps[0].state.as_str(), agent.log.len()), ("ler", "doing", 1));
     assert!(!q.is_empty());
 });
+
+scenario!(rmtec_b06_a_rede_e_o_emparelhamento, "RMTEC-B06: A rede e o emparelhamento", {
+    let d1 = tempfile::tempdir().unwrap();
+    let first = Station::open(d1.path(), "127.0.0.1:0", "/bin/sh").unwrap();
+    let (_d2, second) = open();
+    let addr = first.status().unwrap().listen;
+    let found = second.discover(100);
+    let id = second.pair_start(&addr).unwrap();
+    let end = Instant::now() + Duration::from_secs(5);
+    let mut shown = first.pairings().unwrap();
+    while shown.is_empty() && Instant::now() < end {
+        std::thread::sleep(Duration::from_millis(20));
+        shown = first.pairings().unwrap();
+    }
+    second.pair_code(&id, &shown[0].code).unwrap();
+    let names: Vec<String> = second.machines().unwrap().into_iter().map(|m| m.name).collect();
+    assert!(found.is_ok());
+    assert_eq!(shown[0].fingerprint.starts_with("SHA256:"), true);
+    assert_eq!(names, vec![LOCAL.to_string(), addr]);
+});

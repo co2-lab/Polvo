@@ -61,3 +61,15 @@ Feature: Bridge
     Given uma estação
     When a janela espera sem versões
     Then a espera volta logo, com esta máquina
+
+  @BRDGE-B05#01 @unit-level
+  Scenario: Emparelhar em dois passos
+    Given duas estações a escutar no grupo de teste, que não se conhecem
+    When a segunda procura, começa a emparelhar com a primeira, e dá o código que a primeira mostra
+    Then a procura deu a primeira por conhecer, o emparelhamento acaba bem, e a primeira passa a ser uma máquina da segunda
+
+  @BRDGE-B05#02 @unit-level
+  Scenario: Um código errado, e desistir
+    Given duas estações que não se conhecem
+    When a segunda dá um código errado, e noutro emparelhamento desiste
+    Then o código errado dá o erro, e o que desistiu acaba

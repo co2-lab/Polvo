@@ -49,12 +49,29 @@ que um agente reporta pelo controlo fica lá, e volta no `Open` seguinte.
 Cada sessão desta máquina recebe no ambiente o endereço onde o nó dela a serve de dentro da máquina
 (`POLVO_NODE`), para um agente que corre nela reportar o progresso a este nó com a chave da instalação.
 
+### STATN-B08 — O nó desta máquina emparelha
+O nó desta máquina deixa uma instalação que não conhece emparelhar (`pairing`), e os pedidos que mostra
+ficam no `Pairings` (o nome, a impressão digital e o código) até acabarem, bem ou mal.
+
+### STATN-B09 — Anunciar-se na rede
+A escutar num endereço que as outras máquinas alcançam (não o loopback), o nó desta máquina anuncia-se na
+rede local (`discovery`), com o nome da máquina, a porta onde
+escuta e a impressão digital da chave dele (`HostFingerprint`); o `Close` acaba o anúncio.
+
+### STATN-B10 — Procurar as máquinas da rede
+O `Discover` dá as máquinas que se anunciam na rede, sem esta instalação, cada uma com se já é conhecida
+(`Discovered`).
+
+### STATN-B11 — Emparelhar com uma máquina
+O `Pair` emparelha esta instalação com a máquina de um endereço, pelo código que o utilizador lê nela, e
+junta-a às máquinas conhecidas.
+
 ## Domain
 
 | Input | Accepts | Outside the domain | Who guarantees |
 | --- | --- | --- | --- |
 | `dir` | a pasta da instalação (criada se não existe) | uma que não se pode criar | este módulo: o `Open` devolve o erro |
-| `Options` | o endereço onde escutar (vazio: não escuta) e a shell | um endereço ocupado | este módulo: a `Station` abre sem escutar (`STATN-E01`) |
+| `Options` | o endereço onde escutar (vazio: não escuta), a shell, o nome da máquina e onde se anuncia (o `discovery.Options`) | um endereço ocupado | este módulo: a `Station` abre sem escutar (`STATN-E01`) |
 | `addr` | máquina e porta de um nó | um nó que não responde ou recusa a chave | este módulo: o erro (`STATN-E02`) |
 
 ## Errors / Failures
@@ -81,8 +98,15 @@ Cada sessão desta máquina recebe no ambiente o endereço onde o nó dela a ser
 | `STATN-E02` | `addr` |
 | `STATN-B06` | `dir` |
 | `STATN-B07` | `dir` |
+| `STATN-B08` | `dir` |
+| `STATN-B09` | `Options` |
+| `STATN-B10` | `Options` |
+| `STATN-B11` | `addr` |
 
 ## Revisions
+
+> **STATN-R0002:** entram o emparelhamento, o anúncio e a procura na rede (`STATN-B08` a `STATN-B11`), do
+> plano ESRMS, W03.
 
 > **STATN-R0001:** entra o `STATN-B06` (o progresso dos agentes desta máquina), do plano AGPRG, W01, e o
 > `STATN-B07` (as sessões sabem onde está o nó), da W02.

@@ -161,6 +161,24 @@ fn job(v: &Value) -> AgentJob {
     }
 }
 
+/// A machine that announces itself in the network (RMTEC-B06).
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct NetMachine {
+    pub name: String,
+    pub addr: String,
+    pub fingerprint: String,
+    /// Whether this installation knows it already.
+    pub known: bool,
+}
+
+/// A pairing request this machine shows, with the code to type in the other (RMTEC-B06).
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct PairingRequest {
+    pub name: String,
+    pub fingerprint: String,
+    pub code: String,
+}
+
 /// The installation, with this machine's node (RMTEC-B01); the clones share it, and the last one closes it.
 #[derive(Clone)]
 pub struct Station {
@@ -286,6 +304,43 @@ impl Station {
     pub fn ask(&self, machine: &str, agent: &str, question: &str) -> Result<String, RemoteError> {
         let v = self.call(json!({ "op": "ask", "machine": machine, "agent": agent, "text": question }))?;
         Ok(text(&v, "id"))
+    }
+
+    /// The machines that announce themselves in the network, asked for `timeout_ms` (RMTEC-B06).
+    pub fn discover(&self, timeout_ms: u64) -> Result<Vec<NetMachine>, RemoteError> {
+        let v = self.call(json!({ "op": "discover", "timeout_ms": timeout_ms }))?;
+        Ok(items(&v["machines"])
+            .map(|m| NetMachine {
+                name: text(m, "name"),
+                addr: text(m, "addr"),
+                fingerprint: text(m, "fingerprint"),
+                known: m["known"].as_bool().unwrap_or(false),
+            })
+            .collect())
+    }
+
+    /// The pairing requests this machine shows (RMTEC-B06).
+    pub fn pairings(&self) -> Result<Vec<PairingRequest>, RemoteError> {
+        let v = self.call(json!({ "op": "pairings" }))?;
+        Ok(items(&v["requests"])
+            .map(|r| PairingRequest { name: text(r, "name"), fingerprint: text(r, "fingerprint"), code: text(r, "code") })
+            .collect())
+    }
+
+    /// Begins pairing with the machine at `addr`, and gives the pairing's id (RMTEC-B06).
+    pub fn pair_start(&self, addr: &str) -> Result<String, RemoteError> {
+        let v = self.call(json!({ "op": "pair_start", "addr": addr }))?;
+        Ok(text(&v, "id"))
+    }
+
+    /// Gives the pairing the code read on the other machine, and waits for its end (RMTEC-B06).
+    pub fn pair_code(&self, id: &str, code: &str) -> Result<(), RemoteError> {
+        self.call(json!({ "op": "pair_code", "id": id, "code": code })).map(|_| ())
+    }
+
+    /// Gives a pairing up (RMTEC-B06).
+    pub fn pair_cancel(&self, id: &str) -> Result<(), RemoteError> {
+        self.call(json!({ "op": "pair_cancel", "id": id })).map(|_| ())
     }
 
     /// A terminal of a session (RMTEC-B03).

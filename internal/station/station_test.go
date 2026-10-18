@@ -6,7 +6,9 @@ package station
 
 import (
 	"bytes"
+	"context"
 	"errors"
+	"golang.org/x/crypto/ssh"
 	"io"
 	"net"
 	"os"
@@ -15,6 +17,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/co2-lab/polvo/internal/discovery"
 	"github.com/co2-lab/polvo/internal/hub"
 	"github.com/co2-lab/polvo/internal/pty"
 	"github.com/co2-lab/polvo/internal/sshx"
@@ -297,6 +300,100 @@ func TestStation_env(t *testing.T) {
 		defer agent.Close()
 		if list, err := agent.Sessions(); err != nil || len(list) != 1 || list[0].ID != id {
 			t.Fatalf("want the session, got %+v %v", list, err)
+		}
+	})
+}
+
+// testGroup is the mDNS group on the loopback at a free port, apart from the machine's mDNS.
+func testGroup(t *testing.T) *discovery.Options {
+	t.Helper()
+	lo, err := net.InterfaceByName("lo")
+	if err != nil {
+		t.Skip("no loopback interface")
+	}
+	free, err := net.ListenUDP("udp4", &net.UDPAddr{IP: net.IPv4(127, 0, 0, 1)})
+	if err != nil {
+		t.Fatal(err)
+	}
+	port := free.LocalAddr().(*net.UDPAddr).Port
+	free.Close()
+	return &discovery.Options{Group: &net.UDPAddr{IP: net.IPv4(224, 0, 0, 251), Port: port}, Interface: lo}
+}
+
+// codeShownBy waits for the code a Station shows.
+func codeShownBy(s *Station) func() (string, error) {
+	return func() (string, error) {
+		end := time.Now().Add(5 * time.Second)
+		for time.Now().Before(end) {
+			if ps := s.Pairings(); len(ps) > 0 {
+				return ps[0].Code, nil
+			}
+			time.Sleep(10 * time.Millisecond)
+		}
+		return "", errors.New("no code shown")
+	}
+}
+
+func TestStation_pairing(t *testing.T) {
+	t.Run("STATN-B08: O nó desta máquina emparelha", func(t *testing.T) {
+		first := open(t, t.TempDir(), Options{Listen: "127.0.0.1:0", Shell: sh.Shell})
+		other := open(t, t.TempDir(), sh)
+		var shown []string
+		err := other.Pair(first.ListenAddr(), func() (string, error) {
+			code, err := codeShownBy(first)()
+			for _, p := range first.Pairings() {
+				shown = append(shown, p.Name, p.Fingerprint)
+			}
+			return code, err
+		})
+		if err != nil || len(shown) != 2 || shown[1] != ssh.FingerprintSHA256(other.PublicKey()) || len(first.Pairings()) != 0 {
+			t.Fatalf("want the request shown with the other's key, and gone after; got %v %v %v", err, shown, first.Pairings())
+		}
+	})
+	t.Run("STATN-B11: Emparelhar com uma máquina", func(t *testing.T) {
+		first := open(t, t.TempDir(), Options{Listen: "127.0.0.1:0", Shell: sh.Shell})
+		other := open(t, t.TempDir(), sh)
+		if err := other.Pair(first.ListenAddr(), codeShownBy(first)); err != nil {
+			t.Fatal(err)
+		}
+		names := names(other.Machines())
+		if _, err := nodeOf(t, other, first.ListenAddr()).Sessions(); err != nil || len(names) != 2 || names[1] != first.ListenAddr() {
+			t.Fatalf("want the first among the machines, its sessions listed; got %v %v", names, err)
+		}
+	})
+}
+
+func TestStation_discovery(t *testing.T) {
+	t.Run("STATN-B09#01: Anunciar-se na rede", func(t *testing.T) {
+		g := testGroup(t)
+		s := open(t, t.TempDir(), Options{Listen: ":0", Shell: sh.Shell, Name: "oficina", Discovery: g})
+		found, err := discovery.Browse(context.Background(), 500*time.Millisecond, *g)
+		_, port, _ := net.SplitHostPort(s.ListenAddr())
+		if err != nil || len(found) != 1 || found[0].Name != "oficina" || found[0].Fingerprint != s.HostFingerprint() || !strings.HasSuffix(found[0].Addr, ":"+port) {
+			t.Fatalf("got %+v %v", found, err)
+		}
+	})
+	t.Run("STATN-B09#02: No loopback não se anuncia", func(t *testing.T) {
+		g := testGroup(t)
+		open(t, t.TempDir(), Options{Listen: "127.0.0.1:0", Shell: sh.Shell, Name: "so-aqui", Discovery: g})
+		found, err := discovery.Browse(context.Background(), 300*time.Millisecond, *g)
+		if err != nil || len(found) != 0 {
+			t.Fatalf("want nothing announced, got %+v %v", found, err)
+		}
+	})
+	t.Run("STATN-B10: Procurar as máquinas da rede", func(t *testing.T) {
+		g := testGroup(t)
+		firstDir := t.TempDir()
+		first := open(t, firstDir, Options{Listen: ":0", Shell: sh.Shell, Name: "primeira", Discovery: g})
+		second := open(t, t.TempDir(), Options{Listen: ":0", Shell: sh.Shell, Name: "segunda", Discovery: g})
+		authorize(t, firstDir, second)
+		_, port, _ := net.SplitHostPort(first.ListenAddr())
+		if err := second.Add("127.0.0.1:" + port); err != nil {
+			t.Fatal(err)
+		}
+		found, err := second.Discover(500 * time.Millisecond)
+		if err != nil || len(found) != 1 || found[0].Name != "primeira" || !found[0].Known {
+			t.Fatalf("want only the first, known; got %+v %v", found, err)
 		}
 	})
 }
