@@ -1,6 +1,6 @@
 <!-- @anchors
   code: GLXPV
-  updated_at: 2026-10-18
+  updated_at: 2026-11-04
 -->
 # Polvo sobre o Galaxy
 
@@ -58,9 +58,13 @@ cola, que um Polvo sobre o Galaxy deitaria fora (o dono, a 2026-10-18).
   língua o faria — o `extern "C"`/`libc` do Rust, o cgo do Go, a interoperabilidade C do Zig — e o
   Galaxy implementa essas primitivas (carregar a biblioteca do sistema e chamar a função), validadas
   contra o compilador oficial de cada língua.
-- **Os dois motores, também no Rust e no Zig.** Cada parte do Polvo tem de dar o mesmo resultado nos
-  testes com o compilador oficial (`go test`, `cargo test`, `zig test`) e no Galaxy. Uma divergência é
-  uma caixa no Bavel, nunca um contorno no Polvo.
+- **Os testes correm no `galaxy test`, com os compiladores oficiais como oráculos.** O `galaxy test` corre os
+  testes de todo o Polvo, em qualquer língua e nos pontos de mistura, numa só execução: cada língua traz a
+  semântica do seu framework de teste (o `testing` do Go, o `libtest` do Rust, o `std.testing` do Zig), não a
+  sintaxe (`bavel/docs/26-poliglota-como-funciona.md` §6). O código de uma só língua dá o mesmo no compilador
+  oficial (`go test`, `cargo test`, `zig test`) e no Galaxy. Os pontos de mistura (a ponte janela↔estação, o
+  transporte↔nó) só existem no Galaxy e testam-se lá. Uma divergência é uma caixa no Bavel, nunca um contorno
+  no Polvo.
 - **O desempenho conta desde o princípio.** Uma janela a 60 imagens por segundo e um handshake de QUIC
   interpretados podem não chegar: cada fase mede o tempo no Galaxy (o interpretador e, quando existir, o
   JIT do plano de compilação), e um caso lento é uma caixa de desempenho no Bavel.
@@ -119,7 +123,8 @@ janela do Polvo inteira.
 ### GLXPV-W07 — O executável do Polvo (depends on GLXPV-W04, GLXPV-W06)
 
 O `galaxy build` faz o executável do Polvo com as três línguas e as primitivas nativas, em Linux, macOS e
-Windows; os testes de todo o Polvo passam no Galaxy como passam nos compiladores oficiais.
+Windows; os testes de todo o Polvo passam no `galaxy test`, e os de uma só língua também nos compiladores
+oficiais.
 
 ## Out of Scope
 
@@ -128,6 +133,13 @@ Windows; os testes de todo o Polvo passam no Galaxy como passam nos compiladores
 - Trocar a língua de uma camada para caber no que o Galaxy já corre (a opção B, que o dono não escolheu).
 
 ## Revisions
+
+> **GLXPV-R0003:** o dono (2026-11-04) fixou como as línguas se misturam e como se testa. A mistura é sintática:
+> um ficheiro importa um de outra língua, ou um trecho de outra língua entra no meio pelo separador `@@@`.
+> Depois do parse tudo é a mesma AST, com a semântica configurada por língua
+> (`bavel/docs/26-poliglota-como-funciona.md`). Por isso a fronteira Go↔Rust da W02 é um ponto de mistura do
+> Galaxy, não uma API C. O `galaxy test` substitui o `go test`/`cargo test`/`zig test` como executor, e estes
+> ficam como oráculos do código de uma só língua.
 
 > **GLXPV-R0002:** a W01 fez-se (o `bavel/docs/PLANO-POLVO.md`, com a sonda `tools/sondas/polvo/mede.sh`
 > do Bavel): as fases W02 a W05 ganham as caixas do Bavel de que dependem, e duas que o plano não previa
@@ -150,6 +162,7 @@ none
 
 - O Polvo corre num só processo do Galaxy (`galaxy run` em desenvolvimento, e o executável do `galaxy
   build`), com o Go, o Rust e o Zig juntos, e sem ABI C entre código nosso.
-- Os testes do Polvo passam no Galaxy e nos compiladores oficiais (`go test`, `cargo test`, `zig test`).
+- Os testes do Polvo passam no `galaxy test`, e o código de uma só língua dá o mesmo nos compiladores oficiais
+  (`go test`, `cargo test`, `zig test`), os oráculos.
 - A janela abre, espelha uma sessão de outra máquina por outra rede, e o terminal desenha a 60 imagens por
   segundo no Galaxy.
